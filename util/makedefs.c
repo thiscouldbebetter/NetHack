@@ -160,8 +160,8 @@ void do_questtxt(void);
 static const char *oldfunctionality(char);
 #endif /* OLD_MAKEDEFS_OPTIONS */
 
-extern void monst_globals_init(void);   /* monst.c */
-extern void objects_globals_init(void); /* objects.c */
+extern void monster_globals_initialize(void);   /* monst.c */
+extern void objects_globals_initialize(void); /* objects.c */
 
 static char *name_file(const char *, const char *);
 static FILE *getfp(const char *, const char *, const char *, int);
@@ -301,8 +301,8 @@ do_makedefs(char *options)
 {
     boolean more_than_one;
 
-    objects_globals_init();
-    monst_globals_init();
+    objects_globals_initialize();
+    monster_globals_initialize();
 
     /* construct the current version number */
     make_version();

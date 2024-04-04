@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /*
  *      Contains code for picking objects up, and container use.
  */
@@ -433,7 +435,7 @@ check_here(boolean picked_some)
         flush_screen(1);
         (void) look_here(ct, lhflags);
     } else {
-        read_engr_at(u.ux, u.uy);
+        read_engraving_at(u.ux, u.uy);
     }
 }
 
@@ -686,7 +688,7 @@ pickup(int what) /* should be a long */
                            || is_lava(u.ux, u.uy))) {
             if (flags.mention_decor)
                 (void) describe_decor();
-            read_engr_at(u.ux, u.uy);
+            read_engraving_at(u.ux, u.uy);
             return 0;
         }
         /* no pickup if levitating & not on air or water level */
@@ -695,7 +697,7 @@ pickup(int what) /* should be a long */
             (void) describe_decor(); /* even when !flags.mention_decor */
             if ((gm.multi && !gc.context.run) || (autopickup && !flags.pickup)
                 || (t && (uteetering_at_seen_pit(t) || uescaped_shaft(t))))
-                read_engr_at(u.ux, u.uy);
+                read_engraving_at(u.ux, u.uy);
             return 0;
         }
         /* multi && !gc.context.run means they are in the middle of some other
@@ -723,7 +725,7 @@ pickup(int what) /* should be a long */
         objchain_p = &gl.level.objects[u.ux][u.uy];
         traverse_how = BY_NEXTHERE;
     } else {
-        objchain_p = &u.ustuck->minvent;
+        objchain_p = &u.monster_stuck_to->minvent;
         traverse_how = 0; /* nobj */
     }
     /*
@@ -1106,7 +1108,7 @@ query_objlist(const char *qstr,        /* query string */
                 }
 
                 any.a_obj = curr;
-                tmpglyph = obj_to_glyph(curr, rn2_on_display_rng);
+                tmpglyph = obj_to_glyph(curr, random2_on_display_range);
                 map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
                 add_menu(win, &tmpglyphinfo, &any,
                          (qflags & USE_INVLET) ? curr->invlet
@@ -1127,13 +1129,13 @@ query_objlist(const char *qstr,        /* query string */
         any = cg.zeroany;
         if (sorted && n > 1) {
             Sprintf(buf, "%s Creatures",
-                    digests(u.ustuck->data) ? "Swallowed" : "Engulfed");
+                    digests(u.monster_stuck_to->data) ? "Swallowed" : "Engulfed");
             add_menu_heading(win, buf);
         }
         fake_hero_object = cg.zeroobj;
         fake_hero_object.quan = 1L; /* not strictly necessary... */
         any.a_obj = &fake_hero_object;
-        tmpglyph = mon_to_glyph(&gy.youmonst, rn2_on_display_rng);
+        tmpglyph = mon_to_glyph(&gy.youmonst, random2_on_display_range);
         map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
         add_menu(win, &tmpglyphinfo, &any,
                  /* fake inventory letter, no group accelerator */
@@ -1743,9 +1745,9 @@ lift_object(
 
                 obj->quan = *cnt_p;
                 Sprintf(qbuf, "%s %s ",
-                        (next_encumbr >= EXT_ENCUMBER) ? overloadpfx
-                        : (next_encumbr >= HVY_ENCUMBER) ? nearloadpfx
-                          : (next_encumbr >= MOD_ENCUMBER) ? moderateloadpfx
+                        (next_encumbr >= EXTREMELY_ENCUMBERED) ? overloadpfx
+                        : (next_encumbr >= HEAVILY_ENCUMBERED) ? nearloadpfx
+                          : (next_encumbr >= MODERATELY_ENCUMBERED) ? moderateloadpfx
                             : slightloadpfx,
                         !container ? "lifting" : "removing");
                 (void) safe_qbuf(qbuf, qbuf, ".  Continue?", obj, doname,
@@ -1935,10 +1937,10 @@ pickup_prinv(
     if (nearload == gp.pickup_encumbrance) {
         prefix = (char *) 0;
     } else {
-        prefix = (nearload >= EXT_ENCUMBER) ? overloadpfx
-                 : (nearload >= HVY_ENCUMBER) ? nearloadpfx
-                   : (nearload >= MOD_ENCUMBER) ? moderateloadpfx
-                     : (nearload >= SLT_ENCUMBER) ? slightloadpfx
+        prefix = (nearload >= EXTREMELY_ENCUMBERED) ? overloadpfx
+                 : (nearload >= HEAVILY_ENCUMBERED) ? nearloadpfx
+                   : (nearload >= MODERATELY_ENCUMBERED) ? moderateloadpfx
+                     : (nearload >= SLIGHTLY_ENCUMBERED) ? slightloadpfx
                        : (char *) 0;
         gp.pickup_encumbrance = nearload;
     }
@@ -1953,7 +1955,7 @@ pickup_prinv(
  * returns the new encumbrance value (from near_capacity()).
  */
 int
-encumber_msg(void)
+encumbered_message(void)
 {
     int newcap = near_capacity();
 
@@ -2025,7 +2027,7 @@ able_to_loot(
     struct trap *t = t_at(x, y);
 
     if (!can_reach_floor(t && is_pit(t->ttyp))) {
-        if (u.usteed && P_SKILL(P_RIDING) < P_BASIC)
+        if (u.monster_being_ridden && P_SKILL(P_RIDING) < P_BASIC)
             rider_cant_reach(); /* not skilled enough to reach */
         else
             cant_reach_floor(x, y, FALSE, TRUE);
@@ -2130,7 +2132,7 @@ do_loot_cont(
 
         You("carefully open %s...", the(xname(cobj)));
         pline("It develops a huge set of teeth and bites you!");
-        tmp = rnd(10);
+        tmp = random(10);
         losehp(Maybe_Half_Phys(tmp), "carnivorous bag", KILLED_BY_AN);
         makeknown(BAG_OF_TRICKS);
         ga.abort_looting = TRUE;
@@ -2161,7 +2163,7 @@ doloot_core(void)
     coord cc;
     boolean underfoot = TRUE;
     const char *dont_find_anything = "don't find anything";
-    struct monst *mtmp;
+    struct monster *mtmp;
     int prev_inquiry = 0;
     boolean prev_loot = FALSE;
     int num_conts = 0;
@@ -2178,9 +2180,9 @@ doloot_core(void)
         return ECMD_OK;
     }
     if (Confusion) {
-        if (rn2(6) && reverse_loot())
+        if (random_integer_between_zero_and(6) && reverse_loot())
             return ECMD_TIME;
-        if (rn2(2)) {
+        if (random_integer_between_zero_and(2)) {
             pline("Being confused, you find nothing to loot.");
             return ECMD_TIME; /* costs a turn */
         }             /* else fallthrough to normal looting */
@@ -2328,14 +2330,14 @@ staticfn boolean
 reverse_loot(void)
 {
     struct obj *goldob = 0, *coffers, *otmp, boxdummy;
-    struct monst *mon;
+    struct monster *mon;
     long contribution;
     int n, x = u.ux, y = u.uy;
 
-    if (!rn2(3)) {
+    if (!random_integer_between_zero_and(3)) {
         /* n objects: 1/(n+1) chance per object, 1/(n+1) to fall off end */
         for (n = inv_cnt(TRUE), otmp = gi.invent; otmp; --n, otmp = otmp->nobj)
-            if (!rn2(n + 1)) {
+            if (!random_integer_between_zero_and(n + 1)) {
                 prinv("You find old loot:", otmp, 0L);
                 return TRUE;
             }
@@ -2345,7 +2347,7 @@ reverse_loot(void)
     /* find a money object to mess with */
     for (goldob = gi.invent; goldob; goldob = goldob->nobj)
         if (goldob->oclass == COIN_CLASS) {
-            contribution = ((long) rnd(5) * goldob->quan + 4L) / 5L;
+            contribution = ((long) random(5) * goldob->quan + 4L) / 5L;
             if (contribution < goldob->quan)
                 goldob = splitobj(goldob, contribution);
             break;
@@ -2377,7 +2379,7 @@ reverse_loot(void)
             coffers = otmp;
 
         if (coffers) {
-            SetVoice((struct monst *) 0, 0, 80, 0);
+            SetVoice((struct monster *) 0, 0, 80, 0);
             verbalize("Thank you for your contribution to reduce the debt.");
             freeinv(goldob);
             (void) add_to_container(coffers, goldob);
@@ -2392,7 +2394,7 @@ reverse_loot(void)
             freeinv(goldob);
             add_to_minv(mon, goldob);
             pline("The exchequer accepts your contribution.");
-            if (!rn2(10))
+            if (!random_integer_between_zero_and(10))
                 levl[x][y].looted = T_LOOTED;
         } else {
             You("drop %s.", doname(goldob));
@@ -2405,7 +2407,7 @@ reverse_loot(void)
 /* loot_mon() returns amount of time passed.
  */
 int
-loot_mon(struct monst *mtmp, int *passed_info, boolean *prev_loot)
+loot_mon(struct monster *mtmp, int *passed_info, boolean *prev_loot)
 {
     int c = -1;
     int timepassed = 0;
@@ -2416,7 +2418,7 @@ loot_mon(struct monst *mtmp, int *passed_info, boolean *prev_loot)
      *  *passed_info is set to TRUE if a loot query was given.
      *  *prev_loot is set to TRUE if something was actually acquired in here.
      */
-    if (mtmp && mtmp != u.usteed && (otmp = which_armor(mtmp, W_SADDLE))) {
+    if (mtmp && mtmp != u.monster_being_ridden && (otmp = which_armor(mtmp, W_SADDLE))) {
         if (passed_info)
             *passed_info = 1;
         Sprintf(qbuf, "Do you want to remove the saddle from %s?",
@@ -2441,7 +2443,7 @@ loot_mon(struct monst *mtmp, int *passed_info, boolean *prev_loot)
             otmp = hold_another_object(otmp, "You drop %s!", doname(otmp),
                                        (const char *) 0);
             nhUse(otmp);
-            timepassed = rnd(3);
+            timepassed = random(3);
             if (prev_loot)
                 *prev_loot = TRUE;
         } else if (c == 'q') {
@@ -2471,7 +2473,7 @@ mbag_explodes(struct obj *obj, int depthin)
 
     /* odds: 1/1, 2/2, 3/4, 4/8, 5/16, 6/32, 7/64, 8/128, 9/128, 10/128,... */
     if ((Is_mbag(obj) || obj->otyp == WAN_CANCELLATION)
-        && (rn2(1 << (depthin > 7 ? 7 : depthin)) <= depthin))
+        && (random_integer_between_zero_and(1 << (depthin > 7 ? 7 : depthin)) <= depthin))
         return TRUE;
     else if (Has_contents(obj)) {
         struct obj *otmp;
@@ -2486,7 +2488,7 @@ mbag_explodes(struct obj *obj, int depthin)
 staticfn boolean
 is_boh_item_gone(void)
 {
-    return (boolean) (!rn2(13));
+    return (boolean) (!random_integer_between_zero_and(13));
 }
 
 /* Scatter most of Bag of holding contents around.  Some items will be
@@ -2758,7 +2760,7 @@ removed_from_icebox(struct obj *obj)
     if (!age_is_relative(obj)) {
         obj->age = gm.moves - obj->age; /* actual age */
         if (obj->otyp == CORPSE) {
-            struct monst *m = get_mtraits(obj, FALSE);
+            struct monster *m = get_mtraits(obj, FALSE);
             boolean iceT = m ? (m->data == &mons[PM_ICE_TROLL])
                              : (obj->corpsenm == PM_ICE_TROLL);
 
@@ -2777,7 +2779,7 @@ removed_from_icebox(struct obj *obj)
 staticfn long
 mbag_item_gone(boolean held, struct obj *item, boolean silent)
 {
-    struct monst *shkp;
+    struct monster *shkp;
     long loss = 0L;
 
     if (!silent) {
@@ -2802,9 +2804,9 @@ observe_quantum_cat(struct obj *box, boolean makecat, boolean givemsg)
 {
     static NEARDATA const char sc[] = "Schroedinger's Cat";
     struct obj *deadcat;
-    struct monst *livecat = 0;
+    struct monster *livecat = 0;
     coordxy ox, oy;
-    boolean itsalive = !rn2(2);
+    boolean itsalive = !random_integer_between_zero_and(2);
 
     if (get_obj_location(box, &ox, &oy, 0))
         box->ox = ox, box->oy = oy; /* in case it's being carried */
@@ -3788,7 +3790,7 @@ tipcontainer(struct obj *box) /* or bag */
         if (targetbox)
             targetbox->owt = weight(targetbox);
         if (srcheld || dstheld)
-            (void) encumber_msg();
+            (void) encumbered_message();
     }
 
     if (srcheld || dstheld)

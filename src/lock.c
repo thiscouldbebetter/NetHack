@@ -94,7 +94,7 @@ picklock(void)
         return ((gx.xlock.usedtime = 0));
     }
 
-    if (rn2(100) >= gx.xlock.chance)
+    if (random_integer_between_zero_and(100) >= gx.xlock.chance)
         return 1; /* still busy */
 
     /* using the Master Key of Thievery finds traps if its bless/curse
@@ -168,7 +168,7 @@ breakchestlock(struct obj *box, boolean destroyit)
         box->lknown = 1;
     } else { /* #force has destroyed this box (at <u.ux,u.uy>) */
         struct obj *otmp;
-        struct monst *shkp = (*u.ushops && costly_spot(u.ux, u.uy))
+        struct monster *shkp = (*u.ushops && costly_spot(u.ux, u.uy))
                                  ? shop_keeper(*u.ushops)
                                  : 0;
         boolean costly = (boolean) (shkp != 0),
@@ -179,7 +179,7 @@ breakchestlock(struct obj *box, boolean destroyit)
         /* Put the contents on ground at the hero's feet. */
         while ((otmp = box->cobj) != 0) {
             obj_extract_self(otmp);
-            if (!rn2(3) || otmp->oclass == POTION_CLASS) {
+            if (!random_integer_between_zero_and(3) || otmp->oclass == POTION_CLASS) {
                 chest_shatter_msg(otmp);
                 if (costly)
                     loss += stolen_value(otmp, u.ux, u.uy, peaceful_shk, TRUE);
@@ -221,7 +221,7 @@ forcelock(void)
     }
 
     if (gx.xlock.picktyp) { /* blade */
-        if (rn2(1000 - (int) uwep->spe) > (992 - greatest_erosion(uwep) * 10)
+        if (random_integer_between_zero_and(1000 - (int) uwep->spe) > (992 - greatest_erosion(uwep) * 10)
             && !uwep->cursed && !obj_resists(uwep, 0, 99)) {
             /* for a +0 weapon, probability that it survives an unsuccessful
              * attempt to force the lock is (.992)^50 = .67
@@ -236,7 +236,7 @@ forcelock(void)
     } else             /* blunt */
         wake_nearby(FALSE); /* due to hammering on the container */
 
-    if (rn2(100) >= gx.xlock.chance)
+    if (random_integer_between_zero_and(100) >= gx.xlock.chance)
         return 1; /* still busy */
 
     You("succeed in forcing the lock.");
@@ -244,7 +244,7 @@ forcelock(void)
     /* breakchestlock() might destroy gx.xlock.box; if so, gx.xlock context will
        be cleared (delobj -> obfree -> maybe_reset_pick); but it might not,
        so explicitly clear that manually */
-    breakchestlock(gx.xlock.box, (boolean) (!gx.xlock.picktyp && !rn2(3)));
+    breakchestlock(gx.xlock.box, (boolean) (!gx.xlock.picktyp && !random_integer_between_zero_and(3)));
     reset_pick(); /* lock-picking context is no longer valid */
 
     return 0;
@@ -402,7 +402,7 @@ pick_lock(
         return PICKLOCK_DID_NOTHING;
     } else if (u.uswallow) {
         You_cant("%sunlock %s.", (picktyp == CREDIT_CARD) ? "" : "lock or ",
-                 mon_nam(u.ustuck));
+                 mon_nam(u.monster_stuck_to));
         return PICKLOCK_DID_NOTHING;
     }
 
@@ -511,13 +511,13 @@ pick_lock(
                 }
                 switch (picktyp) {
                 case CREDIT_CARD:
-                    ch = ACURR(A_DEX) + 20 * Role_if(PM_ROGUE);
+                    ch = ATTRIBUTE_CURRENT(A_DEX) + 20 * Role_if(PM_ROGUE);
                     break;
                 case LOCK_PICK:
-                    ch = 4 * ACURR(A_DEX) + 25 * Role_if(PM_ROGUE);
+                    ch = 4 * ATTRIBUTE_CURRENT(A_DEX) + 25 * Role_if(PM_ROGUE);
                     break;
                 case SKELETON_KEY:
-                    ch = 75 + ACURR(A_DEX);
+                    ch = 75 + ATTRIBUTE_CURRENT(A_DEX);
                     break;
                 default:
                     ch = 0;
@@ -538,7 +538,7 @@ pick_lock(
 
     /* not the hero's location; pick the lock in an adjacent door */
     } else {
-        struct monst *mtmp;
+        struct monster *mtmp;
 
         if (u.utrap && u.utraptype == TT_PIT) {
             You_cant("reach over the edge of the pit.");
@@ -623,13 +623,13 @@ pick_lock(
 
             switch (picktyp) {
             case CREDIT_CARD:
-                ch = 2 * ACURR(A_DEX) + 20 * Role_if(PM_ROGUE);
+                ch = 2 * ATTRIBUTE_CURRENT(A_DEX) + 20 * Role_if(PM_ROGUE);
                 break;
             case LOCK_PICK:
-                ch = 3 * ACURR(A_DEX) + 30 * Role_if(PM_ROGUE);
+                ch = 3 * ATTRIBUTE_CURRENT(A_DEX) + 30 * Role_if(PM_ROGUE);
                 break;
             case SKELETON_KEY:
-                ch = 70 + ACURR(A_DEX);
+                ch = 70 + ATTRIBUTE_CURRENT(A_DEX);
                 break;
             default:
                 ch = 0;
@@ -747,7 +747,7 @@ doforce(void)
 boolean
 stumble_on_door_mimic(coordxy x, coordxy y)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if ((mtmp = m_at(x, y)) && is_door_mappear(mtmp)
         && !Protection_from_shape_changers) {
@@ -870,7 +870,7 @@ doopen_indir(coordxy x, coordxy y)
                 && (unlocktool = autokey(TRUE)) != 0) {
                 res = pick_lock(unlocktool, cc.x, cc.y,
                                 (struct obj *) 0) ? ECMD_TIME : ECMD_OK;
-            } else if (!u.usteed
+            } else if (!u.monster_being_ridden
                        && (flags.autounlock & AUTOUNLOCK_KICK) != 0
                        && ynq("Kick it?") == 'y') {
                 cmdq_add_ec(CQ_CANNED, dokick);
@@ -887,7 +887,7 @@ doopen_indir(coordxy x, coordxy y)
     }
 
     /* door is known to be CLOSED */
-    if (rnl(20) < (ACURRSTR + ACURR(A_DEX) + ACURR(A_CON)) / 3) {
+    if (rnl(20) < (ATTRIBUTE_CURRENT_STRENGTH + ATTRIBUTE_CURRENT(A_DEX) + ATTRIBUTE_CURRENT(A_CON)) / 3) {
         set_msg_xy(cc.x, cc.y);
         pline_The("door opens.");
         if (door->doormask & D_TRAPPED) {
@@ -911,7 +911,7 @@ doopen_indir(coordxy x, coordxy y)
 staticfn boolean
 obstructed(coordxy x, coordxy y, boolean quietly)
 {
-    struct monst *mtmp = m_at(x, y);
+    struct monster *mtmp = m_at(x, y);
 
     if (mtmp && M_AP_TYPE(mtmp) != M_AP_FURNITURE) {
         if (M_AP_TYPE(mtmp) == M_AP_OBJECT)
@@ -1016,12 +1016,12 @@ doclose(void)
     }
 
     if (door->doormask == D_ISOPEN) {
-        if (verysmall(gy.youmonst.data) && !u.usteed) {
+        if (verysmall(gy.youmonst.data) && !u.monster_being_ridden) {
             pline("You're too small to push the door closed.");
             return res;
         }
-        if (u.usteed
-            || rn2(25) < (ACURRSTR + ACURR(A_DEX) + ACURR(A_CON)) / 3) {
+        if (u.monster_being_ridden
+            || random_integer_between_zero_and(25) < (ATTRIBUTE_CURRENT_STRENGTH + ATTRIBUTE_CURRENT(A_DEX) + ATTRIBUTE_CURRENT(A_CON)) / 3) {
             pline_The("door closes.");
             door->doormask = D_CLOSED;
             feel_newsym(x, y); /* the hero knows she closed it */
@@ -1190,7 +1190,7 @@ doorlock(struct obj *otmp, coordxy x, coordxy y)
             boolean sawit, seeit;
 
             if (door->doormask & D_TRAPPED) {
-                struct monst *mtmp = m_at(x, y);
+                struct monster *mtmp = m_at(x, y);
 
                 sawit = mtmp ? canseemon(mtmp) : cansee(x, y);
                 door->doormask = D_NODOOR;

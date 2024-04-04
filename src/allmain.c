@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /* various code that was replicated in *main.c */
 
 #include "hack.h"
@@ -13,7 +15,7 @@
 #endif
 
 staticfn void moveloop_preamble(boolean);
-staticfn void u_calc_moveamt(int);
+staticfn void player_calculate_movement_amount(int);
 staticfn void maybe_do_tutorial(void);
 #ifdef POSITIONBAR
 staticfn void do_positionbar(void);
@@ -34,29 +36,29 @@ staticfn void dump_enums(void);
 
 /*ARGSUSED*/
 void
-early_init(int argc USED_FOR_CRASHREPORT, char *argv[] USED_FOR_CRASHREPORT)
+early_init(int argc USED_FOR_CRASHREPORT, char* argv[] USED_FOR_CRASHREPORT)
 {
 #ifdef CRASHREPORT
     /* Do this as early as possible, but let ports do other things first. */
     crashreport_init(argc, argv);
 #endif
-    decl_globals_init();
-    objects_globals_init();
-    monst_globals_init();
-    sys_early_init();
-    runtime_info_init();
+    declare_globals_initialize();
+    objects_globals_initialize();
+    monster_globals_initialize();
+    system_early_initialize();
+    runtime_info_initialize();
 }
 
 staticfn void
 moveloop_preamble(boolean resuming)
 {
-    /* if a save file created in normal mode is now being restored in
+    /* If a save file created in normal mode is now being restored in
        explore mode, treat it as normal restore followed by 'X' command
-       to use up the save file and require confirmation for explore mode */
+       to use up the save file and require confirmation for explore mode. */
     if (resuming && iflags.deferred_X)
         (void) enter_explore_mode();
 
-    /* side-effects from the real world */
+    /* Side-effects from the real world. */
     flags.moonphase = phase_of_the_moon();
     if (flags.moonphase == FULL_MOON) {
         You("are lucky!  Full moon tonight.");
@@ -72,26 +74,26 @@ moveloop_preamble(boolean resuming)
 
     if (!resuming) { /* new game */
         gp.program_state.beyond_savefile_load = 1; /* for TTY_PERM_INVENT */
-        gc.context.rndencode = rnd(9000);
+        gc.context.rndencode = random(9000);
         set_wear((struct obj *) 0); /* for side-effects of starting gear */
         reset_justpicked(gi.invent);
         (void) pickup(1);      /* autopickup at initial location */
-        /* only matters if someday a character is able to start with
+        /* Only matters if someday a character is able to start with
            clairvoyance (wizard with cornuthaum perhaps?); without this,
-           first "random" occurrence would always kick in on turn 1 */
-        gc.context.seer_turn = (long) rnd(30);
+           first "random" occurrence would always kick in on turn 1. */
+        gc.context.seer_turn = (long) random(30);
         /* give hero initial movement points; new game only--for restore,
            pending movement points were included in the save file */
-        u.umovement = NORMAL_SPEED;
+        u.movement = NORMAL_SPEED;
         initrack();
     }
     disp.botlx = TRUE; /* for STATUS_HILITES */
     if (resuming) { /* restoring old game */
-        read_engr_at(u.ux, u.uy); /* subset of pickup() */
+        read_engraving_at(u.ux, u.uy); /* subset of pickup() */
         fix_shop_damage();
     }
 
-    (void) encumber_msg(); /* in case they auto-picked up something */
+    (void) encumbered_message(); /* in case they auto-picked up something */
     if (gd.defer_see_monsters) {
         gd.defer_see_monsters = FALSE;
         see_monsters();
@@ -108,24 +110,24 @@ moveloop_preamble(boolean resuming)
 }
 
 staticfn void
-u_calc_moveamt(int wtcap)
+player_calculate_movement_amount(int wtcap)
 {
     int moveamt = 0;
 
     /* calculate how much time passed. */
-    if (u.usteed && u.umoved) {
+    if (u.monster_being_ridden && u.umoved) {
         /* your speed doesn't augment steed's speed */
-        moveamt = mcalcmove(u.usteed, TRUE);
+        moveamt = mcalcmove(u.monster_being_ridden, TRUE);
     } else {
         moveamt = gy.youmonst.data->mmove;
 
         if (Very_fast) { /* speed boots, potion, or spell */
             /* gain a free action on 2/3 of turns */
-            if (rn2(3) != 0)
+            if (random_integer_between_zero_and(3) != 0)
                 moveamt += NORMAL_SPEED;
         } else if (Fast) { /* intrinsic */
             /* gain a free action on 1/3 of turns */
-            if (rn2(3) == 0)
+            if (random_integer_between_zero_and(3) == 0)
                 moveamt += NORMAL_SPEED;
         }
     }
@@ -133,25 +135,25 @@ u_calc_moveamt(int wtcap)
     switch (wtcap) {
     case UNENCUMBERED:
         break;
-    case SLT_ENCUMBER:
+    case SLIGHTLY_ENCUMBERED:
         moveamt -= (moveamt / 4);
         break;
-    case MOD_ENCUMBER:
+    case MODERATELY_ENCUMBERED:
         moveamt -= (moveamt / 2);
         break;
-    case HVY_ENCUMBER:
+    case HEAVILY_ENCUMBERED:
         moveamt -= ((moveamt * 3) / 4);
         break;
-    case EXT_ENCUMBER:
+    case EXTREMELY_ENCUMBERED:
         moveamt -= ((moveamt * 7) / 8);
         break;
     default:
         break;
     }
 
-    u.umovement += moveamt;
-    if (u.umovement < 0)
-        u.umovement = 0;
+    u.movement += moveamt;
+    if (u.movement < 0)
+        u.movement = 0;
 }
 
 #if defined(MICRO) || defined(WIN32)
@@ -163,7 +165,7 @@ static int mvl_change = 0;
 void
 moveloop_core(void)
 {
-    boolean monscanmove = FALSE;
+    boolean monster_can_move = FALSE;
 
 #ifdef SAFERHANGUP
     if (gp.program_state.done_hup)
@@ -182,22 +184,22 @@ moveloop_core(void)
 
     if (gc.context.move) {
         /* actual time passed */
-        u.umovement -= NORMAL_SPEED;
+        u.movement -= NORMAL_SPEED;
 
         do { /* hero can't move this turn loop */
-            mvl_wtcap = encumber_msg();
+            mvl_wtcap = encumbered_message();
 
             gc.context.mon_moving = TRUE;
             do {
-                monscanmove = movemon();
-                if (u.umovement >= NORMAL_SPEED)
+                monster_can_move = movemon();
+                if (u.movement >= NORMAL_SPEED)
                     break; /* it's now your turn */
-            } while (monscanmove);
+            } while (monster_can_move);
             gc.context.mon_moving = FALSE;
 
-            if (!monscanmove && u.umovement < NORMAL_SPEED) {
+            if (!monster_can_move && u.movement < NORMAL_SPEED) {
                 /* both hero and monsters are out of steam this round */
-                struct monst *mtmp;
+                struct monster *mtmp;
 
                 /* set up for a new turn */
                 mcalcdistress(); /* adjust monsters' trap, blind, etc */
@@ -211,13 +213,13 @@ moveloop_core(void)
                 /* occasionally add another monster; since this takes
                    place after movement has been allotted, the new
                    monster effectively loses its first turn */
-                if (!rn2(u.uevent.udemigod ? 25
+                if (!random_integer_between_zero_and(u.player_event_history.udemigod ? 25
                          : (depth(&u.uz) > depth(&stronghold_level)) ? 50
                          : 70))
                     (void) makemon((struct permonst *) 0, 0, 0,
                                    NO_MM_FLAGS);
 
-                u_calc_moveamt(mvl_wtcap);
+                player_calculate_movement_amount(mvl_wtcap);
                 settrack();
 
                 gm.moves++;
@@ -252,8 +254,8 @@ moveloop_core(void)
                 nh_timeout();
                 run_regions();
 
-                if (u.ublesscnt)
-                    u.ublesscnt--;
+                if (u.blessing_duration)
+                    u.blessing_duration--;
 
                 /* One possible result of prayer is healing.  Whether or
                  * not you get healed depends on your current hit points.
@@ -266,7 +268,7 @@ moveloop_core(void)
                 if (u.uinvulnerable) {
                     /* for the moment at least, you're in tiptop shape */
                     mvl_wtcap = UNENCUMBERED;
-                } else if (!Upolyd ? (u.uhp < u.uhpmax)
+                } else if (!Upolyd ? (u.hit_points < u.hit_points_max)
                            : (u.mh < u.mhmax
                               || gy.youmonst.data->mlet == S_EEL)) {
                     /* maybe heal */
@@ -274,8 +276,8 @@ moveloop_core(void)
                 }
 
                 /* moving around while encumbered is hard work */
-                if (mvl_wtcap > MOD_ENCUMBER && u.umoved) {
-                    if (!(mvl_wtcap < EXT_ENCUMBER ? gm.moves % 30
+                if (mvl_wtcap > MODERATELY_ENCUMBERED && u.umoved) {
+                    if (!(mvl_wtcap < EXTREMELY_ENCUMBERED ? gm.moves % 30
                           : gm.moves % 10)) {
                         overexert_hp();
                     }
@@ -284,7 +286,7 @@ moveloop_core(void)
                 regen_pw(mvl_wtcap);
 
                 if (!u.uinvulnerable) {
-                    if (Teleportation && !rn2(85)) {
+                    if (Teleportation && !random_integer_between_zero_and(85)) {
                         coordxy old_ux = u.ux, old_uy = u.uy;
 
                         tele();
@@ -301,10 +303,10 @@ moveloop_core(void)
                     if ((mvl_change == 1 && !Polymorph)
                         || (mvl_change == 2 && u.ulycn == NON_PM))
                         mvl_change = 0;
-                    if (Polymorph && !rn2(100))
+                    if (Polymorph && !random_integer_between_zero_and(100))
                         mvl_change = 1;
                     else if (ismnum(u.ulycn) && !Upolyd
-                             && !rn2(80 - (20 * night())))
+                             && !random_integer_between_zero_and(80 - (20 * night())))
                         mvl_change = 2;
                     if (mvl_change && !Unchanging) {
                         if (gm.multi >= 0) {
@@ -329,16 +331,16 @@ moveloop_core(void)
                 age_spells();
                 exerchk();
                 invault();
-                if (u.uhave.amulet)
+                if (u.player_carrying_special_objects.amulet)
                     amulet();
-                if (!rn2(40 + (int) (ACURR(A_DEX) * 3)))
-                    u_wipe_engr(rnd(3));
-                if (u.uevent.udemigod && !u.uinvulnerable) {
-                    if (u.udg_cnt)
-                        u.udg_cnt--;
-                    if (!u.udg_cnt) {
+                if (!random_integer_between_zero_and(40 + (int) (ATTRIBUTE_CURRENT(A_DEX) * 3)))
+                    u_wipe_engr(random(3));
+                if (u.player_event_history.udemigod && !u.uinvulnerable) {
+                    if (u.turnsAsDemigodSoFar)
+                        u.turnsAsDemigodSoFar--;
+                    if (!u.turnsAsDemigodSoFar) {
                         intervene();
-                        u.udg_cnt = rn1(200, 50);
+                        u.turnsAsDemigodSoFar = rn1(200, 50);
                     }
                 }
 /* XXX This should be recoded to use something like regions - a list of
@@ -361,7 +363,7 @@ moveloop_core(void)
                     }
                 }
             }
-        } while (u.umovement < NORMAL_SPEED); /* hero can't move */
+        } while (u.movement < NORMAL_SPEED); /* hero can't move */
 
         /******************************************/
         /* once-per-hero-took-time things go here */
@@ -374,14 +376,14 @@ moveloop_core(void)
            inventory may have changed in, e.g., nh_timeout(); we do
            need two checks here so that the player gets feedback
            immediately if their own action encumbered them */
-        (void) encumber_msg();
+        (void) encumbered_message();
 
 #ifdef STATUS_HILITES
         if (iflags.hilite_delta)
             status_eval_next_unhilite();
 #endif
         if (gm.moves >= gc.context.seer_turn) {
-            if ((u.uhave.amulet || Clairvoyant) && !In_endgame(&u.uz)
+            if ((u.player_carrying_special_objects.amulet || Clairvoyant) && !In_endgame(&u.uz)
                 && !BClairvoyant)
                 do_vicinity_map((struct obj *) 0);
             /* we maintain this counter even when clairvoyance isn't
@@ -558,23 +560,23 @@ moveloop(boolean resuming)
 staticfn void
 regen_pw(int wtcap)
 {
-    if (u.uen < u.uenmax
-        && ((wtcap < MOD_ENCUMBER
+    if (u.energy < u.energy_max
+        && ((wtcap < MODERATELY_ENCUMBERED
              && (!(gm.moves % ((MAXULEV + 8 - u.ulevel)
                               * (Role_if(PM_WIZARD) ? 3 : 4)
                               / 6)))) || Energy_regeneration)) {
-        int upper = (int) (ACURR(A_WIS) + ACURR(A_INT)) / 15 + 1;
+        int upper = (int) (ATTRIBUTE_CURRENT(A_WIS) + ATTRIBUTE_CURRENT(A_INT)) / 15 + 1;
 
-        u.uen += rn1(upper, 1);
-        if (u.uen > u.uenmax)
-            u.uen = u.uenmax;
+        u.energy += rn1(upper, 1);
+        if (u.energy > u.energy_max)
+            u.energy = u.energy_max;
         disp.botl = TRUE;
-        if (u.uen == u.uenmax)
+        if (u.energy == u.energy_max)
             interrupt_multi("You feel full of energy.");
     }
 }
 
-#define U_CAN_REGEN() (Regeneration || (Sleepy && u.usleep))
+#define U_CAN_REGEN() (Regeneration || (Sleepy && u.sleeping_move_last_started))
 
 /* maybe recover some lost health (or lose some when an eel out of water) */
 staticfn void
@@ -582,7 +584,7 @@ regen_hp(int wtcap)
 {
     int heal = 0;
     boolean reached_full = FALSE,
-            encumbrance_ok = (wtcap < MOD_ENCUMBER || !u.umoved);
+            encumbrance_ok = (wtcap < MODERATELY_ENCUMBERED || !u.umoved);
 
     if (Upolyd) {
         if (u.mh < 1) { /* shouldn't happen... */
@@ -592,7 +594,7 @@ regen_hp(int wtcap)
                    && !Breathless) {
             /* eel out of water loses hp, similar to monster eels;
                as hp gets lower, rate of further loss slows down */
-            if (u.mh > 1 && !Regeneration && rn2(u.mh) > rn2(8)
+            if (u.mh > 1 && !Regeneration && random_integer_between_zero_and(u.mh) > random_integer_between_zero_and(8)
                 && (!Half_physical_damage || !(gm.moves % 2L)))
                 heal = -1;
         } else if (u.mh < u.mhmax) {
@@ -611,21 +613,21 @@ regen_hp(int wtcap)
            no !Upolyd check here, so poly'd hero recovered lost u.uhp
            once u.mh reached u.mhmax; that may have been convenient
            for the player, but it didn't make sense for gameplay...] */
-        if (u.uhp < u.uhpmax && (encumbrance_ok || U_CAN_REGEN())) {
-            heal = (u.ulevel + (int)ACURR(A_CON)) > rn2(100);
+        if (u.hit_points < u.hit_points_max && (encumbrance_ok || U_CAN_REGEN())) {
+            heal = (u.ulevel + (int)ATTRIBUTE_CURRENT(A_CON)) > random_integer_between_zero_and(100);
 
             if (U_CAN_REGEN())
                 heal += 1;
-            if (Sleepy && u.usleep)
+            if (Sleepy && u.sleeping_move_last_started)
                 heal++;
 
             if (heal) {
                 disp.botl = TRUE;
-                u.uhp += heal;
-                if (u.uhp > u.uhpmax)
-                    u.uhp = u.uhpmax;
+                u.hit_points += heal;
+                if (u.hit_points > u.hit_points_max)
+                    u.hit_points = u.hit_points_max;
                 /* stop voluntary multi-turn activity if now fully healed */
-                reached_full = (u.uhp == u.uhpmax);
+                reached_full = (u.hit_points == u.hit_points_max);
             }
         }
     }
@@ -817,12 +819,12 @@ welcome(boolean new_game) /* false => restoring an old game */
                 ? (gu.urole.allow & ROLE_GENDMASK) == (ROLE_MALE | ROLE_FEMALE)
                 : currentgend != flags.initgend))
         Sprintf(eos(buf), " %s", genders[currentgend].adj);
-    Sprintf(eos(buf), " %s %s", gu.urace.adj,
+    Sprintf(eos(buf), " %s %s", gu.urace.adjective,
             (currentgend && gu.urole.name.f) ? gu.urole.name.f : gu.urole.name.m);
 
     pline(new_game ? "%s %s, welcome to NetHack!  You are a%s."
                    : "%s %s, the%s, welcome back to NetHack!",
-          Hello((struct monst *) 0), gp.plname, buf);
+          Hello((struct monster *) 0), gp.plname, buf);
 
     if (new_game) {
         /* guarantee that 'major' event category is never empty */

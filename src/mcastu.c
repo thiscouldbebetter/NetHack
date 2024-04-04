@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 /* monster mage spells */
@@ -35,18 +37,18 @@ enum mcast_cleric_spells {
     CLC_GEYSER
 };
 
-staticfn void cursetxt(struct monst *, boolean);
+staticfn void cursetxt(struct monster *, boolean);
 staticfn int choose_magic_spell(int);
 staticfn int choose_clerical_spell(int);
-staticfn int m_cure_self(struct monst *, int);
-staticfn void cast_wizard_spell(struct monst *, int, int);
-staticfn void cast_cleric_spell(struct monst *, int, int);
+staticfn int m_cure_self(struct monster *, int);
+staticfn void cast_wizard_spell(struct monster *, int, int);
+staticfn void cast_cleric_spell(struct monster *, int, int);
 staticfn boolean is_undirected_spell(unsigned int, int);
-staticfn boolean spell_would_be_useless(struct monst *, unsigned int, int);
+staticfn boolean spell_would_be_useless(struct monster *, unsigned int, int);
 
 /* feedback when frustrated monster couldn't cast a spell */
 staticfn void
-cursetxt(struct monst *mtmp, boolean undirected)
+cursetxt(struct monster *mtmp, boolean undirected)
 {
     if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)) {
         const char *point_msg; /* spellcasting monsters are impolite */
@@ -65,7 +67,7 @@ cursetxt(struct monst *mtmp, boolean undirected)
 
         pline_xy(mtmp->mx, mtmp->my,
                  "%s points %s.", Monnam(mtmp), point_msg);
-    } else if ((!(gm.moves % 4) || !rn2(4))) {
+    } else if ((!(gm.moves % 4) || !random_integer_between_zero_and(4))) {
         if (!Deaf)
             Norep("You hear a mumbled curse.");   /* Deaf-aware */
     }
@@ -77,8 +79,8 @@ staticfn int
 choose_magic_spell(int spellval)
 {
     /* for 3.4.3 and earlier, val greater than 22 selected default spell */
-    while (spellval > 24 && rn2(25))
-        spellval = rn2(spellval);
+    while (spellval > 24 && random_integer_between_zero_and(25))
+        spellval = random_integer_between_zero_and(spellval);
 
     switch (spellval) {
     case 24:
@@ -131,13 +133,13 @@ choose_clerical_spell(int spellnum)
 {
     /* for 3.4.3 and earlier, num greater than 13 selected the default spell
      */
-    while (spellnum > 15 && rn2(16))
-        spellnum = rn2(spellnum);
+    while (spellnum > 15 && random_integer_between_zero_and(16))
+        spellnum = random_integer_between_zero_and(spellnum);
 
     switch (spellnum) {
     case 15:
     case 14:
-        if (rn2(3))
+        if (random_integer_between_zero_and(3))
             return CLC_OPEN_WOUNDS;
         /*FALLTHRU*/
     case 13:
@@ -174,7 +176,7 @@ choose_clerical_spell(int spellnum)
  */
 int
 castmu(
-    struct monst *mtmp,   /* caster */
+    struct monster *mtmp,   /* caster */
     struct attack *mattk, /* caster's current attack */
     boolean thinks_it_foundyou,    /* might be mistaken if displaced */
     boolean foundyou)              /* knows hero's precise location */
@@ -199,7 +201,7 @@ castmu(
         int cnt = 40;
 
         do {
-            spellnum = rn2(ml);
+            spellnum = random_integer_between_zero_and(ml);
             if (mattk->adtyp == AD_SPEL)
                 spellnum = choose_magic_spell(spellnum);
             else
@@ -253,7 +255,7 @@ castmu(
     }
 
     nomul(0);
-    if (rn2(ml * 10) < (mtmp->mconf ? 100 : 20)) { /* fumbled attack */
+    if (random_integer_between_zero_and(ml * 10) < (mtmp->mconf ? 100 : 20)) { /* fumbled attack */
         Soundeffect(se_air_crackles, 60);
         if (canseemon(mtmp) && !Deaf) {
             set_msg_xy(mtmp->mx, mtmp->my);
@@ -358,7 +360,7 @@ castmu(
 }
 
 staticfn int
-m_cure_self(struct monst *mtmp, int dmg)
+m_cure_self(struct monster *mtmp, int dmg)
 {
     if (mtmp->mhp < mtmp->mhpmax) {
         if (canseemon(mtmp))
@@ -374,7 +376,7 @@ m_cure_self(struct monst *mtmp, int dmg)
 /* unlike the finger of death spell which behaves like a wand of death,
    this monster spell only attacks the hero */
 void
-touch_of_death(struct monst *mtmp)
+touch_of_death(struct monster *mtmp)
 {
     char kbuf[BUFSZ];
     int dmg = 50 + d(8, 6);
@@ -388,12 +390,12 @@ touch_of_death(struct monst *mtmp)
     if (Upolyd) {
         u.mh = 0;
         rehumanize(); /* fatal iff Unchanging */
-    } else if (drain >= u.uhpmax) {
+    } else if (drain >= u.hit_points_max) {
         gk.killer.format = KILLED_BY;
         Strcpy(gk.killer.name, kbuf);
         done(DIED);
     } else {
-        u.uhpmax -= drain;
+        u.hit_points_max -= drain;
         losehp(dmg, kbuf, KILLED_BY);
     }
     gk.killer.name[0] = '\0'; /* not killed if we get here... */
@@ -404,7 +406,7 @@ char *
 death_inflicted_by(
     char *outbuf,            /* assumed big enough; pm_names are short */
     const char *deathreason, /* cause of death */
-    struct monst *mtmp)      /* monster who caused it */
+    struct monster *mtmp)      /* monster who caused it */
 {
     Strcpy(outbuf, deathreason);
     if (mtmp) {
@@ -440,7 +442,7 @@ death_inflicted_by(
    and spell_would_be_useless().
  */
 staticfn void
-cast_wizard_spell(struct monst *mtmp, int dmg, int spellnum)
+cast_wizard_spell(struct monster *mtmp, int dmg, int spellnum)
 {
     if (dmg == 0 && !is_undirected_spell(AD_SPEL, spellnum)) {
         impossible("cast directed wizard spell (%d) with dmg=0?", spellnum);
@@ -452,7 +454,7 @@ cast_wizard_spell(struct monst *mtmp, int dmg, int spellnum)
         pline("Oh no, %s's using the touch of death!", mhe(mtmp));
         if (nonliving(gy.youmonst.data) || is_demon(gy.youmonst.data)) {
             You("seem no deader than before.");
-        } else if (!Antimagic && rn2(mtmp->m_lev) > 12) {
+        } else if (!Antimagic && random_integer_between_zero_and(mtmp->m_lev) > 12) {
             if (Hallucination) {
                 You("have an out of body experience.");
             } else {
@@ -542,7 +544,7 @@ cast_wizard_spell(struct monst *mtmp, int dmg, int spellnum)
                 dmg = 1;
             if (Half_spell_damage)
                 dmg = (dmg + 1) / 2;
-            losestr(rnd(dmg),
+            losestr(random(dmg),
                     death_inflicted_by(kbuf, "strength loss", mtmp),
                     KILLED_BY);
             gk.killer.name[0] = '\0'; /* not killed if we get here... */
@@ -571,7 +573,7 @@ cast_wizard_spell(struct monst *mtmp, int dmg, int spellnum)
             make_stunned(1L, FALSE);
         } else {
             You(Stunned ? "struggle to keep your balance." : "reel...");
-            dmg = d(ACURR(A_DEX) < 12 ? 6 : 4, 4);
+            dmg = d(ATTRIBUTE_CURRENT(A_DEX) < 12 ? 6 : 4, 4);
             if (Half_spell_damage)
                 dmg = (dmg + 1) / 2;
             make_stunned((HStun & TIMEOUT) + (long) dmg, FALSE);
@@ -618,7 +620,7 @@ cast_wizard_spell(struct monst *mtmp, int dmg, int spellnum)
 DISABLE_WARNING_FORMAT_NONLITERAL
 
 staticfn void
-cast_cleric_spell(struct monst *mtmp, int dmg, int spellnum)
+cast_cleric_spell(struct monster *mtmp, int dmg, int spellnum)
 {
     int orig_dmg = 0;
     if (dmg == 0 && !is_undirected_spell(AD_CLRC, spellnum)) {
@@ -688,7 +690,7 @@ cast_cleric_spell(struct monst *mtmp, int dmg, int spellnum)
            do this before maybe blinding the hero via flashburn() */
         mon_spell_hits_spot(mtmp, AD_ELEC, u.ux, u.uy);
         /* blind hero; no effect if already blind */
-        (void) flashburn((long) rnd(100));
+        (void) flashburn((long) random(100));
         break;
     }
     case CLC_CURSE_ITEMS:
@@ -700,7 +702,7 @@ cast_cleric_spell(struct monst *mtmp, int dmg, int spellnum)
         /* Try for insects, and if there are none
            left, go for (sticks to) snakes.  -3. */
         struct permonst *pm = mkclass(S_ANT, 0);
-        struct monst *mtmp2 = (struct monst *) 0;
+        struct monster *mtmp2 = (struct monster *) 0;
         char whatbuf[QBUFSZ], let = (pm ? S_ANT : S_SNAKE);
         boolean success = FALSE, seecaster;
         int i, quan, oldseen, newseen;
@@ -708,7 +710,7 @@ cast_cleric_spell(struct monst *mtmp, int dmg, int spellnum)
         const char *fmt, *what;
 
         oldseen = monster_census(TRUE);
-        quan = (mtmp->m_lev < 2) ? 1 : rnd((int) mtmp->m_lev / 2);
+        quan = (mtmp->m_lev < 2) ? 1 : random((int) mtmp->m_lev / 2);
         if (quan < 3)
             quan = 3;
         for (i = 0; i <= quan; i++) {
@@ -893,7 +895,7 @@ is_undirected_spell(unsigned int adtyp, int spellnum)
 
 /* Some spells are useless under some circumstances. */
 staticfn boolean
-spell_would_be_useless(struct monst *mtmp, unsigned int adtyp, int spellnum)
+spell_would_be_useless(struct monster *mtmp, unsigned int adtyp, int spellnum)
 {
     /* Some spells don't require the player to really be there and can be cast
      * by the monster when you're invisible, yet still shouldn't be cast when
@@ -939,7 +941,7 @@ spell_would_be_useless(struct monst *mtmp, unsigned int adtyp, int spellnum)
                must be very small otherwise caller's many retry attempts
                will eventually end up picking it too often] */
             if (!has_aggravatables(mtmp))
-                return rn2(100) ? TRUE : FALSE;
+                return random_integer_between_zero_and(100) ? TRUE : FALSE;
         }
     } else if (adtyp == AD_CLRC) {
         /* summon insects/sticks to snakes won't be cast by peaceful monsters
@@ -961,7 +963,7 @@ spell_would_be_useless(struct monst *mtmp, unsigned int adtyp, int spellnum)
 
 /* monster uses spell (ranged) */
 int
-buzzmu(struct monst *mtmp, struct attack *mattk)
+buzzmu(struct monster *mtmp, struct attack *mattk)
 {
     /* don't print constant stream of curse messages for 'normal'
        spellcasting monsters at range */
@@ -972,7 +974,7 @@ buzzmu(struct monst *mtmp, struct attack *mattk)
         cursetxt(mtmp, FALSE);
         return M_ATTK_MISS;
     }
-    if (lined_up(mtmp) && rn2(3)) {
+    if (lined_up(mtmp) && random_integer_between_zero_and(3)) {
         nomul(0);
         if (canseemon(mtmp))
             pline("%s zaps you with a %s!", Monnam(mtmp),

@@ -2,6 +2,8 @@
 /*      Copyright 1991, M. Stephenson                             */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #include "dlb.h"
 
@@ -88,7 +90,7 @@ find_qarti(struct obj *ochain)
 struct obj *
 find_quest_artifact(unsigned whichchains)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     struct obj *qarti = 0;
 
     if ((whichchains & (1 << OBJ_INVENT)) != 0)
@@ -147,7 +149,7 @@ homebase(void) /* return your role leader's location */
 /* returns 1 if nemesis death message mentions noxious fumes, otherwise 0;
    does not display the message */
 int
-stinky_nemesis(struct monst *mon)
+stinky_nemesis(struct monster *mon)
 {
     char *mesg = 0;
     int res = 0;
@@ -291,7 +293,7 @@ convert_arg(char c)
         str = align_str(u.ualignbase[A_ORIGINAL]);
         break;
     case 'A':
-        str = align_str(u.ualign.type);
+        str = align_str(u.alignment.type);
         break;
     case 'd':
         str = align_gname(u.ualignbase[A_ORIGINAL]);
@@ -560,7 +562,7 @@ com_pager_core(
                            QTEXT_FILE);
             goto compagerdone;
         }
-        nelems = rn2(nelems) + 1;
+        nelems = random_integer_between_zero_and(nelems) + 1;
         lua_pushinteger(L, nelems);
         lua_gettable(L, -2);
         text = dupstr(luaL_checkstring(L, -1));
@@ -635,14 +637,14 @@ qt_montype(void)
 {
     int qpm;
 
-    if (rn2(5)) {
+    if (random_integer_between_zero_and(5)) {
         qpm = gu.urole.enemy1num;
-        if (qpm != NON_PM && rn2(5) && !(gm.mvitals[qpm].mvflags & G_GENOD))
+        if (qpm != NON_PM && random_integer_between_zero_and(5) && !(gm.mvitals[qpm].mvflags & G_GENOD))
             return &mons[qpm];
         return mkclass(gu.urole.enemy1sym, 0);
     }
     qpm = gu.urole.enemy2num;
-    if (qpm != NON_PM && rn2(5) && !(gm.mvitals[qpm].mvflags & G_GENOD))
+    if (qpm != NON_PM && random_integer_between_zero_and(5) && !(gm.mvitals[qpm].mvflags & G_GENOD))
         return &mons[qpm];
     return mkclass(gu.urole.enemy2sym, 0);
 }

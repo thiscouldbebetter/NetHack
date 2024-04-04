@@ -3,6 +3,8 @@
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /* Contains code for 'd', 'D' (drop), '>', '<' (up, down) */
 
 #include "hack.h"
@@ -57,8 +59,8 @@ boulder_hits_pool(
         boolean lava = is_lava(rx, ry), fills_up;
         const char *what = waterbody_name(rx, ry);
         schar ltyp = levl[rx][ry].typ;
-        int chance = rn2(10); /* water: 90%; lava: 10% */
-        struct monst *mtmp;
+        int chance = random_integer_between_zero_and(10); /* water: 90%; lava: 10% */
+        struct monster *mtmp;
 
         /* chance for boulder to fill pool:  Plane of Water==0%,
            lava 10%, wall of water==50%, other water==90% */
@@ -95,8 +97,8 @@ boulder_hits_pool(
                 char whobuf[BUFSZ];
 
                 Strcpy(whobuf, "you");
-                if (u.usteed)
-                    Strcpy(whobuf, y_monnam(u.usteed));
+                if (u.monster_being_ridden)
+                    Strcpy(whobuf, y_monnam(u.monster_being_ridden));
                 pline("%s %s %s into the %s.", upstart(whobuf),
                       vtense(whobuf, "push"), the(xname(otmp)), what);
                 if (flags.verbose && !Blind)
@@ -158,7 +160,7 @@ boolean
 flooreffects(struct obj *obj, coordxy x, coordxy y, const char *verb)
 {
     struct trap *t;
-    struct monst *mtmp;
+    struct monster *mtmp;
     struct obj *otmp;
     coord save_bhitpos;
     boolean tseen;
@@ -221,7 +223,7 @@ flooreffects(struct obj *obj, coordxy x, coordxy y, const char *verb)
                 mtmp->mtrapped = 0;
             } else {
                 if (!Passes_walls && !throws_rocks(gy.youmonst.data)) {
-                    losehp(Maybe_Half_Phys(rnd(15)),
+                    losehp(Maybe_Half_Phys(random(15)),
                            "squished under a boulder", NO_KILLER_PREFIX);
                     goto deletedwithboulder;
                 } else
@@ -404,7 +406,7 @@ polymorph_sink(void)
     sinklooted = levl[u.ux][u.uy].looted != 0;
     /* gl.level.flags.nsinks--; // set_levltyp() will update this */
     levl[u.ux][u.uy].flags = 0;
-    switch (rn2(4)) {
+    switch (random_integer_between_zero_and(4)) {
     default:
     case 0:
         sym = S_fountain;
@@ -424,8 +426,8 @@ polymorph_sink(void)
         set_levltyp(u.ux, u.uy, ALTAR);
         /* 3.6.3: this used to pass 'rn2(A_LAWFUL + 2) - 1' to
            Align2amask() but that evaluates its argument more than once */
-        algn = rn2(3) - 1; /* -1 (A_Cha) or 0 (A_Neu) or +1 (A_Law) */
-        levl[u.ux][u.uy].altarmask = ((Inhell && rn2(3)) ? AM_NONE
+        algn = random_integer_between_zero_and(3) - 1; /* -1 (A_Cha) or 0 (A_Neu) or +1 (A_Law) */
+        levl[u.ux][u.uy].altarmask = ((Inhell && random_integer_between_zero_and(3)) ? AM_NONE
                                       : Align2amask(algn));
         break;
     case 3:
@@ -460,8 +462,8 @@ teleport_sink(void)
         cx = rnd(COLNO - 1);           /* 1..COLNO-1 */
         cy = rn2(ROWNO);               /* 0..ROWNO-1 */
 #else   /* use this instead */
-        cx = 1 + rnd((COLNO - 1) - 2); /* 2..COLNO-2 */
-        cy = 1 + rn2(ROWNO - 2);       /* 1..ROWNO-2 */
+        cx = 1 + random((COLNO - 1) - 2); /* 2..COLNO-2 */
+        cy = 1 + random_integer_between_zero_and(ROWNO - 2);       /* 1..ROWNO-2 */
 #endif
         if (levl[cx][cy].typ == ROOM
             && !t_at(cx, cy) && !engr_at(cx, cy)
@@ -637,11 +639,11 @@ dosinkring(struct obj *obj)
         Soundeffect(se_ring_in_drain, 50);
         You_hear("the ring bouncing down the drainpipe.");
     }
-    if (!rn2(20) && !nosink) {
+    if (!random_integer_between_zero_and(20) && !nosink) {
         pline_The("sink backs up, leaving %s.", doname(obj));
         obj->in_use = FALSE;
         dropx(obj);
-    } else if (!rn2(5)) {
+    } else if (!random_integer_between_zero_and(5)) {
         freeinv(obj);
         obj->in_use = FALSE;
         obj->ox = u.ux;
@@ -727,11 +729,11 @@ drop(struct obj *obj)
         if (flags.verbose) {
             char *onam_p, *mnam_p, monbuf[BUFSZ];
 
-            mnam_p = mon_nam(u.ustuck);
+            mnam_p = mon_nam(u.monster_stuck_to);
             /* doname can call s_suffix, reusing its buffer */
-            if (digests(u.ustuck->data)) {
+            if (digests(u.monster_stuck_to->data)) {
                 Sprintf(monbuf, "%s %s", s_suffix(mnam_p),
-                        mbodypart(u.ustuck, STOMACH));
+                        mbodypart(u.monster_stuck_to, STOMACH));
                 mnam_p = monbuf;
             }
             onam_p = is_unpaid(obj) ? yobjnam(obj, (char *) 0) : doname(obj);
@@ -810,7 +812,7 @@ dropz(struct obj *obj, boolean with_impact)
                 (void) stolen_value(obj, u.ux, u.uy, TRUE, FALSE);
             /* add to engulfer's inventory if not immediately eaten */
             if (!engulfer_digests_food(obj))
-                (void) mpickobj(u.ustuck, obj);
+                (void) mpickobj(u.monster_stuck_to, obj);
         }
     } else {
         if (flooreffects(obj, u.ux, u.uy, "drop"))
@@ -828,7 +830,7 @@ dropz(struct obj *obj, boolean with_impact)
             map_object(obj, 0);
         newsym(u.ux, u.uy); /* remap location under self */
     }
-    (void) encumber_msg();
+    (void) encumbered_message();
 }
 
 /* when swallowed, move dropped object from OBJ_FREE to u.ustuck's inventory;
@@ -839,7 +841,7 @@ engulfer_digests_food(struct obj *obj)
 {
     /* animal swallower (purple worn) eats any
        corpse, glob, or meat <item> but not other types of food */
-    if (digests(u.ustuck->data)
+    if (digests(u.monster_stuck_to->data)
         && (obj->otyp == CORPSE || obj->globby
             || obj->otyp == MEATBALL || obj->otyp == ENORMOUS_MEATBALL
             || obj->otyp == MEAT_RING || obj->otyp == MEAT_STICK)) {
@@ -859,16 +861,16 @@ engulfer_digests_food(struct obj *obj)
         pline("%s instantly digested!", Tobjnam(obj, "are"));
 
         if (could_poly || could_slime) {
-            (void) newcham(u.ustuck, could_slime ? &mons[PM_GREEN_SLIME] : 0,
+            (void) newcham(u.monster_stuck_to, could_slime ? &mons[PM_GREEN_SLIME] : 0,
                            could_slime ? NC_SHOW_MSG : NO_NC_FLAGS);
         } else if (could_petrify) {
-            minstapetrify(u.ustuck, TRUE);
+            minstapetrify(u.monster_stuck_to, TRUE);
         } else if (could_grow) {
-            (void) grow_up(u.ustuck, (struct monst *) 0);
+            (void) grow_up(u.monster_stuck_to, (struct monster *) 0);
         } else if (could_heal) {
-            u.ustuck->mhp = u.ustuck->mhpmax;
+            u.monster_stuck_to->mhp = u.monster_stuck_to->mhpmax;
             /* False: don't realize that sight is cured from inside */
-            mcureblindness(u.ustuck, FALSE);
+            mcureblindness(u.monster_stuck_to, FALSE);
         }
         delobj(obj); /* always used up */
         return TRUE;
@@ -897,7 +899,7 @@ obj_no_longer_held(struct obj *obj)
          * to give each individual crysknife its own separate 10% chance,
          * but we aren't in any position to handle stack splitting here.
          */
-        if (!obj->oerodeproof || !rn2(10)) {
+        if (!obj->oerodeproof || !random_integer_between_zero_and(10)) {
             /* if monsters aren't moving, assume player is responsible */
             if (!gc.context.mon_moving && !gp.program_state.gameover)
                 costly_alteration(obj, COST_DEGRD);
@@ -1081,17 +1083,17 @@ menu_drop(int retry)
 staticfn boolean
 u_stuck_cannot_go(const char *updn)
 {
-    if (u.ustuck) {
+    if (u.monster_stuck_to) {
         if (u.uswallow || !sticks(gy.youmonst.data)) {
             You("are %s, and cannot go %s.",
                 !u.uswallow ? "being held"
-                : digests(u.ustuck->data) ? "swallowed"
+                : digests(u.monster_stuck_to->data) ? "swallowed"
                 : "engulfed", updn);
             return TRUE;
         } else {
-            struct monst *mtmp = u.ustuck;
+            struct monster *mtmp = u.monster_stuck_to;
 
-            set_ustuck((struct monst *) 0);
+            set_ustuck((struct monster *) 0);
             You("release %s.", mon_nam(mtmp));
         }
     }
@@ -1210,13 +1212,13 @@ dodown(void)
             }
         }
     }
-    if (on_level(&valley_level, &u.uz) && !u.uevent.gehennom_entered) {
+    if (on_level(&valley_level, &u.uz) && !u.player_event_history.gehennom_entered) {
         You("are standing at the gate to Gehennom.");
         pline("Unspeakable cruelty and harm lurk down there.");
         if (y_n("Are you sure you want to enter?") != 'y')
             return ECMD_OK;
         pline("So be it.");
-        u.uevent.gehennom_entered = 1; /* don't ask again */
+        u.player_event_history.gehennom_entered = 1; /* don't ask again */
     }
 
     if (!next_to_u()) {
@@ -1234,9 +1236,9 @@ dodown(void)
             You("don't fit %s easily.", down_or_thru);
             Sprintf(qbuf, "Try to squeeze %s?", down_or_thru);
             if (y_n(qbuf) == 'y') {
-                if (!rn2(3)) {
+                if (!random_integer_between_zero_and(3)) {
                     actn = "manage to squeeze";
-                    losehp(Maybe_Half_Phys(rnd(4)),
+                    losehp(Maybe_Half_Phys(random(4)),
                            "contusion from a small passage", KILLED_BY);
                 } else {
                     You("were unable to fit %s.", down_or_thru);
@@ -1292,7 +1294,7 @@ doup(void)
     if (u_stuck_cannot_go("up"))
         return ECMD_TIME;
 
-    if (near_capacity() > SLT_ENCUMBER) {
+    if (near_capacity() > SLIGHTLY_ENCUMBERED) {
         /* No levitation check; inv_weight() already allows for it */
         Your("load is too heavy to climb the %s.",
              levl[u.ux][u.uy].typ == STAIRS ? "stairs" : "ladder");
@@ -1380,14 +1382,14 @@ badspot(coordxy x, coordxy y)
 /* when arriving on a level, if hero and a monster are trying to share same
    spot, move one; extracted from goto_level(); also used by wiz_makemap() */
 void
-u_collide_m(struct monst *mtmp)
+u_collide_m(struct monster *mtmp)
 {
     coord cc;
 
-    if (!mtmp || mtmp == u.usteed || mtmp != m_at(u.ux, u.uy)) {
+    if (!mtmp || mtmp == u.monster_being_ridden || mtmp != m_at(u.ux, u.uy)) {
         impossible("level arrival collision: %s?",
                    !mtmp ? "no monster"
-                     : (mtmp == u.usteed) ? "steed is on map"
+                     : (mtmp == u.monster_being_ridden) ? "steed is on map"
                        : "monster not co-located");
         return;
     }
@@ -1397,7 +1399,7 @@ u_collide_m(struct monst *mtmp)
        it was already here.  Randomly move you to an adjacent spot
        or else the monster to any nearby location.  Prior to 3.3.0
        the latter was done unconditionally. */
-    if (!rn2(2) && enexto(&cc, u.ux, u.uy, gy.youmonst.data)
+    if (!random_integer_between_zero_and(2) && enexto(&cc, u.ux, u.uy, gy.youmonst.data)
         && next2u(cc.x, cc.y))
         u_on_newpos(cc.x, cc.y); /*[maybe give message here?]*/
     else
@@ -1430,7 +1432,7 @@ familiar_level_msg(void)
     };
     const char *mesg;
     char buf[BUFSZ];
-    int which = rn2(4);
+    int which = random_integer_between_zero_and(4);
 
     if (Hallucination)
         mesg = halu_fam_msgs[which];
@@ -1463,7 +1465,7 @@ goto_level(
             was_in_W_tower = In_W_tower(u.ux, u.uy, &u.uz),
             familiar = FALSE,
             new = FALSE; /* made a new level? */
-    struct monst *mtmp;
+    struct monster *mtmp;
     char whynot[BUFSZ];
     int dist = depth(newlevel) - depth(&u.uz);
     boolean do_fall_dmg = FALSE;
@@ -1473,7 +1475,7 @@ goto_level(
         newlevel->dlevel = dunlevs_in_dungeon(newlevel);
     if (newdungeon) {
         if (In_endgame(newlevel)) { /* 1st Endgame Level !!! */
-            if (!u.uhave.amulet)
+            if (!u.player_carrying_special_objects.amulet)
                 return;  /* must have the Amulet */
             if (!wizard) /* wizard ^V can bypass Earth level */
                 assign_level(newlevel, &earth_level); /* (redundant) */
@@ -1509,11 +1511,11 @@ goto_level(
      * gradually but substantially.  The drop off is greater when hero is
      * sent down farther so benefits lawfuls more than chaotics this time.
      */
-    if (Inhell && up && u.uhave.amulet && !newdungeon && !portal
+    if (Inhell && up && u.player_carrying_special_objects.amulet && !newdungeon && !portal
         && (dunlev(&u.uz) < dunlevs_in_dungeon(&u.uz) - 3)) {
-        if (!rn2(4 + gc.context.mysteryforce)) {
-            int odds = 3 + (int) u.ualign.type,   /* 2..4 */
-                diff = (odds <= 1) ? 0 : rn2(odds); /* paranoia */
+        if (!random_integer_between_zero_and(4 + gc.context.mysteryforce)) {
+            int odds = 3 + (int) u.alignment.type,   /* 2..4 */
+                diff = (odds <= 1) ? 0 : random_integer_between_zero_and(odds); /* paranoia */
 
             if (diff != 0) {
                 assign_rnd_level(newlevel, &u.uz, diff);
@@ -1531,7 +1533,7 @@ goto_level(
                that drops faster, on average, when being sent down farther so
                while the impact is reduced for everybody compared to earlier
                versions, it is reduced least for chaotics, most for lawfuls */
-            gc.context.mysteryforce += rn2(diff + 2); /* L:0-4, N:0-3, C:0-2 */
+            gc.context.mysteryforce += random_integer_between_zero_and(diff + 2); /* L:0-4, N:0-3, C:0-2 */
 
             if (on_level(newlevel, &u.uz)) {
                 (void) safe_teleds(TELEDS_NO_FLAGS);
@@ -1576,7 +1578,7 @@ goto_level(
     maybe_reset_pick((struct obj *) 0);
     reset_trapset(); /* even if to-be-armed trap obj is accompanying hero */
     iflags.travelcc.x = iflags.travelcc.y = 0; /* travel destination cache */
-    gc.context.polearm.hitmon = (struct monst *) 0; /* polearm target */
+    gc.context.polearm.hitmon = (struct monster *) 0; /* polearm target */
     /* digging context is level-aware and can actually be resumed if
        hero returns to the previous level without any intervening dig */
 
@@ -1588,7 +1590,7 @@ goto_level(
         unplacebc();
     reset_utrap(FALSE); /* needed in level_tele */
     fill_pit(u.ux, u.uy);
-    set_ustuck((struct monst *) 0); /* clear u.ustuck and u.uswallow */
+    set_ustuck((struct monster *) 0); /* clear u.ustuck and u.uswallow */
     set_uinwater(0); /* u.uinwater = 0 */
     u.uundetected = 0; /* not hidden, even if means are available */
     if (!iflags.nofollowers)
@@ -1677,8 +1679,8 @@ goto_level(
             /* we'll reach here if running in wizard mode */
             error("Cannot continue this game.");
         }
-        reseed_random(rn2);
-        reseed_random(rn2_on_display_rng);
+        reseed_randomizer(random_integer_between_zero_and);
+        reseed_randomizer(random2_on_display_range);
         minit(); /* ZEROCOMP */
         getlev(nhfp, gh.hackpid, new_ledger);
         close_nhfile(nhfp);
@@ -1700,7 +1702,7 @@ goto_level(
                 break;
 
         if (!ttrap) {
-            if (u.uevent.qexpelled
+            if (u.player_event_history.qexpelled
                 && (Is_qstart(&u.uz0) || Is_qstart(&u.uz))) {
                 /* we're coming back from or going into the quest home level,
                    after already getting expelled once. The portal back
@@ -1758,10 +1760,10 @@ goto_level(
                         ballrelease(FALSE);
                 }
                 /* falling off steed has its own losehp() call */
-                if (u.usteed)
+                if (u.monster_being_ridden)
                     dismount_steed(DISMOUNT_FELL);
                 else
-                    losehp(Maybe_Half_Phys(rnd(3)),
+                    losehp(Maybe_Half_Phys(random(3)),
                            ga.at_ladder ? "falling off a ladder"
                                      : "tumbling down a flight of stairs",
                            KILLED_BY);
@@ -1845,7 +1847,7 @@ goto_level(
     }
     /* in case we've managed to bypass the Valley's stairway down */
     if (Inhell && !Is_valley(&u.uz))
-        u.uevent.gehennom_entered = 1;
+        u.player_event_history.gehennom_entered = 1;
 
     if (familiar)
         familiar_level_msg();
@@ -1857,7 +1859,7 @@ goto_level(
         if (new && on_level(&u.uz, &astral_level)) {
             final_level(); /* guardian angel,&c */
             record_achievement(ACH_ASTR); /* reached Astral level */
-        } else if (newdungeon && u.uhave.amulet) {
+        } else if (newdungeon && u.player_carrying_special_objects.amulet) {
             resurrect(); /* force confrontation with Wizard */
         }
     } else if (In_quest(&u.uz)) {
@@ -1888,13 +1890,13 @@ goto_level(
         }
         /* main dungeon message from your quest leader */
         if (!In_quest(&u.uz0) && at_dgn_entrance("The Quest")
-            && !(u.uevent.qcompleted || u.uevent.qexpelled
+            && !(u.player_event_history.qcompleted || u.player_event_history.qexpelled
                  || gq.quest_status.leader_is_dead)) {
             /* [TODO: copy of same TODO below; if an achievement for
                receiving quest call from leader gets added, that should
                come after logging new level entry] */
-            if (!u.uevent.qcalled) {
-                u.uevent.qcalled = 1;
+            if (!u.player_event_history.qcalled) {
+                u.player_event_history.qcalled = 1;
                 /* main "leader needs help" message */
                 com_pager("quest_portal");
             } else { /* reminder message */
@@ -2064,7 +2066,7 @@ deferred_goto(void)
 boolean
 revive_corpse(struct obj *corpse)
 {
-    struct monst *mtmp, *mcarry;
+    struct monster *mtmp, *mcarry;
     boolean is_uwep, chewed;
     xint16 where;
     char cname[BUFSZ];
@@ -2092,7 +2094,7 @@ revive_corpse(struct obj *corpse)
                             CONTAINED_TOO | BURIED_TOO);
 
     if (where == OBJ_CONTAINED) {
-        struct monst *mtmp2;
+        struct monster *mtmp2;
 
         container = corpse->ocontainer;
         mtmp2 = get_container_location(container, &container_where, (int *) 0);
@@ -2204,7 +2206,7 @@ revive_mon(anything *arg, long timeout UNUSED)
 {
     struct obj *body = arg->a_obj;
     struct permonst *mptr = &mons[body->corpsenm];
-    struct monst *mtmp;
+    struct monster *mtmp;
     coordxy x, y;
 
     /* corpse will revive somewhere else if there is a monster in the way;
@@ -2229,7 +2231,7 @@ revive_mon(anything *arg, long timeout UNUSED)
         long when;
         int action;
 
-        if (is_rider(mptr) && rn2(99)) { /* Rider usually tries again */
+        if (is_rider(mptr) && random_integer_between_zero_and(99)) { /* Rider usually tries again */
             action = REVIVE_MON;
             when = rider_revival_time(body, TRUE);
         } else { /* rot this corpse away */
@@ -2359,8 +2361,8 @@ void
 legs_in_no_shape(const char *for_what, /* jumping, kicking, riding */
                  boolean by_steed)
 {
-    if (by_steed && u.usteed) {
-        pline("%s is in no shape for %s.", Monnam(u.usteed), for_what);
+    if (by_steed && u.monster_being_ridden) {
+        pline("%s is in no shape for %s.", Monnam(u.monster_being_ridden), for_what);
     } else {
         long wl = (EWounded_legs & BOTH_SIDES);
         const char *bp = body_part(LEG);
@@ -2393,7 +2395,7 @@ set_wounded_legs(long side, int timex)
        direct assignment instead of bitwise-OR so getting wounded in
        one leg mysteriously healed the other */
     EWounded_legs |= side;
-    (void) encumber_msg();
+    (void) encumbered_message();
 }
 
 void
@@ -2409,7 +2411,7 @@ heal_legs(
            during petrification countdown, "your limbs turn to stone"
            before the final stages and that calls us (how==2) to cure
            wounded legs, but we want to suppress the feel better message */
-        if (!u.usteed && how != 2) {
+        if (!u.monster_being_ridden && how != 2) {
             const char *legs = body_part(LEG);
 
             if ((EWounded_legs & BOTH_SIDES) == BOTH_SIDES)
@@ -2432,7 +2434,7 @@ heal_legs(
            more when steed becomes healthy, then possible floor
            feedback, then able to carry less when back on foot]. */
         if (how == 0)
-            (void) encumber_msg();
+            (void) encumbered_message();
     }
 }
 

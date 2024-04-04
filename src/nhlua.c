@@ -2,6 +2,8 @@
 /*      Copyright (c) 2018 by Pasi Kallinen */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #include "dlb.h"
 
@@ -915,7 +917,7 @@ nhl_rn2(lua_State *L)
     int argc = lua_gettop(L);
 
     if (argc == 1)
-        lua_pushinteger(L, rn2((int) luaL_checkinteger(L, 1)));
+        lua_pushinteger(L, random_integer_between_zero_and((int) luaL_checkinteger(L, 1)));
     else
         nhl_error(L, "Wrong args");
 
@@ -930,10 +932,10 @@ nhl_random(lua_State *L)
     int argc = lua_gettop(L);
 
     if (argc == 1)
-        lua_pushinteger(L, rn2((int) luaL_checkinteger(L, 1)));
+        lua_pushinteger(L, random_integer_between_zero_and((int) luaL_checkinteger(L, 1)));
     else if (argc == 2)
         lua_pushinteger(L, luaL_checkinteger(L, 1)
-                               + rn2((int) luaL_checkinteger(L, 2)));
+                               + random_integer_between_zero_and((int) luaL_checkinteger(L, 2)));
     else
         nhl_error(L, "Wrong args");
 
@@ -1344,7 +1346,7 @@ nhl_debug_flags(lua_State *L)
     if (val != -1) {
         iflags.debug_mongen = !(boolean) val; /* value in lua is negated */
         if (iflags.debug_mongen) {
-            struct monst *mtmp, *mtmp2;
+            struct monster *mtmp, *mtmp2;
 
             for (mtmp = fmon; mtmp; mtmp = mtmp2) {
                 mtmp2 = mtmp->nmon;
@@ -1819,10 +1821,10 @@ nhl_meta_u_index(lua_State *L)
         { "dlevel", &(u.uz.dlevel), ANY_SCHAR }, /* actually coordxy */
         { "dnum", &(u.uz.dnum), ANY_SCHAR },     /* actually coordxy */
         { "uluck", &(u.uluck), ANY_SCHAR },
-        { "uhp", &(u.uhp), ANY_INT },
-        { "uhpmax", &(u.uhpmax), ANY_INT },
-        { "uen", &(u.uen), ANY_INT },
-        { "uenmax", &(u.uenmax), ANY_INT },
+        { "uhp", &(u.hit_points), ANY_INT },
+        { "uhpmax", &(u.hit_points_max), ANY_INT },
+        { "uen", &(u.energy), ANY_INT },
+        { "uenmax", &(u.energy_max), ANY_INT },
     };
     const char *tkey = luaL_checkstring(L, 2);
     int i;
@@ -1843,7 +1845,7 @@ nhl_meta_u_index(lua_State *L)
         lua_pushinteger(L, gm.moves);
         return 1;
     } else if (!strcmp(tkey, "uhave_amulet")) {
-        lua_pushinteger(L, u.uhave.amulet);
+        lua_pushinteger(L, u.player_carrying_special_objects.amulet);
         return 1;
     } else if (!strcmp(tkey, "depth")) {
         lua_pushinteger(L, depth(&u.uz));

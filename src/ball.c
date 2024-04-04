@@ -3,6 +3,8 @@
 /*-Copyright (c) David Cohrs, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /* Ball & Chain
  * =============================================================*/
 
@@ -34,7 +36,7 @@ ballrelease(boolean showmsg)
         /* [this used to test 'if (uwep != uball)' but that always passes
            after the setuwep() above] */
         freeinv(uball); /* remove from inventory but don't place on floor */
-        (void) encumber_msg();
+        (void) encumbered_message();
     }
 }
 
@@ -48,7 +50,7 @@ ballfall(void)
         return;
 
     gets_hit = (((uball->ox != u.ux) || (uball->oy != u.uy))
-                && ((uwep == uball) ? FALSE : (boolean) rn2(5)));
+                && ((uwep == uball) ? FALSE : (boolean) random_integer_between_zero_and(5)));
     ballrelease(TRUE);
     if (gets_hit) {
         int dmg = rn1(7, 25);
@@ -226,7 +228,7 @@ unplacebc_and_covet_placebc(void)
     if (bcrestriction) {
         impossible("unplacebc_and_covet_placebc denied, already restricted");
     } else {
-        restriction = bcrestriction = rnd(400);
+        restriction = bcrestriction = random(400);
         unplacebc_core();
     }
     return restriction;
@@ -703,7 +705,7 @@ drag_ball(coordxy x, coordxy y, int *bc_control,
                            < dist2(tempx2, tempy2, uchain->ox, uchain->oy)
                        || ((dist2(tempx, tempy, uchain->ox, uchain->oy)
                             == dist2(tempx2, tempy2, uchain->ox, uchain->oy))
-                           && rn2(2))) {
+                           && random_integer_between_zero_and(2))) {
                 *chainx = tempx;
                 *chainy = tempy;
             } else {
@@ -772,7 +774,7 @@ drag_ball(coordxy x, coordxy y, int *bc_control,
 
  drag:
 
-    if (near_capacity() > SLT_ENCUMBER && dist2(x, y, u.ux, u.uy) <= 2) {
+    if (near_capacity() > SLIGHTLY_ENCUMBERED && dist2(x, y, u.ux, u.uy) <= 2) {
         You("cannot %sdrag the heavy iron ball.",
             gi.invent ? "carry all that and also " : "");
         nomul(0);
@@ -791,12 +793,12 @@ drag_ball(coordxy x, coordxy y, int *bc_control,
             if (t)
                 t->tseen = 1;
         } else {
-            struct monst *victim;
+            struct monster *victim;
 
             You("are jerked back by the iron ball!");
             if ((victim = m_at(uchain->ox, uchain->oy)) != 0) {
                 int tmp;
-                int dieroll = rnd(20);
+                int dieroll = random(20);
 
                 tmp = -2 + Luck + find_mac(victim);
                 tmp += omon_adj(victim, uball, TRUE);
@@ -910,10 +912,10 @@ drop_ball(coordxy x, coordxy y)
                 pline(pullmsg, hliquid("lava"));
                 break;
             case TT_BEARTRAP:
-                side = rn2(3) ? LEFT_SIDE : RIGHT_SIDE;
+                side = random_integer_between_zero_and(3) ? LEFT_SIDE : RIGHT_SIDE;
                 pline(pullmsg, "bear trap");
                 set_wounded_legs(side, rn1(1000, 500));
-                if (!u.usteed) {
+                if (!u.monster_being_ridden) {
                     Your("%s %s is severely damaged.",
                          (side == LEFT_SIDE) ? "left" : "right",
                          body_part(LEG));
@@ -972,7 +974,7 @@ litter(void)
 
     for (otmp = gi.invent; otmp; otmp = nextobj) {
         nextobj = otmp->nobj;
-        if (otmp != uball && rnd(capacity) <= (int) otmp->owt) {
+        if (otmp != uball && random(capacity) <= (int) otmp->owt) {
             if (canletgo(otmp, "")) {
                 You("drop %s and %s %s down the stairs with you.",
                     yname(otmp), (otmp->quan == 1L) ? "it" : "they",
@@ -999,7 +1001,7 @@ drag_down(void)
      *     not wielding any weapon), or
      *  c) (perhaps) it falls forward out of his non-weapon hand
      */
-    forward = carried(uball) && (uwep == uball || !uwep || !rn2(3));
+    forward = carried(uball) && (uwep == uball || !uwep || !random_integer_between_zero_and(3));
 
     if (carried(uball) && !welded(uball))
         You("lose your grip on the iron ball.");
@@ -1008,24 +1010,24 @@ drag_down(void)
                went down the stairs. Avoids bug C343-20 */
 
     if (forward) {
-        if (rn2(6)) {
+        if (random_integer_between_zero_and(6)) {
             pline_The("iron ball drags you downstairs!");
-            losehp(Maybe_Half_Phys(rnd(6)),
+            losehp(Maybe_Half_Phys(random(6)),
                    "dragged downstairs by an iron ball", NO_KILLER_PREFIX);
             litter();
         }
     } else {
-        if (rn2(2)) {
+        if (random_integer_between_zero_and(2)) {
             Soundeffect(se_iron_ball_hits_you, 25);
             pline_The("iron ball smacks into you!");
-            losehp(Maybe_Half_Phys(rnd(20)), "iron ball collision",
+            losehp(Maybe_Half_Phys(random(20)), "iron ball collision",
                    KILLED_BY_AN);
             exercise(A_STR, FALSE);
             dragchance -= 2;
         }
-        if ((int) dragchance >= rnd(6)) {
+        if ((int) dragchance >= random(6)) {
             pline_The("iron ball drags you downstairs!");
-            losehp(Maybe_Half_Phys(rnd(3)),
+            losehp(Maybe_Half_Phys(random(3)),
                    "dragged downstairs by an iron ball", NO_KILLER_PREFIX);
             exercise(A_STR, FALSE);
             litter();

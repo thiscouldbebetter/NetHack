@@ -3,6 +3,8 @@
 /*-Copyright (c) Michael Allison, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 staticfn boolean rm_waslit(void);
@@ -11,7 +13,7 @@ staticfn void mkcavearea(boolean);
 staticfn boolean pick_can_reach(struct obj *, coordxy, coordxy) NONNULLARG1;
 staticfn int dig(void);
 staticfn void dig_up_grave(coord *);
-staticfn boolean watchman_canseeu(struct monst *) NONNULLARG1;
+staticfn boolean watchman_canseeu(struct monster *) NONNULLARG1;
 staticfn int adj_pit_checks(coord *, char *) NONNULLARG2;
 staticfn void pit_flow(struct trap *, schar);
 staticfn boolean furniture_handled(coordxy, coordxy, boolean);
@@ -54,7 +56,7 @@ mkcavepos(coordxy x, coordxy y, int dist, boolean waslit, boolean rockit)
     lev = &levl[x][y];
 
     if (rockit) {
-        struct monst *mtmp;
+        struct monster *mtmp;
 
         if (IS_ROCK(lev->typ))
             return;
@@ -203,10 +205,10 @@ is_digging(void)
 }
 
 #define BY_YOU (&gy.youmonst)
-#define BY_OBJECT ((struct monst *) 0)
+#define BY_OBJECT ((struct monster *) 0)
 
 boolean
-dig_check(struct monst *madeby, boolean verbose, coordxy x, coordxy y)
+dig_check(struct monster *madeby, boolean verbose, coordxy x, coordxy y)
 {
     struct trap *ttmp = t_at(x, y);
     const char *verb =
@@ -293,20 +295,20 @@ dig(void)
             return 0;
         }
     }
-    if (Fumbling && !rn2(3)) {
-        switch (rn2(3)) {
+    if (Fumbling && !random_integer_between_zero_and(3)) {
+        switch (random_integer_between_zero_and(3)) {
         case 0:
             if (!welded(uwep)) {
                 You("fumble and drop %s.", yname(uwep));
                 dropx(uwep);
             } else {
-                if (u.usteed)
+                if (u.monster_being_ridden)
                     pline("%s and %s %s!", Yobjnam2(uwep, "bounce"),
-                          otense(uwep, "hit"), mon_nam(u.usteed));
+                          otense(uwep, "hit"), mon_nam(u.monster_being_ridden));
                 else
                     pline("Ouch!  %s and %s you!", Yobjnam2(uwep, "bounce"),
                           otense(uwep, "hit"));
-                set_wounded_legs(RIGHT_SIDE, 5 + rnd(5));
+                set_wounded_legs(RIGHT_SIDE, 5 + random(5));
             }
             break;
         case 1:
@@ -323,7 +325,7 @@ dig(void)
     }
 
     gc.context.digging.effort +=
-        10 + rn2(5) + abon() + uwep->spe - greatest_erosion(uwep) + u.udaminc;
+        10 + random_integer_between_zero_and(5) + abon() + uwep->spe - greatest_erosion(uwep) + u.damage_increment;
     if (Race_if(PM_DWARF))
         gc.context.digging.effort *= 2;
     if (gc.context.digging.down) {
@@ -411,11 +413,11 @@ dig(void)
         } else if (lev->typ == STONE || lev->typ == SCORR
                    || IS_TREE(lev->typ)) {
             if (Is_earthlevel(&u.uz)) {
-                if (uwep->blessed && !rn2(3)) {
+                if (uwep->blessed && !random_integer_between_zero_and(3)) {
                     mkcavearea(FALSE);
                     goto cleanup;
-                } else if ((uwep->cursed && !rn2(4))
-                           || (!uwep->blessed && !rn2(6))) {
+                } else if ((uwep->cursed && !random_integer_between_zero_and(4))
+                           || (!uwep->blessed && !random_integer_between_zero_and(6))) {
                     mkcavearea(TRUE);
                     goto cleanup;
                 }
@@ -423,7 +425,7 @@ dig(void)
             if (IS_TREE(lev->typ)) {
                 digtxt = "You cut down the tree.";
                 lev->typ = ROOM, lev->flags = 0;
-                if (!rn2(5))
+                if (!random_integer_between_zero_and(5))
                     (void) rnd_treefruit_at(dpx, dpy);
                 if (Race_if(PM_ELF) || Role_if(PM_RANGER))
                     adjalign(-1);
@@ -468,10 +470,10 @@ dig(void)
         if (dmgtxt)
             pay_for_damage(dmgtxt, FALSE);
 
-        if (Is_earthlevel(&u.uz) && !rn2(3)) {
-            struct monst *mtmp;
+        if (Is_earthlevel(&u.uz) && !random_integer_between_zero_and(3)) {
+            struct monster *mtmp;
 
-            switch (rn2(2)) {
+            switch (random_integer_between_zero_and(2)) {
             case 0:
                 mtmp = makemon(&mons[PM_EARTH_ELEMENTAL], dpx, dpy,
                                MM_NOMSG);
@@ -576,26 +578,26 @@ fillholetyp(coordxy x, coordxy y,
     if (!fill_if_any)
         pool_cnt /= 3; /* not as much liquid as the others */
 
-    if ((lava_cnt > moat_cnt + pool_cnt && rn2(lava_cnt + 1))
+    if ((lava_cnt > moat_cnt + pool_cnt && random_integer_between_zero_and(lava_cnt + 1))
         || (lava_cnt && fill_if_any))
         return LAVAPOOL;
-    else if ((moat_cnt > 0 && rn2(moat_cnt + 1)) || (moat_cnt && fill_if_any))
+    else if ((moat_cnt > 0 && random_integer_between_zero_and(moat_cnt + 1)) || (moat_cnt && fill_if_any))
         return MOAT;
-    else if ((pool_cnt > 0 && rn2(pool_cnt + 1)) || (pool_cnt && fill_if_any))
+    else if ((pool_cnt > 0 && random_integer_between_zero_and(pool_cnt + 1)) || (pool_cnt && fill_if_any))
         return POOL;
     else
         return ROOM;
 }
 
 void
-digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
+digactualhole(coordxy x, coordxy y, struct monster *madeby, int ttyp)
 {
     struct obj *oldobjs, *newobjs;
     struct trap *ttmp;
     const char *surface_type, *tname, *in_thru;
     char furniture[BUFSZ];
     struct rm *lev = &levl[x][y];
-    struct monst *mtmp = m_at(x, y); /* may be madeby */
+    struct monster *mtmp = m_at(x, y); /* may be madeby */
     boolean madeby_u = (madeby == BY_YOU), madeby_obj = (madeby == BY_OBJECT),
             /* BY_OBJECT means the hero broke a wand, so blame her for it */
             heros_fault = (madeby_u || madeby_obj);
@@ -706,7 +708,7 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
                 wont_fall = TRUE;
 
             /* check for leashed pet that can't fall right now */
-            if (!u.ustuck && !wont_fall && !next_to_u()) {
+            if (!u.monster_stuck_to && !wont_fall && !next_to_u()) {
                 You("are jerked back by your pet!");
                 wont_fall = TRUE;
             }
@@ -715,7 +717,7 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
              * the hero does NOT fall down is treated here.  The case
              * where the hero does fall down is treated in goto_level().
              */
-            if (u.ustuck || wont_fall) {
+            if (u.monster_stuck_to || wont_fall) {
                 if (newobjs)
                     impact_drop((struct obj *) 0, x, y, 0);
                 if (oldobjs != newobjs)
@@ -750,7 +752,7 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
                     || (mtmp->wormno && count_wsegs(mtmp) > 5)
                     || mtmp->data->msize >= MZ_HUGE)
                     return;
-                if (mtmp == u.ustuck) /* probably a vortex */
+                if (mtmp == u.monster_stuck_to) /* probably a vortex */
                     return;           /* temporary? kludge */
 
                 if (teleport_pet(mtmp, FALSE)) {
@@ -789,7 +791,7 @@ liquid_flow(
     const char *fillmsg)
 {
     struct obj *objchain;
-    struct monst *mon;
+    struct monster *mon;
     boolean u_spot = u_at(x, y);
 
     /* caller should have changed levl[x][y].typ to POOL, MOAT, or LAVA */
@@ -883,7 +885,7 @@ dighole(boolean pit_only, boolean by_magic, coord *cc)
 
     } else if ((boulder_here = sobj_at(BOULDER, dig_x, dig_y)) != 0) {
         if (ttmp && is_pit(ttmp->ttyp)
-            && rn2(2)) {
+            && random_integer_between_zero_and(2)) {
             pline_The("boulder settles into the %spit.",
                       (dig_x != u.ux || dig_y != u.uy) ? "adjacent " : "");
             ttmp->ttyp = PIT; /* crush spikes */
@@ -983,19 +985,19 @@ dig_up_grave(coord *cc)
     /* Grave-robbing is frowned upon... */
     exercise(A_WIS, FALSE);
     if (Role_if(PM_ARCHEOLOGIST)) {
-        adjalign(-sgn(u.ualign.type) * 3);
+        adjalign(-sgn(u.alignment.type) * 3);
         You_feel("like a despicable grave-robber!");
     } else if (Role_if(PM_SAMURAI)) {
-        adjalign(-sgn(u.ualign.type));
+        adjalign(-sgn(u.alignment.type));
         You("disturb the honorable dead!");
-    } else if (u.ualign.type == A_LAWFUL) {
-        if (u.ualign.record > -10)
+    } else if (u.alignment.type == A_LAWFUL) {
+        if (u.alignment.record > -10)
             adjalign(-1);
         You("have violated the sanctity of this grave!");
     }
 
     /* -1: force default case for empty grave */
-    what_happens = levl[dig_x][dig_y].emptygrave ? -1 : rn2(5);
+    what_happens = levl[dig_x][dig_y].emptygrave ? -1 : random_integer_between_zero_and(5);
     switch (what_happens) {
     case 0:
     case 1:
@@ -1108,7 +1110,7 @@ use_pick_axe2(struct obj *obj)
     boolean ispick = is_pick(obj);
     const char *verbing = ispick ? "digging" : "chopping";
 
-    if (u.uswallow && do_attack(u.ustuck)) {
+    if (u.uswallow && do_attack(u.monster_stuck_to)) {
         ; /* return 1 */
     } else if (Underwater) {
         pline("Turbulence torpedoes your %s attempts.", verbing);
@@ -1121,7 +1123,7 @@ use_pick_axe2(struct obj *obj)
         char buf[BUFSZ];
         int dam;
 
-        dam = rnd(2) + dbon() + obj->spe;
+        dam = random(2) + dbon() + obj->spe;
         if (dam <= 0)
             dam = 1;
         You("hit yourself with %s.", yname(uwep));
@@ -1177,7 +1179,7 @@ use_pick_axe2(struct obj *obj)
                 const char *what = boulder ? "boulder" : "statue";
 
                 if (!ispick) {
-                    boolean vibrate = !rn2(3);
+                    boolean vibrate = !random_integer_between_zero_and(3);
 
                     pline("Sparks fly as you whack the %s.%s", what,
                           vibrate ? "  The axe-handle vibrates violently!"
@@ -1297,7 +1299,7 @@ use_pick_axe2(struct obj *obj)
 }
 
 staticfn boolean
-watchman_canseeu(struct monst *mtmp)
+watchman_canseeu(struct monster *mtmp)
 {
     if (is_watch(mtmp->data) && mtmp->mcansee && m_canseeu(mtmp)
         && mtmp->mpeaceful)
@@ -1312,7 +1314,7 @@ watchman_canseeu(struct monst *mtmp)
  * zap == TRUE if wand/spell of digging, FALSE otherwise (chewing)
  */
 void
-watch_dig(struct monst *mtmp, coordxy x, coordxy y, boolean zap)
+watch_dig(struct monster *mtmp, coordxy x, coordxy y, boolean zap)
 {
     struct rm *lev = &levl[x][y];
 
@@ -1349,11 +1351,11 @@ watch_dig(struct monst *mtmp, coordxy x, coordxy y, boolean zap)
 
 /* Return TRUE if monster died, FALSE otherwise.  Called from m_move(). */
 boolean
-mdig_tunnel(struct monst *mtmp)
+mdig_tunnel(struct monster *mtmp)
 {
     struct rm *here;
     boolean sawit, seeit, trapped;
-    int pile = rnd(12);
+    int pile = random(12);
 
     here = &levl[mtmp->mx][mtmp->my];
     if (here->typ == SDOOR)
@@ -1377,7 +1379,7 @@ mdig_tunnel(struct monst *mtmp)
             }
         } else {
             if (flags.verbose) {
-                if (!Unaware && !rn2(3)) /* not too often.. */
+                if (!Unaware && !random_integer_between_zero_and(3)) /* not too often.. */
                     draft_message(TRUE); /* "You feel an unexpected draft." */
             }
         }
@@ -1403,7 +1405,7 @@ mdig_tunnel(struct monst *mtmp)
 
     if (IS_WALL(here->typ)) {
         /* KMH -- Okay on arboreal levels (room walls are still stone) */
-        if (flags.verbose && !rn2(5)) {
+        if (flags.verbose && !random_integer_between_zero_and(5)) {
             Soundeffect(se_crashing_rock, 75);
             You_hear("crashing rock.");
         }
@@ -1456,9 +1458,9 @@ draft_message(boolean unexpected)
                and 4-F for ineligible due to physical or mental defect;
                some intermediate values exist but are rarely seen */
             You_feel("like you are %s.",
-                     (ACURR(A_STR) < 6 || ACURR(A_DEX) < 6
-                      || ACURR(A_CON) < 6 || ACURR(A_CHA) < 6
-                      || ACURR(A_INT) < 6 || ACURR(A_WIS) < 6) ? "4-F"
+                     (ATTRIBUTE_CURRENT(A_STR) < 6 || ATTRIBUTE_CURRENT(A_DEX) < 6
+                      || ATTRIBUTE_CURRENT(A_CON) < 6 || ATTRIBUTE_CURRENT(A_CHA) < 6
+                      || ATTRIBUTE_CURRENT(A_INT) < 6 || ATTRIBUTE_CURRENT(A_WIS) < 6) ? "4-F"
                                                                : "1-A");
     } else {
         if (!Hallucination) {
@@ -1472,10 +1474,10 @@ draft_message(boolean unexpected)
             int dridx;
 
             /* Lawful: 0..1, Neutral: 1..2, Chaotic: 2..3 */
-            dridx = rn1(2, 1 - sgn(u.ualign.type));
-            if (u.ualign.record < STRIDENT)
+            dridx = rn1(2, 1 - sgn(u.alignment.type));
+            if (u.alignment.record < STRIDENT)
                 /* L: +(0..2), N: +(-1..1), C: +(-2..0); all: 0..3 */
-                dridx += rn1(3, sgn(u.ualign.type) - 1);
+                dridx += rn1(3, sgn(u.alignment.type) - 1);
             You_feel("like %s.", draft_reaction[dridx]);
         }
     }
@@ -1486,7 +1488,7 @@ void
 zap_dig(void)
 {
     struct rm *room;
-    struct monst *mtmp;
+    struct monster *mtmp;
     struct obj *otmp;
     struct trap *trap_with_u = (struct trap *) 0;
     coordxy zx, zy, flow_x = -1, flow_y = -1;
@@ -1504,7 +1506,7 @@ zap_dig(void)
      */
 
     if (u.uswallow) {
-        mtmp = u.ustuck;
+        mtmp = u.monster_stuck_to;
 
         if (!is_whirly(mtmp->data)) {
             if (digests(mtmp->data))
@@ -1531,7 +1533,7 @@ zap_dig(void)
                 }
                 You("loosen a rock from the %s.", ceiling(u.ux, u.uy));
                 pline("It falls on your %s!", body_part(HEAD));
-                dmg = rnd(hard_helmet(uarmh) ? 2 : 6);
+                dmg = random(hard_helmet(uarmh) ? 2 : 6);
                 losehp(Maybe_Half_Phys(dmg), "falling rock", KILLED_BY_AN);
                 otmp = mksobj_at(ROCK, u.ux, u.uy, FALSE, FALSE);
                 if (otmp) {
@@ -1540,7 +1542,7 @@ zap_dig(void)
                 }
                 newsym(u.ux, u.uy);
             } else {
-                watch_dig((struct monst *) 0, u.ux, u.uy, TRUE);
+                watch_dig((struct monster *) 0, u.ux, u.uy, TRUE);
                 (void) dighole(FALSE, TRUE, (coord *) 0);
             }
         }
@@ -1612,7 +1614,7 @@ zap_dig(void)
                 room->typ = DOOR; /* doormask set below */
             else if (cansee(zx, zy))
                 pline_The("door is razed!");
-            watch_dig((struct monst *) 0, zx, zy, TRUE);
+            watch_dig((struct monster *) 0, zx, zy, TRUE);
             room->doormask = D_NODOOR;
             unblock_point(zx, zy); /* vision */
             digdepth -= 2;
@@ -1653,7 +1655,7 @@ zap_dig(void)
                     add_damage(zx, zy, SHOP_WALL_COST);
                     shopwall = TRUE;
                 }
-                watch_dig((struct monst *) 0, zx, zy, TRUE);
+                watch_dig((struct monster *) 0, zx, zy, TRUE);
                 if (gl.level.flags.is_cavernous_lev && !in_town(zx, zy)) {
                     room->typ = CORR, room->flags = 0;
                 } else {
@@ -1968,7 +1970,7 @@ bury_an_obj(struct obj *otmp, boolean *dealloced)
         ; /* should cancel timer if under_ice */
     } else if ((under_ice ? otmp->oclass == POTION_CLASS : is_organic(otmp))
                && !obj_resists(otmp, 5, 95)) {
-        (void) start_timer((under_ice ? 0L : 250L) + (long) rnd(250),
+        (void) start_timer((under_ice ? 0L : 250L) + (long) random(250),
                            TIMER_OBJECT, ROT_ORGANIC, obj_to_any(otmp));
 #if 0
     /* rusting of buried metal not yet implemented */
@@ -1987,7 +1989,7 @@ void
 bury_objs(int x, int y)
 {
     struct obj *otmp, *otmp2;
-    struct monst *shkp;
+    struct monster *shkp;
     long loss = 0L;
     boolean costly;
 
@@ -2110,7 +2112,7 @@ rot_corpse(anything *arg, long timeout)
     }
     rot_organic(arg, timeout);
     if (on_floor) {
-        struct monst *mtmp = m_at(x, y);
+        struct monster *mtmp = m_at(x, y);
 
         /* a hiding monster may be exposed */
         if (mtmp && !OBJ_AT(x, y) && mtmp->mundetected

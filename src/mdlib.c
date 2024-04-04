@@ -5,6 +5,8 @@
 /* Copyright (c) Dean Luick, 1990.                                */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /*
  * This can be linked into a binary to provide the functionality
  * via the contained functions, or it can be #included directly
@@ -78,7 +80,7 @@ extern int GUILaunched;
 /* XXX move to new file mdlib.h? */
 extern void populate_nomakedefs(struct version_info *) NONNULLARG1; /* date.c */
 extern void free_nomakedefs(void); /* date.c */
-void runtime_info_init(void);
+void runtime_info_initialize(void);
 const char *do_runtime_info(int *) NO_NNARGS;
 void release_runtime_info(void);
 char *mdlib_version_string(char *, const char *) NONNULL NONNULLPTRS;
@@ -313,7 +315,7 @@ make_version(void)
     version.struct_sizes1 =
         (((unsigned long) sizeof(struct context_info) << 24)
          | ((unsigned long) sizeof(struct obj) << 17)
-         | ((unsigned long) sizeof(struct monst) << 10)
+         | ((unsigned long) sizeof(struct monster) << 10)
          | ((unsigned long) sizeof(struct you)));
     version.struct_sizes2 = (((unsigned long) sizeof(struct flag) << 10));
 /* free bits in here */
@@ -864,7 +866,7 @@ build_options(void)
 #undef STOREOPTTEXT
 
 void
-runtime_info_init(void)
+runtime_info_initialize(void)
 {
     if (!done_runtime_opt_init_once) {
         done_runtime_opt_init_once = 1;
@@ -883,7 +885,7 @@ do_runtime_info(int *rtcontext)
     const char *retval = (const char *) 0;
 
     if (!done_runtime_opt_init_once)
-        runtime_info_init();
+        runtime_info_initialize();
     if (idxopttext && rtcontext)
         if (*rtcontext >= 0 && *rtcontext < MAXOPT) {
             retval = opttext[*rtcontext];

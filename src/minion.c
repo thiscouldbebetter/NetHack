@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2008. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 /* used to pick among the four basic elementals without worrying whether
@@ -14,7 +16,7 @@ static const int elementals[4] = {
 };
 
 void
-newemin(struct monst *mtmp)
+newemin(struct monster *mtmp)
 {
     if (!mtmp->mextra)
         mtmp->mextra = newmextra();
@@ -25,7 +27,7 @@ newemin(struct monst *mtmp)
 }
 
 void
-free_emin(struct monst *mtmp)
+free_emin(struct monster *mtmp)
 {
     if (mtmp->mextra && EMIN(mtmp)) {
         free((genericptr_t) EMIN(mtmp));
@@ -38,7 +40,7 @@ free_emin(struct monst *mtmp)
 int
 monster_census(boolean spotted) /* seen|sensed vs all */
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     int count = 0;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -55,13 +57,13 @@ monster_census(boolean spotted) /* seen|sensed vs all */
 
 /* mon summons a monster */
 int
-msummon(struct monst *mon)
+msummon(struct monster *mon)
 {
     struct permonst *ptr;
     int dtype = NON_PM, cnt = 0, result = 0, census;
     boolean xlight;
     aligntyp atyp;
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if (mon) {
         ptr = mon->data;
@@ -82,31 +84,31 @@ msummon(struct monst *mon)
     }
 
     if (is_dprince(ptr) || (ptr == &mons[PM_WIZARD_OF_YENDOR])) {
-        dtype = (!rn2(20)) ? dprince(atyp) : (!rn2(4)) ? dlord(atyp)
+        dtype = (!random_integer_between_zero_and(20)) ? dprince(atyp) : (!random_integer_between_zero_and(4)) ? dlord(atyp)
                                                        : ndemon(atyp);
         cnt = ((dtype != NON_PM)
-               && !rn2(4) && is_ndemon(&mons[dtype])) ? 2 : 1;
+               && !random_integer_between_zero_and(4) && is_ndemon(&mons[dtype])) ? 2 : 1;
     } else if (is_dlord(ptr)) {
-        dtype = (!rn2(50)) ? dprince(atyp) : (!rn2(20)) ? dlord(atyp)
+        dtype = (!random_integer_between_zero_and(50)) ? dprince(atyp) : (!random_integer_between_zero_and(20)) ? dlord(atyp)
                                                         : ndemon(atyp);
         cnt = ((dtype != NON_PM)
-               && !rn2(4) && is_ndemon(&mons[dtype])) ? 2 : 1;
+               && !random_integer_between_zero_and(4) && is_ndemon(&mons[dtype])) ? 2 : 1;
     } else if (ptr == &mons[PM_BONE_DEVIL]) {
         dtype = PM_SKELETON;
         cnt = 1;
     } else if (is_ndemon(ptr)) {
-        dtype = (!rn2(20)) ? dlord(atyp) : (!rn2(6)) ? ndemon(atyp)
+        dtype = (!random_integer_between_zero_and(20)) ? dlord(atyp) : (!random_integer_between_zero_and(6)) ? ndemon(atyp)
                                                      : monsndx(ptr);
         cnt = 1;
     } else if (is_lminion(mon)) {
-        dtype = (is_lord(ptr) && !rn2(20))
+        dtype = (is_lord(ptr) && !random_integer_between_zero_and(20))
                     ? llord()
-                    : (is_lord(ptr) || !rn2(6)) ? lminion() : monsndx(ptr);
+                    : (is_lord(ptr) || !random_integer_between_zero_and(6)) ? lminion() : monsndx(ptr);
         cnt = ((dtype != NON_PM)
-               && !rn2(4) && !is_lord(&mons[dtype])) ? 2 : 1;
+               && !random_integer_between_zero_and(4) && !is_lord(&mons[dtype])) ? 2 : 1;
     } else if (ptr == &mons[PM_ANGEL]) {
         /* non-lawful angels can also summon */
-        if (!rn2(6)) {
+        if (!random_integer_between_zero_and(6)) {
             switch (atyp) { /* see summon_minion */
             case A_NEUTRAL:
                 dtype = ROLL_FROM(elementals);
@@ -120,7 +122,7 @@ msummon(struct monst *mon)
             dtype = PM_ANGEL;
         }
         cnt = ((dtype != NON_PM)
-               && !rn2(4) && !is_lord(&mons[dtype])) ? 2 : 1;
+               && !random_integer_between_zero_and(4) && !is_lord(&mons[dtype])) ? 2 : 1;
     }
 
     if (dtype == NON_PM)
@@ -155,7 +157,7 @@ msummon(struct monst *mon)
                 /* renegade if same alignment but not peaceful
                    or peaceful but different alignment */
                 EMIN(mtmp)->renegade =
-                    (atyp != u.ualign.type) ^ !mtmp->mpeaceful;
+                    (atyp != u.alignment.type) ^ !mtmp->mpeaceful;
             }
 
             if (mtmp->data->mlet == S_ANGEL && !Blind) {
@@ -196,7 +198,7 @@ msummon(struct monst *mon)
 void
 summon_minion(aligntyp alignment, boolean talk)
 {
-    struct monst *mon;
+    struct monster *mon;
     int mnum;
 
     switch ((int) alignment) {
@@ -259,7 +261,7 @@ summon_minion(aligntyp alignment, boolean talk)
 
 /* returns 1 if it won't attack. */
 int
-demon_talk(struct monst *mtmp)
+demon_talk(struct monster *mtmp)
 {
     long cash, demand, offer;
 
@@ -306,8 +308,8 @@ demon_talk(struct monst *mtmp)
         return 1;
     }
     cash = money_cnt(gi.invent);
-    demand = (cash * (rnd(80) + 20 * Athome))
-           / (100 * (1 + (sgn(u.ualign.type) == sgn(mtmp->data->maligntyp))));
+    demand = (cash * (random(80) + 20 * Athome))
+           / (100 * (1 + (sgn(u.alignment.type) == sgn(mtmp->data->maligntyp))));
 
     if (!demand || gm.multi < 0) { /* you have no gold or can't move */
         mtmp->mpeaceful = 0;
@@ -335,7 +337,7 @@ demon_talk(struct monst *mtmp)
             pline("%s vanishes, laughing about cowardly mortals.",
                   Amonnam(mtmp));
         } else if (offer > 0L
-                   && (long) rnd(5 * ACURR(A_CHA)) > (demand - offer)) {
+                   && (long) random(5 * ATTRIBUTE_CURRENT(A_CHA)) > (demand - offer)) {
             pline("%s scowls at you menacingly, then vanishes.",
                   Amonnam(mtmp));
         } else {
@@ -352,7 +354,7 @@ demon_talk(struct monst *mtmp)
 }
 
 long
-bribe(struct monst *mtmp)
+bribe(struct monster *mtmp)
 {
     char buf[BUFSZ] = DUMMY;
     long offer;
@@ -459,7 +461,7 @@ ndemon(aligntyp atyp) /* A_NONE is used for 'any alignment' */
 
 /* guardian angel has been affected by conflict so is abandoning hero */
 void
-lose_guardian_angel(struct monst *mon) /* if null, angel hasn't been created yet */
+lose_guardian_angel(struct monster *mon) /* if null, angel hasn't been created yet */
 {
     coord mm;
     int i;
@@ -481,7 +483,7 @@ lose_guardian_angel(struct monst *mon) /* if null, angel hasn't been created yet
         mm.x = u.ux;
         mm.y = u.uy;
         if (enexto(&mm, mm.x, mm.y, &mons[PM_ANGEL]))
-            (void) mk_roamer(&mons[PM_ANGEL], u.ualign.type, mm.x, mm.y,
+            (void) mk_roamer(&mons[PM_ANGEL], u.alignment.type, mm.x, mm.y,
                              FALSE);
     }
 }
@@ -490,7 +492,7 @@ lose_guardian_angel(struct monst *mon) /* if null, angel hasn't been created yet
 void
 gain_guardian_angel(void)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     struct obj *otmp;
     coord mm;
 
@@ -501,21 +503,21 @@ gain_guardian_angel(void)
             pline("A voice booms:");
         else
             You_feel("a booming voice:");
-        SetVoice((struct monst *) 0, 0, 80, voice_deity);
+        SetVoice((struct monster *) 0, 0, 80, voice_deity);
         verbalize("Thy desire for conflict shall be fulfilled!");
         /* send in some hostile angels instead */
-        lose_guardian_angel((struct monst *) 0);
-    } else if (u.ualign.record > 8) { /* fervent */
+        lose_guardian_angel((struct monster *) 0);
+    } else if (u.alignment.record > 8) { /* fervent */
         if (!Deaf)
             pline("A voice whispers:");
         else
             You_feel("a soft voice:");
-        SetVoice((struct monst *) 0, 0, 80, voice_deity);
+        SetVoice((struct monster *) 0, 0, 80, voice_deity);
         verbalize("Thou hast been worthy of me!");
         mm.x = u.ux;
         mm.y = u.uy;
         if (enexto(&mm, mm.x, mm.y, &mons[PM_ANGEL])
-            && (mtmp = mk_roamer(&mons[PM_ANGEL], u.ualign.type, mm.x, mm.y,
+            && (mtmp = mk_roamer(&mons[PM_ANGEL], u.alignment.type, mm.x, mm.y,
                                  TRUE)) != 0) {
             mtmp->mstrategy &= ~STRAT_APPEARMSG;
             /* guardian angel -- the one case mtame doesn't imply an
@@ -543,7 +545,7 @@ gain_guardian_angel(void)
             /* make him strong enough vs. endgame foes */
             mtmp->m_lev = rn1(8, 15);
             mtmp->mhp = mtmp->mhpmax =
-                d((int) mtmp->m_lev, 10) + 30 + rnd(30);
+                d((int) mtmp->m_lev, 10) + 30 + random(30);
             if ((otmp = select_hwep(mtmp)) == 0) {
                 otmp = mksobj(SILVER_SABER, FALSE, FALSE);
                 if (mpickobj(mtmp, otmp))
@@ -551,7 +553,7 @@ gain_guardian_angel(void)
             }
             bless(otmp);
             if (otmp->spe < 4)
-                otmp->spe += rnd(4);
+                otmp->spe += random(4);
             if ((otmp = which_armor(mtmp, W_ARMS)) == 0
                 || otmp->otyp != SHIELD_OF_REFLECTION) {
                 (void) mongets(mtmp, AMULET_OF_REFLECTION);

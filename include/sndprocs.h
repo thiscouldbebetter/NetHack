@@ -1,5 +1,7 @@
 /* NetHack 3.7	sndprocs.h	$NHDT-Date: 1693253118 2023/08/28 20:05:18 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.24 $ */
 /* Copyright (c) Michael Allison, 2022                                */
+
+/* Modified by This Could Be Better, 2024. */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef SNDPROCS_H
@@ -63,7 +65,7 @@ struct sound_voice {
     int32_t tone;
     int32_t volume;
     int32_t moreinfo;
-    struct monst *mon;
+    struct monster *mon;
     const char *nameid;
 };
 

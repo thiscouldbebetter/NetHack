@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #define NEED_VARARGS /* comment line for pre-compiled headers */
 
 #include "hack.h"
@@ -117,7 +119,7 @@ done2(void)
             nomul(0);
         if (gm.multi == 0) {
             u.uinvulnerable = FALSE; /* avoid ctrl-C bug -dlc */
-            u.usleep = 0;
+            u.sleeping_move_last_started = 0;
         }
 
         if (abandon_tutorial)
@@ -192,7 +194,7 @@ DISABLE_WARNING_FORMAT_NONLITERAL /* one compiler warns if the format
                                      string is the result of a ? x : y */
 
 void
-done_in_by(struct monst *mtmp, int how)
+done_in_by(struct monster *mtmp, int how)
 {
     char buf[BUFSZ];
     struct permonst *mptr = mtmp->data,
@@ -322,20 +324,20 @@ done_in_by(struct monst *mtmp, int how)
      *  Unchanging prevents that from happening.)
      */
     if (mptr->mlet == S_WRAITH)
-        u.ugrave_arise = PM_WRAITH;
+        u.risen_from_grave = PM_WRAITH;
     else if (mptr->mlet == S_MUMMY && gu.urace.mummynum != NON_PM)
-        u.ugrave_arise = gu.urace.mummynum;
+        u.risen_from_grave = gu.urace.mummynum;
     else if (zombie_maker(mtmp) && gu.urace.zombienum != NON_PM)
-        u.ugrave_arise = gu.urace.zombienum;
+        u.risen_from_grave = gu.urace.zombienum;
     else if (mptr->mlet == S_VAMPIRE && Race_if(PM_HUMAN))
-        u.ugrave_arise = PM_VAMPIRE;
+        u.risen_from_grave = PM_VAMPIRE;
     else if (mptr == &mons[PM_GHOUL])
-        u.ugrave_arise = PM_GHOUL;
+        u.risen_from_grave = PM_GHOUL;
     /* this could happen if a high-end vampire kills the hero
        when ordinary vampires are genocided; ditto for wraiths */
-    if (u.ugrave_arise >= LOW_PM
-        && (gm.mvitals[u.ugrave_arise].mvflags & G_GENOD))
-        u.ugrave_arise = NON_PM;
+    if (u.risen_from_grave >= LOW_PM
+        && (gm.mvitals[u.risen_from_grave].mvflags & G_GENOD))
+        u.risen_from_grave = NON_PM;
 
     done(how);
     return;
@@ -698,16 +700,16 @@ staticfn void
 savelife(int how)
 {
     int uhpmin;
-    int givehp = 50 + 10 * (ACURR(A_CON) / 2);
+    int givehp = 50 + 10 * (ATTRIBUTE_CURRENT(A_CON) / 2);
 
     /* life-drain/level-loss to experience level 0 kills without actually
        reducing ulevel below 1, but include this for bulletproofing */
     if (u.ulevel < 1)
         u.ulevel = 1;
     uhpmin = minuhpmax(10);
-    if (u.uhpmax < uhpmin)
+    if (u.hit_points_max < uhpmin)
         setuhpmax(uhpmin);
-    u.uhp = min(u.uhpmax, givehp);
+    u.hit_points = min(u.hit_points_max, givehp);
     if (Upolyd) /* Unchanging, or death which bypasses losing hit points */
         u.mh = min(u.mhmax, givehp);
     if (u.uhunger < 500 || how == CHOKING) {
@@ -732,20 +734,20 @@ savelife(int how)
     if (u.utrap && u.utraptype == TT_LAVA)
         reset_utrap(FALSE);
     disp.botl = TRUE;
-    u.ugrave_arise = NON_PM;
+    u.risen_from_grave = NON_PM;
     HUnchanging = 0L;
     curs_on_u();
     if (!gc.context.mon_moving)
         endmultishot(FALSE);
     if (u.uswallow) {
         /* might drop hero onto a trap that kills her all over again */
-        expels(u.ustuck, u.ustuck->data, TRUE);
-    } else if (u.ustuck) {
+        expels(u.monster_stuck_to, u.monster_stuck_to->data, TRUE);
+    } else if (u.monster_stuck_to) {
         if (Upolyd && sticks(gy.youmonst.data))
-            You("release %s.", mon_nam(u.ustuck));
+            You("release %s.", mon_nam(u.monster_stuck_to));
         else
-            pline("%s releases you.", Monnam(u.ustuck));
-        unstuck(u.ustuck);
+            pline("%s releases you.", Monnam(u.monster_stuck_to));
+        unstuck(u.monster_stuck_to);
     }
 }
 
@@ -957,39 +959,39 @@ fuzzer_savelife(int how)
            levels or cure lycanthropy or both; those conditions make the
            hero vulnerable to repeat deaths (often by becoming surrounded
            while being too encumbered to do anything) */
-        if (!rn2((gd.done_seq > gh.hero_seq + 2L) ? 2 : 10)) {
+        if (!random_integer_between_zero_and((gd.done_seq > gh.hero_seq + 2L) ? 2 : 10)) {
             struct obj *potion;
             int propidx, proptim, remedies = 0;
 
             /* get rid of temporary potion with obfree() rather than useup()
                because it doesn't get entered into inventory */
-            if (ismnum(u.ulycn) && !rn2(3)) {
+            if (ismnum(u.ulycn) && !random_integer_between_zero_and(3)) {
                 potion = mksobj(POT_WATER, TRUE, FALSE);
                 bless(potion);
                 (void) peffects(potion);
                 obfree(potion, (struct obj *) 0);
                 ++remedies;
             }
-            if (!remedies || rn2(3)) {
+            if (!remedies || random_integer_between_zero_and(3)) {
                 potion = mksobj(POT_RESTORE_ABILITY, TRUE, FALSE);
                 bless(potion);
                 (void) peffects(potion);
                 obfree(potion, (struct obj *) 0);
                 ++remedies;
             }
-            if (!rn2(3 + 3 * remedies)) {
+            if (!random_integer_between_zero_and(3 + 3 * remedies)) {
                 /* confer temporary resistances for first 8 properties:
                    fire, cold, sleep, disint, shock, poison, acid, stone */
                 for (propidx = 1; propidx <= 8; ++propidx) {
                     if (!u.uprops[propidx].intrinsic
                         && !u.uprops[propidx].extrinsic
-                        && (proptim = rn2(3)) > 0) /* 0..2 */
+                        && (proptim = random_integer_between_zero_and(3)) > 0) /* 0..2 */
                         set_itimeout(&u.uprops[propidx].intrinsic,
                                      (long) (2 * proptim + 1)); /* 3 or 5 */
                 }
                 ++remedies;
             }
-            if (!rn2(5 + 5 * remedies)) {
+            if (!random_integer_between_zero_and(5 + 5 * remedies)) {
                 ; /* might confer temporary Antimagic (magic resistance)
                    * or even Invulnerable */
             }
@@ -1054,14 +1056,14 @@ done(int how)
         Strcpy(gk.killer.name, deaths[how]);
 
     if (how < PANICKED) {
-        u.umortality++;
+        u.times_died++;
         /* in case caller hasn't already done this */
-        if (u.uhp != 0 || (Upolyd && u.mh != 0)) {
+        if (u.hit_points != 0 || (Upolyd && u.mh != 0)) {
             /* force HP to zero in case it is still positive (some
                deaths aren't triggered by loss of hit points), or
                negative (-1 is used as a flag in some circumstances
                which don't apply when actually dying due to HP loss) */
-            u.uhp = u.mh = 0;
+            u.hit_points = u.mh = 0;
             disp.botl = TRUE;
         }
     }
@@ -1077,7 +1079,7 @@ done(int how)
         if (uamul)
             useup(uamul);
 
-        (void) adjattrib(A_CON, -1, TRUE);
+        (void) adjust_attribute(A_CON, -1, TRUE);
         savelife(how);
         if (how == GENOCIDED) {
             pline("Unfortunately you are still genocided...");
@@ -1156,7 +1158,7 @@ really_done(int how)
 
     /* final achievement tracking; only show blind and nudist if some
        tangible progress has been made; always show ascension last */
-    if (u.uachieved[0] || !flags.beginner) {
+    if (u.achievements_in_order_obtained[0] || !flags.beginner) {
         if (u.uroleplay.blind)
             record_achievement(ACH_BLND); /* blind the whole game */
         if (u.uroleplay.nudist)
@@ -1192,24 +1194,24 @@ really_done(int how)
 
     /* maintain ugrave_arise even for !bones_ok */
     if (how == PANICKED)
-        u.ugrave_arise = (NON_PM - 3); /* no corpse, no grave */
+        u.risen_from_grave = (NON_PM - 3); /* no corpse, no grave */
     else if (how == BURNING || how == DISSOLVED) /* corpse burns up too */
-        u.ugrave_arise = (NON_PM - 2); /* leave no corpse */
+        u.risen_from_grave = (NON_PM - 2); /* leave no corpse */
     else if (how == STONING)
-        u.ugrave_arise = LEAVESTATUE; /* statue instead of corpse */
+        u.risen_from_grave = LEAVESTATUE; /* statue instead of corpse */
     else if (how == TURNED_SLIME
              /* it's possible to turn into slime even though green slimes
                 have been genocided:  genocide could occur after hero is
                 already infected or hero could eat a glob of one created
                 before genocide; don't try to arise as one if they're gone */
              && !(gm.mvitals[PM_GREEN_SLIME].mvflags & G_GENOD))
-        u.ugrave_arise = PM_GREEN_SLIME;
+        u.risen_from_grave = PM_GREEN_SLIME;
 
     if (how == QUIT) {
         gk.killer.format = NO_KILLER_PREFIX;
-        if (u.uhp < 1) {
+        if (u.hit_points < 1) {
             how = DIED;
-            u.umortality++; /* skipped above when how==QUIT */
+            u.times_died++; /* skipped above when how==QUIT */
             Strcpy(gk.killer.name, "quit while already on Charon's boat");
         }
     }
@@ -1288,7 +1290,7 @@ really_done(int how)
 
     /* grave creation should be after disclosure so it doesn't have
        this grave in the current level's features for #overview */
-    if (bones_ok && u.ugrave_arise == NON_PM
+    if (bones_ok && u.risen_from_grave == NON_PM
         && !(gm.mvitals[u.umonnum].mvflags & G_NOCORPSE)) {
         /* Base corpse on race when not poly'd since original u.umonnum
            is based on role, and all role monsters are human. */
@@ -1309,7 +1311,7 @@ really_done(int how)
         int deepest = deepest_lev_reached(FALSE);
 
         umoney = money_cnt(gi.invent);
-        tmp = u.umoney0;
+        tmp = u.money0;
         umoney += hidden_gold(TRUE); /* accumulate gold from containers */
         tmp = umoney - tmp;          /* net gain */
 
@@ -1323,7 +1325,7 @@ really_done(int how)
         nowrap_add(u.urexp, tmp);
 
         /* ascension gives a score bonus iff offering to original deity */
-        if (how == ASCENDED && u.ualign.type == u.ualignbase[A_ORIGINAL]) {
+        if (how == ASCENDED && u.alignment.type == u.ualignbase[A_ORIGINAL]) {
             /* retaining original alignment: score *= 2;
                converting, then using helm-of-OA to switch back: *= 1.5 */
             tmp = (u.ualignbase[A_CURRENT] == u.ualignbase[A_ORIGINAL])
@@ -1333,15 +1335,15 @@ really_done(int how)
         }
     }
 
-    if (ismnum(u.ugrave_arise) && !done_stopprint) {
+    if (ismnum(u.risen_from_grave) && !done_stopprint) {
         /* give this feedback even if bones aren't going to be created,
            so that its presence or absence doesn't tip off the player to
            new bones or their lack; it might be a lie if makemon fails */
         Your("%s as %s...",
-             (u.ugrave_arise != PM_GREEN_SLIME)
+             (u.risen_from_grave != PM_GREEN_SLIME)
                  ? "body rises from the dead"
                  : "revenant persists",
-             an(pmname(&mons[u.ugrave_arise], Ugender)));
+             an(pmname(&mons[u.risen_from_grave], Ugender)));
         display_nhwindow(WIN_MESSAGE, FALSE);
     }
 
@@ -1390,7 +1392,7 @@ really_done(int how)
         dump_redirect(FALSE);
     }
 #endif
-    if (u.uhave.amulet) {
+    if (u.player_carrying_special_objects.amulet) {
         Strcat(gk.killer.name, " (with the Amulet)");
     } else if (how == ESCAPED) {
         if (Is_astralevel(&u.uz)) /* offered Amulet to wrong deity */
@@ -1410,7 +1412,7 @@ really_done(int how)
     dump_forward_putstr(endwin, 0, "", done_stopprint);
 
     if (how == ESCAPED || how == ASCENDED) {
-        struct monst *mtmp;
+        struct monster *mtmp;
         struct obj *otmp;
         struct val_list *val;
         int i;
@@ -1530,7 +1532,7 @@ really_done(int how)
     dump_forward_putstr(endwin, 0, pbuf, done_stopprint);
     Sprintf(pbuf,
             "You were level %d with a maximum of %d hit point%s when you %s.",
-            u.ulevel, u.uhpmax, plur(u.uhpmax), ends[how]);
+            u.ulevel, u.hit_points_max, plur(u.hit_points_max), ends[how]);
     dump_forward_putstr(endwin, 0, pbuf, done_stopprint);
     dump_forward_putstr(endwin, 0, "", done_stopprint);
     if (!done_stopprint)

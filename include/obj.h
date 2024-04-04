@@ -3,6 +3,8 @@
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #ifndef OBJ_H
 #define OBJ_H
 
@@ -12,12 +14,12 @@
 /* start with incomplete types in case these aren't defined yet;
    basic pointers to them don't need to know their details */
 struct obj;
-struct monst;
+struct monster;
 
 union vptrs {
     struct obj *v_nexthere;   /* floor location lists */
     struct obj *v_ocontainer; /* point back to container */
-    struct monst *v_ocarry;   /* point back to carrying monst */
+    struct monster *v_ocarry;   /* point back to carrying monst */
 };
 
 /****
@@ -26,7 +28,7 @@ union vptrs {
  */
 struct oextra {
     char *oname;          /* ptr to name of object */
-    struct monst *omonst; /* ptr to attached monst struct */
+    struct monster *omonst; /* ptr to attached monst struct */
     char *omailcmd;       /* response_cmd for mail delivery */
     unsigned omid;        /* for corpse: m_id of corpse's ghost; overloaded
                            * for glob: owt at time added to shop's bill */

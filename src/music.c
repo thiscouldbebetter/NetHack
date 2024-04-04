@@ -2,6 +2,8 @@
 /*      Copyright (c) 1989 by Jean-Christophe Collet */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /*
  * This file contains the different functions designed to manipulate the
  * musical instruments and their various effects.
@@ -28,7 +30,7 @@
 
 #include "hack.h"
 
-staticfn void awaken_scare(struct monst *, boolean);
+staticfn void awaken_scare(struct monster *, boolean);
 staticfn void awaken_monsters(int);
 staticfn void put_monsters_to_sleep(int);
 staticfn void charm_snakes(int);
@@ -41,7 +43,7 @@ staticfn char *improvised_notes(boolean *);
 
 /* wake up monster, possibly scare it */
 staticfn void
-awaken_scare(struct monst *mtmp, boolean scary)
+awaken_scare(struct monster *mtmp, boolean scary)
 {
     mtmp->msleeping = 0;
     mtmp->mcanmove = 1;
@@ -65,7 +67,7 @@ awaken_scare(struct monst *mtmp, boolean scary)
 staticfn void
 awaken_monsters(int distance)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     int distm;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -83,7 +85,7 @@ awaken_monsters(int distance)
 staticfn void
 put_monsters_to_sleep(int distance)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -103,7 +105,7 @@ put_monsters_to_sleep(int distance)
 staticfn void
 charm_snakes(int distance)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     int could_see_mon, was_peaceful;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -137,7 +139,7 @@ charm_snakes(int distance)
 staticfn void
 calm_nymphs(int distance)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -158,9 +160,9 @@ calm_nymphs(int distance)
 
 /* Awake soldiers anywhere the level (and any nearby monster). */
 void
-awaken_soldiers(struct monst* bugler  /* monster that played instrument */)
+awaken_soldiers(struct monster* bugler  /* monster that played instrument */)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     int distance, distm;
 
     /* distance of affected non-soldier monsters to bugler */
@@ -194,7 +196,7 @@ awaken_soldiers(struct monst* bugler  /* monster that played instrument */)
 staticfn void
 charm_monsters(int distance)
 {
-    struct monst *mtmp, *mtmp2;
+    struct monster *mtmp, *mtmp2;
 
     if (u.uswallow)
         distance = 0; /* only u.ustuck will be affected (u.usteed is Null
@@ -223,7 +225,7 @@ do_earthquake(int force)
 {
     static const char into_a_chasm[] = " into a chasm";
     coordxy x, y;
-    struct monst *mtmp;
+    struct monster *mtmp;
     struct obj *otmp;
     struct trap *chasm, *trap_at_u = t_at(u.ux, u.uy);
     int start_x, start_y, end_x, end_y, amsk;
@@ -264,7 +266,7 @@ do_earthquake(int force)
                     && M_AP_TYPE(mtmp) != M_AP_MONSTER)
                     seemimic(mtmp);
             }
-            if (rn2(14 - force))
+            if (random_integer_between_zero_and(14 - force))
                 continue;
 
        /*
@@ -370,7 +372,7 @@ do_earthquake(int force)
                            within a pit from jostling too */
                         mselftouch(mtmp, "Falling, ", TRUE);
                         if (!DEADMONSTER(mtmp)) {
-                            mtmp->mhp -= rnd(m_already_trapped ? 4 : 6);
+                            mtmp->mhp -= random(m_already_trapped ? 4 : 6);
                             if (DEADMONSTER(mtmp)) {
                                 if (!cansee(x, y)) {
                                     pline("It is destroyed!");
@@ -408,18 +410,18 @@ do_earthquake(int force)
                            not in it even if there was */
                         You("fall into a chasm!");
                         set_utrap(rn1(6, 2), TT_PIT);
-                        losehp(Maybe_Half_Phys(rnd(6)),
+                        losehp(Maybe_Half_Phys(random(6)),
                                "fell into a chasm", NO_KILLER_PREFIX);
                         selftouch("Falling, you");
                     } else if (u.utrap && u.utraptype == TT_PIT) {
                         boolean keepfooting =
-                                (!(Fumbling && rn2(5))
+                                (!(Fumbling && random_integer_between_zero_and(5))
                                  && (!(rnl(Role_if(PM_ARCHEOLOGIST) ? 3 : 9))
-                                     || ((ACURR(A_DEX) > 7) && rn2(5))));
+                                     || ((ATTRIBUTE_CURRENT(A_DEX) > 7) && random_integer_between_zero_and(5))));
 
                         You("are jostled around violently!");
                         set_utrap(rn1(6, 2), TT_PIT);
-                        losehp(Maybe_Half_Phys(rnd(keepfooting ? 2 : 4)),
+                        losehp(Maybe_Half_Phys(random(keepfooting ? 2 : 4)),
                                "hurt in a chasm", NO_KILLER_PREFIX);
                         if (keepfooting)
                             exercise(A_DEX, TRUE);
@@ -513,14 +515,14 @@ do_improvisation(struct obj *instr)
     if (Hallucination)
         mode |= PLAY_HALLU;
 
-    if (!rn2(2)) {
+    if (!random_integer_between_zero_and(2)) {
         /*
          * TEMPORARY?  for multiple impairments, don't always
          * give the generic "it's far from music" message.
          */
         /* remove if STUNNED+CONFUSED ever gets its own message below */
         if (mode == (PLAY_STUNNED | PLAY_CONFUSED))
-            mode = !rn2(2) ? PLAY_STUNNED : PLAY_CONFUSED;
+            mode = !random_integer_between_zero_and(2) ? PLAY_STUNNED : PLAY_CONFUSED;
         /* likewise for stunned and/or confused combined with hallucination */
         if (mode & PLAY_HALLU)
             mode = PLAY_HALLU;
@@ -578,7 +580,7 @@ do_improvisation(struct obj *instr)
         exercise(A_DEX, TRUE);
         break;
     case WOODEN_FLUTE: /* May charm snakes */
-        do_spec &= (rn2(ACURR(A_DEX)) + u.ulevel > 25);
+        do_spec &= (random_integer_between_zero_and(ATTRIBUTE_CURRENT(A_DEX)) + u.ulevel > 25);
         if (!Deaf)
             pline("%s%s.", Tobjnam(instr, do_spec ? "trill" : "toot"),
                   same_old_song ? " a familiar tune" : "");
@@ -651,7 +653,7 @@ do_improvisation(struct obj *instr)
         exercise(A_DEX, TRUE);
         break;
     case WOODEN_HARP: /* May calm Nymph */
-        do_spec &= (rn2(ACURR(A_DEX)) + u.ulevel > 25);
+        do_spec &= (random_integer_between_zero_and(ATTRIBUTE_CURRENT(A_DEX)) + u.ulevel > 25);
         if (!Deaf)
             pline("%s %s.", Yname2(instr),
                   (do_spec && same_old_song)
@@ -695,7 +697,7 @@ do_improvisation(struct obj *instr)
         } else {
             /* TODO maybe: sound effects for these riffs */
             You("%s %s.",
-                rn2(2) ? "butcher" : rn2(2) ? "manage" : "pull off",
+                random_integer_between_zero_and(2) ? "butcher" : random_integer_between_zero_and(2) ? "manage" : "pull off",
                 an(ROLL_FROM(beats)));
             Hero_playnotes(obj_to_instr(&itmp), improvisation, 50);
         }
@@ -720,7 +722,7 @@ improvised_notes(boolean *same_as_last_time)
 
     /* You can change your tune, usually */
     if (!(Unchanging && gc.context.jingle[0] != '\0')) {
-        int i, notecount = rnd(SIZE(gc.context.jingle) - 1); /* 1 - 5 */
+        int i, notecount = random(SIZE(gc.context.jingle) - 1); /* 1 - 5 */
 
         for (i = 0; i < notecount; ++i) {
             gc.context.jingle[i] = ROLL_FROM(notes);
@@ -764,7 +766,7 @@ do_play_instrument(struct obj *instr)
     if (c != 'n')
         return do_improvisation(instr) ? ECMD_TIME : ECMD_OK;
 
-    if (u.uevent.uheard_tune == 2)
+    if (u.player_event_history.uheard_tune == 2)
         c = ynq("Play the passtune?");
     if (c == 'q') {
         goto nevermind;
@@ -802,7 +804,7 @@ do_play_instrument(struct obj *instr)
                         continue;
                     if (find_drawbridge(&x, &y)) {
                         /* tune now fully known */
-                        u.uevent.uheard_tune = 2;
+                        u.player_event_history.uheard_tune = 2;
                         record_achievement(ACH_TUNE);
                         if (levl[x][y].typ == DRAWBRIDGE_DOWN)
                             close_drawbridge(x, y);
@@ -812,8 +814,8 @@ do_play_instrument(struct obj *instr)
                     }
                 }
         } else if (!Deaf) {
-            if (u.uevent.uheard_tune < 1)
-                u.uevent.uheard_tune = 1;
+            if (u.player_event_history.uheard_tune < 1)
+                u.player_event_history.uheard_tune = 1;
             /* Okay, it wasn't the right tune, but perhaps
              * we can give the player some hints like in the
              * Mastermind game */
@@ -865,7 +867,7 @@ do_play_instrument(struct obj *instr)
                        correct notes followed by excess; otherwise,
                        tune would have matched above */
                     if (gears == 5) {
-                        u.uevent.uheard_tune = 2;
+                        u.player_event_history.uheard_tune = 2;
                         record_achievement(ACH_TUNE);
                     }
                 }

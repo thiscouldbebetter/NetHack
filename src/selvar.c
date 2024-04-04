@@ -2,6 +2,8 @@
 /* Copyright (c) 2024 by Pasi Kallinen */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #include "selvar.h"
 #include "sp_lev.h"
@@ -231,7 +233,7 @@ selection_filter_percent(
 
     for (x = rect.lx; x <= rect.hx; x++)
         for (y = rect.ly; y <= rect.hy; y++)
-            if (selection_getpoint(x, y, ov) && (rn2(100) < percent))
+            if (selection_getpoint(x, y, ov) && (random_integer_between_zero_and(100) < percent))
                 selection_setpoint(x, y, ret, 1);
 
     return ret;
@@ -261,7 +263,7 @@ selection_filter_mapchar(struct selectionvar *ov,  xint16 typ, int lit)
                     selection_setpoint(x, y, ret, 1);
                     break;
                 case -1:
-                    selection_setpoint(x, y, ret, rn2(2));
+                    selection_setpoint(x, y, ret, random_integer_between_zero_and(2));
                     break;
                 case 0:
                 case 1:
@@ -292,7 +294,7 @@ selection_rndcoord(
                 idx++;
 
     if (idx) {
-        c = rn2(idx);
+        c = random_integer_between_zero_and(idx);
         for (dx = rect.lx; dx <= rect.hx; dx++)
             for (dy = rect.ly; dy <= rect.hy; dy++)
                 if (selection_getpoint(dx, dy, ov)) {
@@ -589,7 +591,7 @@ selection_do_gradient(
                 long d0 = line_dist_coord(x, y, x2, y2, dx, dy);
 
                 if (d0 <= mind * mind
-                    || (d0 <= maxd * maxd && d0 - mind * mind < rn2(dofs)))
+                    || (d0 <= maxd * maxd && d0 - mind * mind < random_integer_between_zero_and(dofs)))
                     selection_setpoint(dx, dy, ov, 1);
             }
         break;
@@ -605,7 +607,7 @@ selection_do_gradient(
                 long d0 = min(d5, min(max(d1, d2), max(d3, d4)));
 
                 if (d0 <= mind * mind
-                    || (d0 <= maxd * maxd && d0 - mind * mind < rn2(dofs)))
+                    || (d0 <= maxd * maxd && d0 - mind * mind < random_integer_between_zero_and(dofs)))
                     selection_setpoint(dx, dy, ov, 1);
             }
         break;
@@ -693,8 +695,8 @@ selection_do_randline(
         my = ((y1 + y2) / 2);
     } else {
         do {
-            dx = rn2(rough) - (rough / 2);
-            dy = rn2(rough) - (rough / 2);
+            dx = random_integer_between_zero_and(rough) - (rough / 2);
+            dy = random_integer_between_zero_and(rough) - (rough / 2);
             mx = ((x1 + x2) / 2) + dx;
             my = ((y1 + y2) / 2) + dy;
         } while ((mx > COLNO - 1 || mx < 0 || my < 0 || my > ROWNO - 1));

@@ -3,14 +3,16 @@
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 staticfn boolean no_bones_level(d_level *);
 staticfn void goodfruit(int);
 staticfn void resetobjs(struct obj *, boolean);
 staticfn void give_to_nearby_mon(struct obj *, coordxy, coordxy) NONNULLARG1;
-staticfn boolean fixuporacle(struct monst *) NONNULLARG1;
-staticfn void remove_mon_from_bones(struct monst *) NONNULLARG1;
+staticfn boolean fixuporacle(struct monster *) NONNULLARG1;
+staticfn void remove_mon_from_bones(struct monster *) NONNULLARG1;
 staticfn void set_ghostly_objlist(struct obj *objchain);
 
 staticfn boolean
@@ -223,8 +225,8 @@ sanitize_name(char *namebuf)
 staticfn void
 give_to_nearby_mon(struct obj *otmp, coordxy x, coordxy y)
 {
-    struct monst *mtmp;
-    struct monst *selected = (struct monst *) 0;
+    struct monster *mtmp;
+    struct monster *selected = (struct monster *) 0;
     int nmon = 0, xx, yy;
 
     for (xx = x - 1; xx <= x + 1; ++xx) {
@@ -242,7 +244,7 @@ give_to_nearby_mon(struct obj *otmp, coordxy x, coordxy y)
                   || likes_objs(mtmp->data) || likes_magic(mtmp->data)))
                 continue;
             nmon++;
-            if (!rn2(nmon))
+            if (!random_integer_between_zero_and(nmon))
                 selected = mtmp;
         }
     }
@@ -255,7 +257,7 @@ give_to_nearby_mon(struct obj *otmp, coordxy x, coordxy y)
 /* called by savebones(); also by finish_paybill(shk.c) */
 void
 drop_upon_death(
-    struct monst *mtmp, /* monster if hero rises as one (non ghost) */
+    struct monster *mtmp, /* monster if hero rises as one (non ghost) */
     struct obj *cont,   /* container if hero is turned into a statue */
     coordxy x, coordxy y)
 {
@@ -264,7 +266,7 @@ drop_upon_death(
     /* when dual-wielding, the second weapon gets dropped rather than
        welded if it becomes cursed; ensure that that won't happen here
        by ending dual-wield */
-    u.twoweap = FALSE; /* bypass set_twoweap() */
+    u.using_two_weapons = FALSE; /* bypass set_twoweap() */
 
     /* all inventory is dropped (for the normal case), even non-droppable
        things like worn armor and accessories, welded weapon, or cursed
@@ -285,13 +287,13 @@ drop_upon_death(
         if (otmp->otyp == SLIME_MOLD)
             goodfruit(otmp->spe);
 
-        if (rn2(5))
+        if (random_integer_between_zero_and(5))
             curse(otmp);
         if (mtmp)
             (void) add_to_minv(mtmp, otmp);
         else if (cont)
             (void) add_to_container(cont, otmp);
-        else if (!rn2(8))
+        else if (!random_integer_between_zero_and(8))
             give_to_nearby_mon(otmp, x, y);
         else
             place_object(otmp, x, y);
@@ -303,7 +305,7 @@ drop_upon_death(
 /* possibly restore oracle's room and/or put her back inside it; returns
    False if she's on the wrong level and should be removed, True otherwise */
 staticfn boolean
-fixuporacle(struct monst *oracle)
+fixuporacle(struct monster *oracle)
 {
     coord cc;
     int ridx, o_ridx;
@@ -372,7 +374,7 @@ can_make_bones(void)
     }
 
     if (depth(&u.uz) <= 0                 /* bulletproofing for endgame */
-        || (!rn2(1 + (depth(&u.uz) >> 2)) /* fewer ghosts on low levels */
+        || (!random_integer_between_zero_and(1 + (depth(&u.uz) >> 2)) /* fewer ghosts on low levels */
             && !wizard))
         return FALSE;
     /* don't let multiple restarts generate multiple copies of objects
@@ -385,7 +387,7 @@ can_make_bones(void)
 /* monster might need to be removed before saving a bones file,
    in case these characters are not in their home bases */
 staticfn void
-remove_mon_from_bones(struct monst *mtmp)
+remove_mon_from_bones(struct monster *mtmp)
 {
     struct permonst *mptr = mtmp->data;
 
@@ -402,7 +404,7 @@ savebones(int how, time_t when, struct obj *corpse)
 {
     coordxy x, y;
     struct trap *ttmp;
-    struct monst *mtmp;
+    struct monster *mtmp;
     struct fruit *f;
     struct cemetery *newbones;
     char c, *bonesid;
@@ -438,7 +440,7 @@ savebones(int how, time_t when, struct obj *corpse)
         unpunish(); /* unwear uball, destroy uchain */
     /* in case dismounting kills steed [is that even possible?], do so
        before cleaning up dead monsters */
-    if (u.usteed)
+    if (u.monster_being_ridden)
         dismount_steed(DISMOUNT_BONES);
 
     iter_mons(remove_mon_from_bones); /* send various unique monsters away, */
@@ -451,14 +453,14 @@ savebones(int how, time_t when, struct obj *corpse)
 
     set_ghostly_objlist(gi.invent);
     /* dispose of your possessions, usually cursed */
-    if (ismnum(u.ugrave_arise)) {
+    if (ismnum(u.risen_from_grave)) {
         /* give your possessions to the monster you become */
         gi.in_mklev = TRUE; /* use <u.ux,u.uy> as-is */
-        mtmp = makemon(&mons[u.ugrave_arise], u.ux, u.uy, NO_MINVENT);
+        mtmp = makemon(&mons[u.risen_from_grave], u.ux, u.uy, NO_MINVENT);
         gi.in_mklev = FALSE;
         if (!mtmp) { /* arise-type might have been genocided */
-            drop_upon_death((struct monst *) 0, (struct obj *) 0, u.ux, u.uy);
-            u.ugrave_arise = NON_PM; /* in case caller cares */
+            drop_upon_death((struct monster *) 0, (struct obj *) 0, u.ux, u.uy);
+            u.risen_from_grave = NON_PM; /* in case caller cares */
             return;
         }
         give_u_to_m_resistances(mtmp);
@@ -473,20 +475,20 @@ savebones(int how, time_t when, struct obj *corpse)
         if (mtmp->data->mlet == S_MUMMY && !m_carrying(mtmp, MUMMY_WRAPPING))
             (void) mongets(mtmp, MUMMY_WRAPPING);
         m_dowear(mtmp, TRUE);
-    } else if (u.ugrave_arise == LEAVESTATUE) {
+    } else if (u.risen_from_grave == LEAVESTATUE) {
         struct obj *otmp;
 
         /* embed your possessions in your statue */
         otmp = mk_named_object(STATUE, &mons[u.umonnum], u.ux, u.uy,
                                gp.plname);
 
-        drop_upon_death((struct monst *) 0, otmp, u.ux, u.uy);
+        drop_upon_death((struct monster *) 0, otmp, u.ux, u.uy);
         if (!otmp)
             return; /* couldn't make statue */
-        mtmp = (struct monst *) 0;
+        mtmp = (struct monster *) 0;
     } else { /* u.ugrave_arise < LEAVESTATUE */
         /* drop everything */
-        drop_upon_death((struct monst *) 0, (struct obj *) 0, u.ux, u.uy);
+        drop_upon_death((struct monster *) 0, (struct obj *) 0, u.ux, u.uy);
         /* trick makemon() into allowing monster creation
          * on your location
          */
@@ -501,7 +503,7 @@ savebones(int how, time_t when, struct obj *corpse)
     }
     if (mtmp) {
         mtmp->m_lev = (u.ulevel ? u.ulevel : 1);
-        mtmp->mhp = mtmp->mhpmax = u.uhpmax;
+        mtmp->mhp = mtmp->mhpmax = u.hit_points_max;
         mtmp->female = flags.female;
         mtmp->msleeping = 1;
     }
@@ -548,7 +550,7 @@ savebones(int how, time_t when, struct obj *corpse)
     Sprintf(newbones->who, "%s-%.3s-%.3s-%.3s-%.3s",
             gp.plname, gu.urole.filecode,
             gu.urace.filecode, genders[flags.female].filecode,
-            aligns[1 - u.ualign.type].filecode);
+            aligns[1 - u.alignment.type].filecode);
     formatkiller(newbones->how, sizeof newbones->how, how, TRUE);
     Strcpy(newbones->when, yyyymmddhhmmss(when));
     /* final resting place, used to decide when bones are discovered */
@@ -607,7 +609,7 @@ getbones(void)
     if (!flags.bones)
         return 0;
     /* wizard check added by GAN 02/05/87 */
-    if (rn2(3) /* only once in three times do we find bones */
+    if (random_integer_between_zero_and(3) /* only once in three times do we find bones */
         && !wizard)
         return 0;
     if (no_bones_level(&u.uz))
@@ -665,7 +667,7 @@ getbones(void)
             }
             trickery(errbuf);
         } else {
-            struct monst *mtmp;
+            struct monster *mtmp;
 
             getlev(nhfp, 0, 0);
 

@@ -3,6 +3,8 @@
 /*-Copyright (c) Pasi Kallinen, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #include "sp_lev.h"
 
@@ -20,8 +22,8 @@ staticfn void setup_waterlevel(void);
 staticfn void unsetup_waterlevel(void);
 staticfn void check_ransacked(const char *);
 staticfn void migr_booty_item(int, const char *);
-staticfn void migrate_orc(struct monst *, unsigned long);
-staticfn void shiny_orc_stuff(struct monst *);
+staticfn void migrate_orc(struct monster *, unsigned long);
+staticfn void shiny_orc_stuff(struct monster *);
 staticfn void stolen_booty(void);
 staticfn boolean maze_inbounds(coordxy, coordxy);
 staticfn void maze_remove_deadends(xint16);
@@ -122,7 +124,7 @@ set_levltyp_lit(coordxy x, coordxy y, schar typ, schar lit)
             if (IS_LAVA(typ))
                 lit = 1;
             else if (lit == SET_LIT_RANDOM)
-                lit = rn2(2);
+                lit = random_integer_between_zero_and(2);
 
             levl[x][y].lit = lit;
         }
@@ -294,8 +296,8 @@ okay(coordxy x, coordxy y, coordxy dir)
 staticfn void
 maze0xy(coord *cc)
 {
-    cc->x = 3 + 2 * rn2((gx.x_maze_max >> 1) - 1);
-    cc->y = 3 + 2 * rn2((gy.y_maze_max >> 1) - 1);
+    cc->x = 3 + 2 * random_integer_between_zero_and((gx.x_maze_max >> 1) - 1);
+    cc->y = 3 + 2 * random_integer_between_zero_and((gy.y_maze_max >> 1) - 1);
     return;
 }
 
@@ -391,7 +393,7 @@ put_lregion_here(
     boolean oneshot,
     d_level *lev)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if (bad_location(x, y, nlx, nly, nhx, nhy) || is_exclusion_zone(rtype, x, y)) {
         if (!oneshot) {
@@ -446,7 +448,7 @@ put_lregion_here(
 staticfn void
 baalz_fixup(void)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     int x, y, lastx, lasty;
 
     /*
@@ -622,10 +624,10 @@ fixup_special(void)
         int tryct;
 
         croom = &gr.rooms[0]; /* the first room defined on the medusa level */
-        for (tryct = rnd(4); tryct; tryct--) {
+        for (tryct = random(4); tryct; tryct--) {
             x = somex(croom);
             y = somey(croom);
-            if (goodpos(x, y, (struct monst *) 0, 0)) {
+            if (goodpos(x, y, (struct monster *) 0, 0)) {
                 int tryct2 = 0;
 
                 otmp = mk_tt_object(STATUE, x, y);
@@ -639,11 +641,11 @@ fixup_special(void)
             }
         }
 
-        if (rn2(2))
+        if (random_integer_between_zero_and(2))
             otmp = mk_tt_object(STATUE, somex(croom), somey(croom));
         else /* Medusa statues don't contain books */
             otmp =
-                mkcorpstat(STATUE, (struct monst *) 0, (struct permonst *) 0,
+                mkcorpstat(STATUE, (struct monster *) 0, (struct permonst *) 0,
                            somex(croom), somey(croom), CORPSTAT_NONE);
         if (otmp) {
             tryct = 0;
@@ -685,7 +687,7 @@ check_ransacked(const char *s)
 static const char *const orcfruit[] = { "paddle cactus", "dwarven root" };
 
 staticfn void
-migrate_orc(struct monst *mtmp, unsigned long mflags)
+migrate_orc(struct monster *mtmp, unsigned long mflags)
 {
     int nlev, max_depth, cur_depth;
     d_level dest;
@@ -700,11 +702,11 @@ migrate_orc(struct monst *mtmp, unsigned long mflags)
          */
         nlev = max_depth;
         /* once in a blue moon, he won't be at the very bottom */
-        if (!rn2(40))
+        if (!random_integer_between_zero_and(40))
             nlev--;
         mtmp->migflags |= MIGR_LEFTOVERS;
     } else {
-        nlev = rn2((max_depth - cur_depth) + 1) + cur_depth;
+        nlev = random_integer_between_zero_and((max_depth - cur_depth) + 1) + cur_depth;
         if (nlev == cur_depth)
             nlev++;
         if (nlev > max_depth)
@@ -716,7 +718,7 @@ migrate_orc(struct monst *mtmp, unsigned long mflags)
 }
 
 staticfn void
-shiny_orc_stuff(struct monst *mtmp)
+shiny_orc_stuff(struct monster *mtmp)
 {
     int gemprob, goldprob, otyp;
     struct obj *otmp;
@@ -725,14 +727,14 @@ shiny_orc_stuff(struct monst *mtmp)
     /* probabilities */
     goldprob = is_captain ? 600 : 300;
     gemprob = goldprob / 4;
-    if (rn2(1000) < goldprob) {
+    if (random_integer_between_zero_and(1000) < goldprob) {
         if ((otmp = mksobj(GOLD_PIECE, TRUE, FALSE)) != 0) {
-            otmp->quan = 1L + rnd(goldprob);
+            otmp->quan = 1L + random(goldprob);
             otmp->owt = weight(otmp);
             add_to_minv(mtmp, otmp);
         }
     }
-    if (rn2(1000) < gemprob) {
+    if (random_integer_between_zero_and(1000) < gemprob) {
         if ((otmp = mkobj(GEM_CLASS, FALSE)) != 0) {
             if (otmp->otyp == ROCK)
                 dealloc_obj(otmp);
@@ -740,7 +742,7 @@ shiny_orc_stuff(struct monst *mtmp)
                 add_to_minv(mtmp, otmp);
         }
     }
-    if (is_captain || !rn2(8)) {
+    if (is_captain || !random_integer_between_zero_and(8)) {
         otyp = shiny_obj(RING_CLASS);
         if (otyp != STRANGE_OBJECT && (otmp = mksobj(otyp, TRUE, FALSE)) != 0)
             add_to_minv(mtmp, otmp);
@@ -760,7 +762,7 @@ migr_booty_item(int otyp, const char *gang)
             if (otyp == SLIME_MOLD)
                 otmp->spe = fruitadd((char *) ROLL_FROM(orcfruit),
                                      (struct fruit *) 0);
-            otmp->quan += (long) rn2(3);
+            otmp->quan += (long) random_integer_between_zero_and(3);
             otmp->owt = weight(otmp);
         }
     }
@@ -770,7 +772,7 @@ staticfn void
 stolen_booty(void)
 {
     char *gang, gang_name[BUFSZ];
-    struct monst *mtmp;
+    struct monster *mtmp;
     int cnt, i, otyp;
 
     /*
@@ -788,15 +790,15 @@ stolen_booty(void)
 
     gang = rndorcname(gang_name);
     /* create the stuff that the gang took */
-    cnt = rnd(4);
+    cnt = random(4);
     for (i = 0; i < cnt; ++i)
-        migr_booty_item(rn2(4) ? TALLOW_CANDLE : WAX_CANDLE, gang);
-    cnt = rnd(3);
+        migr_booty_item(random_integer_between_zero_and(4) ? TALLOW_CANDLE : WAX_CANDLE, gang);
+    cnt = random(3);
     for (i = 0; i < cnt; ++i)
         migr_booty_item(SKELETON_KEY, gang);
-    otyp = rn2((GAUNTLETS_OF_DEXTERITY - LEATHER_GLOVES) + 1) + LEATHER_GLOVES;
+    otyp = random_integer_between_zero_and((GAUNTLETS_OF_DEXTERITY - LEATHER_GLOVES) + 1) + LEATHER_GLOVES;
     migr_booty_item(otyp, gang);
-    cnt = rnd(10);
+    cnt = random(10);
     for (i = 0; i < cnt; ++i) {
         /* Food items - but no lembas! (or some other weird things) */
         otyp = rn1(TIN - TRIPE_RATION + 1, TRIPE_RATION);
@@ -811,7 +813,7 @@ stolen_booty(void)
             && otyp != CORPSE && otyp != EGG && otyp != TIN)
             migr_booty_item(otyp, gang);
     }
-    migr_booty_item(rn2(2) ? LONG_SWORD : SILVER_SABER, gang);
+    migr_booty_item(random_integer_between_zero_and(2) ? LONG_SWORD : SILVER_SABER, gang);
     /* create the leader of the orc gang */
     mtmp = makemon(&mons[PM_ORC_CAPTAIN], 0, 0, MM_NONAME);
     if (mtmp) {
@@ -825,7 +827,7 @@ stolen_booty(void)
         if (DEADMONSTER(mtmp))
             continue;
 
-        if (is_orc(mtmp->data) && !has_mgivenname(mtmp) && rn2(10)) {
+        if (is_orc(mtmp->data) && !has_mgivenname(mtmp) && random_integer_between_zero_and(10)) {
             /*
              * We'll consider the orc captain from the level
              * description to be the captain of a rival orc horde
@@ -844,11 +846,11 @@ stolen_booty(void)
      * members of the invading gang until they get their spoils assigned
      * to the inventory; handled during that assignment.
      */
-    cnt = rn2(10) + 5;
+    cnt = random_integer_between_zero_and(10) + 5;
     for (i = 0; i < cnt; ++i) {
         int mtyp;
 
-        mtyp = rn2((PM_ORC_SHAMAN - PM_ORC) + 1) + PM_ORC;
+        mtyp = random_integer_between_zero_and((PM_ORC_SHAMAN - PM_ORC) + 1) + PM_ORC;
         mtmp = makemon(&mons[mtyp], 0, 0, MM_NONAME);
         if (mtmp) {
             shiny_orc_stuff(mtmp);
@@ -906,7 +908,7 @@ maze_remove_deadends(xint16 typ)
                 if (idx2 >= 3 && idx > 0) {
                     dx = x;
                     dy = y;
-                    dir = dirok[rn2(idx)];
+                    dir = dirok[random_integer_between_zero_and(idx)];
                     mz_move(dx, dy, dir);
                     levl[dx][dy].typ = typ;
                 }
@@ -928,10 +930,10 @@ create_maze(int corrwid, int wallthick, boolean rmdeadends)
     int scale;
 
     if (corrwid == -1)
-        corrwid = rnd(4);
+        corrwid = random(4);
 
     if (wallthick == -1)
-        wallthick = rnd(4) - corrwid;
+        wallthick = random(4) - corrwid;
 
     if (wallthick < 1)
         wallthick = 1;
@@ -1072,13 +1074,13 @@ populate_maze(void)
 
     for (i = rn1(8, 11); i; i--) {
         mazexy(&mm);
-        (void) mkobj_at(rn2(2) ? GEM_CLASS : RANDOM_CLASS, mm.x, mm.y, TRUE);
+        (void) mkobj_at(random_integer_between_zero_and(2) ? GEM_CLASS : RANDOM_CLASS, mm.x, mm.y, TRUE);
     }
     for (i = rn1(10, 2); i; i--) {
         mazexy(&mm);
         (void) mksobj_at(BOULDER, mm.x, mm.y, TRUE, FALSE);
     }
-    for (i = rn2(3); i; i--) {
+    for (i = random_integer_between_zero_and(3); i; i--) {
         mazexy(&mm);
         (void) makemon(&mons[PM_MINOTAUR], mm.x, mm.y, NO_MM_FLAGS);
     }
@@ -1104,7 +1106,7 @@ makemaz(const char *s)
     if (*s) {
         if (sp && sp->rndlevs)
             Snprintf(protofile, sizeof protofile,
-                     "%s-%d", s, rnd((int) sp->rndlevs));
+                     "%s-%d", s, random((int) sp->rndlevs));
         else
             Strcpy(protofile, s);
     } else if (*(gd.dungeons[u.uz.dnum].proto)) {
@@ -1112,7 +1114,7 @@ makemaz(const char *s)
             if (sp && sp->rndlevs)
                 Snprintf(protofile, sizeof protofile,
                          "%s%d-%d", gd.dungeons[u.uz.dnum].proto,
-                         dunlev(&u.uz), rnd((int) sp->rndlevs));
+                         dunlev(&u.uz), random((int) sp->rndlevs));
             else
                 Snprintf(protofile, sizeof protofile,
                          "%s%d", gd.dungeons[u.uz.dnum].proto,
@@ -1120,7 +1122,7 @@ makemaz(const char *s)
         } else if (sp && sp->rndlevs) {
             Snprintf(protofile, sizeof protofile,
                      "%s-%d", gd.dungeons[u.uz.dnum].proto,
-                     rnd((int) sp->rndlevs));
+                     random((int) sp->rndlevs));
         } else
             Strcpy(protofile, gd.dungeons[u.uz.dnum].proto);
 
@@ -1166,10 +1168,10 @@ makemaz(const char *s)
     }
 
     gl.level.flags.is_maze_lev = 1;
-    gl.level.flags.corrmaze = !rn2(3);
+    gl.level.flags.corrmaze = !random_integer_between_zero_and(3);
 
-    if (!Invocation_lev(&u.uz) && rn2(2)) {
-        create_maze(-1, -1, !rn2(5));
+    if (!Invocation_lev(&u.uz) && random_integer_between_zero_and(2)) {
+        create_maze(-1, -1, !random_integer_between_zero_and(5));
     } else {
         create_maze(1, 1, FALSE);
     }
@@ -1272,7 +1274,7 @@ walkfrom(coordxy x, coordxy y, schar typ)
                 dirs[q++] = a;
         if (!q)
             return;
-        dir = dirs[rn2(q)];
+        dir = dirs[random_integer_between_zero_and(q)];
         mz_move(x, y, dir);
         levl[x][y].typ = typ;
         mz_move(x, y, dir);
@@ -1298,8 +1300,8 @@ mazexy(coord *cc)
            obscure way to get rnd(N); probably ought to be using 2+rn2(N-1)
            to exclude the maze's outer boundary walls; trying and rejecting
            those walls will waste some of the 100 random attempts... */
-        x = rnd(gx.x_maze_max);
-        y = rnd(gy.y_maze_max);
+        x = random(gx.x_maze_max);
+        y = random(gy.y_maze_max);
         if (levl[x][y].typ == allowedtyp) {
             cc->x = (coordxy) x;
             cc->y = (coordxy) y;
@@ -1445,7 +1447,7 @@ mkportal(coordxy x, coordxy y, xint16 todnum, xint16 todlevel)
 void
 fumaroles(void)
 {
-    xint16 n, nmax = rn2(3);
+    xint16 n, nmax = random_integer_between_zero_and(3);
     int sizemin = 5;
     boolean snd = FALSE, loud = FALSE;
 
@@ -1553,7 +1555,7 @@ movebubbles(void)
                             b->cons = cons;
                         }
                         if (MON_AT(x, y)) {
-                            struct monst *mon = m_at(x, y);
+                            struct monster *mon = m_at(x, y);
 
                             cons = (struct container *) alloc(sizeof *cons);
                             cons->x = x;
@@ -1610,7 +1612,7 @@ movebubbles(void)
                 xedge = (boolean) (x < gbxmin || x > gbxmax);
                 yedge = (boolean) (y < gbymin || y > gbymax);
                 if (xedge || yedge) {
-                    if (!rn2(xedge ? 3 : 5)) {
+                    if (!random_integer_between_zero_and(xedge ? 3 : 5)) {
                         levl[x][y].typ = CLOUD;
                         block_point(x, y);
                     }
@@ -1625,7 +1627,7 @@ movebubbles(void)
      */
     up = !up;
     for (b = up ? gb.bbubbles : ge.ebubbles; b; b = up ? b->next : b->prev) {
-        int rx = rn2(3), ry = rn2(3);
+        int rx = random_integer_between_zero_and(3), ry = random_integer_between_zero_and(3);
 
         mv_bubble(b, b->dx + 1 - (!b->dx ? rx : (rx ? 1 : 0)),
                   b->dy + 1 - (!b->dy ? ry : (ry ? 1 : 0)), FALSE);
@@ -1644,24 +1646,24 @@ water_friction(void)
     coordxy x, y, dx, dy;
     boolean eff = FALSE;
 
-    if (Swimming && rn2(4))
+    if (Swimming && random_integer_between_zero_and(4))
         return; /* natural swimmers have advantage */
 
-    if (u.dx && !rn2(!u.dy ? 3 : 6)) { /* 1/3 chance or half that */
+    if (u.dx && !random_integer_between_zero_and(!u.dy ? 3 : 6)) { /* 1/3 chance or half that */
         /* cancel delta x and choose an arbitrary delta y value */
         x = u.ux;
         do {
-            dy = rn2(3) - 1; /* -1, 0, 1 */
+            dy = random_integer_between_zero_and(3) - 1; /* -1, 0, 1 */
             y = u.uy + dy;
         } while (dy && (!isok(x, y) || !is_pool(x, y)));
         u.dx = 0;
         u.dy = dy;
         eff = TRUE;
-    } else if (u.dy && !rn2(!u.dx ? 3 : 5)) { /* 1/3 or 1/5*(5/6) */
+    } else if (u.dy && !random_integer_between_zero_and(!u.dx ? 3 : 5)) { /* 1/3 or 1/5*(5/6) */
         /* cancel delta y and choose an arbitrary delta x value */
         y = u.uy;
         do {
-            dx = rn2(3) - 1; /* -1 .. 1 */
+            dx = random_integer_between_zero_and(3) - 1; /* -1 .. 1 */
             x = u.ux + dx;
         } while (dx && (!isok(x, y) || !is_pool(x, y)));
         u.dy = 0;
@@ -1794,16 +1796,16 @@ setup_waterlevel(void)
 
     /* make bubbles */
     if (Is_waterlevel(&u.uz)) {
-        xskip = 10 + rn2(10);
-        yskip = 4 + rn2(4);
+        xskip = 10 + random_integer_between_zero_and(10);
+        yskip = 4 + random_integer_between_zero_and(4);
     } else {
-        xskip = 6 + rn2(4);
-        yskip = 3 + rn2(3);
+        xskip = 6 + random_integer_between_zero_and(4);
+        yskip = 3 + random_integer_between_zero_and(3);
     }
 
     for (x = gbxmin; x <= gbxmax; x += xskip)
         for (y = gbymin; y <= gbymax; y += yskip)
-            mk_bubble(x, y, rn2(7));
+            mk_bubble(x, y, random_integer_between_zero_and(7));
 }
 
 staticfn void
@@ -1856,8 +1858,8 @@ mk_bubble(coordxy x, coordxy y, int n)
         y = gbymax - bmask[n][1] + 1;
     b->x = x;
     b->y = y;
-    b->dx = 1 - rn2(3);
-    b->dy = 1 - rn2(3);
+    b->dx = 1 - random_integer_between_zero_and(3);
+    b->dy = 1 - random_integer_between_zero_and(3);
     /* y dimension is the length of bitmap data - see bmask above */
     (void) memcpy((genericptr_t) b->bm, (genericptr_t) bmask[n],
                   (bmask[n][1] + 2) * sizeof (b->bm[0]));
@@ -1890,7 +1892,7 @@ mv_bubble(struct bubble *b, coordxy dx, coordxy dy, boolean ini)
     struct container *cons, *ctemp;
 
     /* clouds move slowly */
-    if (!Is_airlevel(&u.uz) || !rn2(6)) {
+    if (!Is_airlevel(&u.uz) || !random_integer_between_zero_and(6)) {
         /* move bubble */
         if (dx < -1 || dx > 1 || dy < -1 || dy > 1) {
             /* pline("mv_bubble: dx = %d, dy = %d", dx, dy); */
@@ -1979,7 +1981,7 @@ mv_bubble(struct bubble *b, coordxy dx, coordxy dy, boolean ini)
             }
 
             case CONS_MON: {
-                struct monst *mon = (struct monst *) cons->list;
+                struct monster *mon = (struct monster *) cons->list;
 
                 /* mnearto() might fail. We can jump right to elemental_clog
                    from here rather than deal_with_overcrowding() */
@@ -1989,7 +1991,7 @@ mv_bubble(struct bubble *b, coordxy dx, coordxy dy, boolean ini)
             }
 
             case CONS_HERO: {
-                struct monst *mtmp = m_at(cons->x, cons->y);
+                struct monster *mtmp = m_at(cons->x, cons->y);
                 int ux0 = u.ux, uy0 = u.uy;
 
                 u_on_newpos(cons->x, cons->y);
@@ -2032,9 +2034,9 @@ mv_bubble(struct bubble *b, coordxy dx, coordxy dy, boolean ini)
     default:
         /* sometimes alter direction for fun anyway
            (higher probability for stationary bubbles) */
-        if (!ini && ((b->dx || b->dy) ? !rn2(20) : !rn2(5))) {
-            b->dx = 1 - rn2(3);
-            b->dy = 1 - rn2(3);
+        if (!ini && ((b->dx || b->dy) ? !random_integer_between_zero_and(20) : !random_integer_between_zero_and(5))) {
+            b->dx = 1 - random_integer_between_zero_and(3);
+            b->dy = 1 - random_integer_between_zero_and(3);
         }
     }
 }

@@ -18,8 +18,8 @@
 #include "hacklib.h"
 
 #include "tile.h"
-extern void monst_globals_init(void);
-extern void objects_globals_init(void);
+extern void monster_globals_initialize(void);
+extern void objects_globals_initialize(void);
 static int examine_tilefiles(void);
 static int set_tilefile_path(const char *, const char *, char *, size_t);
 
@@ -159,8 +159,8 @@ main(int argc, char *argv[])
         strcpy(bmpname, argv[1]);
     }
 
-    objects_globals_init();
-    monst_globals_init();
+    objects_globals_initialize();
+    monster_globals_initialize();
 
 /*    tilefileset = (TILE_X == 64) ? 2 : (TILE_X == 32) ? 1 : 0; */
     tilefileset = 0;

@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #include "artifact.h"
 
@@ -36,19 +38,19 @@ take_gold(void)
 staticfn void
 throne_sit_effect(void)
 {
-    if (rnd(6) > 4) {
-        switch (rnd(13)) {
+    if (random(6) > 4) {
+        switch (random(13)) {
         case 1:
-            (void) adjattrib(rn2(A_MAX), -rn1(4, 3), FALSE);
-            losehp(rnd(10), "cursed throne", KILLED_BY_AN);
+            (void) adjust_attribute(random_integer_between_zero_and(A_MAX), -rn1(4, 3), FALSE);
+            losehp(random(10), "cursed throne", KILLED_BY_AN);
             break;
         case 2:
-            (void) adjattrib(rn2(A_MAX), 1, FALSE);
+            (void) adjust_attribute(random_integer_between_zero_and(A_MAX), 1, FALSE);
             break;
         case 3:
             pline("A%s electric shock shoots through your body!",
                   (Shock_resistance) ? "n" : " massive");
-            losehp(Shock_resistance ? rnd(6) : rnd(30), "electric chair",
+            losehp(Shock_resistance ? random(6) : random(30), "electric chair",
                    KILLED_BY_AN);
             exercise(A_CON, FALSE);
             break;
@@ -59,12 +61,12 @@ throne_sit_effect(void)
                     u.mhmax += 4;
                 u.mh = u.mhmax;
             }
-            if (u.uhp >= (u.uhpmax - 5)) {
-                u.uhpmax += 4;
-                if (u.uhpmax > u.uhppeak)
-                    u.uhppeak = u.uhpmax;
+            if (u.hit_points >= (u.hit_points_max - 5)) {
+                u.hit_points_max += 4;
+                if (u.hit_points_max > u.hit_points_peak)
+                    u.hit_points_peak = u.hit_points_max;
             }
-            u.uhp = u.uhpmax;
+            u.hit_points = u.hit_points_max;
             u.ucreamed = 0;
             make_blinded(0L, TRUE);
             make_sick(0L, (char *) 0, FALSE, SICK_ALL);
@@ -75,7 +77,7 @@ throne_sit_effect(void)
             take_gold();
             break;
         case 6:
-            if (u.uluck + rn2(5) < 0) {
+            if (u.uluck + random_integer_between_zero_and(5) < 0) {
                 You_feel("your luck is changing.");
                 change_luck(1);
             } else
@@ -83,11 +85,11 @@ throne_sit_effect(void)
             break;
         case 7:
             {
-                int cnt = rnd(10);
+                int cnt = random(10);
 
                 /* Magical voice not affected by deafness */
                 pline("A voice echoes:");
-                SetVoice((struct monst *) 0, 0, 80, voice_throne);
+                SetVoice((struct monster *) 0, 0, 80, voice_throne);
                 verbalize("Thine audience hath been summoned, %s!",
                           flags.female ? "Dame" : "Sire");
                 while (cnt--)
@@ -97,7 +99,7 @@ throne_sit_effect(void)
         case 8:
             /* Magical voice not affected by deafness */
             pline("A voice echoes:");
-            SetVoice((struct monst *) 0, 0, 80, voice_throne);
+            SetVoice((struct monster *) 0, 0, 80, voice_throne);
             verbalize("By thine Imperious order, %s...",
                       flags.female ? "Dame" : "Sire");
             do_genocide(5); /* REALLY|ONTHRONE, see do_genocide() */
@@ -105,12 +107,12 @@ throne_sit_effect(void)
         case 9:
             /* Magical voice not affected by deafness */
             pline("A voice echoes:");
-            SetVoice((struct monst *) 0, 0, 80, voice_throne);
+            SetVoice((struct monster *) 0, 0, 80, voice_throne);
             verbalize(
                  "A curse upon thee for sitting upon this most holy throne!");
             if (Luck > 0) {
                 make_blinded(BlindedTimeout + rn1(100, 250), TRUE);
-                change_luck((Luck > 1) ? -rnd(2) : -1);
+                change_luck((Luck > 1) ? -random(2) : -1);
             } else
                 rndcurse();
             break;
@@ -118,7 +120,7 @@ throne_sit_effect(void)
             if (Luck < 0 || (HSee_invisible & INTRINSIC)) {
                 if (gl.level.flags.nommap) {
                     pline("A terrible drone fills your head!");
-                    make_confused((HConfusion & TIMEOUT) + (long) rnd(30),
+                    make_confused((HConfusion & TIMEOUT) + (long) random(30),
                                   FALSE);
                 } else {
                     pline("An image forms in your mind.");
@@ -166,7 +168,7 @@ throne_sit_effect(void)
             You("are granted an insight!");
             if (gi.invent) {
                 /* rn2(5) agrees w/seffects() */
-                identify_pack(rn2(5), FALSE);
+                identify_pack(random_integer_between_zero_and(5), FALSE);
             }
             break;
         case 13:
@@ -179,13 +181,13 @@ throne_sit_effect(void)
             break;
         }
     } else {
-        if (is_prince(gy.youmonst.data) || u.uevent.uhand_of_elbereth)
+        if (is_prince(gy.youmonst.data) || u.player_event_history.uhand_of_elbereth)
             You_feel("very comfortable here.");
         else
             You_feel("somehow out of place...");
     }
 
-    if (!rn2(3) && IS_THRONE(levl[u.ux][u.uy].typ)) {
+    if (!random_integer_between_zero_and(3) && IS_THRONE(levl[u.ux][u.uy].typ)) {
         /* may have teleported */
         levl[u.ux][u.uy].typ = ROOM, levl[u.ux][u.uy].flags = 0;
         pline_The("throne vanishes in a puff of logic.");
@@ -242,8 +244,8 @@ dosit(void)
     struct trap *trap = t_at(u.ux, u.uy);
     int typ = levl[u.ux][u.uy].typ;
 
-    if (u.usteed) {
-        You("are already sitting on %s.", mon_nam(u.usteed));
+    if (u.monster_being_ridden) {
+        You("are already sitting on %s.", mon_nam(u.monster_being_ridden));
         return ECMD_OK;
     }
     if (u.uundetected && is_hider(gy.youmonst.data) && u.umonnum != PM_TRAPPER)
@@ -257,13 +259,13 @@ dosit(void)
         else
             You("are sitting on air.");
         return ECMD_OK;
-    } else if (u.ustuck && !sticks(gy.youmonst.data)) {
+    } else if (u.monster_stuck_to && !sticks(gy.youmonst.data)) {
         /* holding monster is next to hero rather than beneath, but
            hero is in no condition to actually sit at has/her own spot */
-        if (humanoid(u.ustuck->data))
-            pline("%s won't offer %s lap.", Monnam(u.ustuck), mhis(u.ustuck));
+        if (humanoid(u.monster_stuck_to->data))
+            pline("%s won't offer %s lap.", Monnam(u.monster_stuck_to), mhis(u.monster_stuck_to));
         else
-            pline("%s has no lap.", Monnam(u.ustuck));
+            pline("%s has no lap.", Monnam(u.monster_stuck_to));
         return ECMD_OK;
     } else if (is_pool(u.ux, u.uy) && !Underwater) { /* water walking */
         goto in_water;
@@ -304,12 +306,12 @@ dosit(void)
             } else if (u.utraptype == TT_PIT) {
                 if (trap && trap->ttyp == SPIKED_PIT) {
                     You("sit down on a spike.  Ouch!");
-                    losehp(Half_physical_damage ? rn2(2) : 1,
+                    losehp(Half_physical_damage ? random_integer_between_zero_and(2) : 1,
                            "sitting on an iron spike", KILLED_BY);
                     exercise(A_STR, FALSE);
                 } else
                     You("sit down in the pit.");
-                u.utrap += rn2(5);
+                u.utrap += random_integer_between_zero_and(5);
             } else if (u.utraptype == TT_WEB) {
                 You("sit in the spider web and get entangled further!");
                 u.utrap += rn1(10, 5);
@@ -318,7 +320,7 @@ dosit(void)
                 You("sit in the %s!", hliquid("lava"));
                 if (Slimed)
                     burn_away_slime();
-                u.utrap += rnd(4);
+                u.utrap += random(4);
                 losehp(d(2, 10), "sitting in lava",
                        KILLED_BY); /* lava damage */
             } else if (u.utraptype == TT_INFLOOR
@@ -342,9 +344,9 @@ dosit(void)
     } else if (is_pool(u.ux, u.uy) && !eggs_in_water(gy.youmonst.data)) {
  in_water:
         You("sit in the %s.", hliquid("water"));
-        if (!rn2(10) && uarm)
+        if (!random_integer_between_zero_and(10) && uarm)
             (void) water_damage(uarm, "armor", TRUE);
-        if (!rn2(10) && uarmf && uarmf->otyp != WATER_WALKING_BOOTS)
+        if (!random_integer_between_zero_and(10) && uarmf && uarmf->otyp != WATER_WALKING_BOOTS)
             (void) water_damage(uarm, "armor", TRUE);
     } else if (IS_SINK(typ)) {
         You(sit_message, defsyms[S_sink].explanation);
@@ -396,7 +398,7 @@ rndcurse(void)
     struct obj *otmp;
     static const char mal_aura[] = "feel a malignant aura surround %s.";
 
-    if (u_wield_art(ART_MAGICBANE) && rn2(20)) {
+    if (u_wield_art(ART_MAGICBANE) && random_integer_between_zero_and(20)) {
         You(mal_aura, "the magic-absorbing blade");
         return;
     }
@@ -413,9 +415,9 @@ rndcurse(void)
         nobj++;
     }
     if (nobj) {
-        for (cnt = rnd(6 / ((!!Antimagic) + (!!Half_spell_damage) + 1));
+        for (cnt = random(6 / ((!!Antimagic) + (!!Half_spell_damage) + 1));
              cnt > 0; cnt--) {
-            onum = rnd(nobj);
+            onum = random(nobj);
             for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
                 /* as above */
                 if (otmp->oclass == COIN_CLASS)
@@ -429,7 +431,7 @@ rndcurse(void)
                 continue; /* next target */
 
             if (otmp->oartifact && spec_ability(otmp, SPFX_INTEL)
-                && rn2(10) < 8) {
+                && random_integer_between_zero_and(10) < 8) {
                 pline("%s!", Tobjnam(otmp, "resist"));
                 continue;
             }
@@ -443,7 +445,7 @@ rndcurse(void)
     }
 
     /* treat steed's saddle as extended part of hero's inventory */
-    if (u.usteed && !rn2(4) && (otmp = which_armor(u.usteed, W_SADDLE)) != 0
+    if (u.monster_being_ridden && !random_integer_between_zero_and(4) && (otmp = which_armor(u.monster_being_ridden, W_SADDLE)) != 0
         && !otmp->cursed) { /* skip if already cursed */
         if (otmp->blessed)
             unbless(otmp);
@@ -467,7 +469,7 @@ attrcurse(void)
 {
     int ret = 0;
 
-    switch (rnd(11)) {
+    switch (random(11)) {
     case 1:
         if (HFire_resistance & INTRINSIC) {
             HFire_resistance &= ~INTRINSIC;

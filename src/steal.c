@@ -3,12 +3,14 @@
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 staticfn const char *equipname(struct obj *);
 staticfn int unstolenarm(void);
 staticfn int stealarm(void);
-staticfn void worn_item_removal(struct monst *, struct obj *);
+staticfn void worn_item_removal(struct monster *, struct obj *);
 
 staticfn const char *
 equipname(struct obj *otmp)
@@ -68,12 +70,12 @@ findgold(struct obj *argchain)
  * Steal gold coins only.  Leprechauns don't care for lesser coins.
 */
 void
-stealgold(struct monst *mtmp)
+stealgold(struct monster *mtmp)
 {
     struct obj *fgold = g_at(u.ux, u.uy);
     struct obj *ygold;
     long tmp;
-    struct monst *who;
+    struct monster *who;
     const char *whose, *what;
 
     /* skip lesser coins on the floor */
@@ -83,12 +85,12 @@ stealgold(struct monst *mtmp)
     /* Do you have real gold? */
     ygold = findgold(gi.invent);
 
-    if (fgold && (!ygold || fgold->quan > ygold->quan || !rn2(5))) {
+    if (fgold && (!ygold || fgold->quan > ygold->quan || !random_integer_between_zero_and(5))) {
         obj_extract_self(fgold);
         add_to_minv(mtmp, fgold);
         newsym(u.ux, u.uy);
-        if (u.usteed) {
-            who = u.usteed;
+        if (u.monster_being_ridden) {
+            who = u.monster_being_ridden;
             whose = s_suffix(y_monnam(who));
             what = makeplural(mbodypart(who, FOOT));
         } else {
@@ -104,7 +106,7 @@ stealgold(struct monst *mtmp)
             what += 5;
         pline("%s quickly snatches some gold from %s %s %s!", Monnam(mtmp),
               (Levitation || Flying) ? "beneath" : "between", whose, what);
-        if (!ygold || !rn2(5)) {
+        if (!ygold || !random_integer_between_zero_and(5)) {
             if (!tele_restrict(mtmp))
                 (void) rloc(mtmp, RLOC_MSG);
             monflee(mtmp, 0, FALSE, FALSE);
@@ -177,7 +179,7 @@ unstolenarm(void)
 staticfn int
 stealarm(void)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     struct obj *otmp;
 
     if (!gs.stealoid || !gs.stealmid)
@@ -315,7 +317,7 @@ remove_worn_item(
 /* during theft of a worn item: remove_worn_item(), prefaced by a message */
 staticfn void
 worn_item_removal(
-    struct monst *mon,
+    struct monster *mon,
     struct obj *obj)
 {
     char objbuf[BUFSZ], article[20], *p;
@@ -356,7 +358,7 @@ worn_item_removal(
  * doesn't become a superset of leprechaun's "steal gold" attack).
  */
 int
-steal(struct monst *mtmp, char *objnambuf)
+steal(struct monster *mtmp, char *objnambuf)
 {
     struct obj *otmp;
     char Monnambuf[BUFSZ];
@@ -392,12 +394,12 @@ steal(struct monst *mtmp, char *objnambuf)
  nothing_to_steal:
         /* nymphs might target uchain if invent is empty; monkeys won't;
            hero becomes unpunished but nymph ends up empty handed */
-        if (Punished && !monkey_business && rn2(4)) {
+        if (Punished && !monkey_business && random_integer_between_zero_and(4)) {
             /* uball is not carried (uchain never is) */
             assert(uball != NULL && uball->where == OBJ_FLOOR);
             worn_item_removal(mtmp, uchain);
         } else if (u.utrap && u.utraptype == TT_BURIEDBALL
-                   && !monkey_business && !rn2(4)) {
+                   && !monkey_business && !random_integer_between_zero_and(4)) {
             boolean dummy;
 
             /* buried ball is not tracked via 'uball' and there is no chain
@@ -434,7 +436,7 @@ steal(struct monst *mtmp, char *objnambuf)
             tmp += (otmp->owornmask & (W_ARMOR | W_ACCESSORY)) ? 5 : 1;
     if (!tmp)
         goto nothing_to_steal;
-    tmp = rn2(tmp);
+    tmp = random_integer_between_zero_and(tmp);
     for (otmp = gi.invent; otmp; otmp = otmp->nobj)
         if ((!uarm || otmp != uarmc) && otmp != uskin
             && otmp->oclass != COIN_CLASS) {
@@ -478,7 +480,7 @@ steal(struct monst *mtmp, char *objnambuf)
            (ignores loadstones; the !can_carry() check will catch those) */
         if (otmp == uball)
             ostuck = TRUE; /* effectively worn; curse is implicit */
-        else if (otmp == uquiver || (otmp == uswapwep && !u.twoweap))
+        else if (otmp == uquiver || (otmp == uswapwep && !u.using_two_weapons))
             ostuck = FALSE; /* not really worn; curse doesn't matter */
         else
             ostuck = ((otmp->cursed && otmp->owornmask)
@@ -501,7 +503,7 @@ steal(struct monst *mtmp, char *objnambuf)
             /* the fewer items you have, the less likely the thief
                is going to stick around to try again (0) instead of
                running away (1) */
-            return !rn2(inv_cnt(FALSE) / 5 + 2);
+            return !random_integer_between_zero_and(inv_cnt(FALSE) / 5 + 2);
         }
     }
 
@@ -534,7 +536,7 @@ steal(struct monst *mtmp, char *objnambuf)
                 /* animals usually don't have enough patience to take off
                    items which require extra time; unconscious or paralyzed
                    hero can't be charmed into taking off his own armor */
-                if (armordelay >= 1 && !olddelay && rn2(10))
+                if (armordelay >= 1 && !olddelay && random_integer_between_zero_and(10))
                     goto cant_take;
                 worn_item_removal(mtmp, otmp);
                 break;
@@ -614,7 +616,7 @@ steal(struct monst *mtmp, char *objnambuf)
         && mtmp->data->mlet == S_NYMPH)
         ++named;
     urgent_pline("%s stole %s.", named ? "She" : Monnambuf, doname(otmp));
-    (void) encumber_msg();
+    (void) encumbered_message();
     could_petrify = (otmp->otyp == CORPSE
                      && touch_petrifies(&mons[otmp->corpsenm]));
     otmp->how_lost = LOST_STOLEN;
@@ -628,7 +630,7 @@ steal(struct monst *mtmp, char *objnambuf)
 
 /* Returns 1 if otmp is free'd, 0 otherwise. */
 int
-mpickobj(struct monst *mtmp, struct obj *otmp)
+mpickobj(struct monster *mtmp, struct obj *otmp)
 {
     int freed_otmp;
     boolean snuff_otmp = FALSE;
@@ -673,7 +675,7 @@ mpickobj(struct monst *mtmp, struct obj *otmp)
            it is applied to them; when engulfed (where monster can't be seen
            because vision is disabled), or when held (or poly'd and holding)
            while blind, behave as if the monster can be 'seen' by touch */
-        if (!canseemon(mtmp) && mtmp != u.ustuck)
+        if (!canseemon(mtmp) && mtmp != u.monster_stuck_to)
             unknow_object(otmp);
         /* if otmp has flags set for how it left hero's inventory, change
            those flags; if thrown, now stolen and autopickup might override
@@ -699,7 +701,7 @@ mpickobj(struct monst *mtmp, struct obj *otmp)
 
 /* called for AD_SAMU (the Wizard and quest nemeses) */
 void
-stealamulet(struct monst *mtmp)
+stealamulet(struct monster *mtmp)
 {
     char buf[BUFSZ];
     struct obj *otmp = 0, *obj = 0;
@@ -712,7 +714,7 @@ stealamulet(struct monst *mtmp)
         if (any_quest_artifact(obj))
             ++n, otmp = obj;
     if (n > 1) {
-        n = rnd(n);
+        n = random(n);
         for (otmp = gi.invent; otmp; otmp = otmp->nobj)
             if (any_quest_artifact(otmp) && !--n)
                 break;
@@ -720,15 +722,15 @@ stealamulet(struct monst *mtmp)
 
     if (!otmp) {
         /* if we didn't find any quest artifact, find another valuable item */
-        if (u.uhave.amulet) {
+        if (u.player_carrying_special_objects.amulet) {
             real = AMULET_OF_YENDOR;
             fake = FAKE_AMULET_OF_YENDOR;
-        } else if (u.uhave.bell) {
+        } else if (u.player_carrying_special_objects.bell) {
             real = BELL_OF_OPENING;
             fake = BELL;
-        } else if (u.uhave.book) {
+        } else if (u.player_carrying_special_objects.book) {
             real = SPE_BOOK_OF_THE_DEAD;
-        } else if (u.uhave.menorah) {
+        } else if (u.player_carrying_special_objects.menorah) {
             real = CANDELABRUM_OF_INVOCATION;
         } else
             return; /* you have nothing of special interest */
@@ -738,7 +740,7 @@ stealamulet(struct monst *mtmp)
             if (obj->otyp == real || (obj->otyp == fake && !mtmp->iswiz))
                 ++n, otmp = obj;
         if (n > 1) {
-            n = rnd(n);
+            n = random(n);
             for (otmp = gi.invent; otmp; otmp = otmp->nobj)
                 if ((otmp->otyp == real
                      || (otmp->otyp == fake && !mtmp->iswiz)) && !--n)
@@ -756,7 +758,7 @@ stealamulet(struct monst *mtmp)
         if ((otmp == uarmg || ((otmp == uright || otmp == uleft) && uarmg))
             && uwep) {
             /* gloves are about to be unworn; unwield weapon(s) first */
-            if (u.twoweap)    /* remove_worn_item(uswapwep) indirectly */
+            if (u.using_two_weapons)    /* remove_worn_item(uswapwep) indirectly */
                 remove_worn_item(uswapwep, FALSE); /* clears u.twoweap */
             remove_worn_item(uwep, FALSE);
         }
@@ -775,7 +777,7 @@ stealamulet(struct monst *mtmp)
         pline("%s steals %s!", Monnam(mtmp), buf);
         if (can_teleport(mtmp->data) && !tele_restrict(mtmp))
             (void) rloc(mtmp, RLOC_MSG);
-        (void) encumber_msg();
+        (void) encumbered_message();
     }
 }
 
@@ -783,7 +785,7 @@ stealamulet(struct monst *mtmp)
    (at present, only implemented for when the hero does the poking) */
 void
 maybe_absorb_item(
-    struct monst *mon,
+    struct monster *mon,
     struct obj *obj,
     int ochance, int achance) /* percent chance for ordinary item, artifact */
 {
@@ -812,7 +814,7 @@ maybe_absorb_item(
                   otense(obj, "are"), hand_s);
         }
         freeinv(obj);
-        (void) encumber_msg();
+        (void) encumbered_message();
     } else {
         /* not carried; presumably thrown or kicked */
         if (canspotmon(mon))
@@ -825,7 +827,7 @@ maybe_absorb_item(
 /* drop one object taken from a (possibly dead) monster's inventory */
 void
 mdrop_obj(
-    struct monst *mon,
+    struct monster *mon,
     struct obj *obj,
     boolean verbosely)
 {
@@ -862,7 +864,7 @@ mdrop_obj(
    even leaving the game entirely; when that happens, prevent them from
    taking the Amulet, invocation items, or quest artifact with them */
 void
-mdrop_special_objs(struct monst *mon)
+mdrop_special_objs(struct monster *mon)
 {
     struct obj *obj, *otmp;
 
@@ -886,7 +888,7 @@ mdrop_special_objs(struct monst *mon)
 /* release the objects the creature is carrying */
 void
 relobj(
-    struct monst *mtmp,
+    struct monster *mtmp,
     int show,
     boolean is_pet) /* If true, pet should keep wielded/worn items */
 {

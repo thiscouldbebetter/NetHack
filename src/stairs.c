@@ -2,6 +2,8 @@
 /* Copyright (c) 2024 by Pasi Kallinen */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 void
@@ -214,9 +216,9 @@ stairs_description(
            the game by coming down them, but the remote side varies
            depending on whether the Amulet is being carried */
         Sprintf(outbuf, "%s%s %s %s",
-                !u.uhave.amulet ? "" : "branch ",
+                !u.player_carrying_special_objects.amulet ? "" : "branch ",
                 stairs, updown,
-                !u.uhave.amulet ? "out of the dungeon"
+                !u.player_carrying_special_objects.amulet ? "out of the dungeon"
                 /* minimize our expectations about what comes next */
                 : (on_level(&tolev, &earth_level)
                    || on_level(&tolev, &air_level)

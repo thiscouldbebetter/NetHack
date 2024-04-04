@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /*
  * Entry points:
  *      do_mkroom() -- make and stock a room of a given type
@@ -185,7 +187,7 @@ mkshop(void)
         int j;
 
         /* pick a shop type at random */
-        for (j = rnd(100), i = 0; (j -= shtypes[i].prob) > 0; i++)
+        for (j = random(100), i = 0; (j -= shtypes[i].prob) > 0; i++)
             continue;
 
         /* big rooms cannot be wand or book shops,
@@ -217,7 +219,7 @@ pick_room(boolean strict)
     struct mkroom *sroom;
     int i = gn.nroom;
 
-    for (sroom = &gr.rooms[rn2(gn.nroom)]; i--; sroom++) {
+    for (sroom = &gr.rooms[random_integer_between_zero_and(gn.nroom)]; i--; sroom++) {
         if (sroom == &gr.rooms[gn.nroom])
             sroom = &gr.rooms[0];
         if (sroom->hx < 0)
@@ -225,11 +227,11 @@ pick_room(boolean strict)
         if (sroom->rtype != OROOM)
             continue;
         if (!strict) {
-            if (has_upstairs(sroom) || (has_dnstairs(sroom) && rn2(3)))
+            if (has_upstairs(sroom) || (has_dnstairs(sroom) && random_integer_between_zero_and(3)))
                 continue;
         } else if (has_upstairs(sroom) || has_dnstairs(sroom))
             continue;
-        if (sroom->doorct == 1 || !rn2(5) || wizard)
+        if (sroom->doorct == 1 || !random_integer_between_zero_and(5) || wizard)
             return sroom;
     }
     return (struct mkroom *) 0;
@@ -251,12 +253,12 @@ mkzoo(int type)
 staticfn void
 mk_zoo_thronemon(coordxy x, coordxy y)
 {
-    int i = rnd(level_difficulty());
+    int i = random(level_difficulty());
     int pm = (i > 9) ? PM_OGRE_TYRANT
         : (i > 5) ? PM_ELVEN_MONARCH
         : (i > 2) ? PM_DWARF_RULER
         : PM_GNOME_RULER;
-    struct monst *mon = makemon(&mons[pm], x, y, NO_MM_FLAGS);
+    struct monster *mon = makemon(&mons[pm], x, y, NO_MM_FLAGS);
 
     if (mon) {
         mon->msleeping = 1;
@@ -270,7 +272,7 @@ mk_zoo_thronemon(coordxy x, coordxy y)
 void
 fill_zoo(struct mkroom *sroom)
 {
-    struct monst *mon;
+    struct monster *mon;
     int sx, sy, i;
     int sh, goldlim = 0, type = sroom->rtype;
     coordxy tx = 0, ty = 0;
@@ -372,30 +374,30 @@ fill_zoo(struct mkroom *sroom)
                 (void) mkgold((long) rn1(i, 10), sx, sy);
                 break;
             case MORGUE:
-                if (!rn2(5))
+                if (!random_integer_between_zero_and(5))
                     (void) mk_tt_object(CORPSE, sx, sy);
-                if (!rn2(10)) /* lots of treasure buried with dead */
-                    (void) mksobj_at((rn2(3)) ? LARGE_BOX : CHEST, sx, sy,
+                if (!random_integer_between_zero_and(10)) /* lots of treasure buried with dead */
+                    (void) mksobj_at((random_integer_between_zero_and(3)) ? LARGE_BOX : CHEST, sx, sy,
                                      TRUE, FALSE);
-                if (!rn2(5))
+                if (!random_integer_between_zero_and(5))
                     make_grave(sx, sy, (char *) 0);
                 break;
             case BEEHIVE:
-                if (!rn2(3))
+                if (!random_integer_between_zero_and(3))
                     (void) mksobj_at(LUMP_OF_ROYAL_JELLY, sx, sy, TRUE,
                                      FALSE);
                 break;
             case BARRACKS:
-                if (!rn2(20)) /* the payroll and some loot */
-                    (void) mksobj_at((rn2(3)) ? LARGE_BOX : CHEST, sx, sy,
+                if (!random_integer_between_zero_and(20)) /* the payroll and some loot */
+                    (void) mksobj_at((random_integer_between_zero_and(3)) ? LARGE_BOX : CHEST, sx, sy,
                                      TRUE, FALSE);
                 break;
             case COCKNEST:
-                if (!rn2(3)) {
+                if (!random_integer_between_zero_and(3)) {
                     struct obj *sobj = mk_tt_object(STATUE, sx, sy);
 
                     if (sobj) {
-                        for (i = rn2(5); i; i--)
+                        for (i = random_integer_between_zero_and(5); i; i--)
                             (void) add_to_container(
                                 sobj, mkobj(RANDOM_CLASS, FALSE));
                         sobj->owt = weight(sobj);
@@ -403,7 +405,7 @@ fill_zoo(struct mkroom *sroom)
                 }
                 break;
             case ANTHOLE:
-                if (!rn2(3))
+                if (!random_integer_between_zero_and(3))
                     (void) mkobj_at(FOOD_CLASS, sx, sy, FALSE);
                 break;
             }
@@ -449,7 +451,7 @@ mkundead(
     boolean revive_corpses,
     int mm_flags)
 {
-    int cnt = (level_difficulty() + 1) / 10 + rnd(5);
+    int cnt = (level_difficulty() + 1) / 10 + random(5);
     struct permonst *mdat;
     struct obj *otmp;
     coord cc;
@@ -468,7 +470,7 @@ mkundead(
 staticfn struct permonst *
 morguemon(void)
 {
-    int i = rn2(100), hd = rn2(level_difficulty());
+    int i = random_integer_between_zero_and(100), hd = random_integer_between_zero_and(level_difficulty());
 
     if (hd > 10 && i < 10) {
         if (Inhell || In_endgame(&u.uz)) {
@@ -526,7 +528,7 @@ mkswamp(void) /* Michiel Huisjes & Fred de Wilde */
     int rmno;
 
     for (i = 0; i < 5; i++) { /* turn up to 5 rooms swampy */
-        sroom = &gr.rooms[rn2(gn.nroom)];
+        sroom = &gr.rooms[random_integer_between_zero_and(gn.nroom)];
         if (sroom->hx < 0 || sroom->rtype != OROOM || has_upstairs(sroom)
             || has_dnstairs(sroom))
             continue;
@@ -545,17 +547,17 @@ mkswamp(void) /* Michiel Huisjes & Fred de Wilde */
                     if ((sx + sy) % 2) {
                         del_engr_at(sx, sy);
                         levl[sx][sy].typ = POOL;
-                        if (!eelct || !rn2(4)) {
+                        if (!eelct || !random_integer_between_zero_and(4)) {
                             /* mkclass() won't do, as we might get kraken */
-                            (void) makemon(rn2(5)
+                            (void) makemon(random_integer_between_zero_and(5)
                                               ? &mons[PM_GIANT_EEL]
-                                              : rn2(2)
+                                              : random_integer_between_zero_and(2)
                                                  ? &mons[PM_PIRANHA]
                                                  : &mons[PM_ELECTRIC_EEL],
                                            sx, sy, NO_MM_FLAGS);
                             eelct++;
                         }
-                    } else if (!rn2(4)) /* swamps tend to be moldy */
+                    } else if (!random_integer_between_zero_and(4)) /* swamps tend to be moldy */
                         (void) makemon(mkclass(S_FUNGUS, 0), sx, sy,
                                        NO_MM_FLAGS);
                 }
@@ -576,11 +578,11 @@ shrine_pos(int roomno)
        between map locations and placement will be adjacent to that */
     delta = troom->hx - troom->lx;
     buf.x = troom->lx + delta / 2;
-    if ((delta % 2) && rn2(2))
+    if ((delta % 2) && random_integer_between_zero_and(2))
         buf.x++;
     delta = troom->hy - troom->ly;
     buf.y = troom->ly + delta / 2;
-    if ((delta % 2) && rn2(2))
+    if ((delta % 2) && random_integer_between_zero_and(2))
         buf.y++;
     return &buf;
 }
@@ -773,7 +775,7 @@ search_special(schar type)
 struct permonst *
 courtmon(void)
 {
-    int i = rn2(60) + rn2(3 * level_difficulty());
+    int i = random_integer_between_zero_and(60) + random_integer_between_zero_and(3 * level_difficulty());
 
     if (i > 100)
         return mkclass(S_DRAGON, 0);
@@ -809,7 +811,7 @@ squadmon(void)
 {
     int sel_prob, i, cpro, mndx;
 
-    sel_prob = rnd(80 + level_difficulty());
+    sel_prob = random(80 + level_difficulty());
 
     cpro = 0;
     for (i = 0; i < SIZE(squadprob); i++) {
@@ -874,7 +876,7 @@ rest_room(NHFILE *nhfp, struct mkroom *r)
     for (i = 0; i < r->nsubrooms; i++) {
         r->sbrooms[i] = &gs.subrooms[gn.nsubroom];
         rest_room(nhfp, &gs.subrooms[gn.nsubroom]);
-        gs.subrooms[gn.nsubroom++].resident = (struct monst *) 0;
+        gs.subrooms[gn.nsubroom++].resident = (struct monster *) 0;
     }
 }
 
@@ -893,7 +895,7 @@ rest_rooms(NHFILE *nhfp)
     gn.nsubroom = 0;
     for (i = 0; i < gn.nroom; i++) {
         rest_room(nhfp, &gr.rooms[i]);
-        gr.rooms[i].resident = (struct monst *) 0;
+        gr.rooms[i].resident = (struct monster *) 0;
     }
     gr.rooms[gn.nroom].hx = -1; /* restore ending flags */
     gs.subrooms[gn.nsubroom].hx = -1;

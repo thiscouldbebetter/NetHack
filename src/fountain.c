@@ -2,6 +2,8 @@
 /*      Copyright Scott R. Turner, srt@ucla, 10/27/86 */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /* Code for drinking from fountains. */
 
 #include "hack.h"
@@ -11,7 +13,7 @@ staticfn void dowaterdemon(void);
 staticfn void dowaternymph(void);
 staticfn void gush(coordxy, coordxy, genericptr_t) NONNULLARG3;
 staticfn void dofindgem(void);
-staticfn boolean watchman_warn_fountain(struct monst *) NONNULLARG1;
+staticfn boolean watchman_warn_fountain(struct monster *) NONNULLARG1;
 
 DISABLE_WARNING_FORMAT_NONLITERAL
 
@@ -38,7 +40,7 @@ staticfn void
 dowatersnakes(void)
 {
     int num = rn1(5, 2);
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if (!(gm.mvitals[PM_WATER_MOCCASIN].mvflags & G_GONE)) {
         if (!Blind) {
@@ -63,7 +65,7 @@ dowatersnakes(void)
 staticfn void
 dowaterdemon(void)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if (!(gm.mvitals[PM_WATER_DEMON].mvflags & G_GONE)) {
         if ((mtmp = makemon(&mons[PM_WATER_DEMON], u.ux, u.uy,
@@ -75,7 +77,7 @@ dowaterdemon(void)
 
             /* Give those on low levels a (slightly) better chance of survival
              */
-            if (rnd(100) > (80 + level_difficulty())) {
+            if (random(100) > (80 + level_difficulty())) {
                 pline("Grateful for %s release, %s grants you a wish!",
                       mhis(mtmp), mhe(mtmp));
                 /* give a wish and discard the monster (mtmp set to null) */
@@ -93,7 +95,7 @@ dowaterdemon(void)
 staticfn void
 dowaternymph(void)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if (!(gm.mvitals[PM_WATER_NYMPH].mvflags & G_GONE)
         && (mtmp = makemon(&mons[PM_WATER_NYMPH], u.ux, u.uy,
@@ -133,11 +135,11 @@ dogushforth(int drinking)
 staticfn void
 gush(coordxy x, coordxy y, genericptr_t poolcnt)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     struct trap *ttmp;
 
     if (((x + y) % 2) || u_at(x, y)
-        || (rn2(1 + distmin(u.ux, u.uy, x, y))) || (levl[x][y].typ != ROOM)
+        || (random_integer_between_zero_and(1 + distmin(u.ux, u.uy, x, y))) || (levl[x][y].typ != ROOM)
         || (sobj_at(BOULDER, x, y)) || nexttodoor(x, y))
         return;
 
@@ -176,7 +178,7 @@ dofindgem(void)
 }
 
 staticfn boolean
-watchman_warn_fountain(struct monst *mtmp)
+watchman_warn_fountain(struct monster *mtmp)
 {
     if (is_watch(mtmp->data) && couldsee(mtmp->mx, mtmp->my)
         && mtmp->mpeaceful) {
@@ -201,9 +203,9 @@ void
 dryup(coordxy x, coordxy y, boolean isyou)
 {
     if (IS_FOUNTAIN(levl[x][y].typ)
-        && (!rn2(3) || FOUNTAIN_IS_WARNED(x, y))) {
+        && (!random_integer_between_zero_and(3) || FOUNTAIN_IS_WARNED(x, y))) {
         if (isyou && in_town(x, y) && !FOUNTAIN_IS_WARNED(x, y)) {
-            struct monst *mtmp;
+            struct monster *mtmp;
 
             SET_FOUNTAIN_WARNED(x, y);
             /* Warn about future fountain use. */
@@ -244,7 +246,7 @@ drinkfountain(void)
 {
     /* What happens when you drink from a fountain? */
     boolean mgkftn = (levl[u.ux][u.uy].blessedftn == 1);
-    int fate = rnd(30);
+    int fate = random(30);
 
     if (Levitation) {
         floating_above("fountain");
@@ -257,14 +259,14 @@ drinkfountain(void)
         pline("Wow!  This makes you feel great!");
         /* blessed restore ability */
         for (ii = 0; ii < A_MAX; ii++)
-            if (ABASE(ii) < AMAX(ii)) {
-                ABASE(ii) = AMAX(ii);
+            if (ATTRIBUTE_BASE(ii) < AMAX(ii)) {
+                ATTRIBUTE_BASE(ii) = AMAX(ii);
                 disp.botl = TRUE;
             }
         /* gain ability, blessed if "natural" luck is high */
-        i = rn2(A_MAX); /* start at a random attribute */
+        i = random_integer_between_zero_and(A_MAX); /* start at a random attribute */
         for (ii = 0; ii < A_MAX; ii++) {
-            if (adjattrib(i, 1, littleluck ? -1 : 0) && littleluck)
+            if (adjust_attribute(i, 1, littleluck ? -1 : 0) && littleluck)
                 break;
             if (++i >= A_MAX)
                 i = 0;
@@ -278,7 +280,7 @@ drinkfountain(void)
 
     if (fate < 10) {
         pline_The("cool draught refreshes you.");
-        u.uhunger += rnd(10); /* don't choke on water */
+        u.uhunger += random(10); /* don't choke on water */
         newuhs(FALSE);
         if (mgkftn)
             return;
@@ -301,10 +303,10 @@ drinkfountain(void)
             if (Poison_resistance) {
                 pline("Perhaps it is runoff from the nearby %s farm.",
                       fruitname(FALSE));
-                losehp(rnd(4), "unrefrigerated sip of juice", KILLED_BY_AN);
+                losehp(random(4), "unrefrigerated sip of juice", KILLED_BY_AN);
                 break;
             }
-            poison_strdmg(rn1(4, 3), rnd(10), "contaminated water",
+            poison_strdmg(rn1(4, 3), random(10), "contaminated water",
                           KILLED_BY);
             exercise(A_CON, FALSE);
             break;
@@ -323,7 +325,7 @@ drinkfountain(void)
             exercise(A_CON, FALSE);
             /* this is more severe than rndcurse() */
             for (obj = gi.invent; obj; obj = obj->nobj)
-                if (obj->oclass != COIN_CLASS && !obj->cursed && !rn2(5)) {
+                if (obj->oclass != COIN_CLASS && !obj->cursed && !random_integer_between_zero_and(5)) {
                     curse(obj);
                     ++buc_changed;
                 }
@@ -363,7 +365,7 @@ drinkfountain(void)
             break;
         case 29: /* Scare */
         {
-            struct monst *mtmp;
+            struct monster *mtmp;
 
             pline("This %s gives you bad breath!",
                   hliquid("water"));
@@ -399,19 +401,19 @@ dipfountain(struct obj *obj)
     }
 
     if (obj->otyp == LONG_SWORD && u.ulevel >= 5
-        && !rn2(Role_if(PM_KNIGHT) ? 6 : 30)
+        && !random_integer_between_zero_and(Role_if(PM_KNIGHT) ? 6 : 30)
         /* once upon a time it was possible to poly N daggers into N swords */
         && obj->quan == 1L && !obj->oartifact
         && !exist_artifact(LONG_SWORD, artiname(ART_EXCALIBUR))) {
         static const char lady[] = "Lady of the Lake";
 
-        if (u.ualign.type != A_LAWFUL) {
+        if (u.alignment.type != A_LAWFUL) {
             /* Ha!  Trying to cheat her. */
             pline("A freezing mist rises from the %s and envelopes the sword.",
                   hliquid("water"));
             pline_The("fountain disappears!");
             curse(obj);
-            if (obj->spe > -6 && !rn2(3))
+            if (obj->spe > -6 && !random_integer_between_zero_and(3))
                 obj->spe--;
             obj->oerodeproof = FALSE;
             exercise(A_WIS, FALSE);
@@ -447,11 +449,11 @@ dipfountain(struct obj *obj)
         er = water_damage(obj, NULL, TRUE);
     }
 
-    if (er == ER_DESTROYED || (er != ER_NOTHING && !rn2(2))) {
+    if (er == ER_DESTROYED || (er != ER_NOTHING && !random_integer_between_zero_and(2))) {
         return; /* no further effect */
     }
 
-    switch (rnd(30)) {
+    switch (random(30)) {
     case 16: /* Curse the item */
         if (!is_hands && obj->oclass != COIN_CLASS && !obj->cursed) {
             curse(obj);
@@ -528,7 +530,7 @@ dipfountain(struct obj *obj)
         if (FOUNTAIN_IS_LOOTED(u.ux, u.uy))
             break;
         SET_FOUNTAIN_LOOTED(u.ux, u.uy);
-        (void) mkgold((long) (rnd((dunlevs_in_dungeon(&u.uz) - dunlev(&u.uz)
+        (void) mkgold((long) (random((dunlevs_in_dungeon(&u.uz) - dunlev(&u.uz)
                                    + 1) * 2) + 5),
                       u.ux, u.uy);
         if (!Blind)
@@ -588,13 +590,13 @@ void
 drinksink(void)
 {
     struct obj *otmp;
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if (Levitation) {
         floating_above("sink");
         return;
     }
-    switch (rn2(20)) {
+    switch (random_integer_between_zero_and(20)) {
     case 0:
         You("take a sip of very cold %s.", hliquid("water"));
         break;
@@ -607,7 +609,7 @@ drinksink(void)
             pline("It seems quite tasty.");
             monstseesu(M_SEEN_FIRE);
         } else {
-            losehp(rnd(6), "sipping boiling water", KILLED_BY);
+            losehp(random(6), "sipping boiling water", KILLED_BY);
             monstunseesu(M_SEEN_FIRE);
         }
         /* boiling water burns considered fire damage */
@@ -666,7 +668,7 @@ drinksink(void)
         break;
     case 9:
         pline("Gaggg... this tastes like sewage!  You vomit.");
-        morehungry(rn1(30 - ACURR(A_CON), 11));
+        morehungry(rn1(30 - ATTRIBUTE_CURRENT(A_CON), 11));
         vomit();
         break;
     case 10:
@@ -697,7 +699,7 @@ drinksink(void)
         /*FALLTHRU*/
     default:
         You("take a sip of %s %s.",
-            rn2(3) ? (rn2(2) ? "cold" : "warm") : "hot",
+            random_integer_between_zero_and(3) ? (random_integer_between_zero_and(2) ? "cold" : "warm") : "hot",
             hliquid("water"));
     }
 }
@@ -710,7 +712,7 @@ dipsink(struct obj *obj)
             not_looted_yet = (levl[u.ux][u.uy].looted & S_LRING) == 0,
             is_hands = (obj == &hands_obj || (uarmg && obj == uarmg));
 
-    if (!rn2(not_looted_yet ? 25 : 15)) {
+    if (!random_integer_between_zero_and(not_looted_yet ? 25 : 15)) {
         /* can't rely on using sink for unlimited scroll blanking; however,
            since sink will be converted into a fountain, hero can dip again */
         breaksink(u.ux, u.uy); /* "The pipes break!  Water spurts out!" */

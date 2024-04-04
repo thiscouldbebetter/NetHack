@@ -3,6 +3,8 @@
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #ifndef LONG_MAX
 #include <limits.h>
@@ -25,7 +27,7 @@ staticfn char *
 get_strength_str(void)
 {
     static char buf[32];
-    int st = ACURR(A_STR);
+    int st = ATTRIBUTE_CURRENT(A_STR);
 
     if (st > 18) {
         if (st > STR18(100))
@@ -88,11 +90,11 @@ do_statusline1(void)
 
     Sprintf(nb = eos(nb), "St:%s Dx:%-1d Co:%-1d In:%-1d Wi:%-1d Ch:%-1d",
             get_strength_str(),
-            ACURR(A_DEX), ACURR(A_CON), ACURR(A_INT), ACURR(A_WIS),
-            ACURR(A_CHA));
+            ATTRIBUTE_CURRENT(A_DEX), ATTRIBUTE_CURRENT(A_CON), ATTRIBUTE_CURRENT(A_INT), ATTRIBUTE_CURRENT(A_WIS),
+            ATTRIBUTE_CURRENT(A_CHA));
     Sprintf(nb = eos(nb), "%s",
-            (u.ualign.type == A_CHAOTIC) ? "  Chaotic"
-              : (u.ualign.type == A_NEUTRAL) ? "  Neutral"
+            (u.alignment.type == A_CHAOTIC) ? "  Chaotic"
+              : (u.alignment.type == A_NEUTRAL) ? "  Neutral"
                 : "  Lawful");
 #ifdef SCORE_ON_BOTL
     if (flags.showscore)
@@ -140,20 +142,20 @@ do_statusline2(void)
     dx = strstri(dloc, "\\G") ? 9 : 0;
 
     /* health and armor class (has trailing space for AC 0..9) */
-    hp = Upolyd ? u.mh : u.uhp;
-    hpmax = Upolyd ? u.mhmax : u.uhpmax;
+    hp = Upolyd ? u.mh : u.hit_points;
+    hpmax = Upolyd ? u.mhmax : u.hit_points_max;
     if (hp < 0)
         hp = 0;
     Sprintf(hlth, "HP:%d(%d) Pw:%d(%d) AC:%-2d",
             min(hp, 9999), min(hpmax, 9999),
-            min(u.uen, 9999), min(u.uenmax, 9999), u.uac);
+            min(u.energy, 9999), min(u.energy_max, 9999), u.armor_class);
     hln = strlen(hlth);
 
     /* experience */
     if (Upolyd)
         Sprintf(expr, "HD:%d", mons[u.umonnum].mlevel);
     else if (flags.showexp)
-        Sprintf(expr, "Xp:%d/%-1ld", u.ulevel, u.uexp);
+        Sprintf(expr, "Xp:%d/%-1ld", u.ulevel, u.experience);
     else
         Sprintf(expr, "Xp:%d", u.ulevel);
     xln = strlen(expr);
@@ -205,7 +207,7 @@ do_statusline2(void)
         Strcpy(nb = eos(nb), " Lev");
     if (Flying)
         Strcpy(nb = eos(nb), " Fly");
-    if (u.usteed)
+    if (u.monster_being_ridden)
         Strcpy(nb = eos(nb), " Ride");
     cln = strlen(cond);
 
@@ -260,7 +262,7 @@ bot(void)
         return;
     /* dosave() flags completion by setting u.uhp to -1; suppress_map_output()
        covers program_state.restoring and is used for status as well as map */
-    if (u.uhp != -1 && gy.youmonst.data
+    if (u.hit_points != -1 && gy.youmonst.data
         && iflags.status_updates && !suppress_map_output()) {
         if (VIA_WINDOWPORT()) {
             bot_via_windowport();
@@ -788,21 +790,21 @@ bot_via_windowport(void)
     gv.valset[BL_TITLE] = TRUE; /* indicate val already set */
 
     /* Strength */
-    gb.blstats[idx][BL_STR].a.a_int = ACURR(A_STR);
+    gb.blstats[idx][BL_STR].a.a_int = ATTRIBUTE_CURRENT(A_STR);
     Strcpy(gb.blstats[idx][BL_STR].val, get_strength_str());
     gv.valset[BL_STR] = TRUE; /* indicate val already set */
 
     /*  Dexterity, constitution, intelligence, wisdom, charisma. */
-    gb.blstats[idx][BL_DX].a.a_int = ACURR(A_DEX);
-    gb.blstats[idx][BL_CO].a.a_int = ACURR(A_CON);
-    gb.blstats[idx][BL_IN].a.a_int = ACURR(A_INT);
-    gb.blstats[idx][BL_WI].a.a_int = ACURR(A_WIS);
-    gb.blstats[idx][BL_CH].a.a_int = ACURR(A_CHA);
+    gb.blstats[idx][BL_DX].a.a_int = ATTRIBUTE_CURRENT(A_DEX);
+    gb.blstats[idx][BL_CO].a.a_int = ATTRIBUTE_CURRENT(A_CON);
+    gb.blstats[idx][BL_IN].a.a_int = ATTRIBUTE_CURRENT(A_INT);
+    gb.blstats[idx][BL_WI].a.a_int = ATTRIBUTE_CURRENT(A_WIS);
+    gb.blstats[idx][BL_CH].a.a_int = ATTRIBUTE_CURRENT(A_CHA);
 
     /* Alignment */
-    Strcpy(gb.blstats[idx][BL_ALIGN].val, (u.ualign.type == A_CHAOTIC)
+    Strcpy(gb.blstats[idx][BL_ALIGN].val, (u.alignment.type == A_CHAOTIC)
                                           ? "Chaotic"
-                                          : (u.ualign.type == A_NEUTRAL)
+                                          : (u.alignment.type == A_NEUTRAL)
                                                ? "Neutral"
                                                : "Lawful");
 
@@ -814,12 +816,12 @@ bot_via_windowport(void)
         0L;
 
     /*  Hit points  */
-    i = Upolyd ? u.mh : u.uhp;
+    i = Upolyd ? u.mh : u.hit_points;
     if (i < 0) /* gameover sets u.uhp to -1 */
         i = 0;
     gb.blstats[idx][BL_HP].rawval.a_int = i;
     gb.blstats[idx][BL_HP].a.a_int = min(i, 9999);
-    i = Upolyd ? u.mhmax : u.uhpmax;
+    i = Upolyd ? u.mhmax : u.hit_points_max;
     gb.blstats[idx][BL_HPMAX].rawval.a_int = i;
     gb.blstats[idx][BL_HPMAX].a.a_int = min(i, 9999);
 
@@ -854,20 +856,20 @@ bot_via_windowport(void)
     gv.valset[BL_GOLD] = TRUE; /* indicate val already set */
 
     /* Power (magical energy) */
-    gb.blstats[idx][BL_ENE].rawval.a_int = u.uen;
-    gb.blstats[idx][BL_ENE].a.a_int = min(u.uen, 9999);
-    gb.blstats[idx][BL_ENEMAX].rawval.a_int = u.uenmax;
-    gb.blstats[idx][BL_ENEMAX].a.a_int = min(u.uenmax, 9999);
+    gb.blstats[idx][BL_ENE].rawval.a_int = u.energy;
+    gb.blstats[idx][BL_ENE].a.a_int = min(u.energy, 9999);
+    gb.blstats[idx][BL_ENEMAX].rawval.a_int = u.energy_max;
+    gb.blstats[idx][BL_ENEMAX].a.a_int = min(u.energy_max, 9999);
 
     /* Armor class */
-    gb.blstats[idx][BL_AC].a.a_int = u.uac;
+    gb.blstats[idx][BL_AC].a.a_int = u.armor_class;
 
     /* Monster level (if Upolyd) */
     gb.blstats[idx][BL_HD].a.a_int = Upolyd ? (int) mons[u.umonnum].mlevel : 0;
 
     /* Experience */
     gb.blstats[idx][BL_XP].a.a_int = u.ulevel;
-    gb.blstats[idx][BL_EXP].a.a_long = u.uexp;
+    gb.blstats[idx][BL_EXP].a.a_long = u.experience;
 
     /* Time (moves) */
     gb.blstats[idx][BL_TIME].a.a_long = gm.moves;
@@ -946,7 +948,7 @@ bot_via_windowport(void)
         = condtests[bl_engulfed].test
 #endif
         = condtests[bl_holding].test = FALSE;
-    if (u.ustuck) {
+    if (u.monster_stuck_to) {
         /* it is possible for a hero in sticks() form to be swallowed,
            so swallowed needs to be checked first; it is not possible for
            a hero in sticks() form to be held--sticky hero does the holding
@@ -964,7 +966,7 @@ bot_via_windowport(void)
         } else {
             /* grab == hero is held by sea monster and about to be drowned;
                held == hero is held by something else and can't move away */
-            test_if_enabled(bl_grab) = (u.ustuck->data->mlet == S_EEL);
+            test_if_enabled(bl_grab) = (u.monster_stuck_to->data->mlet == S_EEL);
             test_if_enabled(bl_held) = !condtests[bl_grab].test;
         }
     }
@@ -975,7 +977,7 @@ bot_via_windowport(void)
     condtests[bl_glowhands].test = (u.umconf) ? TRUE : FALSE;
     condtests[bl_hallu].test     = (Hallucination) ? TRUE : FALSE;
     condtests[bl_lev].test       = (Levitation) ? TRUE : FALSE;
-    condtests[bl_ride].test      = (u.usteed) ? TRUE : FALSE;
+    condtests[bl_ride].test      = (u.monster_being_ridden) ? TRUE : FALSE;
     condtests[bl_slime].test     = (Slimed) ? TRUE : FALSE;
     condtests[bl_stone].test     = (Stoned) ? TRUE : FALSE;
     condtests[bl_strngl].test    = (Strangled) ? TRUE : FALSE;
@@ -991,7 +993,7 @@ bot_via_windowport(void)
         cond_cache_prepA();
         if (condtests[bl_unconsc].enabled
             && cache_nomovemsg && !cache_avail[0]) {
-                cache_reslt[0] = (!u.usleep && unconscious());
+                cache_reslt[0] = (!u.sleeping_move_last_started && unconscious());
                 cache_avail[0] = TRUE;
         }
         if (condtests[bl_parlyz].enabled
@@ -1004,7 +1006,7 @@ bot_via_windowport(void)
             condtests[bl_unconsc].test = cache_reslt[0];
         } else if (cache_avail[1] && cache_reslt[1]) {
             condtests[bl_parlyz].test = cache_reslt[1];
-        } else if (condtests[bl_sleeping].enabled && u.usleep) {
+        } else if (condtests[bl_sleeping].enabled && u.sleeping_move_last_started) {
             condtests[bl_sleeping].test = TRUE;
         } else if (condtests[bl_busy].enabled) {
             condtests[bl_busy].test = TRUE;
@@ -1795,7 +1797,7 @@ exp_percentage(void)
         long exp_val, nxt_exp_val, curlvlstart;
 
         curlvlstart = newuexp(u.ulevel - 1);
-        exp_val = u.uexp - curlvlstart;
+        exp_val = u.experience - curlvlstart;
         nxt_exp_val = newuexp(u.ulevel) - curlvlstart;
         if (exp_val == nxt_exp_val - 1L) {
             /*
@@ -2625,7 +2627,7 @@ parse_status_hl2(char (*s)[QBUFSZ], boolean from_configfile)
             changed = TRUE;
         } else if (fld == BL_CAP
                    && is_fld_arrayvalues(s[sidx], enc_stat,
-                                         SLT_ENCUMBER, OVERLOADED + 1,
+                                         SLIGHTLY_ENCUMBERED, OVERLOADED + 1,
                                          &kidx)) {
             txt = enc_stat[kidx];
             txtval = TRUE;
@@ -3852,9 +3854,9 @@ status_hilite_menu_add(int origfld)
         if (fld == BL_CAP) {
             int rv = query_arrayvalue(qry_buf,
                                       enc_stat,
-                                      SLT_ENCUMBER, OVERLOADED + 1);
+                                      SLIGHTLY_ENCUMBERED, OVERLOADED + 1);
 
-            if (rv < SLT_ENCUMBER)
+            if (rv < SLIGHTLY_ENCUMBERED)
                 goto choose_behavior;
 
             hilite.rel = TXT_VALUE;

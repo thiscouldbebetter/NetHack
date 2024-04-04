@@ -2,11 +2,13 @@
 /*      Copyright (c) Izchak Miller, 1992.                        */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 staticfn const char *dev_name(void);
-staticfn void get_mplname(struct monst *, char *);
-staticfn void mk_mplayer_armor(struct monst *, short);
+staticfn void get_mplname(struct monster *, char *);
+staticfn void mk_mplayer_armor(struct monster *, short);
 
 /* These are the names of those who
  * contributed to the development of NetHack 3.2/3.3/3.4/3.6.
@@ -44,12 +46,12 @@ staticfn const char *
 dev_name(void)
 {
     int i, m = 0, n = SIZE(developers);
-    struct monst *mtmp;
+    struct monster *mtmp;
     boolean match;
 
     do {
         match = FALSE;
-        i = rn2(n);
+        i = random_integer_between_zero_and(n);
         for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
             if (!is_mplayer(mtmp->data))
                 continue;
@@ -69,7 +71,7 @@ dev_name(void)
 }
 
 staticfn void
-get_mplname(struct monst* mtmp, char *nam)
+get_mplname(struct monster* mtmp, char *nam)
 {
     boolean fmlkind = is_female(mtmp->data);
     const char *devnam;
@@ -78,7 +80,7 @@ get_mplname(struct monst* mtmp, char *nam)
     if (!devnam)
         Strcpy(nam, fmlkind ? "Eve" : "Adam");
     else if (fmlkind && !!strcmp(devnam, "Janet"))
-        Strcpy(nam, rn2(2) ? "Maud" : "Eve");
+        Strcpy(nam, random_integer_between_zero_and(2) ? "Maud" : "Eve");
     else
         Strcpy(nam, devnam);
 
@@ -92,7 +94,7 @@ get_mplname(struct monst* mtmp, char *nam)
 }
 
 staticfn void
-mk_mplayer_armor(struct monst *mon, short typ)
+mk_mplayer_armor(struct monster *mon, short typ)
 {
     struct obj *obj;
 
@@ -100,28 +102,28 @@ mk_mplayer_armor(struct monst *mon, short typ)
         return;
     obj = mksobj(typ, FALSE, FALSE);
     obj->oeroded = obj->oeroded2 = 0;
-    if (!rn2(3))
+    if (!random_integer_between_zero_and(3))
         obj->oerodeproof = 1;
-    if (!rn2(3))
+    if (!random_integer_between_zero_and(3))
         curse(obj);
-    if (!rn2(3))
+    if (!random_integer_between_zero_and(3))
         bless(obj);
     /* Most players who get to the endgame who have cursed equipment
      * have it because the wizard or other monsters cursed it, so its
      * chances of having plusses is the same as usual....
      */
-    obj->spe = rn2(10) ? (rn2(3) ? rn2(5) : rn1(4, 4)) : -rnd(3);
+    obj->spe = random_integer_between_zero_and(10) ? (random_integer_between_zero_and(3) ? random_integer_between_zero_and(5) : rn1(4, 4)) : -random(3);
     (void) mpickobj(mon, obj);
 }
 
-struct monst *
+struct monster *
 mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     char nam[PL_NSIZ];
 
     if (!is_mplayer(ptr))
-        return ((struct monst *) 0);
+        return ((struct monster *) 0);
 
     if (MON_AT(x, y))
         (void) rloc(m_at(x, y), RLOC_ERR|RLOC_NOMSG); /* insurance */
@@ -134,9 +136,9 @@ mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
         int quan;
         struct obj *otmp;
 
-        mtmp->m_lev = (special ? rn1(16, 15) : rnd(16));
+        mtmp->m_lev = (special ? rn1(16, 15) : random(16));
         mtmp->mhp = mtmp->mhpmax = d((int) mtmp->m_lev, 10)
-                                   + (special ? (30 + rnd(30)) : 30);
+                                   + (special ? (30 + random(30)) : 30);
         if (special) {
             get_mplname(mtmp, nam);
             mtmp = christen_monst(mtmp, nam);
@@ -147,103 +149,103 @@ mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
         set_malign(mtmp); /* peaceful may have changed again */
 
         /* default equipment; much of it will be overridden below */
-        weapon = !rn2(2) ? LONG_SWORD : rnd_class(SPEAR, BULLWHIP);
+        weapon = !random_integer_between_zero_and(2) ? LONG_SWORD : rnd_class(SPEAR, BULLWHIP);
         armor  = rnd_class(GRAY_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALE_MAIL);
-        cloak  = !rn2(8) ? STRANGE_OBJECT
+        cloak  = !random_integer_between_zero_and(8) ? STRANGE_OBJECT
                          : rnd_class(OILSKIN_CLOAK, CLOAK_OF_DISPLACEMENT);
-        helm   = !rn2(8) ? STRANGE_OBJECT
+        helm   = !random_integer_between_zero_and(8) ? STRANGE_OBJECT
                          : rnd_class(ELVEN_LEATHER_HELM, HELM_OF_TELEPATHY);
-        shield = !rn2(8) ? STRANGE_OBJECT
+        shield = !random_integer_between_zero_and(8) ? STRANGE_OBJECT
                          : rnd_class(ELVEN_SHIELD, SHIELD_OF_REFLECTION);
 
         switch (monsndx(ptr)) {
         case PM_ARCHEOLOGIST:
-            if (rn2(2))
+            if (random_integer_between_zero_and(2))
                 weapon = BULLWHIP;
             break;
         case PM_BARBARIAN:
-            if (rn2(2)) {
-                weapon = rn2(2) ? TWO_HANDED_SWORD : BATTLE_AXE;
+            if (random_integer_between_zero_and(2)) {
+                weapon = random_integer_between_zero_and(2) ? TWO_HANDED_SWORD : BATTLE_AXE;
                 shield = STRANGE_OBJECT;
             }
-            if (rn2(2))
+            if (random_integer_between_zero_and(2))
                 armor = rnd_class(PLATE_MAIL, CHAIN_MAIL);
             if (helm == HELM_OF_BRILLIANCE)
                 helm = STRANGE_OBJECT;
             break;
         case PM_CAVE_DWELLER:
-            if (rn2(4))
+            if (random_integer_between_zero_and(4))
                 weapon = MACE;
-            else if (rn2(2))
+            else if (random_integer_between_zero_and(2))
                 weapon = CLUB;
             if (helm == HELM_OF_BRILLIANCE)
                 helm = STRANGE_OBJECT;
             break;
         case PM_HEALER:
-            if (rn2(4))
+            if (random_integer_between_zero_and(4))
                 weapon = QUARTERSTAFF;
-            else if (rn2(2))
-                weapon = rn2(2) ? UNICORN_HORN : SCALPEL;
-            if (rn2(4))
-                helm = rn2(2) ? HELM_OF_BRILLIANCE : HELM_OF_TELEPATHY;
-            if (rn2(2))
+            else if (random_integer_between_zero_and(2))
+                weapon = random_integer_between_zero_and(2) ? UNICORN_HORN : SCALPEL;
+            if (random_integer_between_zero_and(4))
+                helm = random_integer_between_zero_and(2) ? HELM_OF_BRILLIANCE : HELM_OF_TELEPATHY;
+            if (random_integer_between_zero_and(2))
                 shield = STRANGE_OBJECT;
             break;
         case PM_KNIGHT:
-            if (rn2(4))
+            if (random_integer_between_zero_and(4))
                 weapon = LONG_SWORD;
-            if (rn2(2))
+            if (random_integer_between_zero_and(2))
                 armor = rnd_class(PLATE_MAIL, CHAIN_MAIL);
             break;
         case PM_MONK:
-            weapon = !rn2(3) ? SHURIKEN : STRANGE_OBJECT;
+            weapon = !random_integer_between_zero_and(3) ? SHURIKEN : STRANGE_OBJECT;
             armor = STRANGE_OBJECT;
             cloak = ROBE;
-            if (rn2(2))
+            if (random_integer_between_zero_and(2))
                 shield = STRANGE_OBJECT;
             break;
         case PM_CLERIC:
-            if (rn2(2))
+            if (random_integer_between_zero_and(2))
                 weapon = MACE;
-            if (rn2(2))
+            if (random_integer_between_zero_and(2))
                 armor = rnd_class(PLATE_MAIL, CHAIN_MAIL);
-            if (rn2(4))
+            if (random_integer_between_zero_and(4))
                 cloak = ROBE;
-            if (rn2(4))
-                helm = rn2(2) ? HELM_OF_BRILLIANCE : HELM_OF_TELEPATHY;
-            if (rn2(2))
+            if (random_integer_between_zero_and(4))
+                helm = random_integer_between_zero_and(2) ? HELM_OF_BRILLIANCE : HELM_OF_TELEPATHY;
+            if (random_integer_between_zero_and(2))
                 shield = STRANGE_OBJECT;
             break;
         case PM_RANGER:
-            if (rn2(2))
+            if (random_integer_between_zero_and(2))
                 weapon = ELVEN_DAGGER;
             break;
         case PM_ROGUE:
-            if (rn2(2))
-                weapon = rn2(2) ? SHORT_SWORD : ORCISH_DAGGER;
+            if (random_integer_between_zero_and(2))
+                weapon = random_integer_between_zero_and(2) ? SHORT_SWORD : ORCISH_DAGGER;
             break;
         case PM_SAMURAI:
-            if (rn2(2))
+            if (random_integer_between_zero_and(2))
                 weapon = KATANA;
             break;
         case PM_TOURIST:
             /* Defaults are just fine */
             break;
         case PM_VALKYRIE:
-            if (rn2(2))
+            if (random_integer_between_zero_and(2))
                 weapon = WAR_HAMMER;
-            if (rn2(2))
+            if (random_integer_between_zero_and(2))
                 armor = rnd_class(PLATE_MAIL, CHAIN_MAIL);
             break;
         case PM_WIZARD:
-            if (rn2(4))
-                weapon = rn2(2) ? QUARTERSTAFF : ATHAME;
-            if (rn2(2)) {
-                armor = rn2(2) ? BLACK_DRAGON_SCALE_MAIL
+            if (random_integer_between_zero_and(4))
+                weapon = random_integer_between_zero_and(2) ? QUARTERSTAFF : ATHAME;
+            if (random_integer_between_zero_and(2)) {
+                armor = random_integer_between_zero_and(2) ? BLACK_DRAGON_SCALE_MAIL
                                : SILVER_DRAGON_SCALE_MAIL;
                 cloak = CLOAK_OF_MAGIC_RESISTANCE;
             }
-            if (rn2(4))
+            if (random_integer_between_zero_and(4))
                 helm = HELM_OF_BRILLIANCE;
             shield = STRANGE_OBJECT;
             break;
@@ -256,58 +258,58 @@ mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
         if (weapon != STRANGE_OBJECT) {
             otmp = mksobj(weapon, TRUE, FALSE);
             otmp->oeroded = otmp->oeroded2 = 0;
-            otmp->spe = (special ? rn1(5, 4) : rn2(4));
-            if (!rn2(3))
+            otmp->spe = (special ? rn1(5, 4) : random_integer_between_zero_and(4));
+            if (!random_integer_between_zero_and(3))
                 otmp->oerodeproof = 1;
-            else if (!rn2(2))
+            else if (!random_integer_between_zero_and(2))
                 otmp->greased = 1;
-            if (special && rn2(2))
+            if (special && random_integer_between_zero_and(2))
                 otmp = mk_artifact(otmp, A_NONE);
             /* usually increase stack size if stackable weapon */
             if (objects[otmp->otyp].oc_merge && !otmp->oartifact
                 && monmightthrowwep(otmp))
-                otmp->quan += (long) rn2(is_spear(otmp) ? 4 : 8);
+                otmp->quan += (long) random_integer_between_zero_and(is_spear(otmp) ? 4 : 8);
             otmp->owt = weight(otmp);
             /* mplayers knew better than to overenchant Magicbane */
             if (is_art(otmp, ART_MAGICBANE))
-                otmp->spe = rnd(4);
+                otmp->spe = random(4);
             (void) mpickobj(mtmp, otmp);
         }
 
         if (special) {
-            if (!rn2(10))
-                (void) mongets(mtmp, rn2(3) ? LUCKSTONE : LOADSTONE);
+            if (!random_integer_between_zero_and(10))
+                (void) mongets(mtmp, random_integer_between_zero_and(3) ? LUCKSTONE : LOADSTONE);
             mk_mplayer_armor(mtmp, armor);
             mk_mplayer_armor(mtmp, cloak);
             mk_mplayer_armor(mtmp, helm);
             mk_mplayer_armor(mtmp, shield);
             if (weapon == WAR_HAMMER) /* valkyrie: wimpy weapon or Mjollnir */
                 mk_mplayer_armor(mtmp, GAUNTLETS_OF_POWER);
-            else if (rn2(8))
+            else if (random_integer_between_zero_and(8))
                 mk_mplayer_armor(mtmp, rnd_class(LEATHER_GLOVES,
                                                  GAUNTLETS_OF_DEXTERITY));
-            if (rn2(8))
+            if (random_integer_between_zero_and(8))
                 mk_mplayer_armor(mtmp, rnd_class(LOW_BOOTS,
                                                  LEVITATION_BOOTS));
             m_dowear(mtmp, TRUE);
 
-            quan = rn2(3) ? rn2(3) : rn2(16);
+            quan = random_integer_between_zero_and(3) ? random_integer_between_zero_and(3) : random_integer_between_zero_and(16);
             while (quan--)
                 (void) mongets(mtmp, rnd_class(DILITHIUM_CRYSTAL, JADE));
             /* To get the gold "right" would mean a player can double his
                gold supply by killing one mplayer.  Not good. */
-            mkmonmoney(mtmp, rn2(1000));
-            quan = rn2(10);
+            mkmonmoney(mtmp, random_integer_between_zero_and(1000));
+            quan = random_integer_between_zero_and(10);
             while (quan--)
                 (void) mpickobj(mtmp, mkobj(RANDOM_CLASS, FALSE));
         }
-        quan = rnd(3);
+        quan = random(3);
         while (quan--)
             (void) mongets(mtmp, rnd_offensive_item(mtmp));
-        quan = rnd(3);
+        quan = random(3);
         while (quan--)
             (void) mongets(mtmp, rnd_defensive_item(mtmp));
-        quan = rnd(3);
+        quan = random(3);
         while (quan--)
             (void) mongets(mtmp, rnd_misc_item(mtmp));
     }
@@ -326,7 +328,7 @@ void
 create_mplayers(int num, boolean special)
 {
     int pm, x, y;
-    struct monst fakemon;
+    struct monster fakemon;
 
     fakemon = cg.zeromonst;
     while (num) {
@@ -339,7 +341,7 @@ create_mplayers(int num, boolean special)
         /* roll for an available location */
         do {
             x = rn1(COLNO - 4, 2);
-            y = rnd(ROWNO - 2);
+            y = random(ROWNO - 2);
         } while (!goodpos(x, y, &fakemon, 0) && tryct++ <= 50);
 
         /* if pos not found in 50 tries, don't bother to continue */
@@ -352,7 +354,7 @@ create_mplayers(int num, boolean special)
 }
 
 void
-mplayer_talk(struct monst *mtmp)
+mplayer_talk(struct monster *mtmp)
 {
     static const char
         *same_class_msg[3] = {
@@ -371,8 +373,8 @@ mplayer_talk(struct monst *mtmp)
 
     SetVoice(mtmp, 0, 80, 0);
     verbalize("Talk? -- %s", mtmp->data == &mons[gu.urole.mnum]
-                                ? same_class_msg[rn2(3)]
-                                : other_class_msg[rn2(3)]);
+                                ? same_class_msg[random_integer_between_zero_and(3)]
+                                : other_class_msg[random_integer_between_zero_and(3)]);
 }
 
 /*mplayer.c*/

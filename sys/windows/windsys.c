@@ -2,6 +2,8 @@
 /* Copyright (c) NetHack PC Development Team 1993, 1994 */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /*
  *  WIN32 system functions.
  *
@@ -728,7 +730,7 @@ sys_random_seed(void)
                                  (ULONG) sizeof ourseed, 0);
         if (status == (NTSTATUS) STATUS_SUCCESS) {
             BCryptCloseAlgorithmProvider(hRa,0);
-            has_strong_rngseed = TRUE;
+            has_strong_randomizer_seed = TRUE;
             Plan_B = FALSE;
         }
     }

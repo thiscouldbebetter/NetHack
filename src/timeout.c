@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 staticfn void stoned_dialogue(void);
@@ -162,7 +164,7 @@ stoned_dialogue(void)
         gm.multi_reason = "getting stoned";
         gn.nomovemsg = You_can_move_again; /* not unconscious */
         /* "your limbs have turned to stone" so terminate wounded legs */
-        if (Wounded_legs && !u.usteed)
+        if (Wounded_legs && !u.monster_being_ridden)
             heal_legs(2);
         break;
     case 2: /* turned to stone */
@@ -292,7 +294,7 @@ choke_dialogue(void)
     long i = (Strangled & TIMEOUT);
 
     if (i > 0 && i <= SIZE(choke_texts)) {
-        if (Breathless || !rn2(50)) {
+        if (Breathless || !random_integer_between_zero_and(50)) {
             urgent_pline(choke_texts2[SIZE(choke_texts2) - i],
                          body_part(NECK));
         } else {
@@ -570,7 +572,7 @@ nh_timeout(void)
         baseluck -= 4;
 
     if (u.uluck != baseluck
-        && gm.moves % ((u.uhave.amulet || u.ugangr) ? 300 : 600) == 0) {
+        && gm.moves % ((u.player_carrying_special_objects.amulet || u.have_angered_gods) ? 300 : 600) == 0) {
         /* Cursed luckstones stop bad luck from timing out; blessed luckstones
          * stop good luck from timing out; normal luckstones stop both;
          * neither is stopped if you don't have a luckstone.
@@ -604,7 +606,7 @@ nh_timeout(void)
         sleep_dialogue();
     if (u.mtimedone && !--u.mtimedone) {
         if (Unchanging)
-            u.mtimedone = rnd(100 * gy.youmonst.data->mlevel + 1);
+            u.mtimedone = random(100 * gy.youmonst.data->mlevel + 1);
         else if (is_were(gy.youmonst.data))
             you_unwere(FALSE); /* if polycontrl, asks whether to rehumanize */
         else
@@ -614,20 +616,20 @@ nh_timeout(void)
         u.ucreamed--;
 
     /* Dissipate spell-based protection. */
-    if (u.usptime) {
-        if (--u.usptime == 0 && u.uspellprot) {
-            u.usptime = u.uspmtime;
-            u.uspellprot--;
+    if (u.moves_until_spell_protection_degrades) {
+        if (--u.moves_until_spell_protection_degrades == 0 && u.spell_protection) {
+            u.moves_until_spell_protection_degrades = u.moves_between_spell_protection_degradation;
+            u.spell_protection--;
             find_ac();
             if (!Blind)
                 Norep("The %s haze around you %s.", hcolor(NH_GOLDEN),
-                      u.uspellprot ? "becomes less dense" : "disappears");
+                      u.spell_protection ? "becomes less dense" : "disappears");
         }
     }
 
-    if (u.ugallop) {
-        if (--u.ugallop == 0L && u.usteed)
-            pline("%s stops galloping.", Monnam(u.usteed));
+    if (u.turns_steed_runs_after_kick) {
+        if (--u.turns_steed_runs_after_kick == 0L && u.monster_being_ridden)
+            pline("%s stops galloping.", Monnam(u.monster_being_ridden));
     }
 
     was_flying = Flying;
@@ -657,11 +659,11 @@ nh_timeout(void)
                 /* hero might be able to bounce back from food poisoning,
                    but not other forms of illness */
                 if ((u.usick_type & SICK_NONVOMITABLE) == 0
-                    && rn2(100) < ACURR(A_CON)) {
+                    && random_integer_between_zero_and(100) < ATTRIBUTE_CURRENT(A_CON)) {
                     You("have recovered from your illness.");
                     make_sick(0, NULL, FALSE, SICK_ALL);
                     exercise(A_CON, FALSE);
-                    adjattrib(A_CON, -1, 1);
+                    adjust_attribute(A_CON, -1, 1);
                     break;
                 }
                 urgent_pline("You die from your illness.");
@@ -747,12 +749,12 @@ nh_timeout(void)
                 break;
             case SLEEPY:
                 if (unconscious() || Sleep_resistance) {
-                    incr_itimeout(&HSleepy, rnd(100));
+                    incr_itimeout(&HSleepy, random(100));
                 } else if (Sleepy) {
                     You("fall asleep.");
-                    sleeptime = rnd(20);
+                    sleeptime = random(20);
                     fall_asleep(-sleeptime, TRUE);
-                    incr_itimeout(&HSleepy, sleeptime + rnd(100));
+                    incr_itimeout(&HSleepy, sleeptime + random(100));
                 }
                 break;
             case LEVITATION:
@@ -878,7 +880,7 @@ nh_timeout(void)
                    counter if that's the only fumble reason */
                 HFumbling &= ~FROMOUTSIDE;
                 if (Fumbling)
-                    incr_itimeout(&HFumbling, rnd(20));
+                    incr_itimeout(&HFumbling, random(20));
 
                 if (iflags.defer_decor) {
                     /* 'mention_decor' was deferred for message sequencing
@@ -920,7 +922,7 @@ fall_asleep(int how_long, boolean wakeup_msg)
     }
 #endif
     /* early wakeup from combat won't be possible until next monster turn */
-    u.usleep = gm.moves;
+    u.sleeping_move_last_started = gm.moves;
     gn.nomovemsg = wakeup_msg ? "You wake up." : You_can_move_again;
 }
 
@@ -944,7 +946,7 @@ attach_egg_hatch_timeout(struct obj *egg, long when)
      */
     if (!when) {
         for (i = (MAX_EGG_HATCH_TIME - 50) + 1; i <= MAX_EGG_HATCH_TIME; i++)
-            if (rnd(i) > 150) {
+            if (random(i) > 150) {
                 /* egg will hatch */
                 when = (long) i;
                 break;
@@ -968,7 +970,7 @@ void
 hatch_egg(anything *arg, long timeout)
 {
     struct obj *egg;
-    struct monst *mon, *mon2;
+    struct monster *mon, *mon2;
     coord cc;
     coordxy x, y;
     boolean yours, silent, knows_egg = FALSE;
@@ -980,17 +982,17 @@ hatch_egg(anything *arg, long timeout)
     if (egg->corpsenm == NON_PM)
         return;
 
-    mon = mon2 = (struct monst *) 0;
+    mon = mon2 = (struct monster *) 0;
     mnum = big_to_little(egg->corpsenm);
     /* The identity of one's father is learned, not innate */
-    yours = (egg->spe || (!flags.female && carried(egg) && !rn2(2)));
+    yours = (egg->spe || (!flags.female && carried(egg) && !random_integer_between_zero_and(2)));
     silent = (timeout != gm.moves); /* hatched while away */
 
     /* only can hatch when in INVENT, FLOOR, MINVENT;
        get_obj_location() will fail for MIGRATING, also for CONTAINED
        and BURIED when the flags for those aren't included in the call */
     if (get_obj_location(egg, &x, &y, 0)) {
-        hatchcount = rnd((int) egg->quan);
+        hatchcount = random((int) egg->quan);
         cansee_hatchspot = cansee(x, y) && !silent;
         if (!(mons[mnum].geno & G_UNIQ)
             && !(gm.mvitals[mnum].mvflags & (G_GENOD | G_EXTINCT))) {
@@ -1120,7 +1122,7 @@ hatch_egg(anything *arg, long timeout)
             /* still some eggs left; we didn't split the stack, just
                subtracted from quantity so weight needs to be updated;
                for remainder of stack, add a new, short hatch timer */
-            attach_egg_hatch_timeout(egg, (long) rnd(12));
+            attach_egg_hatch_timeout(egg, (long) random(12));
             /* container_weight(arg) updates arg->owt, and if contained,
                its enclosing container arg->ocontainer (recursively)
                [egg won't be contained due to conditions imposed above] */
@@ -1162,7 +1164,7 @@ attach_fig_transform_timeout(struct obj *figurine)
     /*
      * Decide when to transform the figurine.
      */
-    i = rnd(9000) + 200;
+    i = random(9000) + 200;
     /* figurine will transform */
     (void) start_timer((long) i, TIMER_OBJECT, FIG_TRANSFORM,
                        obj_to_any(figurine));
@@ -1175,7 +1177,7 @@ slip_or_trip(void)
     struct obj *otmp = vobj_at(u.ux, u.uy), *otmp2, *saddle;
     const char *what;
     char buf[BUFSZ];
-    boolean on_foot = !u.usteed;
+    boolean on_foot = !u.monster_being_ridden;
 
     if (otmp && on_foot && !u.uinwater && is_pool(u.ux, u.uy))
         otmp = 0;
@@ -1210,18 +1212,18 @@ slip_or_trip(void)
                     an(mons[otmp->corpsenm].pmnames[NEUTRAL]));
             instapetrify(gk.killer.name);
         }
-    } else if ((HFumbling & FROMOUTSIDE) || (is_ice(u.ux, u.uy) && !rn2(3))) {
+    } else if ((HFumbling & FROMOUTSIDE) || (is_ice(u.ux, u.uy) && !random_integer_between_zero_and(3))) {
         /* is fumbling from ice alone? */
         boolean ice_only = !(EFumbling || (HFumbling & ~FROMOUTSIDE));
 
         pline("%s %s %s the ice.",
-              u.usteed ? upstart(x_monnam(u.usteed, ARTICLE_THE, (char *) 0,
+              u.monster_being_ridden ? upstart(x_monnam(u.monster_being_ridden, ARTICLE_THE, (char *) 0,
                                           SUPPRESS_SADDLE, FALSE))
                        : "You",
               /* "steed": arbitrary value that will use third person verb
                  regardless of what u.usteed might be named, as opposed to
                  "you" (second person, which won't have final 's' added) */
-              vtense(u.usteed ? "steed" : "you", rn2(2) ? "slip" : "slide"),
+              vtense(u.monster_being_ridden ? "steed" : "you", random_integer_between_zero_and(2) ? "slip" : "slide"),
               /* sometimes slipping due to ice occurs during turn that hero
                  has just moved off the ice; phrase things differently then */
               is_ice(u.ux, u.uy) ? "on" : "off");
@@ -1230,12 +1232,12 @@ slip_or_trip(void)
            counterintuitive effect where ice makes riding _less_ hazardous,
            unconditionally dismount if fumbling is from a non-ice source */
         if (!on_foot
-            && ((saddle = which_armor(u.usteed, W_SADDLE)) == 0
+            && ((saddle = which_armor(u.monster_being_ridden, W_SADDLE)) == 0
                 || !saddle->cursed)
-            && (!ice_only || !rn2(3))) {
+            && (!ice_only || !random_integer_between_zero_and(3))) {
             You("lose your balance.");
             dismount_steed(DISMOUNT_FELL);
-        } else if (!rn2(10 + ACURR(A_DEX))) {
+        } else if (!random_integer_between_zero_and(10 + ATTRIBUTE_CURRENT(A_DEX))) {
             /* Maybe slip in a random direction.  This takes place after
                the hero has already changed location.  If the hero is
                in grid bug form, only allow forward hurtle, otherwise a
@@ -1250,7 +1252,7 @@ slip_or_trip(void)
         }
     } else {
         if (on_foot) {
-            switch (rn2(4)) {
+            switch (random_integer_between_zero_and(4)) {
             case 1:
                 You("trip over your own %s.",
                     Hallucination ? "elbow" : makeplural(body_part(FOOT)));
@@ -1269,9 +1271,9 @@ slip_or_trip(void)
 
         /* mounted; saddle should never end up being Null here;
            don't fall off when it happens to be cursed */
-        } else if ((saddle = which_armor(u.usteed, W_SADDLE)) == 0
+        } else if ((saddle = which_armor(u.monster_being_ridden, W_SADDLE)) == 0
                    || !saddle->cursed) {
-            switch (rn2(4)) {
+            switch (random_integer_between_zero_and(4)) {
             case 1:
                 Your("%s slip out of the stirrups.",
                      makeplural(body_part(FOOT)));
@@ -1353,7 +1355,7 @@ burn_object(anything *arg, long timeout)
                 obj->spe = 0; /* no more candles */
                 obj->owt = weight(obj);
             } else if (Is_candle(obj) || obj->otyp == POT_OIL) {
-                struct monst *mtmp = NULL;
+                struct monster *mtmp = NULL;
 
                 if (obj->where == OBJ_FLOOR)
                     mtmp = m_at(obj->ox, obj->oy);
@@ -1799,20 +1801,20 @@ do_storms(void)
     int count;
 
     /* no lightning if not stormy level or too often, even then */
-    if (!gl.level.flags.stormy || rn2(8))
+    if (!gl.level.flags.stormy || random_integer_between_zero_and(8))
         return;
 
     /* the number of strikes is 8-log2(nstrike) */
-    for (nstrike = rnd(64); nstrike <= 64; nstrike *= 2) {
+    for (nstrike = random(64); nstrike <= 64; nstrike *= 2) {
         count = 0;
         do {
-            x = rnd(COLNO - 1);
-            y = rn2(ROWNO);
+            x = random(COLNO - 1);
+            y = random_integer_between_zero_and(ROWNO);
         } while (++count < 100 && levl[x][y].typ != CLOUD);
 
         if (count < 100) {
-            dirx = rn2(3) - 1;
-            diry = rn2(3) - 1;
+            dirx = random_integer_between_zero_and(3) - 1;
+            diry = random_integer_between_zero_and(3) - 1;
             if (dirx != 0 || diry != 0) {
                 /* BZ_M_SPELL(BZ_OFS_AD(AD_ELEC)): monster LIGHTNING spell */
                 gb.buzzer = 0; /* unspecified attacker */
@@ -1902,7 +1904,7 @@ staticfn void print_queue(winid, timer_element *);
 staticfn void insert_timer(timer_element *);
 staticfn timer_element *remove_timer(timer_element **, short, ANY_P *);
 staticfn void write_timer(NHFILE *, timer_element *);
-staticfn boolean mon_is_local(struct monst *);
+staticfn boolean mon_is_local(struct monster *);
 staticfn boolean timer_is_local(timer_element *);
 staticfn int maybe_write_timer(NHFILE *, int, boolean);
 
@@ -2048,9 +2050,9 @@ wiz_timeout_queue(void)
         Sprintf(buf, "Swallow countdown is %u.", u.uswldtim);
         putstr(win, 0, buf);
     }
-    if (u.uinvault) {
+    if (u.in_a_vault) {
         putstr(win, 0, "");
-        Sprintf(buf, "Vault counter is %d.", u.uinvault);
+        Sprintf(buf, "Vault counter is %d.", u.in_a_vault);
         putstr(win, 0, buf);
     }
     display_nhwindow(win, FALSE);
@@ -2509,9 +2511,9 @@ obj_is_local(struct obj *obj)
  * level is saved.
  */
 staticfn boolean
-mon_is_local(struct monst *mon)
+mon_is_local(struct monster *mon)
 {
-    struct monst *curr;
+    struct monster *curr;
 
     for (curr = gm.migrating_mons; curr; curr = curr->nmon)
         if (curr == mon)

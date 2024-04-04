@@ -3,6 +3,8 @@
 /*-Copyright (c) Pasi Kallinen, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #ifndef RM_H
 #define RM_H
 
@@ -429,10 +431,10 @@ struct levelflags {
 typedef struct {
     struct rm locations[COLNO][ROWNO];
     struct obj *objects[COLNO][ROWNO];
-    struct monst *monsters[COLNO][ROWNO];
+    struct monster *monsters[COLNO][ROWNO];
     struct obj *objlist;
     struct obj *buriedobjlist;
-    struct monst *monlist;
+    struct monster *monlist;
     struct damage *damagelist;
     struct cemetery *bonesinfo;
     struct levelflags flags;
@@ -468,9 +470,9 @@ typedef struct {
 #define m_buried_at(x, y) \
     (MON_BURIED_AT(x, y) ? gl.level.monsters[x][y] : (struct monst *) 0)
 #else   /* without 'mburied' */
-#define MON_AT(x, y) (gl.level.monsters[x][y] != (struct monst *) 0)
+#define MON_AT(x, y) (gl.level.monsters[x][y] != (struct monster *) 0)
 #define m_at(x, y) (gl.level.monsters[x][y])
-#define m_buried_at(x, y) ((struct monst *) 0)
+#define m_buried_at(x, y) ((struct monster *) 0)
 #endif
 #ifdef EXTRA_SANITY_CHECKS
 #define place_worm_seg(m, x, y) \
@@ -483,7 +485,7 @@ typedef struct {
     do {                                                  \
         if (!gl.level.monsters[x][y])                     \
             impossible("no monster to remove");           \
-        gl.level.monsters[x][y] = (struct monst *) 0;     \
+        gl.level.monsters[x][y] = (struct monster *) 0;     \
     } while(0)
 #else
 #define place_worm_seg(m, x, y) gl.level.monsters[x][y] = m

@@ -3,6 +3,8 @@
 /*-Copyright (c) Michael Allison, 2007. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #ifndef DECL_H
 #define DECL_H
 
@@ -61,14 +63,14 @@ extern boolean fqn_prefix_locked[PREFIX_COUNT];
 extern const char *fqn_prefix_names[PREFIX_COUNT];
 #endif
 
-extern NEARDATA boolean has_strong_rngseed;
+extern NEARDATA boolean has_strong_randomizer_seed;
 extern struct engr *head_engr;
 
 /* used by coloratt.c, options.c, utf8map.c, windows.c */
 extern const char hexdd[33];
 
 /* material strings */
-extern const char *materialnm[];
+extern const char *material_names[];
 
 /* current mon class symbols */
 extern uchar monsyms[MAXMCLASSES];
@@ -212,7 +214,7 @@ struct instance_globals_b {
     boolean bucx_filter;
 
     /* zap.c */
-    struct monst *buzzer; /* zapper/caster/breather who initiates buzz() */
+    struct monster *buzzer; /* zapper/caster/breather who initiates buzz() */
 
     /* new */
     boolean bot_disabled;
@@ -412,9 +414,9 @@ struct instance_globals_g {
     int gloc_filter_floodfill_match_glyph;
 
     /* dog.c */
-    xint16 gtyp;  /* type of dog's current goal */
-    coordxy gx; /* x position of dog's current goal */
-    coordxy gy; /* y position of dog's current goal */
+    xint16 goal_type;  /* type of dog's current goal */
+    coordxy goal_x; /* x position of dog's current goal */
+    coordxy goal_y; /* y position of dog's current goal */
 
     /* dokick.c */
     const char *gate_str;
@@ -489,7 +491,7 @@ struct instance_globals_i {
     int in_sync_perminvent;
 
     /* mon.c */
-    struct monst **itermonarr; /* temporary array of all N monsters
+    struct monster **itermonarr; /* temporary array of all N monsters
                                 * on the current level */
 
     /* restore.c */
@@ -616,8 +618,8 @@ struct instance_globals_m {
     struct obj *migrating_objs; /* objects moving to another dungeon level */
 
     /* dog.c */
-    struct monst *mydogs; /* monsters that went down/up together with @ */
-    struct monst *migrating_mons; /* monsters moving to another level */
+    struct monster *mydogs; /* monsters that went down/up together with @ */
+    struct monster *migrating_mons; /* monsters moving to another level */
     struct mvitals mvitals[NUMMONS];
 
     /* dokick.c */
@@ -643,8 +645,8 @@ struct instance_globals_m {
 
     /* mthrowu.c */
     int mesg_given; /* for m_throw()/thitu() 'miss' message */
-    struct monst *mtarget;  /* monster being shot by another monster */
-    struct monst *marcher; /* monster that is shooting */
+    struct monster *mtarget;  /* monster being shot by another monster */
+    struct monster *marcher; /* monster that is shooting */
 
     /* muse.c */
     boolean m_using; /* kludge to use mondied instead of killed */
@@ -1122,7 +1124,7 @@ struct instance_globals_y {
 
     /* decl.c */
     int y_maze_max;
-    struct monst youmonst;
+    struct monster youmonst;
 
     /* mkmaze.c */
     int ymin, ymax; /* level boundaries y */
@@ -1185,7 +1187,7 @@ extern struct instance_globals_z gz;
 
 struct const_globals {
     const struct obj zeroobj;      /* used to zero out a struct obj */
-    const struct monst zeromonst;  /* used to zero out a struct monst */
+    const struct monster zeromonst;  /* used to zero out a struct monst */
     const anything zeroany;        /* used to zero out union any */
     const NhRect zeroNhRect;       /* used to zero out NhRect */
 };

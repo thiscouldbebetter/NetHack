@@ -3,6 +3,8 @@
 /*-Copyright (c) Alex Smith, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 /* for UNIX, Rand #def'd to (long)lrand48() or (long)random() */
@@ -302,7 +304,7 @@ makerooms(void)
     /* make rooms until satisfied */
     /* rnd_rect() will returns 0 if no more rects are available... */
     while (gn.nroom < (MAXNROFROOMS - 1) && rnd_rect()) {
-        if (gn.nroom >= (MAXNROFROOMS / 6) && rn2(2) && !tried_vault) {
+        if (gn.nroom >= (MAXNROFROOMS / 6) && random_integer_between_zero_and(2) && !tried_vault) {
             tried_vault = TRUE;
             if (create_vault()) {
                 gv.vault_x = gr.rooms[gn.nroom].lx;
@@ -434,7 +436,7 @@ makecorridors(void)
 
     for (a = 0; a < gn.nroom - 1; a++) {
         join(a, a + 1, FALSE);
-        if (!rn2(50))
+        if (!random_integer_between_zero_and(50))
             break; /* allow some randomness */
     }
     for (a = 0; a < gn.nroom - 2; a++)
@@ -450,9 +452,9 @@ makecorridors(void)
     }
     /* add some extra corridors which may be blocked off */
     if (gn.nroom > 2)
-        for (i = rn2(gn.nroom) + 4; i; i--) {
-            a = rn2(gn.nroom);
-            b = rn2(gn.nroom - 2);
+        for (i = random_integer_between_zero_and(gn.nroom) + 4; i; i--) {
+            a = random_integer_between_zero_and(gn.nroom);
+            b = random_integer_between_zero_and(gn.nroom - 2);
             if (b >= a)
                 b += 2;
             join(a, b, TRUE);
@@ -527,16 +529,16 @@ dosdoor(coordxy x, coordxy y, struct mkroom *aroom, int type)
         type = DOOR;
     levl[x][y].typ = type;
     if (type == DOOR) {
-        if (!rn2(3)) { /* is it a locked door, closed, or a doorway? */
-            if (!rn2(5))
+        if (!random_integer_between_zero_and(3)) { /* is it a locked door, closed, or a doorway? */
+            if (!random_integer_between_zero_and(5))
                 levl[x][y].doormask = D_ISOPEN;
-            else if (!rn2(6))
+            else if (!random_integer_between_zero_and(6))
                 levl[x][y].doormask = D_LOCKED;
             else
                 levl[x][y].doormask = D_CLOSED;
 
             if (levl[x][y].doormask != D_ISOPEN && !shdoor
-                && level_difficulty() >= 5 && !rn2(25))
+                && level_difficulty() >= 5 && !random_integer_between_zero_and(25))
                 levl[x][y].doormask |= D_TRAPPED;
         } else {
 #ifdef STUPID
@@ -555,9 +557,9 @@ dosdoor(coordxy x, coordxy y, struct mkroom *aroom, int type)
             levl[x][y].doormask = D_NODOOR;
 
         if (levl[x][y].doormask & D_TRAPPED) {
-            struct monst *mtmp;
+            struct monster *mtmp;
 
-            if (level_difficulty() >= 9 && !rn2(5)
+            if (level_difficulty() >= 9 && !random_integer_between_zero_and(5)
                 && !((gm.mvitals[PM_SMALL_MIMIC].mvflags & G_GONE)
                      && (gm.mvitals[PM_LARGE_MIMIC].mvflags & G_GONE)
                      && (gm.mvitals[PM_GIANT_MIMIC].mvflags & G_GONE))) {
@@ -570,12 +572,12 @@ dosdoor(coordxy x, coordxy y, struct mkroom *aroom, int type)
         }
         /* newsym(x,y); */
     } else { /* SDOOR */
-        if (shdoor || !rn2(5))
+        if (shdoor || !random_integer_between_zero_and(5))
             levl[x][y].doormask = D_LOCKED;
         else
             levl[x][y].doormask = D_CLOSED;
 
-        if (!shdoor && level_difficulty() >= 4 && !rn2(20))
+        if (!shdoor && level_difficulty() >= 4 && !random_integer_between_zero_and(20))
             levl[x][y].doormask |= D_TRAPPED;
     }
 
@@ -612,7 +614,7 @@ place_niche(
 {
     coord dd;
 
-    if (rn2(2)) {
+    if (random_integer_between_zero_and(2)) {
         *dy = 1;
         if (!finddpos(&dd, aroom->lx, aroom->hy + 1, aroom->hx, aroom->hy + 1))
             return FALSE;
@@ -653,16 +655,16 @@ makeniche(int trap_type)
     struct trap *ttmp;
 
     while (vct--) {
-        aroom = &gr.rooms[rn2(gn.nroom)];
+        aroom = &gr.rooms[random_integer_between_zero_and(gn.nroom)];
         if (aroom->rtype != OROOM)
             continue; /* not an ordinary room */
-        if (aroom->doorct == 1 && rn2(5))
+        if (aroom->doorct == 1 && random_integer_between_zero_and(5))
             continue;
         if (!place_niche(aroom, &dy, &xx, &yy))
             continue;
 
         rm = &levl[xx][yy + dy];
-        if (trap_type || !rn2(4)) {
+        if (trap_type || !random_integer_between_zero_and(4)) {
             rm->typ = SCORR;
             if (trap_type) {
                 if (is_hole(trap_type) && !Can_fall_thru(&u.uz))
@@ -683,21 +685,21 @@ makeniche(int trap_type)
             dosdoor(xx, yy, aroom, SDOOR);
         } else {
             rm->typ = CORR;
-            if (rn2(7))
-                dosdoor(xx, yy, aroom, rn2(5) ? SDOOR : DOOR);
+            if (random_integer_between_zero_and(7))
+                dosdoor(xx, yy, aroom, random_integer_between_zero_and(5) ? SDOOR : DOOR);
             else {
                 /* inaccessible niches occasionally have iron bars */
-                if (!rn2(5) && IS_WALL(levl[xx][yy].typ)) {
+                if (!random_integer_between_zero_and(5) && IS_WALL(levl[xx][yy].typ)) {
                     (void) set_levltyp(xx, yy, IRONBARS);
-                    if (rn2(3))
-                        (void) mkcorpstat(CORPSE, (struct monst *) 0,
+                    if (random_integer_between_zero_and(3))
+                        (void) mkcorpstat(CORPSE, (struct monster *) 0,
                                           mkclass(S_HUMAN, 0), xx,
                                           yy + dy, TRUE);
                 }
                 if (!gl.level.flags.noteleport)
                     (void) mksobj_at(SCR_TELEPORTATION, xx, yy + dy, TRUE,
                                      FALSE);
-                if (!rn2(3))
+                if (!random_integer_between_zero_and(3))
                     (void) mkobj_at(RANDOM_CLASS, xx, yy + dy, TRUE);
             }
         }
@@ -708,15 +710,15 @@ makeniche(int trap_type)
 staticfn void
 make_niches(void)
 {
-    int ct = rnd((gn.nroom >> 1) + 1), dep = depth(&u.uz);
+    int ct = random((gn.nroom >> 1) + 1), dep = depth(&u.uz);
     boolean ltptr = (!gl.level.flags.noteleport && dep > 15),
             vamp = (dep > 5 && dep < 25);
 
     while (ct--) {
-        if (ltptr && !rn2(6)) {
+        if (ltptr && !random_integer_between_zero_and(6)) {
             ltptr = FALSE;
             makeniche(LEVEL_TELEP);
-        } else if (vamp && !rn2(6)) {
+        } else if (vamp && !random_integer_between_zero_and(6)) {
             vamp = FALSE;
             makeniche(TRAPDOOR);
         } else
@@ -770,12 +772,12 @@ clear_level_structures(void)
         for (y = 0; y < ROWNO; y++) {
             *lev++ = zerorm;
             gl.level.objects[x][y] = (struct obj *) 0;
-            gl.level.monsters[x][y] = (struct monst *) 0;
+            gl.level.monsters[x][y] = (struct monster *) 0;
         }
     }
     gl.level.objlist = (struct obj *) 0;
     gl.level.buriedobjlist = (struct obj *) 0;
-    gl.level.monlist = (struct monst *) 0;
+    gl.level.monlist = (struct monster *) 0;
     gl.level.damagelist = (struct damage *) 0;
     gl.level.bonesinfo = (struct cemetery *) 0;
 
@@ -848,7 +850,7 @@ fill_ordinary_room(
 {
     int trycnt = 0;
     coord pos;
-    struct monst *tmonst; /* always put a web with a spider */
+    struct monster *tmonst; /* always put a web with a spider */
     coordxy x, y;
     boolean skip_chests = FALSE;
 
@@ -877,7 +879,7 @@ fill_ordinary_room(
        while a monster was on the stairs. Conclusion:
        we have to check for monsters on the stairs anyway. */
 
-    if ((u.uhave.amulet || !rn2(3)) && somexyspace(croom, &pos)) {
+    if ((u.player_carrying_special_objects.amulet || !random_integer_between_zero_and(3)) && somexyspace(croom, &pos)) {
         tmonst = makemon((struct permonst *) 0, pos.x, pos.y, MM_NOGRP);
         if (tmonst && tmonst->data == &mons[PM_GIANT_SPIDER]
             && !occupied(pos.x, pos.y))
@@ -887,27 +889,27 @@ fill_ordinary_room(
     x = 8 - (level_difficulty() / 6);
     if (x <= 1)
         x = 2;
-    while (!rn2(x) && (++trycnt < 1000))
+    while (!random_integer_between_zero_and(x) && (++trycnt < 1000))
         mktrap(0, MKTRAP_NOFLAGS, croom, (coord *) 0);
-    if (!rn2(3) && somexyspace(croom, &pos))
+    if (!random_integer_between_zero_and(3) && somexyspace(croom, &pos))
         (void) mkgold(0L, pos.x, pos.y);
     if (Is_rogue_level(&u.uz))
         goto skip_nonrogue;
-    if (!rn2(10))
+    if (!random_integer_between_zero_and(10))
         mkfount(croom);
-    if (!rn2(60))
+    if (!random_integer_between_zero_and(60))
         mksink(croom);
-    if (!rn2(60))
+    if (!random_integer_between_zero_and(60))
         mkaltar(croom);
     x = 80 - (depth(&u.uz) * 2);
     if (x < 2)
         x = 2;
-    if (!rn2(x))
+    if (!random_integer_between_zero_and(x))
         mkgrave(croom);
 
     /* put statues inside */
-    if (!rn2(20) && somexyspace(croom, &pos))
-        (void) mkcorpstat(STATUE, (struct monst *) 0,
+    if (!random_integer_between_zero_and(20) && somexyspace(croom, &pos))
+        (void) mkcorpstat(STATUE, (struct monster *) 0,
                             (struct permonst *) 0, pos.x,
                             pos.y, CORPSTAT_INIT);
 
@@ -935,22 +937,22 @@ fill_ordinary_room(
         if (uz_branch && u.uz.dnum != mines_dnum
             && (uz_branch->end1.dnum == mines_dnum
                 || uz_branch->end2.dnum == mines_dnum)) {
-            (void) mksobj_at((rn2(5) < 3) ? FOOD_RATION
-                             : rn2(2) ? CRAM_RATION
+            (void) mksobj_at((random_integer_between_zero_and(5) < 3) ? FOOD_RATION
+                             : random_integer_between_zero_and(2) ? CRAM_RATION
                                : LEMBAS_WAFER,
                              pos.x, pos.y, TRUE, FALSE);
         } else if (u.uz.dnum == oracle_level.dnum
-                   && u.uz.dlevel < oracle_level.dlevel && rn2(3)) {
+                   && u.uz.dlevel < oracle_level.dlevel && random_integer_between_zero_and(3)) {
             struct obj *otmp;
             int otyp, tryct = 0;
             boolean cursed;
             /* reverse probabilities compared to non-supply chests;
                these are twice as likely to be chests than large
                boxes, rather than vice versa */
-            struct obj *supply_chest = mksobj_at(rn2(3) ? CHEST : LARGE_BOX,
+            struct obj *supply_chest = mksobj_at(random_integer_between_zero_and(3) ? CHEST : LARGE_BOX,
                                                  pos.x, pos.y, FALSE, FALSE);
 
-            supply_chest->olocked = !!(rn2(6));
+            supply_chest->olocked = !!(random_integer_between_zero_and(6));
 
             do {
                 static const int supply_items[] = {
@@ -966,9 +968,9 @@ fill_ordinary_room(
                 };
 
                 /* 50% this is a potion of healing */
-                otyp = rn2(2) ? POT_HEALING : ROLL_FROM(supply_items);
+                otyp = random_integer_between_zero_and(2) ? POT_HEALING : ROLL_FROM(supply_items);
                 otmp = mksobj(otyp, TRUE, FALSE);
-                if (otyp == POT_HEALING && rn2(2)) {
+                if (otyp == POT_HEALING && random_integer_between_zero_and(2)) {
                     otmp->quan = 2;
                     otmp->owt = weight(otmp);
                 }
@@ -984,12 +986,12 @@ fill_ordinary_room(
                    probability of more; if we generate a cursed item, it's
                    added to the supply chest but we reroll for a noncursed
                    item and add that too */
-            } while (cursed || !rn2(5));
+            } while (cursed || !random_integer_between_zero_and(5));
 
             /* maybe put a random item into the supply chest, biased
                slightly towards low-level spellbooks; avoid tools
                because chests don't fit into other chests */
-            if (rn2(3)) {
+            if (random_integer_between_zero_and(3)) {
                 static const int extra_classes[] = {
                     FOOD_CLASS,
                     WEAPON_CLASS,
@@ -1040,12 +1042,12 @@ fill_ordinary_room(
      *  when few rooms; chance for 3 or more is negligible.
      */
     /*assert(gn.nroom > 0); // must be true because we're filling a room*/
-    if (!skip_chests && !rn2(gn.nroom * 5 / 2) && somexyspace(croom, &pos))
-        (void) mksobj_at(rn2(3) ? LARGE_BOX : CHEST,
+    if (!skip_chests && !random_integer_between_zero_and(gn.nroom * 5 / 2) && somexyspace(croom, &pos))
+        (void) mksobj_at(random_integer_between_zero_and(3) ? LARGE_BOX : CHEST,
                          pos.x, pos.y, TRUE, FALSE);
 
     /* maybe make some graffiti */
-    if (!rn2(27 + 3 * abs(depth(&u.uz)))) {
+    if (!random_integer_between_zero_and(27 + 3 * abs(depth(&u.uz)))) {
         char buf[BUFSZ];
         const char *mesg = random_engraving(buf);
 
@@ -1054,17 +1056,17 @@ fill_ordinary_room(
                 (void) somexyspace(croom, &pos);
                 x = pos.x;
                 y = pos.y;
-            } while (levl[x][y].typ != ROOM && !rn2(40));
+            } while (levl[x][y].typ != ROOM && !random_integer_between_zero_and(40));
             if (levl[x][y].typ == ROOM)
                 make_engr_at(x, y, mesg, 0L, MARK);
         }
     }
 
  skip_nonrogue:
-    if (!rn2(3) && somexyspace(croom, &pos)) {
+    if (!random_integer_between_zero_and(3) && somexyspace(croom, &pos)) {
         (void) mkobj_at(RANDOM_CLASS, pos.x, pos.y, TRUE);
         trycnt = 0;
-        while (!rn2(5)) {
+        while (!random_integer_between_zero_and(5)) {
             if (++trycnt > 100) {
                 impossible("trycnt overflow4");
                 break;
@@ -1110,7 +1112,7 @@ makelevel(void)
                 (u.uz.dlevel < loc_lev->dlevel.dlevel) ? "a" : "b");
         makemaz(fillname);
     } else if (In_hell(&u.uz)
-                || (rn2(5) && u.uz.dnum == medusa_level.dnum
+                || (random_integer_between_zero_and(5) && u.uz.dnum == medusa_level.dnum
                     && depth(&u.uz) > depth(&medusa_level))) {
         makemaz("");
     } else {
@@ -1153,7 +1155,7 @@ makelevel(void)
                 gr.rooms[gn.nroom - 1].needfill = FILL_NORMAL;
                 fill_special_room(&gr.rooms[gn.nroom - 1]);
                 mk_knox_portal(gv.vault_x + w, gv.vault_y + h);
-                if (!gl.level.flags.noteleport && !rn2(3))
+                if (!gl.level.flags.noteleport && !random_integer_between_zero_and(3))
                     makevtele();
             } else if (rnd_rect() && create_vault()) {
                 gv.vault_x = gr.rooms[gn.nroom].lx;
@@ -1171,30 +1173,30 @@ makelevel(void)
         if (wizard && nh_getenv("SHOPTYPE"))
             do_mkroom(SHOPBASE);
         else if (u_depth > 1 && u_depth < depth(&medusa_level)
-                 && gn.nroom >= room_threshold && rn2(u_depth) < 3)
+                 && gn.nroom >= room_threshold && random_integer_between_zero_and(u_depth) < 3)
             do_mkroom(SHOPBASE);
-        else if (u_depth > 4 && !rn2(6))
+        else if (u_depth > 4 && !random_integer_between_zero_and(6))
             do_mkroom(COURT);
-        else if (u_depth > 5 && !rn2(8)
+        else if (u_depth > 5 && !random_integer_between_zero_and(8)
                  && !(gm.mvitals[PM_LEPRECHAUN].mvflags & G_GONE))
             do_mkroom(LEPREHALL);
-        else if (u_depth > 6 && !rn2(7))
+        else if (u_depth > 6 && !random_integer_between_zero_and(7))
             do_mkroom(ZOO);
-        else if (u_depth > 8 && !rn2(5))
+        else if (u_depth > 8 && !random_integer_between_zero_and(5))
             do_mkroom(TEMPLE);
-        else if (u_depth > 9 && !rn2(5)
+        else if (u_depth > 9 && !random_integer_between_zero_and(5)
                  && !(gm.mvitals[PM_KILLER_BEE].mvflags & G_GONE))
             do_mkroom(BEEHIVE);
-        else if (u_depth > 11 && !rn2(6))
+        else if (u_depth > 11 && !random_integer_between_zero_and(6))
             do_mkroom(MORGUE);
-        else if (u_depth > 12 && !rn2(8) && antholemon())
+        else if (u_depth > 12 && !random_integer_between_zero_and(8) && antholemon())
             do_mkroom(ANTHOLE);
-        else if (u_depth > 14 && !rn2(4)
+        else if (u_depth > 14 && !random_integer_between_zero_and(4)
                  && !(gm.mvitals[PM_SOLDIER].mvflags & G_GONE))
             do_mkroom(BARRACKS);
-        else if (u_depth > 15 && !rn2(6))
+        else if (u_depth > 15 && !random_integer_between_zero_and(6))
             do_mkroom(SWAMP);
-        else if (u_depth > 16 && !rn2(8)
+        else if (u_depth > 16 && !random_integer_between_zero_and(8)
                  && !(gm.mvitals[PM_COCKATRICE].mvflags & G_GONE))
             do_mkroom(COCKNEST);
 
@@ -1223,7 +1225,7 @@ makelevel(void)
            generate the bonus items (but levels with no fillable rooms
            typically don't have any bonus items to generate anyway) */
         int bonus_item_room_countdown = fillable_room_count
-                                        ? rn2(fillable_room_count) : -1;
+                                        ? random_integer_between_zero_and(fillable_room_count) : -1;
 
         /* for each room: put things inside */
         for (croom = gr.rooms; croom->hx > 0; croom++) {
@@ -1274,8 +1276,8 @@ mineralize(int kelp_pool, int kelp_moat, int goldprob, int gemprob,
         return;
     for (x = 2; x < (COLNO - 2); x++)
         for (y = 1; y < (ROWNO - 1); y++)
-            if ((kelp_pool && levl[x][y].typ == POOL && !rn2(kelp_pool))
-                || (kelp_moat && levl[x][y].typ == MOAT && !rn2(kelp_moat)))
+            if ((kelp_pool && levl[x][y].typ == POOL && !random_integer_between_zero_and(kelp_pool))
+                || (kelp_moat && levl[x][y].typ == MOAT && !random_integer_between_zero_and(kelp_moat)))
                 (void) mksobj_at(KELP_FROND, x, y, TRUE, FALSE);
 
     /* determine if it is even allowed;
@@ -1323,25 +1325,25 @@ mineralize(int kelp_pool, int kelp_moat, int goldprob, int gemprob,
                        && levl[x - 1][y].typ == STONE
                        && levl[x + 1][y + 1].typ == STONE
                        && levl[x - 1][y + 1].typ == STONE) {
-                if (rn2(1000) < goldprob) {
+                if (random_integer_between_zero_and(1000) < goldprob) {
                     if ((otmp = mksobj(GOLD_PIECE, FALSE, FALSE)) != 0) {
                         otmp->ox = x, otmp->oy = y;
-                        otmp->quan = 1L + rnd(goldprob * 3);
+                        otmp->quan = 1L + random(goldprob * 3);
                         otmp->owt = weight(otmp);
-                        if (!rn2(3))
+                        if (!random_integer_between_zero_and(3))
                             add_to_buried(otmp);
                         else
                             place_object(otmp, x, y);
                     }
                 }
-                if (rn2(1000) < gemprob) {
-                    for (cnt = rnd(2 + dunlev(&u.uz) / 3); cnt > 0; cnt--)
+                if (random_integer_between_zero_and(1000) < gemprob) {
+                    for (cnt = random(2 + dunlev(&u.uz) / 3); cnt > 0; cnt--)
                         if ((otmp = mkobj(GEM_CLASS, FALSE)) != 0) {
                             if (otmp->otyp == ROCK) {
                                 dealloc_obj(otmp); /* discard it */
                             } else {
                                 otmp->ox = x, otmp->oy = y;
-                                if (!rn2(3))
+                                if (!random_integer_between_zero_and(3))
                                     add_to_buried(otmp);
                                 else
                                     place_object(otmp, x, y);
@@ -1387,8 +1389,8 @@ level_finalize_topology(void)
 void
 mklev(void)
 {
-    reseed_random(rn2);
-    reseed_random(rn2_on_display_rng);
+    reseed_randomizer(random_integer_between_zero_and);
+    reseed_randomizer(random2_on_display_range);
 
     init_mapseen(&u.uz);
     if (getbones())
@@ -1399,8 +1401,8 @@ mklev(void)
 
     level_finalize_topology();
 
-    reseed_random(rn2);
-    reseed_random(rn2_on_display_rng);
+    reseed_randomizer(random_integer_between_zero_and);
+    reseed_randomizer(random2_on_display_range);
 }
 
 void
@@ -1605,7 +1607,7 @@ okdoor(coordxy x, coordxy y)
 boolean
 maybe_sdoor(int chance)
 {
-    return (depth(&u.uz) > 2) && !rn2(max(2, chance));
+    return (depth(&u.uz) > 2) && !random_integer_between_zero_and(max(2, chance));
 }
 
 /* create a door at x,y in room aroom */
@@ -1668,7 +1670,7 @@ mktrap_victim(struct trap *ttmp)
     do {
         int poss_class = RANDOM_CLASS; /* init => lint suppression */
 
-        switch (rn2(4)) {
+        switch (random_integer_between_zero_and(4)) {
         case 0:
             poss_class = WEAPON_CLASS;
             break;
@@ -1695,10 +1697,10 @@ mktrap_victim(struct trap *ttmp)
         }
 
         /* 20% chance of placing an additional item, recursively */
-    } while (!rn2(5));
+    } while (!random_integer_between_zero_and(5));
 
     /* Place a corpse. */
-    switch (rn2(15)) {
+    switch (random_integer_between_zero_and(15)) {
     case 0:
         /* elf corpses are the rarest as they're the most useful */
         victim_mnum = PM_ELF;
@@ -1706,7 +1708,7 @@ mktrap_victim(struct trap *ttmp)
            generate elf corpses on sleeping gas traps unless a)
            we're on dlvl 2 (1 is impossible) and b) we pass a coin
            flip */
-        if (kind == SLP_GAS_TRAP && !(lvl <= 2 && rn2(2)))
+        if (kind == SLP_GAS_TRAP && !(lvl <= 2 && random_integer_between_zero_and(2)))
             victim_mnum = PM_HUMAN;
         break;
     case 1: case 2:
@@ -1719,8 +1721,8 @@ mktrap_victim(struct trap *ttmp)
         /* more common as they could have come from the Mines */
         victim_mnum = PM_GNOME;
         /* 10% chance of a candle too */
-        if (!rn2(10)) {
-            otmp = mksobj(rn2(4) ? TALLOW_CANDLE : WAX_CANDLE, TRUE, FALSE);
+        if (!random_integer_between_zero_and(10)) {
+            otmp = mksobj(random_integer_between_zero_and(4) ? TALLOW_CANDLE : WAX_CANDLE, TRUE, FALSE);
             otmp->quan = 1;
             otmp->owt = weight(otmp);
             curse(otmp);
@@ -1737,7 +1739,7 @@ mktrap_victim(struct trap *ttmp)
     /* PM_HUMAN is a placeholder monster primarily used for zombie, mummy,
        and vampire corpses; usually change it into a fake player monster
        instead (always human); no role-specific equipment is provided */
-    if (victim_mnum == PM_HUMAN && rn2(25))
+    if (victim_mnum == PM_HUMAN && random_integer_between_zero_and(25))
         victim_mnum = rn1(PM_WIZARD - PM_ARCHEOLOGIST, PM_ARCHEOLOGIST);
     otmp = mkcorpstat(CORPSE, NULL, &mons[victim_mnum], x, y, CORPSTAT_INIT);
     otmp->age -= (TAINT_AGE + 1); /* died too long ago to safely eat */
@@ -1748,7 +1750,7 @@ staticfn int
 traptype_rnd(unsigned mktrapflags)
 {
     unsigned lvl = level_difficulty();
-    int kind = rnd(TRAPNUM - 1);
+    int kind = random(TRAPNUM - 1);
 
     switch (kind) {
         /* these are controlled by the feature or object they guard,
@@ -1800,7 +1802,7 @@ traptype_rnd(unsigned mktrapflags)
         break;
     case HOLE:
         /* make these much less often than other traps */
-        if (rn2(7))
+        if (random_integer_between_zero_and(7))
             kind = NO_TRAP;
         break;
     }
@@ -1813,7 +1815,7 @@ traptype_roguelvl(void)
 {
     int kind;
 
-    switch (rn2(7)) {
+    switch (random_integer_between_zero_and(7)) {
     default:
         kind = BEAR_TRAP;
         break; /* 0 */
@@ -1877,7 +1879,7 @@ mktrap(
         kind = num;
     } else if (Is_rogue_level(&u.uz)) {
         kind = traptype_roguelvl();
-    } else if (Inhell && !rn2(5)) {
+    } else if (Inhell && !random_integer_between_zero_and(5)) {
         /* bias the frequency of fire traps in Gehennom */
         kind = FIRE_TRAP;
     } else {
@@ -1943,7 +1945,7 @@ mktrap(
        weird to see an item in a pit and yet not be able to identify
        that the pit is there. */
     if (kind != NO_TRAP && !(mktrapflags & MKTRAP_NOVICTIM)
-        && lvl <= (unsigned) rnd(4)
+        && lvl <= (unsigned) random(4)
         && kind != SQKY_BOARD && kind != RUST_TRAP
         /* rolling boulder trap might not have a boulder if there was no
            viable path (such as when placed in the corner of a room), in
@@ -2035,14 +2037,14 @@ generate_stairs_find_room(void)
             if (generate_stairs_room_good(&gr.rooms[i], phase))
                 rmarr[ai++] = i;
         if (ai > 0) {
-            i = rmarr[rn2(ai)];
+            i = rmarr[random_integer_between_zero_and(ai)];
             free(rmarr);
             return &gr.rooms[i];
         }
     }
 
     free(rmarr);
-    croom = &gr.rooms[rn2(gn.nroom)];
+    croom = &gr.rooms[random_integer_between_zero_and(gn.nroom)];
     return croom;
 }
 
@@ -2095,7 +2097,7 @@ mkfount(struct mkroom *croom)
     if (!set_levltyp(m.x, m.y, FOUNTAIN))
         return;
     /* Is it a "blessed" fountain? (affects drinking from fountain) */
-    if (!rn2(7))
+    if (!random_integer_between_zero_and(7))
         levl[m.x][m.y].blessedftn = 1;
 
     gl.level.flags.nfountains++;
@@ -2147,7 +2149,7 @@ mkaltar(struct mkroom *croom)
         return;
 
     /* -1 - A_CHAOTIC, 0 - A_NEUTRAL, 1 - A_LAWFUL */
-    al = rn2((int) A_LAWFUL + 2) - 1;
+    al = random_integer_between_zero_and((int) A_LAWFUL + 2) - 1;
     levl[m.x][m.y].altarmask = Align2amask(al);
 }
 
@@ -2157,7 +2159,7 @@ mkgrave(struct mkroom *croom)
     coord m;
     int tryct = 0;
     struct obj *otmp;
-    boolean dobell = !rn2(10);
+    boolean dobell = !random_integer_between_zero_and(10);
 
     if (croom->rtype != OROOM)
         return;
@@ -2169,7 +2171,7 @@ mkgrave(struct mkroom *croom)
     make_grave(m.x, m.y, dobell ? "Saved by the bell!" : (char *) 0);
 
     /* Possibly fill it with objects */
-    if (!rn2(3)) {
+    if (!random_integer_between_zero_and(3)) {
         /* this used to use mkgold(), which puts a stack of gold on
            the ground (or merges it with an existing one there if
            present), and didn't bother burying it; now we create a
@@ -2177,12 +2179,12 @@ mkgrave(struct mkroom *croom)
            replicate mkgold()'s level-based formula for the amount */
         struct obj *gold = mksobj(GOLD_PIECE, TRUE, FALSE);
 
-        gold->quan = (long) (rnd(20) + level_difficulty() * rnd(5));
+        gold->quan = (long) (random(20) + level_difficulty() * random(5));
         gold->owt = weight(gold);
         gold->ox = m.x, gold->oy = m.y;
         add_to_buried(gold);
     }
-    for (tryct = rn2(5); tryct; tryct--) {
+    for (tryct = random_integer_between_zero_and(5); tryct; tryct--) {
         otmp = mkobj(RANDOM_CLASS, TRUE);
         if (!otmp)
             return;
@@ -2308,7 +2310,7 @@ mkinvpos(coordxy x, coordxy y, int dist)
     struct obj *otmp;
     boolean make_rocks;
     struct rm *lev = &levl[x][y];
-    struct monst *mon;
+    struct monster *mon;
     /* maze levels have slightly different constraints from normal levels;
        these are also defined in mkmaze.c and may not be appropriate for
        mazes with corridors wider than 1 or for cavernous levels */
@@ -2443,7 +2445,7 @@ mk_knox_portal(coordxy x, coordxy y)
     }
 
     /* Already set or 2/3 chance of deferring until a later level. */
-    if (source->dnum < gn.n_dgns || (rn2(3) && !wizard))
+    if (source->dnum < gn.n_dgns || (random_integer_between_zero_and(3) && !wizard))
         return;
 
     if (!(u.uz.dnum == oracle_level.dnum      /* in main dungeon */

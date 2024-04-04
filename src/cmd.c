@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #include "func_tab.h"
 
@@ -899,7 +901,7 @@ domonability(void)
         return domindblast();
     else if (u.umonnum == PM_GREMLIN) {
         if (IS_FOUNTAIN(levl[u.ux][u.uy].typ)) {
-            if (split_mon(&gy.youmonst, (struct monst *) 0))
+            if (split_mon(&gy.youmonst, (struct monster *) 0))
                 dryup(u.ux, u.uy, TRUE);
         } else
             There("is no fountain here.");
@@ -914,8 +916,8 @@ domonability(void)
             aggravate();
     } else if (is_vampire(uptr) || is_vampshifter(&gy.youmonst)) {
         return dopoly();
-    } else if (u.usteed && can_breathe(u.usteed->data)) {
-        (void) pet_ranged_attk(u.usteed);
+    } else if (u.monster_being_ridden && can_breathe(u.monster_being_ridden->data)) {
+        (void) pet_ranged_attk(u.monster_being_ridden);
         return ECMD_TIME;
     } else if (Upolyd) {
         pline("Any special ability you may have is purely reflexive.");
@@ -963,7 +965,7 @@ void
 makemap_prepost(boolean pre, boolean wiztower)
 {
     NHFILE tmpnhfp;
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if (pre) {
         makemap_remove_mons();
@@ -996,13 +998,13 @@ makemap_prepost(boolean pre, boolean wiztower)
                           sizeof (struct dig_info));
         /* reset cached targets */
         iflags.travelcc.x = iflags.travelcc.y = 0; /* travel destination */
-        gc.context.polearm.hitmon = (struct monst *) 0; /* polearm target */
+        gc.context.polearm.hitmon = (struct monster *) 0; /* polearm target */
         /* escape from trap */
         reset_utrap(FALSE);
         check_special_room(TRUE); /* room exit */
         (void) memset((genericptr_t) &gd.dndest, 0, sizeof (dest_area));
         (void) memset((genericptr_t) &gu.updest, 0, sizeof (dest_area));
-        u.ustuck = (struct monst *) 0;
+        u.monster_stuck_to = (struct monster *) 0;
         u.uswallow = u.uswldtim = 0;
         set_uinwater(0); /* u.uinwater = 0 */
         u.uundetected = 0; /* not hidden, even if means are available */
@@ -1018,7 +1020,7 @@ makemap_prepost(boolean pre, boolean wiztower)
         cls();
         /* was using safe_teleds() but that doesn't honor arrival region
            on levels which have such; we don't force stairs, just area */
-        u_on_rndspot((u.uhave.amulet ? 1 : 0) /* 'going up' flag */
+        u_on_rndspot((u.player_carrying_special_objects.amulet ? 1 : 0) /* 'going up' flag */
                      | (wiztower ? 2 : 0));
         losedogs();
         kill_genocided_monsters();
@@ -3154,7 +3156,7 @@ randomkey(void)
     static unsigned i = 0;
     char c;
 
-    switch (rn2(16)) {
+    switch (random_integer_between_zero_and(16)) {
     default:
         c = '\033';
         break;
@@ -3168,7 +3170,7 @@ randomkey(void)
         c = (char) rn1('~' - ' ' + 1, ' ');
         break;
     case 5:
-        c = (char) (rn2(2) ? '\t' : ' ');
+        c = (char) (random_integer_between_zero_and(2) ? '\t' : ' ');
         break;
     case 6:
         c = (char) rn1('z' - 'a' + 1, 'a');
@@ -3186,8 +3188,8 @@ randomkey(void)
     case 11:
     case 12:
         {
-            int d = rn2(N_DIRS);
-            int m = rn2(7) ? MV_WALK : (!rn2(3) ? MV_RUSH : MV_RUN);
+            int d = random_integer_between_zero_and(N_DIRS);
+            int m = random_integer_between_zero_and(7) ? MV_WALK : (!random_integer_between_zero_and(3) ? MV_RUSH : MV_RUN);
 
             c = cmd_from_dir(d, m);
         }
@@ -3197,7 +3199,7 @@ randomkey(void)
         break;
     case 14:
         /* any char, but avoid '\0' because it's used for mouse click */
-        c = (char) rnd(iflags.wc_eight_bit_input ? 255 : 127);
+        c = (char) random(iflags.wc_eight_bit_input ? 255 : 127);
         break;
     }
 
@@ -3227,7 +3229,7 @@ random_response(char *buf, int sz)
 int
 rnd_extcmd_idx(void)
 {
-    return rn2(extcmdlist_length + 1) - 1;
+    return random_integer_between_zero_and(extcmdlist_length + 1) - 1;
 }
 
 staticfn void
@@ -3891,7 +3893,7 @@ confdir(boolean force_impairment)
 {
     if (force_impairment || u_maybe_impaired()) {
         int kmax = NODIAG(u.umonnum) ? (N_DIRS / 2) : N_DIRS,
-            k = (int) dirs_ord[rn2(kmax)];
+            k = (int) dirs_ord[random_integer_between_zero_and(kmax)];
 
         u.dx = xdir[k];
         u.dy = ydir[k];
@@ -4055,9 +4057,9 @@ there_cmd_menu_self(winid win, coordxy x, coordxy y, int *act UNUSED)
                 stway->isladder ? "ladder" : "stairs");
         mcmd_addmenu(win, MCMD_DOWN, buf), ++K;
     }
-    if (u.usteed) { /* another movement choice */
+    if (u.monster_being_ridden) { /* another movement choice */
         Sprintf(buf, "Dismount %s",
-                x_monnam(u.usteed, ARTICLE_THE, (char *) 0,
+                x_monnam(u.monster_being_ridden, ARTICLE_THE, (char *) 0,
                          SUPPRESS_SADDLE, FALSE));
         mcmd_addmenu(win, MCMD_DISMOUNT, buf), ++K;
     }
@@ -4121,7 +4123,7 @@ there_cmd_menu_next2u(
     char buf[BUFSZ];
     schar typ = levl[x][y].typ;
     struct trap *ttmp;
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if (!next2u(x, y))
         return K;
@@ -4173,7 +4175,7 @@ there_cmd_menu_next2u(
         char *mnam = x_monnam(mtmp, ARTICLE_THE, (char *) 0,
                               SUPPRESS_SADDLE, FALSE);
 
-        if (!u.usteed) {
+        if (!u.monster_being_ridden) {
             Sprintf(buf, "Ride %s", mnam);
             mcmd_addmenu(win, MCMD_RIDE, buf), ++K;
         }

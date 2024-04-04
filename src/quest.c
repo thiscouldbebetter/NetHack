@@ -2,6 +2,8 @@
 /*      Copyright 1991, M. Stephenson             */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 /*  quest dungeon branch routines. */
@@ -17,10 +19,10 @@ staticfn void on_goal(void);
 staticfn boolean not_capable(void);
 staticfn int is_pure(boolean);
 staticfn void expulsion(boolean);
-staticfn void chat_with_leader(struct monst *);
+staticfn void chat_with_leader(struct monster *);
 staticfn void chat_with_nemesis(void);
 staticfn void chat_with_guardian(void);
-staticfn void prisoner_speaks(struct monst *);
+staticfn void prisoner_speaks(struct monster *);
 
 staticfn void
 on_start(void)
@@ -89,7 +91,7 @@ on_goal(void)
 void
 onquest(void)
 {
-    if (u.uevent.qcompleted || Not_firsttime)
+    if (u.player_event_history.qcompleted || Not_firsttime)
         return;
     if (!Is_special(&u.uz))
         return;
@@ -156,20 +158,20 @@ is_pure(boolean talk)
     aligntyp original_alignment = u.ualignbase[A_ORIGINAL];
 
     if (wizard && talk) {
-        if (u.ualign.type != original_alignment) {
-            You("are currently %s instead of %s.", align_str(u.ualign.type),
+        if (u.alignment.type != original_alignment) {
+            You("are currently %s instead of %s.", align_str(u.alignment.type),
                 align_str(original_alignment));
         } else if (u.ualignbase[A_CURRENT] != original_alignment) {
             You("have converted.");
-        } else if (u.ualign.record < MIN_QUEST_ALIGN) {
-            You("are currently %d and require %d.", u.ualign.record,
+        } else if (u.alignment.record < MIN_QUEST_ALIGN) {
+            You("are currently %d and require %d.", u.alignment.record,
                 MIN_QUEST_ALIGN);
             if (yn_function("adjust?", (char *) 0, 'y', TRUE) == 'y')
-                u.ualign.record = MIN_QUEST_ALIGN;
+                u.alignment.record = MIN_QUEST_ALIGN;
         }
     }
-    purity = (u.ualign.record >= MIN_QUEST_ALIGN
-              && u.ualign.type == original_alignment
+    purity = (u.alignment.record >= MIN_QUEST_ALIGN
+              && u.alignment.type == original_alignment
               && u.ualignbase[A_CURRENT] == original_alignment)
                  ? 1
                  : (u.ualignbase[A_CURRENT] != original_alignment) ? -1 : 0;
@@ -188,7 +190,7 @@ expulsion(boolean seal)
     branch *br;
     d_level *dest;
     struct trap *t;
-    int portal_flag = u.uevent.qexpelled ? UTOTYPE_NONE : UTOTYPE_PORTAL;
+    int portal_flag = u.player_event_history.qexpelled ? UTOTYPE_NONE : UTOTYPE_PORTAL;
 
     br = dungeon_branch("The Quest");
     dest = (br->end1.dnum == u.uz.dnum) ? &br->end2 : &br->end1;
@@ -197,9 +199,9 @@ expulsion(boolean seal)
     nomul(0); /* stop running */
     schedule_goto(dest, portal_flag, (char *) 0, (char *) 0);
     if (seal) { /* remove the portal to the quest - sealing it off */
-        int reexpelled = u.uevent.qexpelled;
+        int reexpelled = u.player_event_history.qexpelled;
 
-        u.uevent.qexpelled = 1;
+        u.player_event_history.qexpelled = 1;
         remdun_mapseen(quest_dnum);
         /* Delete the near portal now; the far (main dungeon side)
            portal will be deleted as part of arrival on that level.
@@ -248,7 +250,7 @@ finish_quest(struct obj *obj) /* quest artifact or thrown unique item or faux
         return;
     }
 
-    if (u.uhave.amulet) {
+    if (u.player_carrying_special_objects.amulet) {
         /* has the amulet in inventory -- most likely the player has already
            completed the quest and stopped in on her way back up, but it's not
            impossible to have gotten the amulet before formally presenting the
@@ -270,7 +272,7 @@ finish_quest(struct obj *obj) /* quest artifact or thrown unique item or faux
     Qstat(got_thanks) = TRUE;
 
     if (obj) {
-        u.uevent.qcompleted = 1; /* you did it! */
+        u.player_event_history.qcompleted = 1; /* you did it! */
         /* behave as if leader imparts sufficient info about the
            quest artifact */
         fully_identify_obj(obj);
@@ -279,13 +281,13 @@ finish_quest(struct obj *obj) /* quest artifact or thrown unique item or faux
 }
 
 staticfn void
-chat_with_leader(struct monst *mtmp)
+chat_with_leader(struct monster *mtmp)
 {
     if (!mtmp->mpeaceful || Qstat(pissed_off))
         return;
 
     /*  Rule 0: Cheater checks. */
-    if (u.uhave.questart && !Qstat(met_nemesis))
+    if (u.player_carrying_special_objects.questart && !Qstat(met_nemesis))
         Qstat(cheater) = TRUE;
 
     /*  It is possible for you to get the amulet without completing
@@ -293,7 +295,7 @@ chat_with_leader(struct monst *mtmp)
      */
     if (Qstat(got_thanks)) {
         /* Rule 1: You've gone back with/without the amulet. */
-        if (u.uhave.amulet)
+        if (u.player_carrying_special_objects.amulet)
             finish_quest((struct obj *) 0);
 
         /* Rule 2: You've gone back before going for the amulet. */
@@ -301,7 +303,7 @@ chat_with_leader(struct monst *mtmp)
             qt_pager("posthanks");
 
     /* Rule 3: You've got the artifact and are back to return it. */
-    } else if (u.uhave.questart) {
+    } else if (u.player_carrying_special_objects.questart) {
         struct obj *otmp;
 
         for (otmp = gi.invent; otmp; otmp = otmp->nobj)
@@ -354,7 +356,7 @@ chat_with_leader(struct monst *mtmp)
 }
 
 void
-leader_speaks(struct monst *mtmp)
+leader_speaks(struct monster *mtmp)
 {
     /* maybe you attacked leader? */
     if (!mtmp->mpeaceful) {
@@ -389,7 +391,7 @@ void
 nemesis_speaks(void)
 {
     if (!Qstat(in_battle)) {
-        if (u.uhave.questart)
+        if (u.player_carrying_special_objects.questart)
             qt_pager("nemesis_wantsit");
         else if (Qstat(made_goal) == 1 || !Qstat(met_nemesis))
             qt_pager("nemesis_first");
@@ -397,13 +399,13 @@ nemesis_speaks(void)
             qt_pager("nemesis_next");
         else if (Qstat(made_goal) < 7)
             qt_pager("nemesis_other");
-        else if (!rn2(5))
+        else if (!random_integer_between_zero_and(5))
             qt_pager("discourage");
         if (Qstat(made_goal) < 7)
             Qstat(made_goal)++;
         Qstat(met_nemesis) = TRUE;
     } else /* he will spit out random maledictions */
-        if (!rn2(5))
+        if (!random_integer_between_zero_and(5))
         qt_pager("discourage");
 }
 
@@ -427,14 +429,14 @@ staticfn void
 chat_with_guardian(void)
 {
     /*  These guys/gals really don't have much to say... */
-    if (u.uhave.questart && Qstat(killed_nemesis))
+    if (u.player_carrying_special_objects.questart && Qstat(killed_nemesis))
         qt_pager("guardtalk_after");
     else
         qt_pager("guardtalk_before");
 }
 
 staticfn void
-prisoner_speaks(struct monst *mtmp)
+prisoner_speaks(struct monster *mtmp)
 {
     if (mtmp->data == &mons[PM_PRISONER]
         && (mtmp->mstrategy & STRAT_WAITMASK)) {
@@ -456,7 +458,7 @@ prisoner_speaks(struct monst *mtmp)
 }
 
 void
-quest_chat(struct monst *mtmp)
+quest_chat(struct monster *mtmp)
 {
     if (mtmp->m_id == Qstat(leader_m_id)) {
         chat_with_leader(mtmp);
@@ -478,7 +480,7 @@ quest_chat(struct monst *mtmp)
 }
 
 void
-quest_talk(struct monst *mtmp)
+quest_talk(struct monster *mtmp)
 {
     if (mtmp->m_id == Qstat(leader_m_id)) {
         leader_speaks(mtmp);
@@ -497,7 +499,7 @@ quest_talk(struct monst *mtmp)
 }
 
 void
-quest_stat_check(struct monst *mtmp)
+quest_stat_check(struct monster *mtmp)
 {
     if (mtmp->data->msound == MS_NEMESIS)
         Qstat(in_battle) = (!helpless(mtmp) && monnear(mtmp, u.ux, u.uy));

@@ -3,6 +3,8 @@
 /* and Dave Cohrs, 1990.                                          */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /*
  *                      THE NEW DISPLAY CODE
  *
@@ -125,15 +127,15 @@
 
 staticfn void show_mon_or_warn(coordxy, coordxy, int);
 staticfn void display_monster(coordxy, coordxy,
-                            struct monst *, int, boolean) NONNULLPTRS;
+                            struct monster *, int, boolean) NONNULLPTRS;
 staticfn int swallow_to_glyph(int, int);
-staticfn void display_warning(struct monst *) NONNULLARG1;
-staticfn boolean next_to_gas(struct monst *, coordxy, coordxy) NONNULLARG1;
+staticfn void display_warning(struct monster *) NONNULLARG1;
+staticfn boolean next_to_gas(struct monster *, coordxy, coordxy) NONNULLARG1;
 
 staticfn int check_pos(coordxy, coordxy, int);
 staticfn void get_bkglyph_and_framecolor(coordxy x, coordxy y, int *, uint32 *);
 staticfn int tether_glyph(coordxy, coordxy);
-staticfn void mimic_light_blocking(struct monst *) NONNULLARG1;
+staticfn void mimic_light_blocking(struct monster *) NONNULLARG1;
 
 /*#define WA_VERBOSE*/ /* give (x,y) locations for all "bad" spots */
 #ifdef WA_VERBOSE
@@ -163,56 +165,56 @@ staticfn int wall_angle(struct rm *);
  *      They're still implemented as macros within this file.
  */
 int
-tp_sensemon(struct monst *mon)
+tp_sensemon(struct monster *mon)
 {
     return _tp_sensemon(mon);
 }
 #define tp_sensemon(mon) _tp_sensemon(mon)
 
 int
-sensemon(struct monst *mon)
+sensemon(struct monster *mon)
 {
     return _sensemon(mon);
 }
 #define sensemon(mon) _sensemon(mon)
 
 int
-mon_warning(struct monst *mon)
+mon_warning(struct monster *mon)
 {
     return _mon_warning(mon);
 }
 #define mon_warning(mon) _mon_warning(mon)
 
 int
-mon_visible(struct monst *mon)
+mon_visible(struct monster *mon)
 {
     return _mon_visible(mon);
 }
 #define mon_visible(mon) _mon_visible(mon)
 
 int
-see_with_infrared(struct monst *mon)
+see_with_infrared(struct monster *mon)
 {
     return _see_with_infrared(mon);
 }
 #define see_with_infrared(mon) _see_with_infrared(mon)
 
 int
-canseemon(struct monst *mon)
+canseemon(struct monster *mon)
 {
     return _canseemon(mon);
 }
 #define canseemon(mon) _canseemon(mon)
 
 int
-knowninvisible(struct monst *mon)
+knowninvisible(struct monster *mon)
 {
     return _knowninvisible(mon);
 }
 /* #define knowninvisible() isn't useful here */
 
 int
-is_safemon(struct monst *mon)
+is_safemon(struct monster *mon)
 {
     return _is_safemon(mon);
 }
@@ -503,7 +505,7 @@ show_mon_or_warn(coordxy x, coordxy y, int monglyph)
 staticfn void
 display_monster(
     coordxy x, coordxy y,   /* display position */
-    struct monst *mon,      /* monster to display */
+    struct monster *mon,      /* monster to display */
     int sightflags,         /* 1 if the monster is physically seen;
                              * 2 if detected using Detect_monsters */
     boolean worm_tail)      /* mon is actually a worm tail */
@@ -565,7 +567,7 @@ display_monster(
         }
 
         case M_AP_MONSTER: {
-            int mndx = what_mon((int) mon->mappearance, rn2_on_display_rng);
+            int mndx = what_mon((int) mon->mappearance, random2_on_display_range);
 
             show_glyph(x, y, monnum_to_glyph(mndx, mgendercode));
             break;
@@ -589,21 +591,21 @@ display_monster(
             if (worm_tail)
                 num = petnum_to_glyph(PM_LONG_WORM_TAIL, mgendercode);
             else
-                num = pet_to_glyph(mon, rn2_on_display_rng);
+                num = pet_to_glyph(mon, random2_on_display_range);
         } else if (sightflags == DETECTED) {
             if (worm_tail)
                 num = detected_monnum_to_glyph(what_mon(PM_LONG_WORM_TAIL,
-                                                        rn2_on_display_rng),
+                                                        random2_on_display_range),
                                                mgendercode);
             else
-                num = detected_mon_to_glyph(mon, rn2_on_display_rng);
+                num = detected_mon_to_glyph(mon, random2_on_display_range);
         } else {
             if (worm_tail)
                 num = monnum_to_glyph(what_mon(PM_LONG_WORM_TAIL,
-                                               rn2_on_display_rng),
+                                               random2_on_display_range),
                                       mgendercode);
             else
-                num = mon_to_glyph(mon, rn2_on_display_rng);
+                num = mon_to_glyph(mon, random2_on_display_range);
         }
         show_mon_or_warn(x, y, num);
         mon->meverseen = 1;
@@ -620,18 +622,18 @@ display_monster(
  * Do not call for worm tails.
  */
 staticfn void
-display_warning(struct monst *mon)
+display_warning(struct monster *mon)
 {
     coordxy x = mon->mx, y = mon->my;
     int glyph;
 
     if (mon_warning(mon)) {
-        int wl = Hallucination ? rn2_on_display_rng(WARNCOUNT - 1) + 1
+        int wl = Hallucination ? random2_on_display_range(WARNCOUNT - 1) + 1
                                : warning_of(mon);
 
         glyph = warning_to_glyph(wl);
     } else if (MATCH_WARN_OF_MON(mon)) {
-        glyph = mon_to_glyph(mon, rn2_on_display_rng);
+        glyph = mon_to_glyph(mon, random2_on_display_range);
     } else {
         impossible("display_warning did not match warning type?");
         return;
@@ -640,7 +642,7 @@ display_warning(struct monst *mon)
 }
 
 int
-warning_of(struct monst *mon)
+warning_of(struct monster *mon)
 {
     int wl = 0, tmp = 0;
 
@@ -655,7 +657,7 @@ warning_of(struct monst *mon)
    blocked by being in a gas cloud (implicit; caller has already checked) */
 staticfn boolean
 next_to_gas(
-    struct monst *mon,
+    struct monster *mon,
     coordxy mx, coordxy my) /* won't match mon->mx,my if long worm's tail */
 {
     int r = (u.xray_range > 1) ? u.xray_range : 1;
@@ -715,7 +717,7 @@ feel_location(coordxy x, coordxy y)
 {
     struct rm *lev;
     struct obj *boulder;
-    struct monst *mon;
+    struct monster *mon;
 
     /* replicate safeguards used by newsym(); might not be required here */
     if (suppress_map_output())
@@ -881,7 +883,7 @@ feel_location(coordxy x, coordxy y)
 void
 newsym(coordxy x, coordxy y)
 {
-    struct monst *mon;
+    struct monster *mon;
     int see_it;
     boolean worm_tail;
     struct rm *lev = &(levl[x][y]);
@@ -1294,7 +1296,7 @@ swallowed(int first)
                     show_glyph(x, y, GLYPH_UNEXPLORED);
     }
 
-    swallower = monsndx(u.ustuck->data);
+    swallower = monsndx(u.monster_stuck_to->data);
     /* assume isok(u.ux,u.uy) */
     left_ok = isok(u.ux - 1, u.uy);
     rght_ok = isok(u.ux + 1, u.uy);
@@ -1433,7 +1435,7 @@ under_ground(int mode)
 void
 see_monsters(void)
 {
-    struct monst *mon;
+    struct monster *mon;
     int new_warn_obj_cnt = 0;
 
     if (gd.defer_see_monsters)
@@ -1443,10 +1445,10 @@ see_monsters(void)
        even if they aren't going to be rendered; other monsters
        may get flagged as having been seen by display_monster() if it's
        called by newsym() */
-    if (u.usteed)
-        u.usteed->meverseen = 1;
-    if (u.ustuck)
-        u.ustuck->meverseen = 1;
+    if (u.monster_being_ridden)
+        u.monster_being_ridden->meverseen = 1;
+    if (u.monster_stuck_to)
+        u.monster_stuck_to->meverseen = 1;
 
     /* loop through level.monsters (aka fmon) */
     for (mon = fmon; mon; mon = mon->nmon) {
@@ -1469,12 +1471,12 @@ see_monsters(void)
     }
 
     /* when mounted, hero's location gets caught by monster loop */
-    if (!u.usteed)
+    if (!u.monster_being_ridden)
         newsym(u.ux, u.uy);
 }
 
 staticfn void
-mimic_light_blocking(struct monst *mtmp)
+mimic_light_blocking(struct monster *mtmp)
 {
     if (mtmp->minvis && is_lightblocker_mappear(mtmp)) {
         if (See_invisible)
@@ -2364,7 +2366,7 @@ back_to_glyph(coordxy x, coordxy y)
 staticfn int
 swallow_to_glyph(int mnum, int loc)
 {
-    int m_3 = what_mon(mnum, rn2_on_display_rng) << 3;
+    int m_3 = what_mon(mnum, random2_on_display_range) << 3;
 
     if (loc < S_sw_tl || S_sw_br < loc) {
         impossible("swallow_to_glyph: bad swallow location");

@@ -2,6 +2,8 @@
 /*      Copyright (c) 1989 by Jean-Christophe Collet */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /*
  * This file contains the various functions that are related to the special
  * levels.
@@ -25,7 +27,7 @@ staticfn void flip_dbridge_horizontal(struct rm *);
 staticfn void flip_dbridge_vertical(struct rm *);
 staticfn void flip_visuals(int, int, int, int, int);
 staticfn int flip_encoded_dir_bits(int, int);
-staticfn void flip_vault_guard(int, struct monst *,
+staticfn void flip_vault_guard(int, struct monster *,
                              coordxy, coordxy, coordxy, coordxy);
 staticfn void sel_set_wall_property(coordxy, coordxy, genericptr_t);
 staticfn void set_wall_property(coordxy, coordxy, coordxy, coordxy, int);
@@ -195,7 +197,7 @@ static char SpLev_Map[COLNO][ROWNO];
 #define MAX_CONTAINMENT 10
 static int container_idx = 0; /* next slot in container_obj[] to use */
 static struct obj *container_obj[MAX_CONTAINMENT];
-static struct monst *invent_carrying_monster = (struct monst *) 0;
+static struct monster *invent_carrying_monster = (struct monster *) 0;
     /*
      * end of no 'g.'
      */
@@ -407,7 +409,7 @@ lvlfill_swamp(schar fg, schar bg, schar lit)
             if (levl[x + 1][y + 1].typ == bg)
                 ++c;
             if (c == 3) {
-                switch (rn2(3)) {
+                switch (random_integer_between_zero_and(3)) {
                 case 0:
                     (void) set_levltyp_lit(x + 1,y, fg, lit);
                     break;
@@ -540,7 +542,7 @@ flip_level(
     struct rm trm;
     struct trap *ttmp;
     struct obj *otmp;
-    struct monst *mtmp;
+    struct monster *mtmp;
     struct engr *etmp;
     struct mkroom *sroom;
     timer_element *timer;
@@ -900,7 +902,7 @@ flip_level(
 staticfn void
 flip_vault_guard(
     int flp, /* 1: transpose vertically, 2: transpose horizontally, 3: both */
-    struct monst *grd, /* the vault guard, has monst->mextra->egd data */
+    struct monster *grd, /* the vault guard, has monst->mextra->egd data */
     coordxy minx, coordxy miny, /* needed by FlipX(), FlipY(), */
     coordxy maxx, coordxy maxy) /* and inFlipArea() macros     */
 {
@@ -947,9 +949,9 @@ flip_level_rnd(int flp, boolean extras)
      *  Might change rn2(2) to !rn2(3) or (rn2(5) < 2) in order to bias
      *  the outcome towards the traditional orientation.
      */
-    if ((flp & 1) && rn2(2))
+    if ((flp & 1) && random_integer_between_zero_and(2))
         c |= 1;
-    if ((flp & 2) && rn2(2))
+    if ((flp & 2) && random_integer_between_zero_and(2))
         c |= 2;
 
     if (c)
@@ -1136,7 +1138,7 @@ rndtrap(void)
     int rtrap;
 
     do {
-        rtrap = rnd(TRAPNUM - 1);
+        rtrap = random(TRAPNUM - 1);
         switch (rtrap) {
         case HOLE: /* no random holes on special levels */
         case VIBRATING_SQUARE:
@@ -1205,8 +1207,8 @@ get_location(
                 *x = tmpc.x;
                 *y = tmpc.y;
             } else {
-                *x = mx + rn2((int) sx);
-                *y = my + rn2((int) sy);
+                *x = mx + random_integer_between_zero_and((int) sx);
+                *y = my + random_integer_between_zero_and((int) sy);
             }
             if (is_ok_location(*x, *y, humidity))
                 break;
@@ -1344,9 +1346,9 @@ get_room_loc(coordxy *x, coordxy *y, struct mkroom *croom)
             panic("get_room_loc : can't find a place!");
     } else {
         if (*x < 0)
-            *x = rn2(croom->hx - croom->lx + 1);
+            *x = random_integer_between_zero_and(croom->hx - croom->lx + 1);
         if (*y < 0)
-            *y = rn2(croom->hy - croom->ly + 1);
+            *y = random_integer_between_zero_and(croom->hy - croom->ly + 1);
         *x += croom->lx;
         *y += croom->ly;
     }
@@ -1427,7 +1429,7 @@ check_room(
                 if (!vault) {
                     debugpline2("strange area [%d,%d] in check_room.", x, y);
                 }
-                if (!rn2(3))
+                if (!random_integer_between_zero_and(3))
                     return FALSE;
                 if (gi.in_mk_themerooms)
                     return FALSE;
@@ -1520,8 +1522,8 @@ create_room(
             if (vault) {
                 dx = dy = 1;
             } else {
-                dx = 2 + rn2((hx - lx > 28) ? 12 : 8);
-                dy = 2 + rn2(4);
+                dx = 2 + random_integer_between_zero_and((hx - lx > 28) ? 12 : 8);
+                dy = 2 + random_integer_between_zero_and(4);
                 if (dx * dy > 50)
                     dy = 50 / dx;
             }
@@ -1532,10 +1534,10 @@ create_room(
                 continue;
             }
             xabs = lx + (lx > 0 ? xlim : 3)
-                   + rn2(hx - (lx > 0 ? lx : 3) - dx - xborder + 1);
+                   + random_integer_between_zero_and(hx - (lx > 0 ? lx : 3) - dx - xborder + 1);
             yabs = ly + (ly > 0 ? ylim : 2)
-                   + rn2(hy - (ly > 0 ? ly : 2) - dy - yborder + 1);
-            if (ly == 0 && hy >= (ROWNO - 1) && (!gn.nroom || !rn2(gn.nroom))
+                   + random_integer_between_zero_and(hy - (ly > 0 ? ly : 2) - dy - yborder + 1);
+            if (ly == 0 && hy >= (ROWNO - 1) && (!gn.nroom || !random_integer_between_zero_and(gn.nroom))
                 && (yabs + dy > ROWNO / 2)) {
                 yabs = rn1(3, 2);
                 if (gn.nroom < 4 && dy > 1)
@@ -1556,8 +1558,8 @@ create_room(
             coordxy dx, dy;
 
             if (xtmp < 0 && ytmp < 0) { /* Position is RANDOM */
-                xtmp = rnd(5);
-                ytmp = rnd(5);
+                xtmp = random(5);
+                ytmp = random(5);
                 rndpos = 1;
             }
             if (wtmp < 0 || htmp < 0) { /* Size is RANDOM */
@@ -1565,9 +1567,9 @@ create_room(
                 htmp = rn1(8, 2);
             }
             if (xaltmp == -1) /* Horizontal alignment is RANDOM */
-                xaltmp = rnd(3);
+                xaltmp = random(3);
             if (yaltmp == -1) /* Vertical alignment is RANDOM */
-                yaltmp = rnd(3);
+                yaltmp = random(3);
 
             /* Try to generate real (absolute) coordinates here! */
 
@@ -1657,13 +1659,13 @@ create_subroom(
     /* Check for random position, size, etc... */
 
     if (w == -1)
-        w = rnd(width - 3);
+        w = random(width - 3);
     if (h == -1)
-        h = rnd(height - 3);
+        h = random(height - 3);
     if (x == -1)
-        x = rnd(width - w);
+        x = random(width - w);
     if (y == -1)
-        y = rnd(height - h);
+        y = random(height - h);
     if (x == 1)
         x = 0;
     if (y == 1)
@@ -1691,7 +1693,7 @@ create_door(room_door *dd, struct mkroom *broom)
     int trycnt;
 
     if (dd->secret == -1)
-        dd->secret = rn2(2);
+        dd->secret = random_integer_between_zero_and(2);
 
     if (dd->wall == W_RANDOM)
         dd->wall = W_ANY; /* speeds things up in the below loop */
@@ -1699,24 +1701,24 @@ create_door(room_door *dd, struct mkroom *broom)
     if (dd->mask == -1) {
         /* is it a locked door, closed, or a doorway? */
         if (!dd->secret) {
-            if (!rn2(3)) {
-                if (!rn2(5))
+            if (!random_integer_between_zero_and(3)) {
+                if (!random_integer_between_zero_and(5))
                     dd->mask = D_ISOPEN;
-                else if (!rn2(6))
+                else if (!random_integer_between_zero_and(6))
                     dd->mask = D_LOCKED;
                 else
                     dd->mask = D_CLOSED;
-                if (dd->mask != D_ISOPEN && !rn2(25))
+                if (dd->mask != D_ISOPEN && !random_integer_between_zero_and(25))
                     dd->mask |= D_TRAPPED;
             } else
                 dd->mask = D_NODOOR;
         } else {
-            if (!rn2(5))
+            if (!random_integer_between_zero_and(5))
                 dd->mask = D_LOCKED;
             else
                 dd->mask = D_CLOSED;
 
-            if (!rn2(20))
+            if (!random_integer_between_zero_and(20))
                 dd->mask |= D_TRAPPED;
         }
     }
@@ -1725,12 +1727,12 @@ create_door(room_door *dd, struct mkroom *broom)
         int dwall = dd->wall, dpos = dd->pos;
 
         /* Convert wall and pos into an absolute coordinate! */
-        switch (rn2(4)) {
+        switch (random_integer_between_zero_and(4)) {
         case 0:
             if (!(dwall & W_NORTH))
                 continue;
             y = broom->ly - 1;
-            x = broom->lx + ((dpos == -1) ? rn2(1 + broom->hx - broom->lx)
+            x = broom->lx + ((dpos == -1) ? random_integer_between_zero_and(1 + broom->hx - broom->lx)
                                           : dpos);
             if (!isok(x, y - 1) || IS_ROCK(levl[x][y - 1].typ))
                 continue;
@@ -1739,7 +1741,7 @@ create_door(room_door *dd, struct mkroom *broom)
             if (!(dwall & W_SOUTH))
                 continue;
             y = broom->hy + 1;
-            x = broom->lx + ((dpos == -1) ? rn2(1 + broom->hx - broom->lx)
+            x = broom->lx + ((dpos == -1) ? random_integer_between_zero_and(1 + broom->hx - broom->lx)
                                           : dpos);
             if (!isok(x, y + 1) || IS_ROCK(levl[x][y + 1].typ))
                 continue;
@@ -1748,7 +1750,7 @@ create_door(room_door *dd, struct mkroom *broom)
             if (!(dwall & W_WEST))
                 continue;
             x = broom->lx - 1;
-            y = broom->ly + ((dpos == -1) ? rn2(1 + broom->hy - broom->ly)
+            y = broom->ly + ((dpos == -1) ? random_integer_between_zero_and(1 + broom->hy - broom->ly)
                                           : dpos);
             if (!isok(x - 1, y) || IS_ROCK(levl[x - 1][y].typ))
                 continue;
@@ -1757,7 +1759,7 @@ create_door(room_door *dd, struct mkroom *broom)
             if (!(dwall & W_EAST))
                 continue;
             x = broom->hx + 1;
-            y = broom->ly + ((dpos == -1) ? rn2(1 + broom->hy - broom->ly)
+            y = broom->ly + ((dpos == -1) ? random_integer_between_zero_and(1 + broom->hy - broom->ly)
                                           : dpos);
             if (!isok(x + 1, y) || IS_ROCK(levl[x + 1][y].typ))
                 continue;
@@ -1827,7 +1829,7 @@ noncoalignment(aligntyp alignment)
 {
     int k;
 
-    k = rn2(2);
+    k = random_integer_between_zero_and(2);
     if (!alignment)
         return (k ? -1 : 1);
     return (k ? -alignment : 0);
@@ -1898,7 +1900,7 @@ sp_amask_to_amask(unsigned int sp_amask)
 staticfn void
 create_monster(monster *m, struct mkroom *croom)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     coordxy x, y;
     char class;
     unsigned int amask;
@@ -1931,7 +1933,7 @@ create_monster(monster *m, struct mkroom *croom)
            class has been genocided, so settle for a random monster */
     }
     if (In_mines(&u.uz) && pm && your_race(pm)
-        && (Race_if(PM_DWARF) || Race_if(PM_GNOME)) && rn2(3))
+        && (Race_if(PM_DWARF) || Race_if(PM_GNOME)) && random_integer_between_zero_and(3))
         pm = (struct permonst *) 0;
 
     if (pm) {
@@ -2312,7 +2314,7 @@ create_object(object *o, struct mkroom *croom)
      * other contents, but that can be specified as an empty container.
      */
     if (o->id == STATUE && Is_medusa_level(&u.uz) && o->corpsenm == NON_PM) {
-        struct monst *was = NULL;
+        struct monster *was = NULL;
         struct obj *obj;
         int wastyp;
         int i = 0; /* prevent endless loop in case makemon always fails */
@@ -2429,7 +2431,7 @@ create_altar(altar *a, struct mkroom *croom)
     levl[x][y].altarmask = amask;
 
     if (a->shrine < 0)
-        a->shrine = rn2(2); /* handle random case */
+        a->shrine = random_integer_between_zero_and(2); /* handle random case */
 
     if (!croom_is_temple || !a->shrine)
         return;
@@ -2537,7 +2539,7 @@ dig_corridor(
     cct = 0;
     while (xx != tx || yy != ty) {
         /* loop: dig corridor at [xx,yy] and find new [xx,yy] */
-        if (cct++ > 500 || (nxcor && !rn2(35)))
+        if (cct++ > 500 || (nxcor && !random_integer_between_zero_and(35)))
             return FALSE;
 
         xx += dx;
@@ -2552,7 +2554,7 @@ dig_corridor(
                 crm->typ = SCORR;
             } else {
                 crm->typ = ftyp;
-                if (nxcor && !rn2(50))
+                if (nxcor && !random_integer_between_zero_and(50))
                     (void) mksobj_at(BOULDER, xx, yy, TRUE, FALSE);
             }
         } else if (crm->typ != ftyp && crm->typ != SCORR) {
@@ -2564,9 +2566,9 @@ dig_corridor(
         dix = abs(xx - tx);
         diy = abs(yy - ty);
 
-        if ((dix > diy) && diy && !rn2(dix - diy + 1)) {
+        if ((dix > diy) && diy && !random_integer_between_zero_and(dix - diy + 1)) {
             dix = 0;
-        } else if ((diy > dix) && dix && !rn2(diy - dix + 1)) {
+        } else if ((diy > dix) && dix && !random_integer_between_zero_and(diy - dix + 1)) {
             diy = 0;
         }
 
@@ -2759,7 +2761,7 @@ build_room(room *r, struct mkroom *mkr)
 {
     boolean okroom;
     struct mkroom *aroom;
-    xint16 rtype = (!r->chance || rn2(100) < r->chance) ? r->rtype : OROOM;
+    xint16 rtype = (!r->chance || random_integer_between_zero_and(100) < r->chance) ? r->rtype : OROOM;
 
     if (mkr) {
         aroom = &gs.subrooms[gn.nsubroom];
@@ -2890,28 +2892,28 @@ fill_empty_maze(void)
 
     if ((mapcount > (int) (mapcountmax / 10))) {
         mapfact = (int) ((mapcount * 100L) / mapcountmax);
-        for (x = rnd((int) (20 * mapfact) / 100); x; x--) {
+        for (x = random((int) (20 * mapfact) / 100); x; x--) {
             maze1xy(&mm, DRY);
-            (void) mkobj_at(rn2(2) ? GEM_CLASS : RANDOM_CLASS, mm.x, mm.y,
+            (void) mkobj_at(random_integer_between_zero_and(2) ? GEM_CLASS : RANDOM_CLASS, mm.x, mm.y,
                             TRUE);
         }
-        for (x = rnd((int) (12 * mapfact) / 100); x; x--) {
+        for (x = random((int) (12 * mapfact) / 100); x; x--) {
             maze1xy(&mm, DRY);
             (void) mksobj_at(BOULDER, mm.x, mm.y, TRUE, FALSE);
         }
-        for (x = rn2(2); x; x--) {
+        for (x = random_integer_between_zero_and(2); x; x--) {
             maze1xy(&mm, DRY);
             (void) makemon(&mons[PM_MINOTAUR], mm.x, mm.y, NO_MM_FLAGS);
         }
-        for (x = rnd((int) (12 * mapfact) / 100); x; x--) {
+        for (x = random((int) (12 * mapfact) / 100); x; x--) {
             maze1xy(&mm, DRY);
             (void) makemon((struct permonst *) 0, mm.x, mm.y, NO_MM_FLAGS);
         }
-        for (x = rn2((int) (15 * mapfact) / 100); x; x--) {
+        for (x = random_integer_between_zero_and((int) (15 * mapfact) / 100); x; x--) {
             maze1xy(&mm, DRY);
             (void) mkgold(0L, mm.x, mm.y);
         }
-        for (x = rn2((int) (15 * mapfact) / 100); x; x--) {
+        for (x = random_integer_between_zero_and((int) (15 * mapfact) / 100); x; x--) {
             int trytrap;
 
             maze1xy(&mm, DRY);
@@ -2935,7 +2937,7 @@ splev_initlev(lev_init *linit)
         break;
     case LVLINIT_SOLIDFILL:
         if (linit->lit == BOOL_RANDOM)
-            linit->lit = rn2(2);
+            linit->lit = random_integer_between_zero_and(2);
         lvlfill_solid(linit->filling, linit->lit);
         break;
     case LVLINIT_MAZEGRID:
@@ -2949,7 +2951,7 @@ splev_initlev(lev_init *linit)
         break;
     case LVLINIT_MINES:
         if (linit->lit == BOOL_RANDOM)
-            linit->lit = rn2(2);
+            linit->lit = random_integer_between_zero_and(2);
         if (linit->filling > -1)
             lvlfill_solid(linit->filling, 0);
         linit->icedpools = icedpools;
@@ -2957,7 +2959,7 @@ splev_initlev(lev_init *linit)
         break;
     case LVLINIT_SWAMP:
         if (linit->lit == BOOL_RANDOM)
-            linit->lit = rn2(2);
+            linit->lit = random_integer_between_zero_and(2);
         lvlfill_swamp(linit->fg, linit->bg, linit->lit);
         break;
     }
@@ -3099,7 +3101,7 @@ find_montype(
             mgend = is_female(&mons[i]) ? FEMALE : MALE;
         else
             mgend = (mgend == FEMALE) ? FEMALE
-                        : (mgend == MALE) ? MALE : rn2(2);
+                        : (mgend == MALE) ? MALE : random_integer_between_zero_and(2);
         if (mgender)
             *mgender = mgend;
         return i;
@@ -3198,7 +3200,7 @@ lspo_monster(lua_State *L)
             tmpmons.class = -1;
             tmpmons.id = find_montype(L, paramstr, &mgend);
             tmpmons.female = (mgend == FEMALE) ? FEMALE
-                                : (mgend == MALE) ? MALE : rn2(2);
+                                : (mgend == MALE) ? MALE : random_integer_between_zero_and(2);
         }
     } else if (argc == 2 && lua_type(L, 1) == LUA_TSTRING
                && lua_type(L, 2) == LUA_TTABLE) {
@@ -3213,7 +3215,7 @@ lspo_monster(lua_State *L)
             tmpmons.class = -1;
             tmpmons.id = find_montype(L, paramstr, &mgend);
             tmpmons.female = (mgend == FEMALE) ? FEMALE
-                                : (mgend == MALE) ? MALE : rn2(2);
+                                : (mgend == MALE) ? MALE : random_integer_between_zero_and(2);
         }
 
     } else if (argc == 3) {
@@ -3229,7 +3231,7 @@ lspo_monster(lua_State *L)
             tmpmons.class = -1;
             tmpmons.id = find_montype(L, paramstr, &mgend);
             tmpmons.female = (mgend == FEMALE) ? FEMALE
-                                : (mgend == MALE) ? MALE : rn2(2);
+                                : (mgend == MALE) ? MALE : random_integer_between_zero_and(2);
         }
     } else {
         lcheck_param_table(L);
@@ -4425,7 +4427,7 @@ lspo_gold(lua_State *L)
 
     get_location_coord(&x, &y, DRY, gc.coder->croom, gcoord);
     if (amount < 0)
-        amount = rnd(200);
+        amount = random(200);
     mkgold(amount, x, y);
 
     return 0;
@@ -4488,7 +4490,7 @@ coordxy
 random_wdir(void)
 {
     static const coordxy wdirs[4] = { W_NORTH, W_SOUTH, W_EAST, W_WEST };
-    return wdirs[rn2(4)];
+    return wdirs[random_integer_between_zero_and(4)];
 }
 
 static schar floodfillchk_match_under_typ;
@@ -4655,7 +4657,7 @@ l_table_getset_feature_flag(
 
     if (val != -2) {
         if (val == -1)
-            val = rn2(2);
+            val = random_integer_between_zero_and(2);
         if (val)
             levl[x][y].flags |= flag;
         else
@@ -5033,12 +5035,12 @@ lspo_replace_terrain(lua_State *L)
         for (y = rect.ly; y <= rect.hy; y++)
             if (selection_getpoint(x, y,sel)) {
                 if (mf) {
-                    if (mapfrag_match(mf, x, y) && (rn2(100)) < chance)
+                    if (mapfrag_match(mf, x, y) && (random_integer_between_zero_and(100)) < chance)
                         (void) set_levltyp_lit(x, y, totyp, tolit);
                 } else {
                     if (((fromtyp == MATCH_WALL && IS_STWALL(levl[x][y].typ))
                          || levl[x][y].typ == fromtyp)
-                        && rn2(100) < chance)
+                        && random_integer_between_zero_and(100) < chance)
                         (void) set_levltyp_lit(x, y, totyp, tolit);
                 }
             }
@@ -5104,7 +5106,7 @@ generate_way_out_method(
         selection_free(ov3, TRUE);
         ov3 = selection_clone(ov2);
         while (selection_rndcoord(ov3, &x, &y, TRUE)) {
-            if (maketrap(x, y, rn2(2) ? HOLE : TRAPDOOR))
+            if (maketrap(x, y, random_integer_between_zero_and(2) ? HOLE : TRAPDOOR))
                 goto gotitdone;
         }
     }
@@ -5654,7 +5656,7 @@ lspo_drawbridge(lua_State *L)
         return 0;
     }
     if (db_open == -1)
-        db_open = !rn2(2);
+        db_open = !random_integer_between_zero_and(2);
     if (!create_drawbridge(x, y, dir, db_open ? TRUE : FALSE))
         impossible("Cannot create drawbridge.");
     SpLev_Map[x][y] = 1;
@@ -6046,7 +6048,7 @@ TODO: gc.coder->croom needs to be updated
                     if (x < 1)
                         x = 1;
                 } else {
-                    x = 1 + rn2(COLNO - 1 - mf->wid);
+                    x = 1 + random_integer_between_zero_and(COLNO - 1 - mf->wid);
                 }
             }
 
@@ -6056,7 +6058,7 @@ TODO: gc.coder->croom needs to be updated
                     if (y < 1)
                         y = 1;
                 } else {
-                    y = rn2(ROWNO - mf->wid);
+                    y = random_integer_between_zero_and(ROWNO - mf->wid);
                 }
             }
         }

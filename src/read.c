@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 #define Your_Own_Role(mndx)  ((mndx) == gu.urole.mnum)
@@ -17,7 +19,7 @@ staticfn void stripspe(struct obj *);
 staticfn void p_glow1(struct obj *);
 staticfn void p_glow2(struct obj *, const char *);
 staticfn void forget(int);
-staticfn int maybe_tame(struct monst *, struct obj *);
+staticfn int maybe_tame(struct monster *, struct obj *);
 staticfn boolean can_center_cloud(coordxy, coordxy);
 staticfn void display_stinking_cloud_positions(boolean);
 staticfn void seffect_enchant_armor(struct obj **);
@@ -303,7 +305,7 @@ assign_candy_wrapper(struct obj *obj)
 {
     if (obj->otyp == CANDY_BAR) {
         /* skips candy_wrappers[0] */
-        obj->spe = 1 + rn2(SIZE(candy_wrappers) - 1);
+        obj->spe = 1 + random_integer_between_zero_and(SIZE(candy_wrappers) - 1);
     }
     return;
 }
@@ -747,8 +749,8 @@ recharge(struct obj *obj, int curse_bless)
          */
         n = (int) obj->recharged;
         if (n > 0 && (obj->otyp == WAN_WISHING
-                      || (n * n * n > rn2(7 * 7 * 7)))) { /* recharge_limit */
-            wand_explode(obj, rnd(lim));
+                      || (n * n * n > random_integer_between_zero_and(7 * 7 * 7)))) { /* recharge_limit */
+            wand_explode(obj, random(lim));
             return;
         }
         /* didn't explode, so increment the recharge count */
@@ -760,7 +762,7 @@ recharge(struct obj *obj, int curse_bless)
         } else {
             n = (lim == 3) ? 3 : rn1(5, lim + 1 - 5);
             if (!is_blessed)
-                n = rnd(n);
+                n = random(n);
 
             if (obj->spe < n)
                 obj->spe = n;
@@ -783,16 +785,16 @@ recharge(struct obj *obj, int curse_bless)
 
     } else if (obj->oclass == RING_CLASS && objects[obj->otyp].oc_charged) {
         /* charging does not affect ring's curse/bless status */
-        int s = is_blessed ? rnd(3) : is_cursed ? -rnd(2) : 1;
+        int s = is_blessed ? random(3) : is_cursed ? -random(2) : 1;
         boolean is_on = (obj == uleft || obj == uright);
 
         /* destruction depends on current state, not adjustment */
-        if (obj->spe > rn2(7) || obj->spe <= -5) {
+        if (obj->spe > random_integer_between_zero_and(7) || obj->spe <= -5) {
             pline("%s momentarily, then %s!", Yobjnam2(obj, "pulsate"),
                   otense(obj, "explode"));
             if (is_on)
                 Ring_gone(obj);
-            s = rnd(3 * abs(obj->spe)); /* amount of damage */
+            s = random(3 * abs(obj->spe)); /* amount of damage */
             useup(obj), obj = 0;
             losehp(Maybe_Half_Phys(s), "exploding ring", KILLED_BY_AN);
         } else {
@@ -828,7 +830,7 @@ recharge(struct obj *obj, int curse_bless)
             if (is_cursed)
                 stripspe(obj);
             else if (is_blessed)
-                obj->spe += rnd(3);
+                obj->spe += random(3);
             else
                 obj->spe += 1;
             if (obj->spe > 5)
@@ -922,7 +924,7 @@ recharge(struct obj *obj, int curse_bless)
             } else {
                 /* uncursed scroll increments charges and uncurses ball */
                 if (obj->spe < 7 || obj->cursed) {
-                    n = rnd(2);
+                    n = random(2);
                     obj->spe = min(obj->spe + n, 7);
                     if (!obj->cursed) {
                         p_glow1(obj);
@@ -969,7 +971,7 @@ recharge(struct obj *obj, int curse_bless)
                     obj->spe = 20;
                 p_glow2(obj, NH_BLUE);
             } else {
-                obj->spe += rnd(4);
+                obj->spe += random(4);
                 if (obj->spe > 20)
                     obj->spe = 20;
                 p_glow1(obj);
@@ -1002,7 +1004,7 @@ recharge(struct obj *obj, int curse_bless)
 staticfn void
 forget(int howmuch)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if (Punished)
         u.bc_felt = 0; /* forget felt ball&chain */
@@ -1011,11 +1013,11 @@ forget(int howmuch)
         losespells();
 
     /* Forget some skills. */
-    drain_weapon_skill(rnd(howmuch ? 5 : 3));
+    drain_weapon_skill(random(howmuch ? 5 : 3));
 
     /* forget having seen monsts (affects recognizing unseen ones by sound) */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
-        if (mtmp != u.usteed && mtmp != u.ustuck)
+        if (mtmp != u.monster_being_ridden && mtmp != u.monster_stuck_to)
             mtmp->meverseen = 0;
     /* [perhaps ought to forget having seen every monster on every level] */
     for (mtmp = gm.migrating_mons; mtmp; mtmp = mtmp->nmon)
@@ -1024,7 +1026,7 @@ forget(int howmuch)
 
 /* monster is hit by scroll of taming's effect */
 staticfn int
-maybe_tame(struct monst *mtmp, struct obj *sobj)
+maybe_tame(struct monster *mtmp, struct obj *sobj)
 {
     int was_tame = mtmp->mtame;
     unsigned was_peaceful = mtmp->mpeaceful;
@@ -1158,7 +1160,7 @@ seffect_enchant_armor(struct obj **sobjp)
 
     /* KMH -- catch underflow */
     s = scursed ? -otmp->spe : otmp->spe;
-    if (s > (special_armor ? 5 : 3) && rn2(s)) {
+    if (s > (special_armor ? 5 : 3) && random_integer_between_zero_and(s)) {
         otmp->in_use = TRUE;
         pline("%s violently %s%s%s for a while, then %s.", Yname2(otmp),
               otense(otmp, Blind ? "vibrate" : "glow"),
@@ -1172,9 +1174,9 @@ seffect_enchant_armor(struct obj **sobjp)
     }
     s = scursed ? -1
         : (otmp->spe >= 9)
-        ? (rn2(otmp->spe) == 0)
+        ? (random_integer_between_zero_and(otmp->spe) == 0)
         : sblessed
-        ? rnd(3 - otmp->spe / 3)
+        ? random(3 - otmp->spe / 3)
         : 1;
     if (s >= 0 && Is_dragon_scales(otmp)) {
         unsigned was_lit = otmp->lamplit;
@@ -1238,7 +1240,7 @@ seffect_enchant_armor(struct obj **sobjp)
     }
 
     if ((otmp->spe > (special_armor ? 5 : 3))
-        && (special_armor || !rn2(7)))
+        && (special_armor || !random_integer_between_zero_and(7)))
         pline("%s %s.", Yobjnam2(otmp, "suddenly vibrate"),
               Blind ? "again" : "unexpectedly");
 }
@@ -1304,13 +1306,13 @@ seffect_confuse_monster(struct obj **sobjp)
     if (gy.youmonst.data->mlet != S_HUMAN || scursed) {
         if (!HConfusion)
             You_feel("confused.");
-        make_confused(HConfusion + rnd(100), FALSE);
+        make_confused(HConfusion + random(100), FALSE);
     } else if (confused) {
         if (!sblessed) {
             Your("%s begin to %s%s.", hands,
                  altfeedback ? "tingle" : "glow ",
                  altfeedback ? "" : hcolor(NH_PURPLE));
-            make_confused(HConfusion + rnd(100), FALSE);
+            make_confused(HConfusion + random(100), FALSE);
         } else {
             pline("A %s%s surrounds your %s.",
                   altfeedback ? "" : hcolor(NH_RED),
@@ -1329,7 +1331,7 @@ seffect_confuse_monster(struct obj **sobjp)
             else
                 pline_The("%s glow of your %s intensifies.", hcolor(NH_RED),
                           hands);
-            incr += rnd(2);
+            incr += random(2);
         } else {
             if (altfeedback)
                 Your("%s tingle %s sharply.", hands,
@@ -1354,7 +1356,7 @@ seffect_scare_monster(struct obj **sobjp)
     boolean scursed = sobj->cursed;
     boolean confused = (Confusion != 0);
     int ct = 0;
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -1422,7 +1424,7 @@ seffect_remove_curse(struct obj **sobjp)
                    allow auxiliary weapon slots to be used to
                    artificially increase number of worn items */
                 if (obj == uswapwep) {
-                    if (!u.twoweap)
+                    if (!u.using_two_weapons)
                         wornmask = 0L;
                 } else if (obj == uquiver) {
                     if (obj->oclass == WEAPON_CLASS) {
@@ -1473,7 +1475,7 @@ seffect_remove_curse(struct obj **sobjp)
             }
         }
         /* if riding, treat steed's saddle as if part of hero's invent */
-        if (u.usteed && (obj = which_armor(u.usteed, W_SADDLE)) != 0) {
+        if (u.monster_being_ridden && (obj = which_armor(u.monster_being_ridden, W_SADDLE)) != 0) {
             if (confused) {
                 blessorcurse(obj, 2);
                 obj->bknown = 0; /* skip set_bknown() */
@@ -1509,7 +1511,7 @@ seffect_create_monster(struct obj **sobjp)
     boolean confused = (Confusion != 0);
 
     if (create_critters(1 + ((confused || scursed) ? 12 : 0)
-                        + ((sblessed || rn2(73)) ? 0 : rnd(4)),
+                        + ((sblessed || random_integer_between_zero_and(73)) ? 0 : random(4)),
                         confused ? &mons[PM_ACID_BLOB]
                         : (struct permonst *) 0,
                         FALSE))
@@ -1561,8 +1563,8 @@ seffect_enchant_weapon(struct obj **sobjp)
     }
     if (!chwepon(sobj, scursed ? -1
                  : !uwep ? 1
-                 : (uwep->spe >= 9) ? !rn2(uwep->spe)
-                 : sblessed ? rnd(3 - uwep->spe / 3)
+                 : (uwep->spe >= 9) ? !random_integer_between_zero_and(uwep->spe)
+                 : sblessed ? random(3 - uwep->spe / 3)
                  : 1))
         *sobjp = 0; /* nothing enchanted: strange_feeling -> useup */
     if (uwep)
@@ -1578,10 +1580,10 @@ seffect_taming(struct obj **sobjp)
 
     if (u.uswallow) {
         candidates = 1;
-        results = vis_results = maybe_tame(u.ustuck, sobj);
+        results = vis_results = maybe_tame(u.monster_stuck_to, sobj);
     } else {
         int i, j, bd = confused ? 5 : 1;
-        struct monst *mtmp;
+        struct monster *mtmp;
 
         /* note: maybe_tame() can return either positive or
            negative values, but not both for the same scroll */
@@ -1591,7 +1593,7 @@ seffect_taming(struct obj **sobjp)
                 if (!isok(u.ux + i, u.uy + j))
                     continue;
                 if ((mtmp = m_at(u.ux + i, u.uy + j)) != 0
-                    || (!i && !j && (mtmp = u.usteed) != 0)) {
+                    || (!i && !j && (mtmp = u.monster_being_ridden) != 0)) {
                     ++candidates;
                     res = maybe_tame(mtmp, sobj);
                     results += res;
@@ -1654,7 +1656,7 @@ seffect_light(struct obj **sobjp)
             pline("Tiny lights sparkle in the air momentarily.");
         } else {
             /* surround with cancelled tame lights which won't explode */
-            struct monst *mon;
+            struct monster *mon;
             boolean sawlights = FALSE;
             int i, numlights = rn1(2, 3) + (sblessed * 2);
 
@@ -1693,14 +1695,14 @@ seffect_charging(struct obj **sobjp)
     if (confused) {
         if (scursed) {
             You_feel("discharged.");
-            u.uen = 0;
+            u.energy = 0;
         } else {
             You_feel("charged up!");
-            u.uen += d(sblessed ? 6 : 4, 4);
-            if (u.uen > u.uenmax) /* if current energy is already at   */
-                u.uenmax = u.uen; /* or near maximum, increase maximum */
+            u.energy += d(sblessed ? 6 : 4, 4);
+            if (u.energy > u.energy_max) /* if current energy is already at   */
+                u.energy_max = u.energy; /* or near maximum, increase maximum */
             else
-                u.uen = u.uenmax; /* otherwise restore current to max  */
+                u.energy = u.energy_max; /* otherwise restore current to max  */
         }
         disp.botl = TRUE;
         return;
@@ -1733,7 +1735,7 @@ seffect_amnesia(struct obj **sobjp)
     else if (!strncmpi(gp.plname, "Maud", 4))
         pline("As your mind turns inward on itself,"
               " you forget everything else.");
-    else if (rn2(2))
+    else if (random_integer_between_zero_and(2))
         pline("Who was that Maud person anyway?");
     else
         pline("Thinking of Maud you forget everything else.");
@@ -1977,8 +1979,8 @@ seffect_identify(struct obj **sobjp)
 
     if (gi.invent) {
         int cval = 1;
-        if (sblessed || (!scursed && !rn2(5))) {
-            cval = rn2(5);
+        if (sblessed || (!scursed && !random_integer_between_zero_and(5))) {
+            cval = random_integer_between_zero_and(5);
             /* note: if cval==0, identify all items */
             if (cval == 1 && sblessed && Luck > 0)
                 ++cval;
@@ -2009,7 +2011,7 @@ seffect_magic_mapping(struct obj **sobjp)
                 pline("Wow!  Modern art.");
             else
                 Your("%s spins in bewilderment.", body_part(HEAD));
-            make_confused(HConfusion + rnd(30), FALSE);
+            make_confused(HConfusion + random(30), FALSE);
             return;
         }
         if (sblessed) {
@@ -2027,7 +2029,7 @@ seffect_magic_mapping(struct obj **sobjp)
     if (gl.level.flags.nommap) {
         Your("%s spins as %s blocks the spell!", body_part(HEAD),
              something);
-        make_confused(HConfusion + rnd(30), FALSE);
+        make_confused(HConfusion + random(30), FALSE);
         return;
     }
     pline("A map coalesces in your mind!");
@@ -2231,7 +2233,7 @@ boolean
 drop_boulder_on_monster(coordxy x, coordxy y, boolean confused, boolean byu)
 {
     struct obj *otmp2;
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     /* Make the object(s) */
     otmp2 = mksobj(confused ? ROCK : BOULDER, FALSE, FALSE);
@@ -2349,7 +2351,7 @@ wand_explode(struct obj* obj, int chg /* recharging */)
 /* used to collect gremlins being hit by light so that they can be processed
    after vision for the entire lit area has been brought up to date */
 struct litmon {
-    struct monst *mon;
+    struct monster *mon;
     struct litmon *nxt;
 };
 static struct litmon *gremlins = 0;
@@ -2360,7 +2362,7 @@ static struct litmon *gremlins = 0;
 staticfn void
 set_lit(coordxy x, coordxy y, genericptr_t val)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     struct litmon *gremlin;
 
     if (val) {
@@ -2440,13 +2442,13 @@ litroom(
         if (u.uswallow) {
             if (Blind)
                 ; /* no feedback */
-            else if (digests(u.ustuck->data))
-                pline("%s %s is lit.", s_suffix(Monnam(u.ustuck)),
-                      mbodypart(u.ustuck, STOMACH));
-            else if (is_whirly(u.ustuck->data))
-                pline("%s shines briefly.", Monnam(u.ustuck));
+            else if (digests(u.monster_stuck_to->data))
+                pline("%s %s is lit.", s_suffix(Monnam(u.monster_stuck_to)),
+                      mbodypart(u.monster_stuck_to, STOMACH));
+            else if (is_whirly(u.monster_stuck_to->data))
+                pline("%s shines briefly.", Monnam(u.monster_stuck_to));
             else
-                pline("%s glistens.", Monnam(u.ustuck));
+                pline("%s glistens.", Monnam(u.monster_stuck_to));
         } else if (!Blind)
             pline("A lit field surrounds you!");
     }
@@ -2506,7 +2508,7 @@ litroom(
         do {
             gremlin = gremlins;
             gremlins = gremlin->nxt;
-            light_hits_gremlin(gremlin->mon, rnd(5));
+            light_hits_gremlin(gremlin->mon, random(5));
             free((genericptr_t) gremlin);
         } while (gremlins);
     }
@@ -2582,7 +2584,7 @@ do_class_genocide(void)
             else if (immunecnt || class == S_invisible)
                 You("aren't permitted to genocide such monsters.");
             else if (wizard && buf[0] == '*') {
-                struct monst *mtmp, *mtmp2;
+                struct monster *mtmp, *mtmp2;
 
                 gonecnt = 0;
                 for (mtmp = fmon; mtmp; mtmp = mtmp2) {
@@ -2647,7 +2649,7 @@ do_class_genocide(void)
                        or role.  Assumption:  male and female forms
                        share same monster class. */
                     if (i == gu.urole.mnum || i == gu.urace.mnum) {
-                        u.uhp = -1;
+                        u.hit_points = -1;
                         if (Upolyd) {
                             if (!feel_dead++)
                                 You_feel("%s inside.", udeadinside());
@@ -2688,7 +2690,7 @@ do_class_genocide(void)
                 }
             }
         }
-        if (gameover || u.uhp == -1) {
+        if (gameover || u.hit_points == -1) {
             gk.killer.format = KILLED_BY_AN;
             Strcpy(gk.killer.name, "scroll of genocide");
             if (gameover)
@@ -2784,9 +2786,9 @@ do_genocide(
                 break;
             }
             if (is_human(ptr))
-                adjalign(-sgn(u.ualign.type));
+                adjalign(-sgn(u.alignment.type));
             if (is_demon(ptr))
-                adjalign(sgn(u.ualign.type));
+                adjalign(sgn(u.alignment.type));
 
             if (!(ptr->geno & G_GENO)) {
                 if (!Deaf) {
@@ -2796,7 +2798,7 @@ do_genocide(
                      */
                     if (flags.verbose)
                         pline("A thunderous voice booms through the caverns:");
-                    SetVoice((struct monst *) 0, 0, 80, voice_deity);
+                    SetVoice((struct monster *) 0, 0, 80, voice_deity);
                     verbalize("No, mortal!  That will not be done.");
                 }
                 continue;
@@ -2838,7 +2840,7 @@ do_genocide(
               (*which != 'a') ? buf : makeplural(buf));
 
         if (killplayer) {
-            u.uhp = -1;
+            u.hit_points = -1;
             if (how & PLAYER) {
                 gk.killer.format = KILLED_BY;
                 Strcpy(gk.killer.name, "genocidal confusion");
@@ -3126,7 +3128,7 @@ create_particular_creation(
 {
     struct permonst *whichpm = NULL;
     int i, mx, my, firstchoice = NON_PM;
-    struct monst *mtmp;
+    struct monster *mtmp;
     boolean madeany = FALSE;
 
     if (!d->randmonst) {

@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #include "dlb.h"
 
@@ -462,8 +464,8 @@ encodeachieve(
      * 'unsigned long'.
      */
     offset = secondlong ? (32 - 1) : 0;
-    for (i = 0; u.uachieved[i]; ++i) {
-        achidx = u.uachieved[i] - offset;
+    for (i = 0; u.achievements_in_order_obtained[i]; ++i) {
+        achidx = u.achievements_in_order_obtained[i] - offset;
         if (achidx > 0 && achidx < 32) /* value 1..31 sets bit 0..30 */
             r |= 1L << (achidx - 1);
     }
@@ -490,8 +492,8 @@ encode_extended_achievements(char *buf)
     int i, achidx, absidx;
 
     buf[0] = '\0';
-    for (i = 0; u.uachieved[i]; i++) {
-        achidx = u.uachieved[i];
+    for (i = 0; u.achievements_in_order_obtained[i]; i++) {
+        achidx = u.achievements_in_order_obtained[i];
         absidx = abs(achidx);
         switch (absidx) {
         case ACH_UWIN:
@@ -675,14 +677,14 @@ topten(int how, time_t when)
      */
     t0->deathlev = observable_depth(&u.uz);
     t0->maxlvl = deepest_lev_reached(TRUE);
-    t0->hp = u.uhp;
-    t0->maxhp = u.uhpmax;
-    t0->deaths = u.umortality;
+    t0->hp = u.hit_points;
+    t0->maxhp = u.hit_points_max;
+    t0->deaths = u.times_died;
     t0->uid = uid;
     copynchars(t0->plrole, gu.urole.filecode, ROLESZ);
     copynchars(t0->plrace, gu.urace.filecode, ROLESZ);
     copynchars(t0->plgend, genders[flags.female].filecode, ROLESZ);
-    copynchars(t0->plalign, aligns[1 - u.ualign.type].filecode, ROLESZ);
+    copynchars(t0->plalign, aligns[1 - u.alignment.type].filecode, ROLESZ);
     copynchars(t0->name, gp.plname, NAMSZ);
     formatkiller(t0->death, sizeof t0->death, how, TRUE);
     t0->birthdate = yyyymmdd(ubirthday);
@@ -1385,7 +1387,7 @@ get_rnd_toptenentry(void)
     }
 
     tt = &tt_buf;
-    rank = rnd(sysopt.tt_oname_maxrank);
+    rank = random(sysopt.tt_oname_maxrank);
  pickentry:
     for (i = rank; i; i--) {
         readentry(rfile, tt);
@@ -1435,8 +1437,8 @@ tt_oname(struct obj *otmp)
 
 /* Randomly select a topten entry to mimic */
 int
-tt_doppel(struct monst *mon) {
-    struct toptenentry *tt = rn2(13) ? get_rnd_toptenentry() : NULL;
+tt_doppel(struct monster *mon) {
+    struct toptenentry *tt = random_integer_between_zero_and(13) ? get_rnd_toptenentry() : NULL;
     int ret;
 
     if (!tt)

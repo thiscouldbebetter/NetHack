@@ -2,6 +2,8 @@
 /*      Copyright (c) M. Stephenson 1988                          */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 /* spellmenu arguments; 0 thru n-1 used as gs.spl_book[] index when swapping */
@@ -31,7 +33,7 @@ struct chain_lightning_zap;
 staticfn int spell_let_to_idx(char);
 staticfn boolean cursed_book(struct obj * bp);
 staticfn boolean confused_book(struct obj *);
-staticfn void deadbook_pacify_undead(struct monst *);
+staticfn void deadbook_pacify_undead(struct monster *);
 staticfn void deadbook(struct obj *);
 staticfn int learn(void);
 staticfn boolean rejectcasting(void);
@@ -132,7 +134,7 @@ cursed_book(struct obj *bp)
     int lev = objects[bp->otyp].oc_level;
     int dmg = 0;
 
-    switch (rn2(lev)) {
+    switch (random_integer_between_zero_and(lev)) {
     case 0:
         You_feel("a wrenching sensation.");
         tele(); /* teleport him */
@@ -161,7 +163,7 @@ cursed_book(struct obj *bp)
         was_in_use = bp->in_use;
         bp->in_use = FALSE;
         poison_strdmg(Poison_resistance ? rn1(2, 1) : rn1(4, 3),
-                      rnd(Poison_resistance ? 6 : 10),
+                      random(Poison_resistance ? 6 : 10),
                       "contact-poisoned spellbook", KILLED_BY_AN);
         bp->in_use = was_in_use;
         break;
@@ -172,7 +174,7 @@ cursed_book(struct obj *bp)
         } else {
             pline("As you read the book, it %s in your %s!", explodes,
                   body_part(FACE));
-            dmg = 2 * rnd(10) + 5;
+            dmg = 2 * random(10) + 5;
             losehp(Maybe_Half_Phys(dmg), "exploding rune", KILLED_BY_AN);
         }
         return TRUE;
@@ -189,7 +191,7 @@ confused_book(struct obj *spellbook)
 {
     boolean gone = FALSE;
 
-    if (!rn2(3) && spellbook->otyp != SPE_BOOK_OF_THE_DEAD) {
+    if (!random_integer_between_zero_and(3) && spellbook->otyp != SPE_BOOK_OF_THE_DEAD) {
         spellbook->in_use = TRUE; /* in case called from learn */
         pline(
          "Being confused you have difficulties in controlling your actions.");
@@ -207,12 +209,12 @@ confused_book(struct obj *spellbook)
 
 /* pacify or tame an undead monster */
 staticfn void
-deadbook_pacify_undead(struct monst *mtmp)
+deadbook_pacify_undead(struct monster *mtmp)
 {
     if ((is_undead(mtmp->data) || is_vampshifter(mtmp))
         && cansee(mtmp->mx, mtmp->my)) {
         mtmp->mpeaceful = TRUE;
-        if (sgn(mtmp->data->maligntyp) == sgn(u.ualign.type)
+        if (sgn(mtmp->data->maligntyp) == sgn(u.alignment.type)
             && mdistu(mtmp) < 4)
             if (mtmp->mtame) {
                 if (mtmp->mtame < 20)
@@ -229,7 +231,7 @@ deadbook_pacify_undead(struct monst *mtmp)
 staticfn void
 deadbook(struct obj *book2)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     coord mm;
 
     You("turn the pages of the Book of the Dead...");
@@ -249,13 +251,13 @@ deadbook(struct obj *book2)
             return;
         }
 
-        if (!u.uhave.bell || !u.uhave.menorah) {
+        if (!u.player_carrying_special_objects.bell || !u.player_carrying_special_objects.menorah) {
             pline("A chill runs down your %s.", body_part(SPINE));
-            if (!u.uhave.bell) {
+            if (!u.player_carrying_special_objects.bell) {
                 Soundeffect(se_faint_chime, 30);
                 You_hear("a faint chime...");
             }
-            if (!u.uhave.menorah)
+            if (!u.player_carrying_special_objects.menorah)
                 pline("Vlad's doppelganger is amused.");
             return;
         }
@@ -288,13 +290,13 @@ deadbook(struct obj *book2)
 
             /* successful invocation */
             mkinvokearea();
-            u.uevent.invoked = 1;
+            u.player_event_history.invoked = 1;
             record_achievement(ACH_INVK);
             /* in case you haven't killed the Wizard yet, behave as if
                you just did */
-            u.uevent.udemigod = 1; /* wizdead() */
-            if (!u.udg_cnt || u.udg_cnt > soon)
-                u.udg_cnt = soon;
+            u.player_event_history.udemigod = 1; /* wizdead() */
+            if (!u.turnsAsDemigodSoFar || u.turnsAsDemigodSoFar > soon)
+                u.turnsAsDemigodSoFar = soon;
         } else { /* at least one relic not prepared properly */
             You("have a feeling that %s is amiss...", something);
             goto raise_dead;
@@ -308,7 +310,7 @@ deadbook(struct obj *book2)
 
         You("raised the dead!");
         /* first maybe place a dangerous adversary */
-        if (!rn2(3) && ((mtmp = makemon(&mons[PM_MASTER_LICH], u.ux, u.uy,
+        if (!random_integer_between_zero_and(3) && ((mtmp = makemon(&mons[PM_MASTER_LICH], u.ux, u.uy,
                                         NO_MINVENT)) != 0
                         || (mtmp = makemon(&mons[PM_NALFESHNEE], u.ux, u.uy,
                                            NO_MINVENT)) != 0)) {
@@ -324,7 +326,7 @@ deadbook(struct obj *book2)
     } else if (book2->blessed) {
         iter_mons(deadbook_pacify_undead);
     } else {
-        switch (rn2(3)) {
+        switch (random_integer_between_zero_and(3)) {
         case 0:
             Your("ancestors are annoyed with you!");
             break;
@@ -362,7 +364,7 @@ learn(void)
     struct obj *book = gc.context.spbook.book;
 
     /* JDS: lenses give 50% faster reading; 33% smaller read time */
-    if (gc.context.spbook.delay && ublindf && ublindf->otyp == LENSES && rn2(2))
+    if (gc.context.spbook.delay && ublindf && ublindf->otyp == LENSES && random_integer_between_zero_and(2))
         gc.context.spbook.delay++;
     if (Confusion) { /* became confused while learning */
         (void) confused_book(book);
@@ -401,7 +403,7 @@ learn(void)
             pline("This spellbook is too faint to be read any more.");
             book->otyp = booktype = SPE_BLANK_PAPER;
             /* reset spestudied as if polymorph had taken place */
-            book->spestudied = rn2(book->spestudied);
+            book->spestudied = random_integer_between_zero_and(book->spestudied);
         } else {
             Your("knowledge of %s is %s.", splname,
                  spellknow(i) ? "keener" : "restored");
@@ -419,7 +421,7 @@ learn(void)
             pline("This spellbook is too faint to read even once.");
             book->otyp = booktype = SPE_BLANK_PAPER;
             /* reset spestudied as if polymorph had taken place */
-            book->spestudied = rn2(book->spestudied);
+            book->spestudied = random_integer_between_zero_and(book->spestudied);
         } else {
             gs.spl_book[i].sp_id = booktype;
             gs.spl_book[i].sp_lev = objects[booktype].oc_level;
@@ -463,11 +465,11 @@ study_book(struct obj *spellbook)
     if (!confused && !Sleep_resistance
         && objdescr_is(spellbook, "dull")) {
         const char *eyes;
-        int dullbook = rnd(25) - ACURR(A_WIS);
+        int dullbook = random(25) - ATTRIBUTE_CURRENT(A_WIS);
 
         /* adjust chance if hero stayed awake, got interrupted, retries */
         if (gc.context.spbook.delay && spellbook == gc.context.spbook.book)
-            dullbook -= rnd(objects[booktype].oc_level);
+            dullbook -= random(objects[booktype].oc_level);
 
         if (dullbook > 0) {
             eyes = body_part(EYE);
@@ -475,7 +477,7 @@ study_book(struct obj *spellbook)
                 eyes = makeplural(eyes);
             pline("This book is so dull that you can't keep your %s open.",
                   eyes);
-            dullbook += rnd(2 * objects[booktype].oc_level);
+            dullbook += random(2 * objects[booktype].oc_level);
             fall_asleep(-dullbook, TRUE);
             return 1;
         }
@@ -509,12 +511,12 @@ study_book(struct obj *spellbook)
 
                 check_unpaid(spellbook);
                 makeknown(booktype);
-                if (!u.uevent.read_tribute) {
+                if (!u.player_event_history.read_tribute) {
                     record_achievement(ACH_NOVL);
                     /* give bonus of 20 xp and 4*20+0 pts */
                     more_experienced(20, 0);
                     newexplevel();
-                    u.uevent.read_tribute = 1; /* only once */
+                    u.player_event_history.read_tribute = 1; /* only once */
                 }
             }
             return 1;
@@ -565,7 +567,7 @@ study_book(struct obj *spellbook)
                 too_hard = TRUE;
             } else {
                 /* uncursed - chance to fail */
-                int read_ability = ACURR(A_INT) + 4 + u.ulevel / 2
+                int read_ability = ATTRIBUTE_CURRENT(A_INT) + 4 + u.ulevel / 2
                                    - 2 * objects[booktype].oc_level
                              + ((ublindf && ublindf->otyp == LENSES) ? 2 : 0);
 
@@ -582,7 +584,7 @@ study_book(struct obj *spellbook)
                     }
                 }
                 /* its up to random luck now */
-                if (rnd(20) > read_ability) {
+                if (random(20) > read_ability) {
                     too_hard = TRUE;
                 }
             }
@@ -595,7 +597,7 @@ study_book(struct obj *spellbook)
             gm.multi_reason = "reading a book";
             gn.nomovemsg = 0;
             gc.context.spbook.delay = 0;
-            if (gone || !rn2(3)) {
+            if (gone || !random_integer_between_zero_and(3)) {
                 if (!gone)
                     pline_The("spellbook crumbles to dust!");
                 trycall(spellbook);
@@ -927,7 +929,7 @@ propagate_chain_lightning(
     struct chain_lightning_queue *clq,
     struct chain_lightning_zap zap)
 {
-    struct monst *mon;
+    struct monster *mon;
 
     zap.x += xdir[zap.dir];
     zap.y += ydir[zap.dir];
@@ -977,7 +979,7 @@ staticfn void
 cast_chain_lightning(void)
 {
     struct chain_lightning_queue clq = {
-        {{0}}, 0, 0, Hallucination ? rn2_on_display_rng(6) : (AD_ELEC - 1)
+        {{0}}, 0, 0, Hallucination ? random2_on_display_range(6) : (AD_ELEC - 1)
     };
 
     if (u.uswallow) {
@@ -1004,7 +1006,7 @@ cast_chain_lightning(void)
         while (clq.head < delay_tail) {
             struct chain_lightning_zap zap = clq.q[clq.head++];
             /* damage any monster that was hit */
-            struct monst *mon = m_at(zap.x, zap.y);
+            struct monster *mon = m_at(zap.x, zap.y);
 
             if (mon) {
                 struct obj *unused; /* AD_ELEC can't destroy armor */
@@ -1037,8 +1039,8 @@ cast_chain_lightning(void)
 
             if (zap.strength < 2)
                 zap.strength = 0;
-            else if (u.uen > 0)
-                u.uen--; /* propagating past mons increases Pw cost a bit */
+            else if (u.energy > 0)
+                u.energy--; /* propagating past mons increases Pw cost a bit */
             zap.dir = DIR_LEFT(zap.dir);
             propagate_chain_lightning(&clq, zap);
 
@@ -1058,7 +1060,7 @@ staticfn void
 cast_protection(void)
 {
     int l = u.ulevel, loglev = 0,
-        gain, natac = u.uac + u.uspellprot;
+        gain, natac = u.armor_class + u.spell_protection;
     /* note: u.uspellprot is subtracted when find_ac() factors it into u.uac,
        so adding here factors it back out
        (versions prior to 3.6 had this backwards) */
@@ -1091,17 +1093,17 @@ cast_protection(void)
      *     16-30 -10    0,  5,  8,  9, 10
      */
     natac = (10 - natac) / 10; /* convert to positive and scale down */
-    gain = loglev - (int) u.uspellprot / (4 - min(3, natac));
+    gain = loglev - (int) u.spell_protection / (4 - min(3, natac));
 
     if (gain > 0) {
         if (!Blind) {
             int rmtyp;
             const char *hgolden = hcolor(NH_GOLDEN), *atmosphere;
 
-            if (u.uspellprot) {
+            if (u.spell_protection) {
                 pline_The("%s haze around you becomes more dense.", hgolden);
             } else {
-                struct permonst *pm = u.ustuck ? u.ustuck->data : 0;
+                struct permonst *pm = u.monster_stuck_to ? u.monster_stuck_to->data : 0;
 
                 rmtyp = levl[u.ux][u.uy].typ;
                 atmosphere = (pm && u.uswallow)
@@ -1119,11 +1121,11 @@ cast_protection(void)
                           atmosphere, an(hgolden));
             }
         }
-        u.uspellprot += gain;
-        u.uspmtime = (P_SKILL(spell_skilltype(SPE_PROTECTION)) == P_EXPERT)
+        u.spell_protection += gain;
+        u.moves_between_spell_protection_degradation = (P_SKILL(spell_skilltype(SPE_PROTECTION)) == P_EXPERT)
                         ? 20 : 10;
-        if (!u.usptime)
-            u.usptime = u.uspmtime;
+        if (!u.moves_until_spell_protection_degrades)
+            u.moves_until_spell_protection_degrades = u.moves_between_spell_protection_degradation;
         find_ac();
     } else {
         Your("skin feels warm for a moment.");
@@ -1145,7 +1147,7 @@ spell_backfire(int spell)
      * Stunned, so the potential increment to stun duration here is
      * just hypothetical.)
      */
-    switch (rn2(10)) {
+    switch (random_integer_between_zero_and(10)) {
     case 0:
     case 1:
     case 2:
@@ -1206,9 +1208,9 @@ spelleffects_check(int spell, int *res, int *energy)
         Your("knowledge of this spell is twisted.");
         pline("It invokes nightmarish images in your mind...");
         spell_backfire(spell);
-        u.uen -= rnd(*energy);
-        if (u.uen < 0)
-            u.uen = 0;
+        u.energy -= random(*energy);
+        if (u.energy < 0)
+            u.energy = 0;
         disp.botl = TRUE;
         *res = ECMD_TIME;
         return TRUE;
@@ -1226,7 +1228,7 @@ spelleffects_check(int spell, int *res, int *energy)
         You("are too hungry to cast that spell.");
         *res = ECMD_OK;
         return TRUE;
-    } else if (ACURR(A_STR) < 4 && spellid(spell) != SPE_RESTORE_ABILITY) {
+    } else if (ATTRIBUTE_CURRENT(A_STR) < 4 && spellid(spell) != SPE_RESTORE_ABILITY) {
         You("lack the strength to cast spells.");
         *res = ECMD_OK;
         return TRUE;
@@ -1241,7 +1243,7 @@ spelleffects_check(int spell, int *res, int *energy)
        in and no turn will be consumed; however, when it does kick in,
        the attempt may fail due to lack of energy after the draining, in
        which case a turn will be used up in addition to the energy loss */
-    if (u.uhave.amulet && u.uen >= *energy) {
+    if (u.player_carrying_special_objects.amulet && u.energy >= *energy) {
         You_feel("the amulet draining your energy away.");
         /* this used to be 'energy += rnd(2 * energy)' (without 'res'),
            so if amulet-induced cost was more than u.uen, nothing
@@ -1249,14 +1251,14 @@ spelleffects_check(int spell, int *res, int *energy)
            and player could just try again (and again and again...);
            now we drain some energy immediately, which has a
            side-effect of not increasing the hunger aspect of casting */
-        u.uen -= rnd(2 * *energy);
-        if (u.uen < 0)
-            u.uen = 0;
+        u.energy -= random(2 * *energy);
+        if (u.energy < 0)
+            u.energy = 0;
         disp.botl = TRUE;
         *res = ECMD_TIME; /* time is used even if spell doesn't get cast */
     }
 
-    if (*energy > u.uen) {
+    if (*energy > u.energy) {
         /*
          * Hero has insufficient energy/power to cast the spell.
          * Augment the message when current energy is at maximum.
@@ -1267,8 +1269,8 @@ spelleffects_check(int spell, int *res, int *energy)
          * new person or had some stripped away by traps or monsters).
          */
         You("don't have enough energy to cast that spell%s.",
-            (u.uen < u.uenmax) ? "" /* not at full energy => normal message */
-            : (*energy > u.uenpeak) ? " yet" /* haven't ever had enough */
+            (u.energy < u.energy_max) ? "" /* not at full energy => normal message */
+            : (*energy > u.energy_peak) ? " yet" /* haven't ever had enough */
               : " anymore"); /* once had enough but have lost some since */
         return TRUE;
     } else {
@@ -1323,9 +1325,9 @@ spelleffects_check(int spell, int *res, int *energy)
     }
 
     chance = percent_success(spell);
-    if (confused || (rnd(100) > chance)) {
+    if (confused || (random(100) > chance)) {
         You("fail to cast the spell correctly.");
-        u.uen -= *energy / 2;
+        u.energy -= *energy / 2;
         disp.botl = TRUE;
         *res = ECMD_TIME;
         return TRUE;
@@ -1348,7 +1350,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     if (!force && spelleffects_check(spell, &res, &energy))
         return res;
 
-    u.uen -= energy;
+    u.energy -= energy;
     disp.botl = TRUE;
     exercise(A_WIS, TRUE);
     /* pseudo is a temporary "false" object containing the spell stats */
@@ -1376,7 +1378,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
             if (throwspell()) {
                 cc.x = u.dx;
                 cc.y = u.dy;
-                n = rnd(8) + 1;
+                n = random(8) + 1;
                 while (n--) {
                     if (!u.dx && !u.dy && !u.dz) {
                         if ((damage = zapyourself(pseudo, TRUE)) != 0) {
@@ -1393,8 +1395,8 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
                                    ? EXPL_FROSTY
                                    : EXPL_FIERY);
                     }
-                    u.dx = cc.x + rnd(3) - 2;
-                    u.dy = cc.y + rnd(3) - 2;
+                    u.dx = cc.x + random(3) - 2;
+                    u.dy = cc.y + random(3) - 2;
                     if (!isok(u.dx, u.dy) || !cansee(u.dx, u.dy)
                         || IS_STWALL(levl[u.dx][u.dy].typ) || u.uswallow) {
                         /* Spell is reflected back to center */
@@ -1594,7 +1596,7 @@ staticfn int
 throwspell(void)
 {
     coord cc, uc;
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if (u.uinwater) {
         pline("You're joking!  In this weather?");
@@ -1713,15 +1715,15 @@ losespells(void)
 
     /* lose anywhere from zero to all known spells;
        if confused, use the worse of two die rolls */
-    nzap = rn2(n + 1);
+    nzap = random_integer_between_zero_and(n + 1);
     if (Confusion) {
-        i = rn2(n + 1);
+        i = random_integer_between_zero_and(n + 1);
         if (i > nzap)
             nzap = i;
     }
     /* good Luck might ameliorate spell loss */
     if (nzap > 1 && !rnl(7))
-        nzap = rnd(nzap);
+        nzap = random(nzap);
 
     /*
      * Forget 'nzap' out of 'n' known spells by setting their memory
@@ -1750,7 +1752,7 @@ losespells(void)
            the chance to lose spell [i] is small; as the number of
            remaining candidates shrinks, the chance per candidate
            gets bigger; overall, exactly nzap entries are affected */
-        if (rn2(n - i) < nzap) {
+        if (random_integer_between_zero_and(n - i) < nzap) {
             /* lose access to spell [i] */
             spellknow(i) = 0;
 #if 0
@@ -2106,7 +2108,7 @@ percent_success(int spell)
 
     splcaster = gu.urole.spelbase;
     special = gu.urole.spelheal;
-    statused = ACURR(gu.urole.spelstat);
+    statused = ATTRIBUTE_CURRENT(gu.urole.spelstat);
 
     if (uarm && is_metallic(uarm) && !paladin_bonus)
         splcaster += (uarmc && uarmc->otyp == ROBE) ? gu.urole.spelarmr / 2

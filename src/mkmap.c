@@ -2,6 +2,8 @@
 /* Copyright (c) J. C. Collet, M. Stephenson and D. Cohrs, 1992   */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #include "sp_lev.h"
 
@@ -43,7 +45,7 @@ init_fill(schar bg_typ, schar fg_typ)
     count = 0;
     while (count < limit) {
         i = rn1(WIDTH - 1, 2);
-        j = rnd(HEIGHT - 1);
+        j = random(HEIGHT - 1);
         if (levl[i][j].typ == bg_typ) {
             levl[i][j].typ = fg_typ;
             count++;
@@ -321,7 +323,7 @@ join_map(schar bg_typ, schar fg_typ)
         /* only increment croom if croom and croom2 are non-overlapping */
         if (croom2->lx > croom->hx
             || ((croom2->ly > croom->hy || croom2->hy < croom->ly)
-                && rn2(3))) {
+                && random_integer_between_zero_and(3))) {
             croom = croom2;
         }
         croom2++; /* always increment the next room */
@@ -444,7 +446,7 @@ boolean
 litstate_rnd(int litstate)
 {
     if (litstate < 0)
-        return (rnd(1 + abs(depth(&u.uz))) < 11 && rn2(77)) ? TRUE : FALSE;
+        return (random(1 + abs(depth(&u.uz))) < 11 && random_integer_between_zero_and(77)) ? TRUE : FALSE;
     return (boolean) litstate;
 }
 

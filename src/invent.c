@@ -3,6 +3,8 @@
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 /* fake inventory letters, not 'a'..'z' or 'A'..'Z' */
@@ -783,7 +785,7 @@ reorder_invent(void)
 struct obj *
 merge_choice(struct obj *objlist, struct obj *obj)
 {
-    struct monst *shkp;
+    struct monster *shkp;
     unsigned save_nocharge;
 
     if (!objlist) /* might be checking 'obj' against empty inventory */
@@ -973,30 +975,30 @@ addinv_core1(struct obj *obj)
     if (obj->oclass == COIN_CLASS) {
         disp.botl = TRUE;
     } else if (obj->otyp == AMULET_OF_YENDOR) {
-        if (u.uhave.amulet)
+        if (u.player_carrying_special_objects.amulet)
             impossible("already have amulet?");
-        u.uhave.amulet = 1;
+        u.player_carrying_special_objects.amulet = 1;
         record_achievement(ACH_AMUL);
     } else if (obj->otyp == CANDELABRUM_OF_INVOCATION) {
-        if (u.uhave.menorah)
+        if (u.player_carrying_special_objects.menorah)
             impossible("already have candelabrum?");
-        u.uhave.menorah = 1;
+        u.player_carrying_special_objects.menorah = 1;
         record_achievement(ACH_CNDL);
     } else if (obj->otyp == BELL_OF_OPENING) {
-        if (u.uhave.bell)
+        if (u.player_carrying_special_objects.bell)
             impossible("already have silver bell?");
-        u.uhave.bell = 1;
+        u.player_carrying_special_objects.bell = 1;
         record_achievement(ACH_BELL);
     } else if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
-        if (u.uhave.book)
+        if (u.player_carrying_special_objects.book)
             impossible("already have the book?");
-        u.uhave.book = 1;
+        u.player_carrying_special_objects.book = 1;
         record_achievement(ACH_BOOK);
     } else if (obj->oartifact) {
         if (is_quest_artifact(obj)) {
-            if (u.uhave.questart)
+            if (u.player_carrying_special_objects.questart)
                 impossible("already have quest artifact?");
-            u.uhave.questart = 1;
+            u.player_carrying_special_objects.questart = 1;
             artitouch(obj);
         }
         set_artifact_intrinsic(obj, 1, W_ART);
@@ -1262,7 +1264,7 @@ hold_another_object(
                 prinv(hold_msg, obj, oquan);
             /* obj made it into inventory and is staying there */
             update_inventory();
-            (void) encumber_msg();
+            (void) encumbered_message();
         }
     }
     return obj;
@@ -1334,26 +1336,26 @@ freeinv_core(struct obj *obj)
         disp.botl = TRUE;
         return;
     } else if (obj->otyp == AMULET_OF_YENDOR) {
-        if (!u.uhave.amulet)
+        if (!u.player_carrying_special_objects.amulet)
             impossible("don't have amulet?");
-        u.uhave.amulet = 0;
+        u.player_carrying_special_objects.amulet = 0;
     } else if (obj->otyp == CANDELABRUM_OF_INVOCATION) {
-        if (!u.uhave.menorah)
+        if (!u.player_carrying_special_objects.menorah)
             impossible("don't have candelabrum?");
-        u.uhave.menorah = 0;
+        u.player_carrying_special_objects.menorah = 0;
     } else if (obj->otyp == BELL_OF_OPENING) {
-        if (!u.uhave.bell)
+        if (!u.player_carrying_special_objects.bell)
             impossible("don't have silver bell?");
-        u.uhave.bell = 0;
+        u.player_carrying_special_objects.bell = 0;
     } else if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
-        if (!u.uhave.book)
+        if (!u.player_carrying_special_objects.book)
             impossible("don't have the book?");
-        u.uhave.book = 0;
+        u.player_carrying_special_objects.book = 0;
     } else if (obj->oartifact) {
         if (is_quest_artifact(obj)) {
-            if (!u.uhave.questart)
+            if (!u.player_carrying_special_objects.questart)
                 impossible("don't have quest artifact?");
-            u.uhave.questart = 0;
+            u.player_carrying_special_objects.questart = 0;
         }
         set_artifact_intrinsic(obj, 0, W_ART);
     }
@@ -1655,7 +1657,7 @@ mime_action(const char *word)
     }
     if ((bp = strstr(buf, " or ")) != 0) {
         *bp = '\0';
-        bp = (rn2(2) ? buf : (bp + 4));
+        bp = (random_integer_between_zero_and(2) ? buf : (bp + 4));
     } else
         bp = buf;
 
@@ -3086,7 +3088,7 @@ itemactions(struct obj *otmp)
     winid win;
     char buf[BUFSZ], buf2[BUFSZ];
     menu_item *selected;
-    struct monst *mtmp;
+    struct monster *mtmp;
     const char *light = otmp->lamplit ? "Extinguish" : "Light";
     boolean already_worn = (otmp->owornmask & (W_ARMOR | W_ACCESSORY)) != 0;
 
@@ -3374,12 +3376,12 @@ itemactions(struct obj *otmp)
     /* X: Toggle two-weapon mode on or off */
     if ((otmp == uwep || otmp == uswapwep)
         /* if already two-weaponing, no special checks needed to toggle off */
-        && (u.twoweap
+        && (u.using_two_weapons
         /* but if not, try to filter most "you can't do that" here */
             || (could_twoweap(gy.youmonst.data) && !uarms
                 && uwep && MAYBETWOWEAPON(uwep)
                 && uswapwep && MAYBETWOWEAPON(uswapwep)))) {
-        Sprintf(buf, "Toggle two-weapon combat %s", u.twoweap ? "off" : "on");
+        Sprintf(buf, "Toggle two-weapon combat %s", u.using_two_weapons ? "off" : "on");
         ia_addmenu(win, IA_TWOWEAPON, 'X', buf);
     }
 
@@ -3772,7 +3774,7 @@ display_pickinv(
                          ATR_NONE, clr, barehands, MENU_ITEMFLAGS_NONE);
             } else {
                 /* normal inventory item */
-                tmpglyph = obj_to_glyph(otmp, rn2_on_display_rng);
+                tmpglyph = obj_to_glyph(otmp, random2_on_display_range);
                 map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
                 formattedobj = doname(otmp);
                 add_menu(win, &tmpglyphinfo, &any, ilet,
@@ -3933,7 +3935,7 @@ display_used_invlets(char avoidlet)
                         classcount++;
                     }
                     any.a_char = ilet;
-                    tmpglyph = obj_to_glyph(otmp, rn2_on_display_rng);
+                    tmpglyph = obj_to_glyph(otmp, random2_on_display_range);
                     map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
                     add_menu(win, &tmpglyphinfo, &any, ilet, 0,
                              ATR_NONE, clr, doname(otmp), MENU_ITEMFLAGS_NONE);
@@ -4558,7 +4560,7 @@ look_here(
        (and 1 effectively forces "always skip") */
     skip_objects = (flags.pile_limit > 0 && obj_cnt >= flags.pile_limit);
     if (u.uswallow) {
-        struct monst *mtmp = u.ustuck;
+        struct monster *mtmp = u.monster_stuck_to;
 
         /*
          * FIXME?
@@ -4665,7 +4667,7 @@ look_here(
         || (is_pool(u.ux, u.uy) && !Underwater)) {
         if (dfeature && !skip_dfeature)
             pline1(fbuf);
-        read_engr_at(u.ux, u.uy); /* Eric Backus */
+        read_engraving_at(u.ux, u.uy); /* Eric Backus */
         if (!skip_objects && (Blind || !dfeature))
             You("%s no objects here.", verb);
         return (!!Blind ? ECMD_TIME : ECMD_OK);
@@ -4675,7 +4677,7 @@ look_here(
     if (skip_objects) {
         if (dfeature && !skip_dfeature)
             pline1(fbuf);
-        read_engr_at(u.ux, u.uy); /* Eric Backus */
+        read_engraving_at(u.ux, u.uy); /* Eric Backus */
         if (obj_cnt == 1 && otmp->quan == 1L)
             There("is %s object here.", picked_some ? "another" : "an");
         else
@@ -4701,7 +4703,7 @@ look_here(
         /* only one object */
         if (dfeature && !skip_dfeature)
             pline1(fbuf);
-        read_engr_at(u.ux, u.uy); /* Eric Backus */
+        read_engraving_at(u.ux, u.uy); /* Eric Backus */
         You("%s here %s.", verb, doname_with_price(otmp));
         iflags.last_msg = PLNMSG_ONE_ITEM_HERE;
         if (otmp->otyp == CORPSE)
@@ -4732,7 +4734,7 @@ look_here(
         destroy_nhwindow(tmpwin);
         if (felt_cockatrice)
             feel_cockatrice(otmp, FALSE);
-        read_engr_at(u.ux, u.uy); /* Eric Backus */
+        read_engraving_at(u.ux, u.uy); /* Eric Backus */
     }
     return (!!Blind ? ECMD_TIME : ECMD_OK);
 }
@@ -4970,7 +4972,7 @@ doprwep(void)
         You("are %s.", empty_handed());
     } else if (!iflags.menu_requested) {
         prinv((char *) 0, uwep, 0L);
-        if (u.twoweap)
+        if (u.using_two_weapons)
             prinv((char *) 0, uswapwep, 0L);
     } else {
         char lets[4]; /* 4: uwep, uswapwep, uquiver, terminator */
@@ -5754,7 +5756,7 @@ worn_wield_only(struct obj *obj)
  */
 struct obj *
 display_minventory(
-    struct monst *mon, /* monster whose minvent we're showing */
+    struct monster *mon, /* monster whose minvent we're showing */
     int dflags,        /* control over what to display */
     char *title)       /* menu title */
 {

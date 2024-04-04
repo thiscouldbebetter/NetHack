@@ -2,6 +2,8 @@
 /*      Copyright 1988, 1989, 1990, 1992, M. Stephenson           */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /*  attribute modification routines. */
 
 #include "hack.h"
@@ -9,9 +11,9 @@
 
 /* part of the output on gain or loss of attribute */
 static const char
-    *const plusattr[] = { "strong", "smart", "wise",
+    *const attributesPositive[] = { "strong", "smart", "wise",
                           "agile",  "tough", "charismatic" },
-    *const minusattr[] = { "weak",    "stupid",
+    *const attributesNegative[] = { "weak",    "stupid",
                            "foolish", "clumsy",
                            "fragile", "repulsive" };
 /* also used by enlightenment in insight.c for non-abbreviated status info */
@@ -25,27 +27,27 @@ static const struct innate {
     schar ulevel;
     long *ability;
     const char *gainstr, *losestr;
-} arc_abil[] = { { 1, &(HSearching), "", "" },
+} abilities_archaeologist[] = { { 1, &(HSearching), "", "" },
                  { 5, &(HStealth), "stealthy", "" },
                  { 10, &(HFast), "quick", "slow" },
                  { 0, 0, 0, 0 } },
 
-  bar_abil[] = { { 1, &(HPoison_resistance), "", "" },
+  abilities_barbarian[] = { { 1, &(HPoison_resistance), "", "" },
                  { 7, &(HFast), "quick", "slow" },
                  { 15, &(HStealth), "stealthy", "" },
                  { 0, 0, 0, 0 } },
 
-  cav_abil[] = { { 7, &(HFast), "quick", "slow" },
+  abilities_cavedweller[] = { { 7, &(HFast), "quick", "slow" },
                  { 15, &(HWarning), "sensitive", "" },
                  { 0, 0, 0, 0 } },
 
-  hea_abil[] = { { 1, &(HPoison_resistance), "", "" },
+  abilities_healer[] = { { 1, &(HPoison_resistance), "", "" },
                  { 15, &(HWarning), "sensitive", "" },
                  { 0, 0, 0, 0 } },
 
-  kni_abil[] = { { 7, &(HFast), "quick", "slow" }, { 0, 0, 0, 0 } },
+  abilities_knight[] = { { 7, &(HFast), "quick", "slow" }, { 0, 0, 0, 0 } },
 
-  mon_abil[] = { { 1, &(HFast), "", "" },
+  abilities_monk[] = { { 1, &(HFast), "", "" },
                  { 1, &(HSleep_resistance), "", "" },
                  { 1, &(HSee_invisible), "", "" },
                  { 3, &(HPoison_resistance), "healthy", "" },
@@ -58,95 +60,95 @@ static const struct innate {
                  { 17, &(HTeleport_control), "controlled", "uncontrolled" },
                  { 0, 0, 0, 0 } },
 
-  pri_abil[] = { { 15, &(HWarning), "sensitive", "" },
+  abilities_pri[] = { { 15, &(HWarning), "sensitive", "" },
                  { 20, &(HFire_resistance), "cool", "warmer" },
                  { 0, 0, 0, 0 } },
 
-  ran_abil[] = { { 1, &(HSearching), "", "" },
+  abilities_ranger[] = { { 1, &(HSearching), "", "" },
                  { 7, &(HStealth), "stealthy", "" },
                  { 15, &(HSee_invisible), "", "" },
                  { 0, 0, 0, 0 } },
 
-  rog_abil[] = { { 1, &(HStealth), "", "" },
+  abilities_rogue[] = { { 1, &(HStealth), "", "" },
                  { 10, &(HSearching), "perceptive", "" },
                  { 0, 0, 0, 0 } },
 
-  sam_abil[] = { { 1, &(HFast), "", "" },
+  abilities_sam[] = { { 1, &(HFast), "", "" },
                  { 15, &(HStealth), "stealthy", "" },
                  { 0, 0, 0, 0 } },
 
-  tou_abil[] = { { 10, &(HSearching), "perceptive", "" },
+  abilities_tourist[] = { { 10, &(HSearching), "perceptive", "" },
                  { 20, &(HPoison_resistance), "hardy", "" },
                  { 0, 0, 0, 0 } },
 
-  val_abil[] = { { 1, &(HCold_resistance), "", "" },
+  abilities_valkyrie[] = { { 1, &(HCold_resistance), "", "" },
                  { 3, &(HStealth), "stealthy", "" },
                  { 7, &(HFast), "quick", "slow" },
                  { 0, 0, 0, 0 } },
 
-  wiz_abil[] = { { 15, &(HWarning), "sensitive", "" },
+  abilities_wizard[] = { { 15, &(HWarning), "sensitive", "" },
                  { 17, &(HTeleport_control), "controlled", "uncontrolled" },
                  { 0, 0, 0, 0 } },
 
   /* Intrinsics conferred by race */
-  dwa_abil[] = { { 1, &HInfravision, "", "" },
+  abilities_dwarf[] = { { 1, &HInfravision, "", "" },
                  { 0, 0, 0, 0 } },
 
-  elf_abil[] = { { 1, &HInfravision, "", "" },
+  abilities_elf[] = { { 1, &HInfravision, "", "" },
                  { 4, &HSleep_resistance, "awake", "tired" },
                  { 0, 0, 0, 0 } },
 
-  gno_abil[] = { { 1, &HInfravision, "", "" },
+  abilities_gnome[] = { { 1, &HInfravision, "", "" },
                  { 0, 0, 0, 0 } },
 
-  orc_abil[] = { { 1, &HInfravision, "", "" },
+  abilities_orc[] = { { 1, &HInfravision, "", "" },
                  { 1, &HPoison_resistance, "", "" },
                  { 0, 0, 0, 0 } },
 
-  hum_abil[] = { { 0, 0, 0, 0 } };
+  abilities_human[] = { { 0, 0, 0, 0 } };
 
 staticfn void exerper(void);
 staticfn int rnd_attr(void);
-staticfn int init_attr_role_redist(int, boolean);
-staticfn void postadjabil(long *);
-staticfn const struct innate *role_abil(int);
-staticfn const struct innate *check_innate_abil(long *, long);
+staticfn int initialize_attribute_role_redist(int, boolean);
+staticfn void post_adjust_ability(long *);
+staticfn const struct innate *role_abilities(int);
+staticfn const struct innate *check_innate_ability(long *, long);
 staticfn int innately(long *);
 
 /* adjust an attribute; return TRUE if change is made, FALSE otherwise */
 boolean
-adjattrib(
-    int ndx,    /* which characteristic */
-    int incr,   /* amount of change */
-    int msgflg) /* positive => no message, zero => message, and */
+adjust_attribute(
+    int attribute_index,    /* which characteristic */
+    int amount_to_add,   /* amount of change */
+    int message_flag) /* positive => no message, zero => message, and */
 {               /* negative => conditional (msg if change made) */
     int old_acurr, old_abase, old_amax, decr;
     boolean abonflg;
     const char *attrstr;
 
-    if (Fixed_abil || !incr)
+    if (Fixed_abil || !amount_to_add)
         return FALSE;
 
-    if ((ndx == A_INT || ndx == A_WIS) && uarmh && uarmh->otyp == DUNCE_CAP) {
-        if (msgflg == 0)
+    if ((attribute_index == A_INT || attribute_index == A_WIS) && uarmh && uarmh->otyp == DUNCE_CAP) {
+        if (message_flag == 0)
             Your("cap constricts briefly, then relaxes again.");
         return FALSE;
     }
 
-    old_acurr = ACURR(ndx);
-    old_abase = ABASE(ndx);
-    old_amax = AMAX(ndx);
-    ABASE(ndx) += incr; /* when incr is negative, this reduces ABASE() */
-    if (incr > 0) {
-        if (ABASE(ndx) > AMAX(ndx)) {
-            AMAX(ndx) = ABASE(ndx);
-            if (AMAX(ndx) > ATTRMAX(ndx))
-                ABASE(ndx) = AMAX(ndx) = ATTRMAX(ndx);
+    old_acurr = ATTRIBUTE_CURRENT(attribute_index);
+    old_abase = ATTRIBUTE_BASE(attribute_index);
+    old_amax = AMAX(attribute_index);
+    ATTRIBUTE_BASE(attribute_index) += amount_to_add; /* when incr is negative, this reduces ABASE() */
+    if (amount_to_add > 0) {
+        if (ATTRIBUTE_BASE(attribute_index) > AMAX(attribute_index)) {
+            AMAX(attribute_index) = ATTRIBUTE_BASE(attribute_index);
+            if (AMAX(attribute_index) > ATTRMAX(attribute_index))
+                ATTRIBUTE_BASE(attribute_index) = AMAX(attribute_index) = ATTRMAX(attribute_index);
         }
-        attrstr = plusattr[ndx];
-        abonflg = (ABON(ndx) < 0);
+        attrstr = attributesPositive[attribute_index];
+        abonflg = (ABON(attribute_index) < 0);
     } else { /* incr is negative */
-        if (ABASE(ndx) < ATTRMIN(ndx)) {
+        if (ATTRIBUTE_BASE(attribute_index) < ATTRMIN(attribute_index)) {
             /*
              * If base value has dropped so low that it is trying to be
              * taken below the minimum, reduce max value (peak reached)
@@ -164,35 +166,35 @@ adjattrib(
              *
              * decr = rn2(-(ABASE - ATTRMIN) + 1);
              */
-            decr = rn2(ATTRMIN(ndx) - ABASE(ndx) + 1);
-            ABASE(ndx) = ATTRMIN(ndx);
-            AMAX(ndx) -= decr;
-            if (AMAX(ndx) < ATTRMIN(ndx))
-                AMAX(ndx) = ATTRMIN(ndx);
+            decr = random_integer_between_zero_and(ATTRMIN(attribute_index) - ATTRIBUTE_BASE(attribute_index) + 1);
+            ATTRIBUTE_BASE(attribute_index) = ATTRMIN(attribute_index);
+            AMAX(attribute_index) -= decr;
+            if (AMAX(attribute_index) < ATTRMIN(attribute_index))
+                AMAX(attribute_index) = ATTRMIN(attribute_index);
         }
-        attrstr = minusattr[ndx];
-        abonflg = (ABON(ndx) > 0);
+        attrstr = attributesNegative[attribute_index];
+        abonflg = (ABON(attribute_index) > 0);
     }
-    if (ACURR(ndx) == old_acurr) {
-        if (msgflg == 0 && flags.verbose) {
-            if (ABASE(ndx) == old_abase && AMAX(ndx) == old_amax) {
+    if (ATTRIBUTE_CURRENT(attribute_index) == old_acurr) {
+        if (message_flag == 0 && flags.verbose) {
+            if (ATTRIBUTE_BASE(attribute_index) == old_abase && AMAX(attribute_index) == old_amax) {
                 pline("You're %s as %s as you can get.",
                       abonflg ? "currently" : "already", attrstr);
             } else {
                 /* current stayed the same but base value changed, or
                    base is at minimum and reduction caused max to drop */
-                Your("innate %s has %s.", attrname[ndx],
-                     (incr > 0) ? "improved" : "declined");
+                Your("innate %s has %s.", attrname[attribute_index],
+                     (amount_to_add > 0) ? "improved" : "declined");
             }
         }
         return FALSE;
     }
 
     disp.botl = TRUE;
-    if (msgflg <= 0)
-        You_feel("%s%s!", (incr > 1 || incr < -1) ? "very " : "", attrstr);
-    if (gp.program_state.in_moveloop && (ndx == A_STR || ndx == A_CON))
-        (void) encumber_msg();
+    if (message_flag <= 0)
+        You_feel("%s%s!", (amount_to_add > 1 || amount_to_add < -1) ? "very " : "", attrstr);
+    if (gp.program_state.in_moveloop && (attribute_index == A_STR || attribute_index == A_CON))
+        (void) encumbered_message();
     return TRUE;
 }
 
@@ -203,14 +205,14 @@ gainstr(struct obj *otmp, int incr, boolean givemsg)
     int num = incr;
 
     if (!num) {
-        if (ABASE(A_STR) < 18)
-            num = (rn2(4) ? 1 : rnd(6));
-        else if (ABASE(A_STR) < STR18(85))
-            num = rnd(10);
+        if (ATTRIBUTE_BASE(A_STR) < 18)
+            num = (random_integer_between_zero_and(4) ? 1 : random(6));
+        else if (ATTRIBUTE_BASE(A_STR) < STR18(85))
+            num = random(10);
         else
             num = 1;
     }
-    (void) adjattrib(A_STR, (otmp && otmp->cursed) ? -num : num,
+    (void) adjust_attribute(A_STR, (otmp && otmp->cursed) ? -num : num,
                      givemsg ? -1 : 1);
 }
 
@@ -218,12 +220,12 @@ gainstr(struct obj *otmp, int incr, boolean givemsg)
 void
 losestr(int num, const char *knam, schar k_format)
 {
-    int uhpmin = minuhpmax(1), olduhpmax = u.uhpmax;
-    int ustr = ABASE(A_STR) - num, amt, dmg;
+    int uhpmin = minuhpmax(1), olduhpmax = u.hit_points_max;
+    int ustr = ATTRIBUTE_BASE(A_STR) - num, amt, dmg;
     boolean waspolyd = Upolyd;
 
-    if (num <= 0 || ABASE(A_STR) < ATTRMIN(A_STR)) {
-        impossible("losestr: %d - %d", ABASE(A_STR), num);
+    if (num <= 0 || ATTRIBUTE_BASE(A_STR) < ATTRMIN(A_STR)) {
+        impossible("losestr: %d - %d", ATTRIBUTE_BASE(A_STR), num);
         return;
     }
     dmg = 0;
@@ -247,8 +249,8 @@ losestr(int num, const char *knam, schar k_format)
         } else if (!waspolyd) {
             /* not polymorphed now and didn't rehumanize when taking damage;
                reduce max HP, but not below uhpmin */
-            if (u.uhpmax > uhpmin)
-                setuhpmax(max(u.uhpmax - dmg, uhpmin));
+            if (u.hit_points_max > uhpmin)
+                setuhpmax(max(u.hit_points_max - dmg, uhpmin));
         }
         disp.botl = TRUE;
     }
@@ -264,7 +266,7 @@ losestr(int num, const char *knam, schar k_format)
     /* 'num' could have been reduced to 0 in the minimum strength loop;
        '(Upolyd || !waspolyd)' is True unless damage caused rehumanization */
     if (num > 0 && (Upolyd || !waspolyd))
-        (void) adjattrib(A_STR, -num, 1);
+        (void) adjust_attribute(A_STR, -num, 1);
 }
 
 /* combined strength loss and damage from some poisons */
@@ -302,9 +304,9 @@ poisontell(int typ,         /* which attribute */
      * Phrasing for other attributes which might have fixed values
      * (dunce cap) is such that we don't need message fixups for them.
      */
-    if (typ == A_STR && ACURR(A_STR) == STR19(25))
+    if (typ == A_STR && ATTRIBUTE_CURRENT(A_STR) == STR19(25))
         msg_txt = "innately weaker";
-    else if (typ == A_CON && ACURR(A_CON) == 25)
+    else if (typ == A_CON && ATTRIBUTE_CURRENT(A_CON) == 25)
         msg_txt = "sick inside";
 
     (*func)("%s%c", msg_txt, exclaim ? '!' : '.');
@@ -352,28 +354,28 @@ poisoned(
         kprefix = KILLED_BY;
     }
 
-    i = !fatal ? 1 : rn2(fatal + (thrown_weapon ? 20 : 0));
+    i = !fatal ? 1 : random_integer_between_zero_and(fatal + (thrown_weapon ? 20 : 0));
     if (i == 0 && typ != A_CHA) {
         /* sometimes survivable instant kill */
         loss = 6 + d(4, 6);
-        if (u.uhp <= loss) {
-            u.uhp = -1;
+        if (u.hit_points <= loss) {
+            u.hit_points = -1;
             disp.botl = TRUE;
             pline_The("poison was deadly...");
         } else {
             /* survived, but with severe reaction */
-            u.uhpmax = max(3, u.uhpmax - (loss / 2));
+            u.hit_points_max = max(3, u.hit_points_max - (loss / 2));
             losehp(loss, pkiller, kprefix); /* poison damage */
-            if (adjattrib(A_CON, (typ != A_CON) ? -1 : -3, TRUE))
+            if (adjust_attribute(A_CON, (typ != A_CON) ? -1 : -3, TRUE))
                 poisontell(A_CON, TRUE);
-            if (typ != A_CON && adjattrib(typ, -3, 1))
+            if (typ != A_CON && adjust_attribute(typ, -3, 1))
                 poisontell(typ, TRUE);
         }
     } else if (i > 5) {
         boolean cloud = !strcmp(reason, "gas cloud");
 
         /* HP damage; more likely--but less severe--with missiles */
-        loss = thrown_weapon ? rnd(6) : rn1(10, 6);
+        loss = thrown_weapon ? random(6) : rn1(10, 6);
         if ((blast || cloud) && Half_gas_damage) /* worn towel */
             loss = (loss + 1) / 2;
         losehp(loss, pkiller, kprefix); /* poison damage */
@@ -382,17 +384,17 @@ poisoned(
            maximum HP will occur once strength has dropped down to 3 */
         loss = (thrown_weapon || !fatal) ? 1 : d(2, 2); /* was rn1(3,3) */
         /* check that a stat change was made */
-        if (adjattrib(typ, -loss, 1))
+        if (adjust_attribute(typ, -loss, 1))
             poisontell(typ, TRUE);
     }
 
-    if (u.uhp < 1) {
+    if (u.hit_points < 1) {
         gk.killer.format = kprefix;
         Strcpy(gk.killer.name, pkiller);
         /* "Poisoned by a poisoned ___" is redundant */
         done(strstri(pkiller, "poison") ? DIED : POISONING);
     }
-    (void) encumber_msg();
+    (void) encumbered_message();
 }
 
 void
@@ -463,12 +465,12 @@ restore_attrib(void)
                 ATEMP(i) += (ATEMP(i) > 0) ? -1 : 1;
                 disp.botl = TRUE;
                 if (ATEMP(i)) /* reset timer */
-                    ATIME(i) = 100 / ACURR(A_CON);
+                    ATIME(i) = 100 / ATTRIBUTE_CURRENT(A_CON);
             }
         }
     }
     if (disp.botl)
-        (void) encumber_msg();
+        (void) encumbered_message();
 }
 
 #define AVAL 50 /* tune value for exercise gains */
@@ -494,7 +496,7 @@ exercise(int i, boolean inc_or_dec)
          *
          *      Note: *YES* ACURR is the right one to use.
          */
-        AEXE(i) += (inc_or_dec) ? (rn2(19) > ACURR(i)) : -rn2(2);
+        AEXE(i) += (inc_or_dec) ? (random_integer_between_zero_and(19) > ATTRIBUTE_CURRENT(i)) : -random_integer_between_zero_and(2);
         debugpline3("%s, %s AEXE = %d",
                     (i == A_STR) ? "Str" : (i == A_WIS) ? "Wis" : (i == A_DEX)
                                                                       ? "Dex"
@@ -502,7 +504,7 @@ exercise(int i, boolean inc_or_dec)
                     (inc_or_dec) ? "inc" : "dec", AEXE(i));
     }
     if (gm.moves > 0 && (i == A_STR || i == A_CON))
-        (void) encumber_msg();
+        (void) encumbered_message();
 }
 
 staticfn void
@@ -540,14 +542,14 @@ exerper(void)
         /* Encumbrance Checks */
         debugpline0("exerper: Encumber checks");
         switch (near_capacity()) {
-        case MOD_ENCUMBER:
+        case MODERATELY_ENCUMBERED:
             exercise(A_STR, TRUE);
             break;
-        case HVY_ENCUMBER:
+        case HEAVILY_ENCUMBERED:
             exercise(A_STR, TRUE);
             exercise(A_DEX, FALSE);
             break;
-        case EXT_ENCUMBER:
+        case EXTREMELY_ENCUMBERED:
             exercise(A_DEX, FALSE);
             exercise(A_CON, FALSE);
             break;
@@ -566,7 +568,7 @@ exerper(void)
             exercise(A_CON, FALSE);
         if (Confusion || Hallucination)
             exercise(A_WIS, FALSE);
-        if ((Wounded_legs && !u.usteed) || Fumbling || HStun)
+        if ((Wounded_legs && !u.monster_being_ridden) || Fumbling || HStun)
             exercise(A_DEX, FALSE);
     }
 }
@@ -618,7 +620,7 @@ exerchk(void)
             hilim = ATTRMAX(i); /* usually 18; maybe lower or higher */
             if (hilim > 18)
                 hilim = 18;
-            if ((ax < 0) ? (ABASE(i) <= lolim) : (ABASE(i) >= hilim))
+            if ((ax < 0) ? (ATTRIBUTE_BASE(i) <= lolim) : (ATTRIBUTE_BASE(i) >= hilim))
                 goto nextattrib;
             /* can't exercise non-Wisdom while polymorphed; previous
                exercise/abuse gradually wears off without impact then */
@@ -640,11 +642,11 @@ exerchk(void)
              *  You don't *always* gain by exercising.
              *  [MRS 92/10/28 - Treat Wisdom specially for balance.]
              */
-            if (rn2(AVAL) > ((i != A_WIS) ? (abs(ax) * 2 / 3) : abs(ax)))
+            if (random_integer_between_zero_and(AVAL) > ((i != A_WIS) ? (abs(ax) * 2 / 3) : abs(ax)))
                 goto nextattrib;
 
             debugpline1("exerchk: changing %d.", i);
-            if (adjattrib(i, mod_val, -1)) {
+            if (adjust_attribute(i, mod_val, -1)) {
                 debugpline1("exerchk: changed %d.", i);
                 /* if you actually changed an attrib - zero accumulation */
                 AEXE(i) = ax = 0;
@@ -669,7 +671,7 @@ exerchk(void)
 staticfn int
 rnd_attr(void)
 {
-    int i, x = rn2(100);
+    int i, x = random_integer_between_zero_and(100);
 
     /* 3.7: the x -= ... calculation used to have an off by 1 error that
        resulted in the values being biased toward Str and away from Cha */
@@ -684,7 +686,7 @@ rnd_attr(void)
    if subtracting, np must be negative.
    returns the left over points. */
 staticfn int
-init_attr_role_redist(int np, boolean addition)
+initialize_attribute_role_redist(int np, boolean addition)
 {
     int tryct = 0;
     int adj = addition ? 1 : -1;
@@ -692,12 +694,12 @@ init_attr_role_redist(int np, boolean addition)
     while ((addition ? (np > 0) : (np < 0)) && tryct < 100) {
         int i = rnd_attr();
 
-        if (i >= A_MAX || ABASE(i) >= ATTRMAX(i)) {
+        if (i >= A_MAX || ATTRIBUTE_BASE(i) >= ATTRMAX(i)) {
             tryct++;
             continue;
         }
         tryct = 0;
-        ABASE(i) += adj;
+        ATTRIBUTE_BASE(i) += adj;
         AMAX(i) += adj;
         np -= adj;
     }
@@ -711,15 +713,15 @@ init_attr(int np)
     int i;
 
     for (i = 0; i < A_MAX; i++) {
-        ABASE(i) = AMAX(i) = gu.urole.attrbase[i];
+        ATTRIBUTE_BASE(i) = AMAX(i) = gu.urole.attrbase[i];
         ATEMP(i) = ATIME(i) = 0;
         np -= gu.urole.attrbase[i];
     }
 
     /* distribute leftover points */
-    np = init_attr_role_redist(np, TRUE);
+    np = initialize_attribute_role_redist(np, TRUE);
     /* if we went over, remove points */
-    np = init_attr_role_redist(np, FALSE);
+    np = initialize_attribute_role_redist(np, FALSE);
 }
 
 void
@@ -732,15 +734,15 @@ redist_attr(void)
             continue;
         /* Polymorphing doesn't change your mind */
         tmp = AMAX(i);
-        AMAX(i) += (rn2(5) - 2);
+        AMAX(i) += (random_integer_between_zero_and(5) - 2);
         if (AMAX(i) > ATTRMAX(i))
             AMAX(i) = ATTRMAX(i);
         if (AMAX(i) < ATTRMIN(i))
             AMAX(i) = ATTRMIN(i);
-        ABASE(i) = ABASE(i) * AMAX(i) / tmp;
+        ATTRIBUTE_BASE(i) = ATTRIBUTE_BASE(i) * AMAX(i) / tmp;
         /* ABASE(i) > ATTRMAX(i) is impossible */
-        if (ABASE(i) < ATTRMIN(i))
-            ABASE(i) = ATTRMIN(i);
+        if (ATTRIBUTE_BASE(i) < ATTRMIN(i))
+            ATTRIBUTE_BASE(i) = ATTRMIN(i);
     }
     /* (void) encumber_msg(); -- caller needs to do this */
 }
@@ -752,18 +754,18 @@ vary_init_attr(void)
     int i;
 
     for (i = 0; i < A_MAX; i++)
-        if (!rn2(20)) {
-            int xd = rn2(7) - 2; /* biased variation */
+        if (!random_integer_between_zero_and(20)) {
+            int xd = random_integer_between_zero_and(7) - 2; /* biased variation */
 
-            (void) adjattrib(i, xd, TRUE);
-            if (ABASE(i) < AMAX(i))
-                AMAX(i) = ABASE(i);
+            (void) adjust_attribute(i, xd, TRUE);
+            if (ATTRIBUTE_BASE(i) < AMAX(i))
+                AMAX(i) = ATTRIBUTE_BASE(i);
         }
 }
 
 staticfn
 void
-postadjabil(long *ability)
+post_adjust_ability(long *ability)
 {
     if (!ability)
         return;
@@ -772,25 +774,25 @@ postadjabil(long *ability)
 }
 
 staticfn const struct innate *
-role_abil(int r)
+role_abilities(int r)
 {
     const struct {
         short role;
         const struct innate *abil;
     } roleabils[] = {
-        { PM_ARCHEOLOGIST, arc_abil },
-        { PM_BARBARIAN, bar_abil },
-        { PM_CAVE_DWELLER, cav_abil },
-        { PM_HEALER, hea_abil },
-        { PM_KNIGHT, kni_abil },
-        { PM_MONK, mon_abil },
-        { PM_CLERIC, pri_abil },
-        { PM_RANGER, ran_abil },
-        { PM_ROGUE, rog_abil },
-        { PM_SAMURAI, sam_abil },
-        { PM_TOURIST, tou_abil },
-        { PM_VALKYRIE, val_abil },
-        { PM_WIZARD, wiz_abil },
+        { PM_ARCHEOLOGIST, abilities_archaeologist },
+        { PM_BARBARIAN, abilities_barbarian },
+        { PM_CAVE_DWELLER, abilities_cavedweller },
+        { PM_HEALER, abilities_healer },
+        { PM_KNIGHT, abilities_knight },
+        { PM_MONK, abilities_monk },
+        { PM_CLERIC, abilities_pri },
+        { PM_RANGER, abilities_ranger },
+        { PM_ROGUE, abilities_rogue },
+        { PM_SAMURAI, abilities_sam },
+        { PM_TOURIST, abilities_tourist },
+        { PM_VALKYRIE, abilities_valkyrie },
+        { PM_WIZARD, abilities_wizard },
         { 0, 0 }
     };
     int i;
@@ -801,28 +803,28 @@ role_abil(int r)
 }
 
 staticfn const struct innate *
-check_innate_abil(long *ability, long frommask)
+check_innate_ability(long *ability, long frommask)
 {
     const struct innate *abil = 0;
 
     if (frommask == FROMEXPER)
-        abil = role_abil(Role_switch);
+        abil = role_abilities(Role_switch);
     else if (frommask == FROMRACE)
         switch (Race_switch) {
         case PM_DWARF:
-            abil = dwa_abil;
+            abil = abilities_dwarf;
             break;
         case PM_ELF:
-            abil = elf_abil;
+            abil = abilities_elf;
             break;
         case PM_GNOME:
-            abil = gno_abil;
+            abil = abilities_gnome;
             break;
         case PM_ORC:
-            abil = orc_abil;
+            abil = abilities_orc;
             break;
         case PM_HUMAN:
-            abil = hum_abil;
+            abil = abilities_human;
             break;
         default:
             break;
@@ -851,9 +853,9 @@ innately(long *ability)
 {
     const struct innate *iptr;
 
-    if ((iptr = check_innate_abil(ability, FROMEXPER)) != 0)
+    if ((iptr = check_innate_ability(ability, FROMEXPER)) != 0)
         return (iptr->ulevel == 1) ? FROM_ROLE : FROM_EXP;
-    if ((iptr = check_innate_abil(ability, FROMRACE)) != 0)
+    if ((iptr = check_innate_ability(ability, FROMRACE)) != 0)
         return FROM_RACE;
     if ((*ability & FROMOUTSIDE) != 0L)
         return FROM_INTR;
@@ -992,14 +994,14 @@ adjabil(int oldlevel, int newlevel)
     const struct innate *abil, *rabil;
     long prevabil, mask = FROMEXPER;
 
-    abil = role_abil(Role_switch);
+    abil = role_abilities(Role_switch);
 
     switch (Race_switch) {
     case PM_ELF:
-        rabil = elf_abil;
+        rabil = abilities_elf;
         break;
     case PM_ORC:
-        rabil = orc_abil;
+        rabil = abilities_orc;
         break;
     case PM_HUMAN:
     case PM_DWARF:
@@ -1045,7 +1047,7 @@ adjabil(int oldlevel, int newlevel)
             }
         }
         if (prevabil != *(abil->ability)) /* it changed */
-            postadjabil(abil->ability);
+            post_adjust_ability(abil->ability);
         abil++;
     }
 
@@ -1069,40 +1071,40 @@ newhp(void)
         /* Initialize hit points */
         hp = gu.urole.hpadv.infix + gu.urace.hpadv.infix;
         if (gu.urole.hpadv.inrnd > 0)
-            hp += rnd(gu.urole.hpadv.inrnd);
+            hp += random(gu.urole.hpadv.inrnd);
         if (gu.urace.hpadv.inrnd > 0)
-            hp += rnd(gu.urace.hpadv.inrnd);
+            hp += random(gu.urace.hpadv.inrnd);
         if (gm.moves <= 1L) { /* initial hero; skip for polyself to new man */
             /* Initialize alignment stuff */
-            u.ualign.type = aligns[flags.initalign].value;
-            u.ualign.record = gu.urole.initrecord;
+            u.alignment.type = aligns[flags.initalign].value;
+            u.alignment.record = gu.urole.initrecord;
         }
         /* no Con adjustment for initial hit points */
     } else {
         if (u.ulevel < gu.urole.xlev) {
             hp = gu.urole.hpadv.lofix + gu.urace.hpadv.lofix;
             if (gu.urole.hpadv.lornd > 0)
-                hp += rnd(gu.urole.hpadv.lornd);
+                hp += random(gu.urole.hpadv.lornd);
             if (gu.urace.hpadv.lornd > 0)
-                hp += rnd(gu.urace.hpadv.lornd);
+                hp += random(gu.urace.hpadv.lornd);
         } else {
             hp = gu.urole.hpadv.hifix + gu.urace.hpadv.hifix;
             if (gu.urole.hpadv.hirnd > 0)
-                hp += rnd(gu.urole.hpadv.hirnd);
+                hp += random(gu.urole.hpadv.hirnd);
             if (gu.urace.hpadv.hirnd > 0)
-                hp += rnd(gu.urace.hpadv.hirnd);
+                hp += random(gu.urace.hpadv.hirnd);
         }
-        if (ACURR(A_CON) <= 3)
+        if (ATTRIBUTE_CURRENT(A_CON) <= 3)
             conplus = -2;
-        else if (ACURR(A_CON) <= 6)
+        else if (ATTRIBUTE_CURRENT(A_CON) <= 6)
             conplus = -1;
-        else if (ACURR(A_CON) <= 14)
+        else if (ATTRIBUTE_CURRENT(A_CON) <= 14)
             conplus = 0;
-        else if (ACURR(A_CON) <= 16)
+        else if (ATTRIBUTE_CURRENT(A_CON) <= 16)
             conplus = 1;
-        else if (ACURR(A_CON) == 17)
+        else if (ATTRIBUTE_CURRENT(A_CON) == 17)
             conplus = 2;
-        else if (ACURR(A_CON) == 18)
+        else if (ATTRIBUTE_CURRENT(A_CON) == 18)
             conplus = 3;
         else
             conplus = 4;
@@ -1112,11 +1114,11 @@ newhp(void)
         hp = 1;
     if (u.ulevel < MAXULEV) {
         /* remember increment; future level drain could take it away again */
-        u.uhpinc[u.ulevel] = (xint16) hp;
+        u.hit_points_increment[u.ulevel] = (xint16) hp;
     } else {
         /* after level 30, throttle hit point gains from extra experience;
            once max reaches 1200, further increments will be just 1 more */
-        char lim = 5 - u.uhpmax / 300;
+        char lim = 5 - u.hit_points_max / 300;
 
         lim = max(lim, 1);
         if (hp > lim)
@@ -1139,14 +1141,14 @@ minuhpmax(int altmin)
 void
 setuhpmax(int newmax)
 {
-    if (newmax != u.uhpmax) {
-        u.uhpmax = newmax;
-        if (u.uhpmax > u.uhppeak)
-            u.uhppeak = u.uhpmax;
+    if (newmax != u.hit_points_max) {
+        u.hit_points_max = newmax;
+        if (u.hit_points_max > u.hit_points_peak)
+            u.hit_points_peak = u.hit_points_max;
         disp.botl = TRUE;
     }
-    if (u.uhp > u.uhpmax)
-        u.uhp = u.uhpmax, disp.botl = TRUE;
+    if (u.hit_points > u.hit_points_max)
+        u.hit_points = u.hit_points_max, disp.botl = TRUE;
 }
 
 /* return the current effective value of a specific characteristic
@@ -1158,7 +1160,7 @@ acurr(int chridx)
     int tmp, result = 0; /* 'result' will always be reset to positive value */
 
     assert(chridx >= 0 && chridx < A_MAX);
-    tmp = u.abon.a[chridx] + u.atemp.a[chridx] + u.acurr.a[chridx];
+    tmp = u.attributes_bonus.a[chridx] + u.attributes_temporary.a[chridx] + u.attributes_current.a[chridx];
 
     /* for Strength:  3 <= result <= 125;
        for all others:  3 <= result <= 25 */
@@ -1200,7 +1202,7 @@ acurr(int chridx)
 schar
 acurrstr(void)
 {
-    int str = ACURR(A_STR), /* 3..125 after massaging by acurr() */
+    int str = ATTRIBUTE_CURRENT(A_STR), /* 3..125 after massaging by acurr() */
         result; /* 3..25 */
 
     if (str <= STR18(0)) /* <= 18; max(,3) here is redundant */
@@ -1224,7 +1226,7 @@ boolean
 extremeattr(int attrindx) /* does attrindx's value match its max or min? */
 {
     /* Fixed_abil and racial MINATTR/MAXATTR aren't relevant here */
-    int lolimit = 3, hilimit = 25, curval = ACURR(attrindx);
+    int lolimit = 3, hilimit = 25, curval = ATTRIBUTE_CURRENT(attrindx);
 
     /* upper limit for Str is 25 but its value is encoded differently */
     if (attrindx == A_STR) {
@@ -1252,21 +1254,21 @@ extremeattr(int attrindx) /* does attrindx's value match its max or min? */
 void
 adjalign(int n)
 {
-    int newalign = u.ualign.record + n;
+    int newalign = u.alignment.record + n;
 
     if (n < 0) {
-        unsigned newabuse = u.ualign.abuse - n;
+        unsigned newabuse = u.alignment.abuse - n;
 
-        if (newalign < u.ualign.record)
-            u.ualign.record = newalign;
-        if (newabuse > u.ualign.abuse) {
-            u.ualign.abuse = newabuse;
+        if (newalign < u.alignment.record)
+            u.alignment.record = newalign;
+        if (newabuse > u.alignment.abuse) {
+            u.alignment.abuse = newabuse;
             adj_erinys(newabuse);
         }
-    } else if (newalign > u.ualign.record) {
-        u.ualign.record = newalign;
-        if (u.ualign.record > ALIGNLIM)
-            u.ualign.record = (int)ALIGNLIM;
+    } else if (newalign > u.alignment.record) {
+        u.alignment.record = newalign;
+        if (u.alignment.record > ALIGNLIM)
+            u.alignment.record = (int)ALIGNLIM;
     }
 }
 
@@ -1275,9 +1277,9 @@ void
 uchangealign(int newalign,
              int reason) /* A_CG_CONVERT, A_CG_HELM_ON, or A_CG_HELM_OFF */
 {
-    aligntyp oldalign = u.ualign.type;
+    aligntyp oldalign = u.alignment.type;
 
-    u.ublessed = 0; /* lose divine protection */
+    u.blessed = 0; /* lose divine protection */
     /* You/Your/pline message with call flush_screen(), triggering bot(),
        so the actual data change needs to come before the message */
     disp.botl = TRUE; /* status line needs updating */
@@ -1288,17 +1290,17 @@ uchangealign(int newalign,
         u.ualignbase[A_CURRENT] = (aligntyp) newalign;
         /* worn helm of opposite alignment might block change */
         if (!uarmh || uarmh->otyp != HELM_OF_OPPOSITE_ALIGNMENT)
-            u.ualign.type = u.ualignbase[A_CURRENT];
+            u.alignment.type = u.ualignbase[A_CURRENT];
         You("have a %ssense of a new direction.",
-            (u.ualign.type != oldalign) ? "sudden " : "");
+            (u.alignment.type != oldalign) ? "sudden " : "");
     } else {
         /* putting on or taking off a helm of opposite alignment */
-        u.ualign.type = (aligntyp) newalign;
+        u.alignment.type = (aligntyp) newalign;
         if (reason == A_CG_HELM_ON) {
             adjalign(-7); /* for abuse -- record will be cleared shortly */
             Your("mind oscillates %s.", Hallucination ? "wildly" : "briefly");
             make_confused(rn1(2, 3), FALSE);
-            if (Is_astralevel(&u.uz) || ((unsigned) rn2(50) < u.ualign.abuse))
+            if (Is_astralevel(&u.uz) || ((unsigned) random_integer_between_zero_and(50) < u.alignment.abuse))
                 summon_furies(Is_astralevel(&u.uz) ? 0 : 1);
             /* don't livelog taking it back off */
             livelog_printf(LL_ALIGNMENT, "used a helm to turn %s",
@@ -1309,8 +1311,8 @@ uchangealign(int newalign,
                                     : "back in sync with your body");
         }
     }
-    if (u.ualign.type != oldalign) {
-        u.ualign.record = 0; /* slate is wiped clean */
+    if (u.alignment.type != oldalign) {
+        u.alignment.record = 0; /* slate is wiped clean */
         retouch_equipment(0);
     }
 }

@@ -3,12 +3,14 @@
 /*-Copyright (c) Robert Patrick Rankin, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #ifndef MONST_H
 #define MONST_H
 
 /* start with incomplete types in case these aren't defined yet;
    basic pointers to them don't need to know their details */
-struct monst;
+struct monster;
 struct obj;
 
 #ifndef MEXTRA_H
@@ -92,8 +94,8 @@ enum m_seen_resistance {
 #define monstunseesu_ad(adtyp) monstunseesu(cvt_adtyp_to_mseenres(adtyp))
 #define monstunseesu_prop(prop) monstunseesu(cvt_prop_to_mseenres(prop))
 
-struct monst {
-    struct monst *nmon;
+struct monster {
+    struct monster *nmon;
     struct permonst *data;
     unsigned m_id;
     short mnum;           /* permanent monster index number */
@@ -200,7 +202,7 @@ struct monst {
     struct mextra *mextra; /* point to mextra struct */
 };
 
-#define newmonst() (struct monst *) alloc(sizeof (struct monst))
+#define newmonst() (struct monster *) alloc(sizeof (struct monster))
 
 /* these are in mspeed */
 #define MSLOW 1 /* slowed monster */
@@ -246,7 +248,7 @@ struct monst {
 #define troll_baned(m,o) \
     ((m)->data->mlet == S_TROLL && (o) && (o)->oartifact == ART_TROLLSBANE)
 
-#define engulfing_u(mon) (u.uswallow && (u.ustuck == (mon)))
+#define engulfing_u(mon) (u.uswallow && (u.monster_stuck_to == (mon)))
 #define helpless(mon) ((mon)->msleeping || !(mon)->mcanmove)
 
 #define mon_perma_blind(mon) (!mon->mcansee && !mon->mblinded)

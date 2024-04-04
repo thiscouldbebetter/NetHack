@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 /*
  *      These routines provide basic data for any type of monster.
@@ -10,10 +12,10 @@
 
 /* set up an individual monster's base type (initial creation, shapechange) */
 void
-set_mon_data(struct monst *mon, struct permonst *ptr)
+set_mon_data(struct monster *mon, struct permonst *ptr)
 {
     int new_speed, old_speed = mon->data ? mon->data->mmove : 0;
-    short *movement_p = (mon == &gy.youmonst) ? &u.umovement : &mon->movement;
+    short *movement_p = (mon == &gy.youmonst) ? &u.movement : &mon->movement;
 
     mon->data = ptr;
     mon->mnum = (short) monsndx(ptr);
@@ -88,7 +90,7 @@ poly_when_stoned(struct permonst *ptr)
 /* is 'mon' (possibly youmonst) protected against damage type 'adtype' via
    wielded weapon or worn dragon scales? [or by virtue of being a dragon?] */
 boolean
-defended(struct monst *mon, int adtyp)
+defended(struct monster *mon, int adtyp)
 {
     struct obj *o, otemp;
     int mndx;
@@ -125,7 +127,7 @@ defended(struct monst *mon, int adtyp)
 
 /* returns True if monster is drain-life resistant */
 boolean
-resists_drli(struct monst *mon)
+resists_drli(struct monster *mon)
 {
     struct permonst *ptr = mon->data;
 
@@ -139,7 +141,7 @@ resists_drli(struct monst *mon)
 
 /* True if monster is magic-missile (actually, general magic) resistant */
 boolean
-resists_magm(struct monst *mon)
+resists_magm(struct monster *mon)
 {
     struct permonst *ptr = mon->data;
     boolean is_you = (mon == &gy.youmonst);
@@ -160,7 +162,7 @@ resists_magm(struct monst *mon)
     if (!is_you /* assumes monsters don't wield non-weapons */
         || (uwep && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))))
         slotmask |= W_WEP;
-    if (is_you && u.twoweap)
+    if (is_you && u.using_two_weapons)
         slotmask |= W_SWAPWEP;
     for (; o; o = o->nobj)
         if (((o->owornmask & slotmask) != 0L
@@ -172,7 +174,7 @@ resists_magm(struct monst *mon)
 
 /* True iff monster is resistant to light-induced blindness */
 boolean
-resists_blnd(struct monst *mon)
+resists_blnd(struct monster *mon)
 {
     struct permonst *ptr = mon->data;
     boolean is_you = (mon == &gy.youmonst);
@@ -197,7 +199,7 @@ resists_blnd(struct monst *mon)
     if (!is_you /* assumes monsters don't wield non-weapons */
         || (uwep && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))))
         slotmask |= W_WEP;
-    if (is_you && u.twoweap)
+    if (is_you && u.using_two_weapons)
         slotmask |= W_SWAPWEP;
     for (; o; o = o->nobj)
         if (((o->owornmask & slotmask) != 0L
@@ -213,8 +215,8 @@ resists_blnd(struct monst *mon)
 */
 boolean
 can_blnd(
-    struct monst *magr, /* NULL == no specific aggressor */
-    struct monst *mdef,
+    struct monster *magr, /* NULL == no specific aggressor */
+    struct monster *mdef,
     uchar aatyp,
     struct obj *obj) /* aatyp == AT_WEAP, AT_SPIT */
 {
@@ -418,7 +420,7 @@ mstrength_ranged_attk(struct permonst *ptr)
 
 /* True if specific monster is especially affected by silver weapons */
 boolean
-mon_hates_silver(struct monst *mon)
+mon_hates_silver(struct monster *mon)
 {
     return (boolean) (is_vampshifter(mon) || hates_silver(mon->data));
 }
@@ -434,7 +436,7 @@ hates_silver(struct permonst *ptr)
 
 /* True if specific monster is especially affected by blessed objects */
 boolean
-mon_hates_blessings(struct monst *mon)
+mon_hates_blessings(struct monster *mon)
 {
     return (boolean) (is_vampshifter(mon) || hates_blessings(mon->data));
 }
@@ -448,7 +450,7 @@ hates_blessings(struct permonst *ptr)
 
 /* True if specific monster is especially affected by light-emitting weapons */
 boolean
-mon_hates_light(struct monst *mon)
+mon_hates_light(struct monster *mon)
 {
     return (boolean) hates_light(mon->data);
 }
@@ -468,7 +470,7 @@ passes_bars(struct permonst *mptr)
 
 /* returns True if monster can blow (whistle, etc) */
 boolean
-can_blow(struct monst *mtmp)
+can_blow(struct monster *mtmp)
 {
     if ((is_silent(mtmp->data) || mtmp->data->msound == MS_BUZZ)
         && (breathless(mtmp->data) || verysmall(mtmp->data)
@@ -481,7 +483,7 @@ can_blow(struct monst *mtmp)
 
 /* for casting spells and reading scrolls while blind */
 boolean
-can_chant(struct monst *mtmp)
+can_chant(struct monster *mtmp)
 {
     if ((mtmp == &gy.youmonst && Strangled)
         || is_silent(mtmp->data) || !has_head(mtmp->data)
@@ -492,7 +494,7 @@ can_chant(struct monst *mtmp)
 
 /* True if mon is vulnerable to strangulation */
 boolean
-can_be_strangled(struct monst *mon)
+can_be_strangled(struct monster *mon)
 {
     struct obj *mamul;
     boolean nonbreathing, nobrainer;
@@ -618,7 +620,7 @@ dmgtype(struct permonst *ptr, int dtyp)
 /* returns the maximum damage a defender can do to the attacker via
    a passive defense */
 int
-max_passive_dmg(struct monst *mdef, struct monst *magr)
+max_passive_dmg(struct monster *mdef, struct monster *magr)
 {
     int i, dmg, multi2 = 0;
     uchar adtyp;
@@ -1078,7 +1080,7 @@ name_to_monclass(const char *in_str, int * mndx_p)
 
 /* returns 3 values (0=male, 1=female, 2=none) */
 int
-gender(struct monst *mtmp)
+gender(struct monster *mtmp)
 {
     if (is_neuter(mtmp->data))
         return 2;
@@ -1090,7 +1092,7 @@ gender(struct monst *mtmp)
    yield "they".  This is the one we want to use when printing messages. */
 int
 pronoun_gender(
-    struct monst *mtmp,
+    struct monster *mtmp,
     unsigned pg_flags) /* flags&1: 'no it' unless neuter,
                         * flags&2: random if hallucinating */
 {
@@ -1098,7 +1100,7 @@ pronoun_gender(
             hallu_rand = (pg_flags & PRONOUN_HALLU) ? TRUE : FALSE;
 
     if (hallu_rand && Hallucination)
-        return rn2(4); /* 0..3 */
+        return random_integer_between_zero_and(4); /* 0..3 */
     if (!override_vis && !canspotmon(mtmp))
         return 2;
     if (is_neuter(mtmp->data))
@@ -1109,9 +1111,9 @@ pronoun_gender(
 
 /* used for nearby monsters when you go to another level */
 boolean
-levl_follower(struct monst *mtmp)
+levl_follower(struct monster *mtmp)
 {
-    if (mtmp == u.usteed)
+    if (mtmp == u.monster_being_ridden)
         return TRUE;
 
     /* Wizard with Amulet won't bother trying to follow across levels */
@@ -1123,7 +1125,7 @@ levl_follower(struct monst *mtmp)
     /* stalking types follow, but won't when fleeing unless you hold
        the Amulet */
     return (boolean) ((mtmp->data->mflags2 & M2_STALK)
-                      && (!mtmp->mflee || u.uhave.amulet));
+                      && (!mtmp->mflee || u.player_carrying_special_objects.amulet));
 }
 
 static const short grownups[][2] = {
@@ -1257,7 +1259,7 @@ big_little_match(int montyp1, int montyp2)
  * player.  It does not return a pointer to player role character.
  */
 const struct permonst *
-raceptr(struct monst *mtmp)
+raceptr(struct monster *mtmp)
 {
     if (mtmp == &gy.youmonst && !Upolyd)
         return &mons[gu.urace.mnum];
@@ -1458,7 +1460,7 @@ cvt_prop_to_mseenres(uchar prop)
 void
 monstseesu(unsigned long seenres)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if (seenres == M_SEEN_NOTHING || u.uswallow)
         return;
@@ -1472,7 +1474,7 @@ monstseesu(unsigned long seenres)
 void
 monstunseesu(unsigned long seenres)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if (seenres == M_SEEN_NOTHING || u.uswallow)
         return;
@@ -1484,7 +1486,7 @@ monstunseesu(unsigned long seenres)
 
 /* give monster mtmp the same intrinsics hero has */
 void
-give_u_to_m_resistances(struct monst *mtmp)
+give_u_to_m_resistances(struct monster *mtmp)
 {
     const int u_intrins[] = { FIRE_RES, COLD_RES, SLEEP_RES, DISINT_RES, SHOCK_RES, POISON_RES, ACID_RES, STONE_RES };
     const int m_intrins[] = { MR_FIRE,  MR_COLD,  MR_SLEEP,  MR_DISINT,  MR_ELEC,   MR_POISON,  MR_ACID,  MR_STONE };
@@ -1502,17 +1504,17 @@ give_u_to_m_resistances(struct monst *mtmp)
    for them much more easily than low-CHA ones.
 */
 boolean
-resist_conflict(struct monst *mtmp)
+resist_conflict(struct monster *mtmp)
 {
     /* always a small chance at 19 */
-    int resist_chance = min(19, (ACURR(A_CHA) - mtmp->m_lev + u.ulevel));
+    int resist_chance = min(19, (ATTRIBUTE_CURRENT(A_CHA) - mtmp->m_lev + u.ulevel));
 
-    return (rnd(20) > resist_chance);
+    return (random(20) > resist_chance);
 }
 
 /* does monster mtmp know traps of type ttyp */
 boolean
-mon_knows_traps(struct monst *mtmp, int ttyp)
+mon_knows_traps(struct monster *mtmp, int ttyp)
 {
     if (ttyp == ALL_TRAPS)
         return (boolean)(mtmp->mtrapseen);
@@ -1524,7 +1526,7 @@ mon_knows_traps(struct monst *mtmp, int ttyp)
 
 /* monster mtmp learns all traps of type ttyp */
 void
-mon_learns_traps(struct monst *mtmp, int ttyp)
+mon_learns_traps(struct monster *mtmp, int ttyp)
 {
     if (ttyp == ALL_TRAPS)
         mtmp->mtrapseen = ~0L;
@@ -1538,7 +1540,7 @@ mon_learns_traps(struct monst *mtmp, int ttyp)
 void
 mons_see_trap(struct trap *ttmp)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     coordxy tx = ttmp->tx, ty = ttmp->ty;
     int maxdist = levl[tx][ty].lit ? 7*7 : 2;
 

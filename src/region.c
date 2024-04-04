@@ -2,6 +2,8 @@
 /* Copyright (c) 1996 by Jean-Christophe Collet  */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 /*
@@ -17,9 +19,9 @@ boolean expire_gas_cloud(genericptr, genericptr);
 boolean inside_rect(NhRect *, int, int);
 NhRegion *create_region(NhRect *, int);
 void add_rect_to_reg(NhRegion *, NhRect *);
-void add_mon_to_reg(NhRegion *, struct monst *);
-void remove_mon_from_reg(NhRegion *, struct monst *);
-boolean mon_in_region(NhRegion *, struct monst *);
+void add_mon_to_reg(NhRegion *, struct monster *);
+void remove_mon_from_reg(NhRegion *, struct monster *);
+boolean mon_in_region(NhRegion *, struct monster *);
 
 #if 0
 NhRegion *clone_region(NhRegion *);
@@ -156,7 +158,7 @@ add_rect_to_reg(NhRegion *reg, NhRect *rect)
  * Add a monster to the region
  */
 void
-add_mon_to_reg(NhRegion *reg, struct monst *mon)
+add_mon_to_reg(NhRegion *reg, struct monster *mon)
 {
     int i;
     unsigned *tmp_m;
@@ -187,7 +189,7 @@ add_mon_to_reg(NhRegion *reg, struct monst *mon)
  * Remove a monster from the region list (it left or died...)
  */
 void
-remove_mon_from_reg(NhRegion *reg, struct monst *mon)
+remove_mon_from_reg(NhRegion *reg, struct monster *mon)
 {
     int i;
 
@@ -205,7 +207,7 @@ remove_mon_from_reg(NhRegion *reg, struct monst *mon)
  * than to check for coordinates.
  */
 boolean
-mon_in_region(NhRegion *reg, struct monst *mon)
+mon_in_region(NhRegion *reg, struct monster *mon)
 {
     int i;
 
@@ -298,7 +300,7 @@ add_region(NhRegion *reg)
     /* Check for monsters inside the region */
     for (i = reg->bounding_box.lx; i <= reg->bounding_box.hx; i++)
         for (j = reg->bounding_box.ly; j <= reg->bounding_box.hy; j++) {
-            struct monst *mtmp;
+            struct monster *mtmp;
             boolean is_inside = FALSE;
 
             /* Some regions can cross the level boundaries */
@@ -432,7 +434,7 @@ run_regions(void)
         /* Check if any monster is inside region */
         if (f_indx != NO_CALLBACK) {
             for (j = 0; j < gr.regions[i]->n_monst; j++) {
-                struct monst *mtmp =
+                struct monster *mtmp =
                     find_mid(gr.regions[i]->monsters[j], FM_FMON);
 
                 if (!mtmp || DEADMONSTER(mtmp)
@@ -512,7 +514,7 @@ in_out_region(coordxy x, coordxy y)
  * check whether a monster enters/leaves one or more regions.
  */
 boolean
-m_in_out_region(struct monst *mon, coordxy x, coordxy y)
+m_in_out_region(struct monster *mon, coordxy x, coordxy y)
 {
     int i, f_indx = 0;
 
@@ -577,7 +579,7 @@ update_player_regions(void)
  * Ditto for a specified monster.
  */
 void
-update_monster_region(struct monst *mon)
+update_monster_region(struct monster *mon)
 {
     int i;
 
@@ -1040,7 +1042,7 @@ boolean
 inside_gas_cloud(genericptr_t p1, genericptr_t p2)
 {
     NhRegion *reg = (NhRegion *) p1;
-    struct monst *mtmp = (struct monst *) p2;
+    struct monster *mtmp = (struct monster *) p2;
     int dam = reg->arg.a_int;
 
     /*
@@ -1067,7 +1069,7 @@ inside_gas_cloud(genericptr_t p1, genericptr_t p2)
                   makeplural(body_part(LUNG)));
             You("cough and spit blood!");
             wake_nearto(u.ux, u.uy, 2);
-            dam = Maybe_Half_Phys(rnd(dam) + 5);
+            dam = Maybe_Half_Phys(random(dam) + 5);
             if (Half_gas_damage) /* worn towel */
                 dam = (dam + 1) / 2;
             losehp(dam, "gas cloud", KILLED_BY_AN);
@@ -1080,7 +1082,7 @@ inside_gas_cloud(genericptr_t p1, genericptr_t p2)
             return FALSE;
         }
     } else { /* A monster is inside the cloud */
-        mtmp = (struct monst *) p2;
+        mtmp = (struct monster *) p2;
 
         if (m_poisongas_ok(mtmp) != M_POISONGAS_OK) {
             if (cansee(mtmp->mx, mtmp->my))
@@ -1094,7 +1096,7 @@ inside_gas_cloud(genericptr_t p1, genericptr_t p2)
             }
             if (resists_poison(mtmp))
                 return FALSE;
-            mtmp->mhp -= rnd(dam) + 5;
+            mtmp->mhp -= random(dam) + 5;
             if (DEADMONSTER(mtmp)) {
                 if (heros_fault(reg))
                     killed(mtmp);
@@ -1159,7 +1161,7 @@ create_gas_cloud(coordxy x, coordxy y, int cloudsize, int damage)
          * directions chosen. */
         coord dirs[4] = { {0, -1}, {0, 1}, {-1, 0}, {1, 0} };
         for (i = 4; i > 0; --i) {
-            coordxy swapidx = rn2(i);
+            coordxy swapidx = random_integer_between_zero_and(i);
             coord tmp = dirs[swapidx];
             dirs[swapidx] = dirs[i-1];
             dirs[i-1] = tmp;
@@ -1183,7 +1185,7 @@ create_gas_cloud(coordxy x, coordxy y, int cloudsize, int damage)
                 /* randomly disrupt the natural breadth-first search, so that
                  * clouds released in open spaces don't always tend towards a
                  * rhombus shape */
-                if (nvalid == 4 && !rn2(2))
+                if (nvalid == 4 && !random_integer_between_zero_and(2))
                     continue;
 
                 if (isunpicked) {

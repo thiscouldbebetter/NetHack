@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #include "dgn_file.h"
 #include "dlb.h"
@@ -425,7 +427,7 @@ parent_dlevel(const char *s, struct proto_dungeon *pd)
                       &base);
 
     /* KMH -- Try our best to find a level without an existing branch */
-    i = j = rn2(num);
+    i = j = random_integer_between_zero_and(num);
     do {
         if (++i >= num)
             i = 0;
@@ -571,7 +573,7 @@ init_level(int dgn, int proto_index, struct proto_dungeon *pd)
     struct tmplevel *tlevel = &pd->tmplevel[proto_index];
 
     pd->final_lev[proto_index] = (s_level *) 0; /* no "real" level */
-    if (!wizard && tlevel->chance <= rn2(100))
+    if (!wizard && tlevel->chance <= random_integer_between_zero_and(100))
         return;
 
     pd->final_lev[proto_index] = new_level =
@@ -686,7 +688,7 @@ place_level(int proto_index, struct proto_dungeon *pd)
     npossible = possible_places(proto_index, map, pd);
 
     for (; npossible; --npossible) {
-        lev->dlevel.dlevel = pick_level(map, rn2(npossible));
+        lev->dlevel.dlevel = pick_level(map, random_integer_between_zero_and(npossible));
 #ifdef DDEBUG
         indent(proto_index - pd->start);
         fprintf(stderr, "%s: trying %d [ ", lev->proto, lev->dlevel.dlevel);
@@ -1020,7 +1022,7 @@ init_dungeon_dungeons(
     debugpline4("DUNGEON[%i]: %s, base=(%i,%i)",
                 dngidx, dgn_name, dgn_base, dgn_range);
 
-    if (!wizard && dgn_chance && (dgn_chance <= rn2(100))) {
+    if (!wizard && dgn_chance && (dgn_chance <= random_integer_between_zero_and(100))) {
         debugpline1("IGNORING %s", dgn_name);
         gn.n_dgns--;
         free((genericptr_t) dgn_name);
@@ -1111,7 +1113,7 @@ init_castle_tune(void)
     int i;
 
     for (i = 0; i < 5; i++)
-        gt.tune[i] = 'A' + rn2(7);
+        gt.tune[i] = 'A' + random_integer_between_zero_and(7);
     gt.tune[5] = 0;
 }
 
@@ -1522,7 +1524,7 @@ prev_level(boolean at_stairs)
         /* Taking an up dungeon branch. */
         /* KMH -- Upwards branches are okay if not level 1 */
         /* (Just make sure it doesn't go above depth 1) */
-        if (!u.uz.dnum && u.uz.dlevel == 1 && !u.uhave.amulet)
+        if (!u.uz.dnum && u.uz.dlevel == 1 && !u.player_carrying_special_objects.amulet)
             done(ESCAPED);
         else {
             newlevel.dnum = stway->tolev.dnum;
@@ -1554,8 +1556,8 @@ u_on_newpos(coordxy x, coordxy y)
 #endif
     u.uundetected = 0;
     /* ridden steed always shares hero's location */
-    if (u.usteed)
-        u.usteed->mx = u.ux, u.usteed->my = u.uy;
+    if (u.monster_being_ridden)
+        u.monster_being_ridden->mx = u.ux, u.monster_being_ridden->my = u.uy;
     /* when changing levels, don't leave old position set with
        stale values from previous level */
     if (!on_level(&u.uz, &u.uz0))
@@ -1716,10 +1718,10 @@ surface(coordxy x, coordxy y)
     struct rm *lev = &levl[x][y];
     int levtyp = SURFACE_AT(x, y);
 
-    if (u_at(x, y) && u.uswallow && is_animal(u.ustuck->data))
+    if (u_at(x, y) && u.uswallow && is_animal(u.monster_stuck_to->data))
         /* 'husk' is iffy but maw is wrong for 't' class */
-        return digests(u.ustuck->data) ? "maw"
-               : enfolds(u.ustuck->data) ? "husk"
+        return digests(u.monster_stuck_to->data) ? "maw"
+               : enfolds(u.monster_stuck_to->data) ? "husk"
                  : "nonesuch"; /* can't happen (fingers crossed...) */
     else if (IS_AIR(levtyp))
         return Is_waterlevel(&u.uz) ? "air bubble"
@@ -1950,7 +1952,7 @@ void
 assign_rnd_level(d_level *dest, d_level *src, int range)
 {
     dest->dnum = src->dnum;
-    dest->dlevel = src->dlevel + ((range > 0) ? rnd(range) : -rnd(-range));
+    dest->dlevel = src->dlevel + ((range > 0) ? random(range) : -random(-range));
 
     if (dest->dlevel > dunlevs_in_dungeon(dest))
         dest->dlevel = dunlevs_in_dungeon(dest);
@@ -1966,14 +1968,14 @@ induced_align(int pct)
     aligntyp al;
 
     if (lev && lev->flags.align)
-        if (rn2(100) < pct)
+        if (random_integer_between_zero_and(100) < pct)
             return lev->flags.align;
 
     if (gd.dungeons[u.uz.dnum].flags.align)
-        if (rn2(100) < pct)
+        if (random_integer_between_zero_and(100) < pct)
             return gd.dungeons[u.uz.dnum].flags.align;
 
-    al = rn2(3) - 1;
+    al = random_integer_between_zero_and(3) - 1;
     return Align2amask(al);
 }
 
@@ -1994,7 +1996,7 @@ level_difficulty(void)
 
     if (In_endgame(&u.uz)) {
         res = depth(&sanctum_level) + u.ulevel / 2;
-    } else if (u.uhave.amulet) {
+    } else if (u.player_carrying_special_objects.amulet) {
         res = deepest_lev_reached(FALSE);
     } else {
         res = depth(&u.uz);
@@ -2896,7 +2898,7 @@ interest_mapseen(mapseen *mptr)
 void
 update_lastseentyp(coordxy x, coordxy y)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     int ltyp = levl[x][y].typ;
 
     if (ltyp == DRAWBRIDGE_UP)
@@ -3044,7 +3046,7 @@ void
 recalc_mapseen(void)
 {
     mapseen *mptr, *oth_mptr;
-    struct monst *mtmp;
+    struct monster *mtmp;
     struct cemetery *bp, **bonesaddr;
     struct trap *t;
     unsigned i, ridx;
@@ -3093,9 +3095,9 @@ recalc_mapseen(void)
     mptr->flags.forgot = 0;
     /* flags.quest_summons disabled once quest finished */
     mptr->flags.quest_summons = (at_dgn_entrance("The Quest")
-                                 && u.uevent.qcalled
-                                 && !(u.uevent.qcompleted
-                                      || u.uevent.qexpelled
+                                 && u.player_event_history.qcalled
+                                 && !(u.player_event_history.qcompleted
+                                      || u.player_event_history.qexpelled
                                       || gq.quest_status.leader_is_dead));
     mptr->flags.questing = (on_level(&u.uz, &qstart_level)
                             && gq.quest_status.got_quest);
@@ -3233,7 +3235,7 @@ recalc_mapseen(void)
 /* valley and sanctum levels get automatic annotation once temple is entered */
 void
 mapseen_temple(
-    struct monst *priest UNUSED) /* not used; might be useful someday */
+    struct monster *priest UNUSED) /* not used; might be useful someday */
 {
     mapseen *mptr = find_mapseen(&u.uz);
 
@@ -3357,7 +3359,7 @@ br_string2(branch *br)
 {
     /* Special case: quest portal says closed if kicked from quest */
     boolean closed_portal = (br->end2.dnum == quest_dnum
-                             && u.uevent.qexpelled);
+                             && u.player_event_history.qexpelled);
 
     switch (br->type) {
     case BR_PORTAL:
@@ -3462,10 +3464,10 @@ tunesuffix(
     size_t bsz) /* size of outbuf */
 {
     *outbuf = '\0';
-    if (mptr->flags.castletune && u.uevent.uheard_tune) {
+    if (mptr->flags.castletune && u.player_event_history.uheard_tune) {
         char tmp[BUFSZ];
 
-        if (u.uevent.uheard_tune == 2)
+        if (u.player_event_history.uheard_tune == 2)
             Sprintf(tmp, "notes \"%s\"", gt.tune);
         else
             Strcpy(tmp, "5-note tune");
@@ -3613,8 +3615,8 @@ print_mapseen(
             /* only print out altar's god if they are all to your god */
             atmp = mptr->feat.msalign;              /*    0,  1,  2,  3 */
             atmp = Msa2amask(atmp);                 /*    0,  1,  2,  4 */
-            if (Amask2align(atmp) == u.ualign.type) /* -128, -1,  0, +1 */
-                Sprintf(eos(buf), " to %s", align_gname(u.ualign.type));
+            if (Amask2align(atmp) == u.alignment.type) /* -128, -1,  0, +1 */
+                Sprintf(eos(buf), " to %s", align_gname(u.alignment.type));
         }
         ADDNTOBUF("throne", mptr->feat.nthrone);
         ADDNTOBUF("fountain", mptr->feat.nfount);
@@ -3648,7 +3650,7 @@ print_mapseen(
     } else if (on_level(&mptr->lev, &qstart_level)) {
         Sprintf(buf, "%sHome%s.", PREFIX,
                 mptr->flags.unreachable ? " (no way back...)" : "");
-        if (u.uevent.qcompleted)
+        if (u.player_event_history.qcompleted)
             Sprintf(buf, "%sCompleted quest for %s.", PREFIX, ldrname());
         else if (mptr->flags.questing)
             Sprintf(buf, "%sGiven quest by %s.", PREFIX, ldrname());

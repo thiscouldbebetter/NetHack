@@ -2,6 +2,8 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /*
  * Enlightenment and Conduct+Achievements and Vanquished+Extinct+Geno'd
  * and stethoscope/probing feedback.
@@ -490,7 +492,7 @@ background_enlightenment(int unused_mode UNUSED, int final)
                 tmpbuf, gu.urace.noun);
     } else {
         Sprintf(eos(buf), "%s, a level %d %s%s %s", an(rank_titl), u.ulevel,
-                tmpbuf, gu.urace.adj, role_titl);
+                tmpbuf, gu.urace.adjective, role_titl);
     }
     you_are(buf, "");
 
@@ -499,14 +501,14 @@ background_enlightenment(int unused_mode UNUSED, int final)
        alignment), permanent change (one-time conversion), and original */
     Sprintf(buf, " %s%s%s, %son a mission for %s",
             You_, !final ? are : were,
-            align_str(u.ualign.type),
+            align_str(u.alignment.type),
             /* helm of opposite alignment (might hide conversion) */
-            (u.ualign.type != u.ualignbase[A_CURRENT])
+            (u.alignment.type != u.ualignbase[A_CURRENT])
                /* what's the past tense of "currently"? if we used "formerly"
                   it would sound like a reference to the original alignment */
                ? (!final ? "currently " : "temporarily ")
                /* permanent conversion */
-               : (u.ualign.type != u.ualignbase[A_ORIGINAL])
+               : (u.alignment.type != u.ualignbase[A_ORIGINAL])
                   /* and what's the past tense of "now"? certainly not "then"
                      in a context like this...; "belatedly" == weren't that
                      way sooner (in other words, didn't start that way) */
@@ -522,14 +524,14 @@ background_enlightenment(int unused_mode UNUSED, int final)
        [appending "also Moloch" at the end would allow for straightforward
        trailing "and" on all three aligned entries but looks too verbose] */
     Sprintf(buf, " who %s opposed by", !final ? "is" : "was");
-    if (u.ualign.type != A_LAWFUL)
+    if (u.alignment.type != A_LAWFUL)
         Sprintf(eos(buf), " %s (%s) and", align_gname(A_LAWFUL),
                 align_str(A_LAWFUL));
-    if (u.ualign.type != A_NEUTRAL)
+    if (u.alignment.type != A_NEUTRAL)
         Sprintf(eos(buf), " %s (%s)%s", align_gname(A_NEUTRAL),
                 align_str(A_NEUTRAL),
-                (u.ualign.type != A_CHAOTIC) ? " and" : "");
-    if (u.ualign.type != A_CHAOTIC)
+                (u.alignment.type != A_CHAOTIC) ? " and" : "");
+    if (u.alignment.type != A_CHAOTIC)
         Sprintf(eos(buf), " %s (%s)", align_gname(A_CHAOTIC),
                 align_str(A_CHAOTIC));
     Strcat(buf, "."); /* terminate sentence */
@@ -540,7 +542,7 @@ background_enlightenment(int unused_mode UNUSED, int final)
        for tricky phrasing otherwise necessitated by possibility of having
        helm of opposite alignment mask a permanent alignment conversion */
     difgend = (innategend != flags.initgend);
-    difalgn = (((u.ualign.type != u.ualignbase[A_CURRENT]) ? 1 : 0)
+    difalgn = (((u.alignment.type != u.ualignbase[A_CURRENT]) ? 1 : 0)
                + ((u.ualignbase[A_CURRENT] != u.ualignbase[A_ORIGINAL])
                   ? 2 : 0));
     if (difalgn & 1) { /* have temporary alignment so report permanent one */
@@ -656,7 +658,7 @@ background_enlightenment(int unused_mode UNUSED, int final)
         /* [flags.showexp currently does not matter; should it?] */
 
         /* experience level is already shown above */
-        Sprintf(buf, "%-1ld experience point%s", u.uexp, plur(u.uexp));
+        Sprintf(buf, "%-1ld experience point%s", u.experience, plur(u.experience));
         /* TODO?
          *  Remove wizard-mode restriction since patient players can
          *  determine the numbers needed without resorting to spoilers
@@ -666,10 +668,10 @@ background_enlightenment(int unused_mode UNUSED, int final)
          *  or being level-drained by vampires).
          */
         if (ulvl < 30 && (final || wizard)) {
-            long nxtlvl = newuexp(ulvl), delta = nxtlvl - u.uexp;
+            long nxtlvl = newuexp(ulvl), delta = nxtlvl - u.experience;
 
             Sprintf(eos(buf), ", %ld %s%sneeded %s level %d",
-                    delta, (u.uexp > 0) ? "more " : "",
+                    delta, (u.experience > 0) ? "more " : "",
                     /* present tense=="needed", past tense=="were needed" */
                     !final ? "" : (delta == 1L) ? "was " : "were ",
                     /* "for": grammatically iffy but less likely to wrap */
@@ -696,8 +698,8 @@ basics_enlightenment(int mode UNUSED, int final)
 {
     static char Power[] = "energy points (spell power)";
     char buf[BUFSZ];
-    int pw = u.uen, hp = (Upolyd ? u.mh : u.uhp),
-        pwmax = u.uenmax, hpmax = (Upolyd ? u.mhmax : u.uhpmax);
+    int pw = u.energy, hp = (Upolyd ? u.mh : u.hit_points),
+        pwmax = u.energy_max, hpmax = (Upolyd ? u.mhmax : u.hit_points_max);
 
     enlght_out(""); /* separator after background */
     enlght_out("Basics:");
@@ -737,10 +739,10 @@ basics_enlightenment(int mode UNUSED, int final)
     }
 
     find_ac(); /* enforces AC_MAX cap */
-    Sprintf(buf, "%d", u.uac);
-    if (abs(u.uac) == AC_MAX)
+    Sprintf(buf, "%d", u.armor_class);
+    if (abs(u.armor_class) == AC_MAX)
         Sprintf(eos(buf), ", the %s possible",
-                (u.uac < 0) ? "best" : "worst");
+                (u.armor_class < 0) ? "best" : "worst");
     enl_msg("Your armor class ", "is ", "was ", buf, "");
 
     /* gold; similar to doprgold (#showgold) but without shop billing info;
@@ -859,7 +861,7 @@ one_characteristic(int mode, int final, int attrindx)
     if ((mode & MAGICENLIGHTENMENT) && !Upolyd)
         hide_innate_value = FALSE;
 
-    acurrent = ACURR(attrindx);
+    acurrent = ATTRIBUTE_CURRENT(attrindx);
     (void) attrval(attrindx, acurrent, valubuf); /* Sprintf(valubuf,"%d",) */
     Sprintf(subjbuf, "Your %s ", attrname[attrindx]);
 
@@ -871,7 +873,7 @@ one_characteristic(int mode, int final, int attrindx)
            (while game is in progress; trying to reduce dependency on
            spoilers to keep track of such stuff) or attrmax was different
            from abase (at end of game; this attribute wasn't maxed out) */
-        abase = ABASE(attrindx);
+        abase = ATTRIBUTE_BASE(attrindx);
         apeak = AMAX(attrindx);
         alimit = ATTRMAX(attrindx);
         /* criterium for whether the limit is interesting varies */
@@ -909,14 +911,14 @@ status_enlightenment(int mode, int final)
     boolean magic = (mode & MAGICENLIGHTENMENT) ? TRUE : FALSE;
     int cap;
     char buf[BUFSZ], youtoo[BUFSZ], heldmon[BUFSZ];
-    boolean Riding = (u.usteed
+    boolean Riding = (u.monster_being_ridden
                       /* if hero dies while dismounting, u.usteed will still
                          be set; we want to ignore steed in that situation */
                       && !(final == ENL_GAMEOVERDEAD
                            && !strcmp(gk.killer.name, "riding accident")));
     const char *steedname = (!Riding ? (char *) 0
-                      : x_monnam(u.usteed,
-                                 u.usteed->mtame ? ARTICLE_YOUR : ARTICLE_THE,
+                      : x_monnam(u.monster_being_ridden,
+                                 u.monster_being_ridden->mtame ? ARTICLE_YOUR : ARTICLE_THE,
                                  (char *) 0,
                                  (SUPPRESS_SADDLE | SUPPRESS_HALLUCINATION),
                                  FALSE));
@@ -1055,7 +1057,7 @@ status_enlightenment(int mode, int final)
         boolean anchored = (u.utraptype == TT_BURIEDBALL);
 
         (void) trap_predicament(predicament, final, wizard);
-        if (u.usteed) { /* not `Riding' here */
+        if (u.monster_being_ridden) { /* not `Riding' here */
             Sprintf(buf, "%s%s ", anchored ? "you and " : "", steedname);
             *buf = highc(*buf);
             enl_msg(buf, (anchored ? "are " : "is "),
@@ -1064,18 +1066,18 @@ status_enlightenment(int mode, int final)
             you_are(predicament, "");
     } /* (u.utrap) */
     heldmon[0] = '\0'; /* lint suppression */
-    if (u.ustuck) { /* includes u.uswallow */
-        Strcpy(heldmon, a_monnam(u.ustuck));
+    if (u.monster_stuck_to) { /* includes u.uswallow */
+        Strcpy(heldmon, a_monnam(u.monster_stuck_to));
         if (!strcmp(heldmon, "it")
-            && (!has_mgivenname(u.ustuck)
-                || strcmp(MGIVENNAME(u.ustuck), "it") != 0))
+            && (!has_mgivenname(u.monster_stuck_to)
+                || strcmp(MGIVENNAME(u.monster_stuck_to), "it") != 0))
             Strcpy(heldmon, "an unseen creature");
     }
     if (u.uswallow) { /* implies u.ustuck is non-Null */
         Snprintf(buf, sizeof buf, "%s by %s",
-                digests(u.ustuck->data) ? "swallowed" : "engulfed",
+                digests(u.monster_stuck_to->data) ? "swallowed" : "engulfed",
                 heldmon);
-        if (dmgtype(u.ustuck->data, AD_DGST)) {
+        if (dmgtype(u.monster_stuck_to->data, AD_DGST)) {
             /* if final, death via digestion can be deduced by u.uswallow
                still being True and u.uswldtim having been decremented to 0 */
             if (final && !u.uswldtim)
@@ -1087,9 +1089,9 @@ status_enlightenment(int mode, int final)
         if (wizard)
             Sprintf(eos(buf), " (%u)", u.uswldtim);
         you_are(buf, "");
-    } else if (u.ustuck) {
+    } else if (u.monster_stuck_to) {
         boolean ustick = (Upolyd && sticks(gy.youmonst.data));
-        int dx = u.ustuck->mx - u.ux, dy = u.ustuck->my - u.uy;
+        int dx = u.monster_stuck_to->mx - u.ux, dy = u.monster_stuck_to->my - u.uy;
 
         Snprintf(buf, sizeof buf, "%s %s (%s)",
                  ustick ? "holding" : "held by",
@@ -1097,7 +1099,7 @@ status_enlightenment(int mode, int final)
         you_are(buf, "");
     }
     if (Riding) {
-        struct obj *saddle = which_armor(u.usteed, W_SADDLE);
+        struct obj *saddle = which_armor(u.monster_being_ridden, W_SADDLE);
 
         if (saddle && saddle->cursed) {
             Sprintf(buf, "stuck to %s %s", s_suffix(steedname),
@@ -1110,7 +1112,7 @@ status_enlightenment(int mode, int final)
            form of extrinsic impairment; HWounded_legs is used for timeout;
            both apply to steed instead of hero when mounted */
         long whichleg = (EWounded_legs & BOTH_SIDES);
-        const char *bp = u.usteed ? mbodypart(u.usteed, LEG) : body_part(LEG),
+        const char *bp = u.monster_being_ridden ? mbodypart(u.monster_being_ridden, LEG) : body_part(LEG),
             *article = "a ", /* precedes "wounded", so never "an " */
             *leftright = "";
 
@@ -1122,7 +1124,7 @@ status_enlightenment(int mode, int final)
 
         /* when mounted, Wounded_legs applies to steed rather than to
            hero; we only report steed's wounded legs in wizard mode */
-        if (u.usteed) { /* not `Riding' here */
+        if (u.monster_being_ridden) { /* not `Riding' here */
             if (wizard && steedname) {
                 char steednambuf[BUFSZ];
 
@@ -1181,16 +1183,16 @@ status_enlightenment(int mode, int final)
         Strcpy(buf, enc_stat[cap]);
         *buf = lowc(*buf);
         switch (cap) {
-        case SLT_ENCUMBER:
+        case SLIGHTLY_ENCUMBERED:
             adj = "slightly";
             break; /* burdened */
-        case MOD_ENCUMBER:
+        case MODERATELY_ENCUMBERED:
             adj = "moderately";
             break; /* stressed */
-        case HVY_ENCUMBER:
+        case HEAVILY_ENCUMBERED:
             adj = "very";
             break; /* strained */
-        case EXT_ENCUMBER:
+        case EXTREMELY_ENCUMBERED:
             adj = "extremely";
             break; /* overtaxed */
         case OVERLOADED:
@@ -1245,7 +1247,7 @@ weapon_insight(int final)
 
     /* two-weaponing implies hands and
        a weapon or wep-tool (not other odd stuff) in each hand */
-    } else if (u.twoweap) {
+    } else if (u.using_two_weapons) {
         you_are("wielding two weapons at once", "");
 
     /* report most weapons by their skill class (so a katana will be
@@ -1288,7 +1290,7 @@ weapon_insight(int final)
         Sprintf(buf, "%s %s %s", sklvlbuf,
                 hav ? "skill with" : "in", skill_name(wtype));
 
-        if (!u.twoweap) {
+        if (!u.using_two_weapons) {
             if (can_advance(wtype, FALSE))
                 Sprintf(eos(buf), " and %s that",
                         !final ? "can enhance" : "could have enhanced");
@@ -1465,21 +1467,21 @@ attributes_enlightenment(
     enlght_out("");
     enlght_out(final ? "Final Attributes:" : "Attributes:");
 
-    if (u.uevent.uhand_of_elbereth) {
+    if (u.player_event_history.uhand_of_elbereth) {
         static const char *const hofe_titles[3] = { "the Hand of Elbereth",
                                                     "the Envoy of Balance",
                                                     "the Glory of Arioch" };
-        you_are(hofe_titles[u.uevent.uhand_of_elbereth - 1], "");
+        you_are(hofe_titles[u.player_event_history.uhand_of_elbereth - 1], "");
     }
 
     Sprintf(buf, "%s", piousness(TRUE, "aligned"));
-    if (u.ualign.record >= 0)
+    if (u.alignment.record >= 0)
         you_are(buf, "");
     else
         you_have(buf, "");
 
     if (wizard) {
-        Sprintf(buf, " %d", u.ualign.record);
+        Sprintf(buf, " %d", u.alignment.record);
         enl_msg("Your alignment ", "is", "was", buf, "");
     }
 
@@ -1735,20 +1737,20 @@ attributes_enlightenment(
         enl_msg("You regenerate", "", "d", "", from_what(REGENERATION));
     if (Slow_digestion)
         you_have("slower digestion", from_what(SLOW_DIGESTION));
-    if (u.uhitinc) {
-        (void) enlght_combatinc("to hit", u.uhitinc, final, buf);
+    if (u.hit_increment) {
+        (void) enlght_combatinc("to hit", u.hit_increment, final, buf);
         if (iflags.tux_penalty && !Upolyd)
             Sprintf(eos(buf), " %s your suit's penalty",
-                    (u.uhitinc < 0) ? "increasing"
-                    : (u.uhitinc < 4 * gu.urole.spelarmr / 5)
+                    (u.hit_increment < 0) ? "increasing"
+                    : (u.hit_increment < 4 * gu.urole.spelarmr / 5)
                       ? "partly offsetting"
-                      : (u.uhitinc < gu.urole.spelarmr) ? "nearly offsetting"
+                      : (u.hit_increment < gu.urole.spelarmr) ? "nearly offsetting"
                         : "overcoming");
         you_have(buf, "");
     }
-    if (u.udaminc)
-        you_have(enlght_combatinc("damage", u.udaminc, final, buf), "");
-    if (u.uspellprot || Protection) {
+    if (u.damage_increment)
+        you_have(enlght_combatinc("damage", u.damage_increment, final, buf), "");
+    if (u.spell_protection || Protection) {
         int prot = 0;
 
         if (uleft && uleft->otyp == RIN_PROTECTION)
@@ -1758,8 +1760,8 @@ attributes_enlightenment(
         if (uamul && uamul->otyp == AMULET_OF_GUARDING)
             prot += 2;
         if (HProtection & INTRINSIC)
-            prot += u.ublessed;
-        prot += u.uspellprot;
+            prot += u.blessed;
+        prot += u.spell_protection;
         if (prot)
             you_have(enlght_combatinc("defense", prot, final, buf), "");
     }
@@ -1877,11 +1879,11 @@ attributes_enlightenment(
             enl_msg("Good luck ", "does", "did", " not time out for you", "");
     }
 
-    if (u.ugangr) {
+    if (u.have_angered_gods) {
         Sprintf(buf, " %sangry with you",
-                u.ugangr > 6 ? "extremely " : u.ugangr > 3 ? "very " : "");
+                u.have_angered_gods > 6 ? "extremely " : u.have_angered_gods > 3 ? "very " : "");
         if (wizard)
-            Sprintf(eos(buf), " (%d)", u.ugangr);
+            Sprintf(eos(buf), " (%d)", u.have_angered_gods);
         enl_msg(u_gname(), " is", " was", buf, "");
     } else {
         /*
@@ -1898,7 +1900,7 @@ attributes_enlightenment(
             Sprintf(buf, "%ssafely pray", can_pray(FALSE) ? "" : "not ");
 #endif
             if (wizard)
-                Sprintf(eos(buf), " (%d)", u.ublesscnt);
+                Sprintf(eos(buf), " (%d)", u.blessing_duration);
             you_can(buf, "");
         }
     }
@@ -1929,7 +1931,7 @@ attributes_enlightenment(
         buf[0] = '\0';
         if (final < 2) { /* still in progress, or quit/escaped/ascended */
             p = "survived after being killed ";
-            switch (u.umortality) {
+            switch (u.times_died) {
             case 0:
                 p = !final ? (char *) 0 : "survived";
                 break;
@@ -1943,19 +1945,19 @@ attributes_enlightenment(
                 Strcpy(buf, "thrice");
                 break;
             default:
-                Sprintf(buf, "%d times", u.umortality);
+                Sprintf(buf, "%d times", u.times_died);
                 break;
             }
         } else { /* game ended in character's death */
             p = "are dead";
-            switch (u.umortality) {
+            switch (u.times_died) {
             case 0:
                 impossible("dead without dying?");
             case 1:
                 break; /* just "are dead" */
             default:
-                Sprintf(buf, " (%d%s time!)", u.umortality,
-                        ordin(u.umortality));
+                Sprintf(buf, " (%d%s time!)", u.times_died,
+                        ordin(u.times_died));
                 break;
             }
         }
@@ -2233,7 +2235,7 @@ show_achievements(
         record_achievement(ACH_UWIN);
     }
     for (i = 0; i < acnt; ++i) {
-        achidx = u.uachieved[i];
+        achidx = u.achievements_in_order_obtained[i];
         absidx = abs(achidx);
 
         switch (absidx) {
@@ -2285,8 +2287,8 @@ show_achievements(
             /* alternate phrasing for present vs past and also for
                possessing the item vs once held it */
             enl_msg(You_,
-                    u.uhave.bell ? "have" : "have handled",
-                    u.uhave.bell ? "had" : "handled",
+                    u.player_carrying_special_objects.bell ? "have" : "have handled",
+                    u.player_carrying_special_objects.bell ? "had" : "handled",
                     " the Bell of Opening", "");
             break;
         case ACH_HELL:
@@ -2294,14 +2296,14 @@ show_achievements(
             break;
         case ACH_CNDL:
             enl_msg(You_,
-                    u.uhave.menorah ? "have" : "have handled",
-                    u.uhave.menorah ? "had" : "handled",
+                    u.player_carrying_special_objects.menorah ? "have" : "have handled",
+                    u.player_carrying_special_objects.menorah ? "had" : "handled",
                     " the Candelabrum of Invocation", "");
             break;
         case ACH_BOOK:
             enl_msg(You_,
-                    u.uhave.book ? "have" : "have handled",
-                    u.uhave.book ? "had" : "handled",
+                    u.player_carrying_special_objects.book ? "have" : "have handled",
+                    u.player_carrying_special_objects.book ? "had" : "handled",
                     " the Book of the Dead", "");
             break;
         case ACH_INVK:
@@ -2311,9 +2313,9 @@ show_achievements(
             /* alternate wording for ascended (always past tense) since
                hero had it until #offer forced it to be relinquished */
             enl_msg(You_,
-                    u.uhave.amulet ? "have" : "have obtained",
-                    u.uevent.ascended ? "delivered"
-                     : u.uhave.amulet ? "had" : "had obtained",
+                    u.player_carrying_special_objects.amulet ? "have" : "have obtained",
+                    u.player_event_history.ascended ? "delivered"
+                     : u.player_carrying_special_objects.amulet ? "had" : "had obtained",
                     " the Amulet of Yendor", "");
             break;
 
@@ -2374,8 +2376,8 @@ record_achievement(schar achidx)
        have been recorded); find first empty slot or achievement #achidx;
        an attempt to duplicate an achievement can happen if any of Bell,
        Candelabrum, Book, or Amulet is dropped then picked up again */
-    for (i = 0; u.uachieved[i]; ++i)
-        if (abs(u.uachieved[i]) == absidx) {
+    for (i = 0; u.achievements_in_order_obtained[i]; ++i)
+        if (abs(u.achievements_in_order_obtained[i]) == absidx) {
             repeat_achievement = 1;
             break;
         }
@@ -2390,7 +2392,7 @@ record_achievement(schar achidx)
 
     if (repeat_achievement)
         return; /* already recorded, don't duplicate it */
-    u.uachieved[i] = achidx;
+    u.achievements_in_order_obtained[i] = achidx;
 
     /* avoid livelog for achievements recorded during final disclosure:
        nudist and blind-from-birth; also ascension which is suppressed
@@ -2428,15 +2430,15 @@ remove_achievement(schar achidx)
 {
     int i;
 
-    for (i = 0; u.uachieved[i]; ++i)
-        if (abs(u.uachieved[i]) == abs(achidx))
+    for (i = 0; u.achievements_in_order_obtained[i]; ++i)
+        if (abs(u.achievements_in_order_obtained[i]) == abs(achidx))
             break; /* stop when found */
-    if (!u.uachieved[i]) /* not found */
+    if (!u.achievements_in_order_obtained[i]) /* not found */
         return FALSE;
     /* list is 0 terminated so any beyond the removed one move up a slot */
     do {
-        u.uachieved[i] = u.uachieved[i + 1];
-    } while (u.uachieved[++i]);
+        u.achievements_in_order_obtained[i] = u.achievements_in_order_obtained[i + 1];
+    } while (u.achievements_in_order_obtained[++i]);
     return TRUE;
 }
 
@@ -2446,7 +2448,7 @@ count_achievements(void)
 {
     int i, acnt = 0;
 
-    for (i = 0; u.uachieved[i]; ++i)
+    for (i = 0; u.achievements_in_order_obtained[i]; ++i)
         ++acnt;
     return acnt;
 }
@@ -2472,8 +2474,8 @@ sokoban_in_play(void)
     /* TODO? move this to dungeon.c and test furthest level reached of the
        sokoban branch instead of relying on the entered-sokoban achievement */
 
-    for (achidx = 0; u.uachieved[achidx]; ++achidx)
-        if (u.uachieved[achidx] == ACH_SOKO)
+    for (achidx = 0; u.achievements_in_order_obtained[achidx]; ++achidx)
+        if (u.achievements_in_order_obtained[achidx] == ACH_SOKO)
             return TRUE;
     return FALSE;
 }
@@ -3150,32 +3152,32 @@ piousness(boolean showneg, const char *suffix)
     const char *pio;
 
     /* note: piousness 20 matches MIN_QUEST_ALIGN (quest.h) */
-    if (u.ualign.record >= 20)
+    if (u.alignment.record >= 20)
         pio = "piously";
-    else if (u.ualign.record > 13)
+    else if (u.alignment.record > 13)
         pio = "devoutly";
-    else if (u.ualign.record > 8)
+    else if (u.alignment.record > 8)
         pio = "fervently";
-    else if (u.ualign.record > 3)
+    else if (u.alignment.record > 3)
         pio = "stridently";
-    else if (u.ualign.record == 3)
+    else if (u.alignment.record == 3)
         pio = "";
-    else if (u.ualign.record > 0)
+    else if (u.alignment.record > 0)
         pio = "haltingly";
-    else if (u.ualign.record == 0)
+    else if (u.alignment.record == 0)
         pio = "nominally";
     else if (!showneg)
         pio = "insufficiently";
-    else if (u.ualign.record >= -3)
+    else if (u.alignment.record >= -3)
         pio = "strayed";
-    else if (u.ualign.record >= -8)
+    else if (u.alignment.record >= -8)
         pio = "sinned";
     else
         pio = "transgressed";
 
     Sprintf(buf, "%s", pio);
-    if (suffix && (!showneg || u.ualign.record >= 0)) {
-        if (u.ualign.record != 3)
+    if (suffix && (!showneg || u.alignment.record >= 0)) {
+        if (u.alignment.record != 3)
             Strcat(buf, " ");
         Strcat(buf, suffix);
     }
@@ -3184,7 +3186,7 @@ piousness(boolean showneg, const char *suffix)
 
 /* stethoscope or probing applied to monster -- one-line feedback */
 void
-mstatusline(struct monst *mtmp)
+mstatusline(struct monster *mtmp)
 {
     aligntyp alignment = mon_aligntyp(mtmp);
     char info[BUFSZ], monnambuf[BUFSZ];
@@ -3259,8 +3261,8 @@ mstatusline(struct monst *mtmp)
                          : ", [? speed]");
     if (mtmp->minvis)
         Strcat(info, ", invisible");
-    if (mtmp == u.ustuck) {
-        struct permonst *pm = u.ustuck->data;
+    if (mtmp == u.monster_stuck_to) {
+        struct permonst *pm = u.monster_stuck_to->data;
 
         /* being swallowed/engulfed takes priority over sticks(youmonst);
            this used to have that backwards and checked sticks() first */
@@ -3279,7 +3281,7 @@ mstatusline(struct monst *mtmp)
                      : (!sticks(gy.youmonst.data) ? ", holding you"
                                                  : ", held by you"));
     }
-    if (mtmp == u.usteed) {
+    if (mtmp == u.monster_being_ridden) {
         Strcat(info, ", carrying you");
         if (Wounded_legs) {
             /* EWounded_legs is used to track left/right/both rather than
@@ -3344,7 +3346,7 @@ ustatusline(void)
     }
     if (Stunned)
         Strcat(info, ", stunned");
-    if (Wounded_legs && !u.usteed) {
+    if (Wounded_legs && !u.monster_being_ridden) {
         /* EWounded_legs is used to track left/right/both rather than some
            form of extrinsic impairment; HWounded_legs is used for timeout;
            both apply to steed instead of hero when mounted */
@@ -3367,18 +3369,18 @@ ustatusline(void)
         Strcat(info, ", concealed");
     if (Invis)
         Strcat(info, ", invisible");
-    if (u.ustuck) {
+    if (u.monster_stuck_to) {
         if (sticks(gy.youmonst.data))
             Strcat(info, ", holding ");
         else
             Strcat(info, ", held by ");
-        Strcat(info, mon_nam(u.ustuck));
+        Strcat(info, mon_nam(u.monster_stuck_to));
     }
 
     pline("Status of %s (%s):  Level %d  HP %d(%d)  AC %d%s.", gp.plname,
-          piousness(FALSE, align_str(u.ualign.type)),
-          Upolyd ? mons[u.umonnum].mlevel : u.ulevel, Upolyd ? u.mh : u.uhp,
-          Upolyd ? u.mhmax : u.uhpmax, u.uac, info);
+          piousness(FALSE, align_str(u.alignment.type)),
+          Upolyd ? mons[u.umonnum].mlevel : u.ulevel, Upolyd ? u.mh : u.hit_points,
+          Upolyd ? u.mhmax : u.hit_points_max, u.armor_class, info);
 }
 
 /* for 'onefile' processing where end of this file isn't necessarily the

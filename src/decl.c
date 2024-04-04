@@ -3,6 +3,8 @@
 /*-Copyright (c) Michael Allison, 2009. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 const char * const nhcb_name[NUM_NHCB] = {
@@ -104,13 +106,13 @@ const schar zdir[N_DIRS_Z] = {  0,  0,  0,  0,  0,  0,  0,  0, 1, -1 };
 const schar dirs_ord[N_DIRS] =
     { DIR_W, DIR_N, DIR_E, DIR_S, DIR_NW, DIR_NE, DIR_SE, DIR_SW };
 
-NEARDATA boolean has_strong_rngseed = FALSE;
+NEARDATA boolean has_strong_randomizer_seed = FALSE;
 struct engr *head_engr;
 NEARDATA struct instance_flags iflags;
 NEARDATA struct accessibility_data a11y;
 /* NOTE: the order of these words exactly corresponds to the
    order of oc_material values #define'd in objclass.h. */
-const char *materialnm[] = { "mysterious", "liquid",  "wax",        "organic",
+const char *material_names[] = { "mysterious", "liquid",  "wax",        "organic",
                              "flesh",      "paper",   "cloth",      "leather",
                              "wooden",     "bone",    "dragonhide", "iron",
                              "metal",      "copper",  "silver",     "gold",
@@ -1000,7 +1002,7 @@ const struct const_globals cg = {
     } while(0);
 
 void
-decl_globals_init(void)
+declare_globals_initialize(void)
 {
 #if 0
     g = g_init;

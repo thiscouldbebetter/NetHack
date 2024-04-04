@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2007. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #ifndef LONG_MAX
 #include <limits.h>
@@ -49,11 +51,11 @@ newpw(void)
     if (u.ulevel == 0) {
         en = gu.urole.enadv.infix + gu.urace.enadv.infix;
         if (gu.urole.enadv.inrnd > 0)
-            en += rnd(gu.urole.enadv.inrnd);
+            en += random(gu.urole.enadv.inrnd);
         if (gu.urace.enadv.inrnd > 0)
-            en += rnd(gu.urace.enadv.inrnd);
+            en += random(gu.urace.enadv.inrnd);
     } else {
-        enrnd = (int) ACURR(A_WIS) / 2;
+        enrnd = (int) ATTRIBUTE_CURRENT(A_WIS) / 2;
         if (u.ulevel < gu.urole.xlev) {
             enrnd += gu.urole.enadv.lornd + gu.urace.enadv.lornd;
             enfix = gu.urole.enadv.lofix + gu.urace.enadv.lofix;
@@ -67,11 +69,11 @@ newpw(void)
         en = 1;
     if (u.ulevel < MAXULEV) {
         /* remember increment; future level drain could take it away again */
-        u.ueninc[u.ulevel] = (xint16) en;
+        u.energy_increment[u.ulevel] = (xint16) en;
     } else {
         /* after level 30, throttle energy gains from extra experience;
            once max reaches 600, further increments will be just 1 more */
-        char lim = 4 - u.uenmax / 200;
+        char lim = 4 - u.energy_max / 200;
 
         lim = max(lim, 1);
         if (en > lim)
@@ -82,7 +84,7 @@ newpw(void)
 
 /* return # of exp points for mtmp after nk killed */
 int
-experience(struct monst *mtmp, int nk)
+experience(struct monster *mtmp, int nk)
 {
     struct permonst *ptr = mtmp->data;
     int i, tmp, tmp2;
@@ -168,7 +170,7 @@ experience(struct monst *mtmp, int nk)
 void
 more_experienced(int exper, int rexp)
 {
-    long oldexp = u.uexp,
+    long oldexp = u.experience,
          oldrexp = u.urexp,
          newexp = oldexp + exper,
          rexpincr = 4 * exper + rexp,
@@ -181,7 +183,7 @@ more_experienced(int exper, int rexp)
         newrexp = LONG_MAX;
 
     if (newexp != oldexp) {
-        u.uexp = newexp;
+        u.experience = newexp;
         if (flags.showexp)
             disp.botl = TRUE;
         /* even when experience points aren't being shown, experience level
@@ -241,43 +243,43 @@ losexp(
             /* can happen during debug fuzzing if fuzzer_savelife() uses
                a blessed potion of restore ability to restore lost levels */
             return;
-        u.uexp = 0;
+        u.experience = 0;
         livelog_printf(LL_MINORAC, "lost all experience");
     }
     assert(u.ulevel >= 0 && u.ulevel < MAXULEV); /* valid array index */
 
-    olduhpmax = u.uhpmax;
+    olduhpmax = u.hit_points_max;
     uhpmin = minuhpmax(10); /* same minimum as is used by life-saving */
-    num = (int) u.uhpinc[u.ulevel];
-    u.uhpmax -= num;
-    if (u.uhpmax < uhpmin)
+    num = (int) u.hit_points_increment[u.ulevel];
+    u.hit_points_max -= num;
+    if (u.hit_points_max < uhpmin)
         setuhpmax(uhpmin);
     /* uhpmax might try to go up if it has previously been reduced by
        strength loss or by a fire trap or by an attack by Death which
        all use a different minimum than life-saving or experience loss;
        we don't allow it to go up because that contradicts assumptions
        elsewhere (such as healing wielder who drains with Stormbringer) */
-    if (u.uhpmax > olduhpmax)
+    if (u.hit_points_max > olduhpmax)
         setuhpmax(olduhpmax);
 
-    u.uhp -= num;
-    if (u.uhp < 1)
-        u.uhp = 1;
-    else if (u.uhp > u.uhpmax)
-        u.uhp = u.uhpmax;
+    u.hit_points -= num;
+    if (u.hit_points < 1)
+        u.hit_points = 1;
+    else if (u.hit_points > u.hit_points_max)
+        u.hit_points = u.hit_points_max;
 
-    num = (int) u.ueninc[u.ulevel];
-    u.uenmax -= num;
-    if (u.uenmax < 0)
-        u.uenmax = 0;
-    u.uen -= num;
-    if (u.uen < 0)
-        u.uen = 0;
-    else if (u.uen > u.uenmax)
-        u.uen = u.uenmax;
+    num = (int) u.energy_increment[u.ulevel];
+    u.energy_max -= num;
+    if (u.energy_max < 0)
+        u.energy_max = 0;
+    u.energy -= num;
+    if (u.energy < 0)
+        u.energy = 0;
+    else if (u.energy > u.energy_max)
+        u.energy = u.energy_max;
 
-    if (u.uexp > 0)
-        u.uexp = newuexp(u.ulevel) - 1;
+    if (u.experience > 0)
+        u.experience = newuexp(u.ulevel) - 1;
 
     if (Upolyd) {
         num = monhp_per_lvl(&gy.youmonst);
@@ -299,7 +301,7 @@ losexp(
 void
 newexplevel(void)
 {
-    if (u.ulevel < MAXULEV && u.uexp >= newuexp(u.ulevel))
+    if (u.ulevel < MAXULEV && u.experience >= newuexp(u.ulevel))
         pluslvl(TRUE);
 }
 
@@ -321,15 +323,15 @@ pluslvl(
         u.mh += hpinc;
     }
     hpinc = newhp();
-    setuhpmax(u.uhpmax + hpinc);
-    u.uhp += hpinc;
+    setuhpmax(u.hit_points_max + hpinc);
+    u.hit_points += hpinc;
 
     /* increase spell power/energy points */
     eninc = newpw();
-    u.uenmax += eninc;
-    if (u.uenmax > u.uenpeak)
-        u.uenpeak = u.uenmax;
-    u.uen += eninc;
+    u.energy_max += eninc;
+    if (u.energy_max > u.energy_peak)
+        u.energy_peak = u.energy_max;
+    u.energy += eninc;
 
     /* increase level (unless already maxxed) */
     if (u.ulevel < MAXULEV) {
@@ -339,10 +341,10 @@ pluslvl(
         if (incr) {
             long tmp = newuexp(u.ulevel + 1);
 
-            if (u.uexp >= tmp)
-                u.uexp = tmp - 1;
+            if (u.experience >= tmp)
+                u.experience = tmp - 1;
         } else {
-            u.uexp = newuexp(u.ulevel);
+            u.experience = newuexp(u.ulevel);
         }
         ++u.ulevel;
         pline("Welcome %sto experience level %d.",
@@ -383,16 +385,16 @@ rndexp(boolean gaining) /* gaining XP via potion vs setting XP for polyself */
     /* make sure that `diff' is an argument which rn2() can handle */
     while (diff >= (long) LARGEST_INT)
         diff /= 2L, factor *= 2L;
-    result = minexp + factor * (long) rn2((int) diff);
+    result = minexp + factor * (long) random_integer_between_zero_and((int) diff);
     /* 3.4.1:  if already at level 30, add to current experience
        points rather than to threshold needed to reach the current
        level; otherwise blessed potions of gain level can result
        in lowering the experience points instead of raising them */
     if (u.ulevel == MAXULEV && gaining) {
-        result += (u.uexp - minexp);
+        result += (u.experience - minexp);
         /* avoid wrapping (over 400 blessed potions needed for that...) */
-        if (result < u.uexp)
-            result = u.uexp;
+        if (result < u.experience)
+            result = u.experience;
     }
     return result;
 }

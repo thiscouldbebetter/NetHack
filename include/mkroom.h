@@ -3,6 +3,8 @@
 /*-Copyright (c) Pasi Kallinen, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #ifndef MKROOM_H
 #define MKROOM_H
 
@@ -21,7 +23,7 @@ struct mkroom {
     boolean irregular;    /* true if room is non-rectangular */
     schar roomnoidx;
     struct mkroom *sbrooms[MAX_SUBROOMS]; /* Subrooms pointers */
-    struct monst *resident; /* priest/shopkeeper/guard for this room */
+    struct monster *resident; /* priest/shopkeeper/guard for this room */
 };
 
 struct shclass {

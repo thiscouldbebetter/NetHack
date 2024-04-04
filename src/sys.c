@@ -2,6 +2,8 @@
 /* Copyright (c) Kenneth Lorber, Kensington, Maryland, 2008. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 #ifndef SYSCF
@@ -18,7 +20,7 @@
 struct sysopt sysopt;
 
 void
-sys_early_init(void)
+system_early_initialize(void)
 {
     sysopt.support = (char *) 0;
     sysopt.recover = (char *) 0;

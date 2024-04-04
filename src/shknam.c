@@ -5,6 +5,8 @@
 
 /* shknam.c -- initialize a shop */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 staticfn boolean stock_room_goodpos(struct mkroom *, int, int, int, int);
@@ -12,7 +14,7 @@ staticfn boolean veggy_item(struct obj * obj, int);
 staticfn int shkveg(void);
 staticfn void mkveggy_at(int, int);
 staticfn void mkshobj_at(const struct shclass *, int, int, boolean);
-staticfn void nameshk(struct monst *, const char *const *);
+staticfn void nameshk(struct monster *, const char *const *);
 staticfn int good_shopdoor(struct mkroom *, coordxy *, coordxy *);
 staticfn int shkinit(const struct shclass *, struct mkroom *);
 
@@ -421,7 +423,7 @@ shkveg(void)
     }
     if (maxprob < 1)
         panic("shkveg no veggy objects");
-    prob = rnd(maxprob);
+    prob = random(maxprob);
 
     j = 0;
     i = ok[0];
@@ -450,7 +452,7 @@ mkveggy_at(int sx, int sy)
 staticfn void
 mkshobj_at(const struct shclass *shp, int sx, int sy, boolean mkspecl)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     struct permonst *ptr;
     int atype;
 
@@ -464,7 +466,7 @@ mkshobj_at(const struct shclass *shp, int sx, int sy, boolean mkspecl)
         return;
     }
 
-    if (rn2(100) < depth(&u.uz) && !MON_AT(sx, sy)
+    if (random_integer_between_zero_and(100) < depth(&u.uz) && !MON_AT(sx, sy)
         && (ptr = mkclass(S_MIMIC, 0)) != 0
         && (mtmp = makemon(ptr, sx, sy, NO_MM_FLAGS)) != 0) {
         /* nothing */
@@ -481,11 +483,11 @@ mkshobj_at(const struct shclass *shp, int sx, int sy, boolean mkspecl)
 
 /* extract a shopkeeper name for the given shop type */
 staticfn void
-nameshk(struct monst *shk, const char *const *nlp)
+nameshk(struct monster *shk, const char *const *nlp)
 {
     int i, trycnt, names_avail;
     const char *shname = 0;
-    struct monst *mtmp;
+    struct monster *mtmp;
     int name_wanted = shk->m_id;
     s_level *sptr;
 
@@ -513,11 +515,11 @@ nameshk(struct monst *shk, const char *const *nlp)
 
         for (trycnt = 0; trycnt < 50; trycnt++) {
             if (nlp == shktools) {
-                shname = shktools[rn2(names_avail)];
+                shname = shktools[random_integer_between_zero_and(names_avail)];
                 shk->female = 0; /* reversed below for '_' prefix */
             } else if (name_wanted < names_avail) {
                 shname = nlp[name_wanted];
-            } else if ((i = rn2(names_avail)) != 0) {
+            } else if ((i = random_integer_between_zero_and(names_avail)) != 0) {
                 shname = nlp[i - 1];
             } else if (nlp != shkgeneral) {
                 nlp = shkgeneral; /* try general names */
@@ -551,7 +553,7 @@ nameshk(struct monst *shk, const char *const *nlp)
 }
 
 void
-neweshk(struct monst *mtmp)
+neweshk(struct monster *mtmp)
 {
     if (!mtmp->mextra)
         mtmp->mextra = newmextra();
@@ -562,7 +564,7 @@ neweshk(struct monst *mtmp)
 }
 
 void
-free_eshk(struct monst *mtmp)
+free_eshk(struct monster *mtmp)
 {
     if (mtmp->mextra && ESHK(mtmp)) {
         free((genericptr_t) ESHK(mtmp));
@@ -625,7 +627,7 @@ shkinit(const struct shclass *shp, struct mkroom *sroom)
 {
     int sh;
     coordxy sx, sy;
-    struct monst *shk;
+    struct monster *shk;
     struct eshk *eshkp;
 
     /* place the shopkeeper in the given room */
@@ -675,7 +677,7 @@ shkinit(const struct shclass *shp, struct mkroom *sroom)
     eshkp->billct = eshkp->visitct = 0;
     eshkp->bill_p = (struct bill_x *) 0;
     eshkp->customer[0] = '\0';
-    mkmonmoney(shk, 1000L + 30L * (long) rnd(100)); /* initial capital */
+    mkmonmoney(shk, 1000L + 30L * (long) random(100)); /* initial capital */
     if (shp->shknms == shkrings)
         (void) mongets(shk, TOUCHSTONE);
     nameshk(shk, shp->shknms);
@@ -766,7 +768,7 @@ stock_room(int shp_indx, struct mkroom *sroom)
             for (sy = sroom->ly; sy <= sroom->hy; sy++)
                 if (stock_room_goodpos(sroom, rmno, sh, sx,sy))
                     stockcount++;
-        specialspot = rnd(stockcount);
+        specialspot = random(stockcount);
         stockcount = 0;
     }
 
@@ -785,7 +787,7 @@ stock_room(int shp_indx, struct mkroom *sroom)
 
     /* Hack for Orcus's level: it's a ghost town, get rid of shopkeepers */
     if (on_level(&u.uz, &orcus_level)) {
-        struct monst *mtmp = shop_keeper(rmno);
+        struct monster *mtmp = shop_keeper(rmno);
         mongone(mtmp);
     }
 
@@ -794,7 +796,7 @@ stock_room(int shp_indx, struct mkroom *sroom)
 
 /* does shkp's shop stock this item type? */
 boolean
-saleable(struct monst *shkp, struct obj *obj)
+saleable(struct monster *shkp, struct obj *obj)
 {
     int i, shp_indx = ESHK(shkp)->shoptype - SHOPBASE;
     const struct shclass *shp = &shtypes[shp_indx];
@@ -824,7 +826,7 @@ get_shop_item(int type)
     int i, j;
 
     /* select an appropriate object type at random */
-    for (j = rnd(100), i = 0; (j -= shp->iprobs[i].iprob) > 0; i++)
+    for (j = random(100), i = 0; (j -= shp->iprobs[i].iprob) > 0; i++)
         continue;
 
     return shp->iprobs[i].itype;
@@ -832,7 +834,7 @@ get_shop_item(int type)
 
 /* version of shkname() for beginning of sentence */
 char *
-Shknam(struct monst *mtmp)
+Shknam(struct monster *mtmp)
 {
     char *nam = shkname(mtmp);
 
@@ -845,7 +847,7 @@ Shknam(struct monst *mtmp)
    will yield some other shopkeeper's name (not necessarily one residing
    in the current game's dungeon, or who keeps same type of shop) */
 char *
-shkname(struct monst *mtmp)
+shkname(struct monster *mtmp)
 {
     char *nam;
     unsigned save_isshk = mtmp->isshk;
@@ -873,11 +875,11 @@ shkname(struct monst *mtmp)
                 if (shtypes[num].prob == 0)
                     break;
             if (num > 0) {
-                nlp = shtypes[rn2(num)].shknms;
+                nlp = shtypes[random_integer_between_zero_and(num)].shknms;
                 for (num = 0; nlp[num]; num++)
                     continue;
                 if (num > 0)
-                    shknm = nlp[rn2(num)];
+                    shknm = nlp[random_integer_between_zero_and(num)];
             }
         }
         /* strip prefix if present */
@@ -889,7 +891,7 @@ shkname(struct monst *mtmp)
 }
 
 boolean
-shkname_is_pname(struct monst *mtmp)
+shkname_is_pname(struct monster *mtmp)
 {
     const char *shknm = ESHK(mtmp)->shknam;
 
@@ -897,7 +899,7 @@ shkname_is_pname(struct monst *mtmp)
 }
 
 boolean
-is_izchak(struct monst *shkp, boolean override_hallucination)
+is_izchak(struct monster *shkp, boolean override_hallucination)
 {
     const char *shknm;
 

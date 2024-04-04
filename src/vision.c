@@ -2,6 +2,8 @@
 /* Copyright (c) Dean Luick, with acknowledgements to Dave Cohrs, 1990. */
 /* NetHack may be freely redistributed.  See license for details.       */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 /* Circles
@@ -144,7 +146,7 @@ int
 does_block(int x, int y, struct rm *lev)
 {
     struct obj *obj;
-    struct monst *mon;
+    struct monster *mon;
 
 #ifdef DEBUG
     /* set DEBUGFILES=seethru in environment to see through bubbles */
@@ -2120,7 +2122,7 @@ do_clear_area(
 
 /* bitmask indicating ways mon is seen; extracted from lookat(pager.c) */
 unsigned
-howmonseen(struct monst *mon)
+howmonseen(struct monster *mon)
 {
     boolean useemon = (boolean) canseemon(mon);
     int xraydist = (u.xray_range < 0) ? -1 : (u.xray_range * u.xray_range);

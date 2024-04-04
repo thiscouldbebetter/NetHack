@@ -2,6 +2,8 @@
 /* Copyright (c) 1989 Mike Threepoint                             */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #ifndef YOUPROP_H
 #define YOUPROP_H
 
@@ -246,7 +248,7 @@
    FROMOUTSIDE set if inside solid rock (or in water on Plane of Water) */
 #define BFlying u.uprops[FLYING].blocked
 #define Flying                                                      \
-    ((HFlying || EFlying || (u.usteed && is_flyer(u.usteed->data))) \
+    ((HFlying || EFlying || (u.monster_being_ridden && is_flyer(u.monster_being_ridden->data))) \
      && !BFlying)
 /* May touch surface; does not override any others */
 
@@ -259,7 +261,7 @@
 #define HSwimming u.uprops[SWIMMING].intrinsic
 #define ESwimming u.uprops[SWIMMING].extrinsic /* [Tom] */
 #define Swimming \
-    (HSwimming || ESwimming || (u.usteed && is_swimmer(u.usteed->data)))
+    (HSwimming || ESwimming || (u.monster_being_ridden && is_swimmer(u.monster_being_ridden->data)))
 /* Get wet, don't go under water unless if amphibious */
 
 #define HMagical_breathing u.uprops[MAGICAL_BREATHING].intrinsic

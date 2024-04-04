@@ -3,6 +3,8 @@
 /*-Copyright (c) Michael Allison, 2009. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 #ifndef NO_SIGNAL
@@ -24,8 +26,8 @@ staticfn void save_stairs(NHFILE *);
 staticfn void save_bc(NHFILE *);
 staticfn void saveobj(NHFILE *, struct obj *);
 staticfn void saveobjchn(NHFILE *, struct obj **) NO_NNARGS;
-staticfn void savemon(NHFILE *, struct monst *);
-staticfn void savemonchn(NHFILE *, struct monst *) NO_NNARGS;
+staticfn void savemon(NHFILE *, struct monster *);
+staticfn void savemonchn(NHFILE *, struct monster *) NO_NNARGS;
 staticfn void savetrapchn(NHFILE *, struct trap *) NO_NNARGS;
 staticfn void save_gamelog(NHFILE *);
 staticfn void savegamestate(NHFILE *);
@@ -62,7 +64,7 @@ dosave(void)
         gp.program_state.done_hup = 0;
 #endif
         if (dosave0()) {
-            u.uhp = -1; /* universal game's over indicator */
+            u.hit_points = -1; /* universal game's over indicator */
             if (soundprocs.sound_exit_nhsound)
                 (*soundprocs.sound_exit_nhsound)("dosave");
 
@@ -184,8 +186,8 @@ dosave0(void)
     /* these pointers are no longer valid, and at least u.usteed
      * may mislead place_monster() on other levels
      */
-    set_ustuck((struct monst *) 0); /* also clears u.uswallow */
-    u.usteed = (struct monst *) 0;
+    set_ustuck((struct monster *) 0); /* also clears u.uswallow */
+    u.monster_being_ridden = (struct monster *) 0;
 
     for (ltmp = (xint8) 1; ltmp <= maxledgerno(); ltmp++) {
         if (ltmp == ledger_no(&gu.uz_save))
@@ -311,7 +313,7 @@ savegamestate(NHFILE *nhfp)
     saveobjchn(nhfp, &gm.migrating_objs); /* frees objs and sets to Null */
     savemonchn(nhfp, gm.migrating_mons);
     if (release_data(nhfp))
-        gm.migrating_mons = (struct monst *) 0;
+        gm.migrating_mons = (struct monster *) 0;
     if (nhfp->structlevel)
         bwrite(nhfp->fd, (genericptr_t) gm.mvitals, sizeof gm.mvitals);
     save_dungeon(nhfp, (boolean) !!perform_bwrite(nhfp),
@@ -882,13 +884,13 @@ saveobjchn(NHFILE *nhfp, struct obj **obj_p)
 }
 
 staticfn void
-savemon(NHFILE *nhfp, struct monst *mtmp)
+savemon(NHFILE *nhfp, struct monster *mtmp)
 {
     int buflen;
 
     mtmp->mtemplit = 0; /* normally clear; if set here then a panic save
                          * is being written while bhit() was executing */
-    buflen = (int) sizeof (struct monst);
+    buflen = (int) sizeof (struct monster);
     if (nhfp->structlevel) {
         bwrite(nhfp->fd, (genericptr_t) &buflen, sizeof buflen);
         bwrite(nhfp->fd, (genericptr_t) mtmp, buflen);
@@ -945,9 +947,9 @@ savemon(NHFILE *nhfp, struct monst *mtmp)
 }
 
 staticfn void
-savemonchn(NHFILE *nhfp, struct monst *mtmp)
+savemonchn(NHFILE *nhfp, struct monster *mtmp)
 {
-    struct monst *mtmp2;
+    struct monster *mtmp2;
     int minusone = -1;
 
     while (mtmp) {
@@ -965,10 +967,10 @@ savemonchn(NHFILE *nhfp, struct monst *mtmp)
                 gc.context.polearm.m_id = mtmp->m_id;
                 gc.context.polearm.hitmon = NULL;
             }
-            if (mtmp == u.ustuck)
-                u.ustuck_mid = u.ustuck->m_id;
-            if (mtmp == u.usteed)
-                u.usteed_mid = u.usteed->m_id;
+            if (mtmp == u.monster_stuck_to)
+                u.monster_stuck_to_id = u.monster_stuck_to->m_id;
+            if (mtmp == u.monster_being_ridden)
+                u.monster_being_ridden_id = u.monster_being_ridden->m_id;
             mtmp->nmon = NULL;  /* nmon saved into mtmp2 */
             dealloc_monst(mtmp);
         }

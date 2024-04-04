@@ -2,6 +2,8 @@
 /* Copyright (c) 1990 by Jean-Christophe Collet                   */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 int get_rect_ind(NhRect *);
@@ -102,7 +104,7 @@ get_rect(NhRect *r)
 NhRect *
 rnd_rect(void)
 {
-    return rect_cnt > 0 ? &rect[rn2(rect_cnt)] : 0;
+    return rect_cnt > 0 ? &rect[random_integer_between_zero_and(rect_cnt)] : 0;
 }
 
 /*

@@ -3,17 +3,19 @@
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 void
-were_change(struct monst *mon)
+were_change(struct monster *mon)
 {
     if (!is_were(mon->data))
         return;
 
     if (is_human(mon->data)) {
         if (!Protection_from_shape_changers
-            && !rn2(night() ? (flags.moonphase == FULL_MOON ? 3 : 30)
+            && !random_integer_between_zero_and(night() ? (flags.moonphase == FULL_MOON ? 3 : 30)
                             : (flags.moonphase == FULL_MOON ? 10 : 50))) {
             new_were(mon); /* change into animal form */
             if (!Deaf && !canseemon(mon)) {
@@ -37,7 +39,7 @@ were_change(struct monst *mon)
                 }
             }
         }
-    } else if (!rn2(30) || Protection_from_shape_changers) {
+    } else if (!random_integer_between_zero_and(30) || Protection_from_shape_changers) {
         new_were(mon); /* change back into human form */
     }
     /* update innate intrinsics (mainly Drain_resistance) */
@@ -92,7 +94,7 @@ were_beastie(int pm)
 }
 
 void
-new_were(struct monst *mon)
+new_were(struct monster *mon)
 {
     int pm;
 
@@ -138,30 +140,30 @@ were_summon(
     char *genbuf)
 {
     int i, typ, pm = monsndx(ptr);
-    struct monst *mtmp;
+    struct monster *mtmp;
     int total = 0;
 
     *visible = 0;
     if (Protection_from_shape_changers && !yours)
         return 0;
-    for (i = rnd(5); i > 0; i--) {
+    for (i = random(5); i > 0; i--) {
         switch (pm) {
         case PM_WERERAT:
         case PM_HUMAN_WERERAT:
-            typ = rn2(3) ? PM_SEWER_RAT
-                         : rn2(3) ? PM_GIANT_RAT : PM_RABID_RAT;
+            typ = random_integer_between_zero_and(3) ? PM_SEWER_RAT
+                         : random_integer_between_zero_and(3) ? PM_GIANT_RAT : PM_RABID_RAT;
             if (genbuf)
                 Strcpy(genbuf, "rat");
             break;
         case PM_WEREJACKAL:
         case PM_HUMAN_WEREJACKAL:
-            typ = rn2(7) ? PM_JACKAL : rn2(3) ? PM_COYOTE : PM_FOX;
+            typ = random_integer_between_zero_and(7) ? PM_JACKAL : random_integer_between_zero_and(3) ? PM_COYOTE : PM_FOX;
             if (genbuf)
                 Strcpy(genbuf, "jackal");
             break;
         case PM_WEREWOLF:
         case PM_HUMAN_WEREWOLF:
-            typ = rn2(5) ? PM_WOLF : rn2(2) ? PM_WARG : PM_WINTER_WOLF;
+            typ = random_integer_between_zero_and(5) ? PM_WOLF : random_integer_between_zero_and(2) ? PM_WARG : PM_WINTER_WOLF;
             if (genbuf)
                 Strcpy(genbuf, "wolf");
             break;

@@ -92,7 +92,7 @@ struct warntype_info {
 };
 
 struct polearm_info {
-    struct monst *hitmon; /* the monster we tried to hit last */
+    struct monster *hitmon; /* the monster we tried to hit last */
     unsigned m_id;        /* monster id of hitmon, in save file */
 };
 

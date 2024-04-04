@@ -3,12 +3,14 @@
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
-staticfn void m_lose_armor(struct monst *, struct obj *, boolean) NONNULLPTRS;
+staticfn void m_lose_armor(struct monster *, struct obj *, boolean) NONNULLPTRS;
 staticfn void clear_bypass(struct obj *) NO_NNARGS;
-staticfn void m_dowear_type(struct monst *, long, boolean, boolean) NONNULLARG1;
-staticfn int extra_pref(struct monst *, struct obj *) NONNULLARG1;
+staticfn void m_dowear_type(struct monster *, long, boolean, boolean) NONNULLARG1;
+staticfn int extra_pref(struct monster *, struct obj *) NONNULLARG1;
 
 static const struct worn {
     long w_mask;
@@ -63,7 +65,7 @@ setworn(struct obj *obj, long mask)
                 if (oobj && !(oobj->owornmask & wp->w_mask))
                     impossible("Setworn: mask=0x%08lx.", wp->w_mask);
                 if (oobj) {
-                    if (u.twoweap && (oobj->owornmask & (W_WEP | W_SWAPWEP)))
+                    if (u.using_two_weapons && (oobj->owornmask & (W_WEP | W_SWAPWEP)))
                         set_twoweap(FALSE); /* u.twoweap = FALSE */
                     oobj->owornmask &= ~wp->w_mask;
                     if (wp->w_mask & ~(W_SWAPWEP | W_QUIVER)) {
@@ -126,7 +128,7 @@ setnotworn(struct obj *obj)
 
     if (!obj)
         return;
-    if (u.twoweap && (obj == uwep || obj == uswapwep))
+    if (u.using_two_weapons && (obj == uwep || obj == uswapwep))
         set_twoweap(FALSE); /* u.twoweap = FALSE */
     for (wp = worn; wp->w_mask; wp++)
         if (obj == *(wp->w_obj)) {
@@ -155,7 +157,7 @@ allunworn(void)
 {
     const struct worn *wp;
 
-    u.twoweap = 0; /* uwep and uswapwep are going away */
+    u.using_two_weapons = 0; /* uwep and uswapwep are going away */
     /* remove stale pointers; called after the objects have been freed
        (without first being unworn) while saving invent during game save;
        note: uball and uchain might not be freed yet but we clear them
@@ -337,7 +339,7 @@ check_wornmask_slots(void)
 
 #ifdef EXTRA_SANITY_CHECKS
     /* dual wielding: not a slot but lots of things to verify */
-    if (u.twoweap) {
+    if (u.using_two_weapons) {
         const char *why = NULL;
 
         if (!uwep || !uswapwep) {
@@ -373,7 +375,7 @@ check_wornmask_slots(void)
 } /* check_wornmask_slots() */
 
 void
-mon_set_minvis(struct monst *mon)
+mon_set_minvis(struct monster *mon)
 {
     mon->perminvis = 1;
     if (!mon->invis_blkd) {
@@ -386,7 +388,7 @@ mon_set_minvis(struct monst *mon)
 
 void
 mon_adjust_speed(
-    struct monst *mon,
+    struct monster *mon,
     int adjust,        /* positive => increase speed, negative => decrease */
     struct obj *obj)   /* item to make known if effect can be seen */
 {
@@ -475,7 +477,7 @@ mon_adjust_speed(
 /* armor put on or taken off; might be magical variety */
 void
 update_mon_extrinsics(
-    struct monst *mon,
+    struct monster *mon,
     struct obj *obj,   /* armor being worn or taken off */
     boolean on,
     boolean silently)
@@ -606,7 +608,7 @@ update_mon_extrinsics(
         break;
     }
 
-    if (!on && mon == u.usteed && obj->otyp == SADDLE)
+    if (!on && mon == u.monster_being_ridden && obj->otyp == SADDLE)
         dismount_steed(DISMOUNT_FELL);
 
     /* if couldn't see it but now can, or vice versa, update display */
@@ -617,7 +619,7 @@ update_mon_extrinsics(
 #undef altprop
 
 int
-find_mac(struct monst *mon)
+find_mac(struct monster *mon)
 {
     struct obj *obj;
     int base = mon->data->ac;
@@ -657,7 +659,7 @@ find_mac(struct monst *mon)
  * already worn body armor is too obviously buggy...
  */
 void
-m_dowear(struct monst *mon, boolean creation)
+m_dowear(struct monster *mon, boolean creation)
 {
     boolean can_wear_armor;
 
@@ -700,7 +702,7 @@ m_dowear(struct monst *mon, boolean creation)
 
 staticfn void
 m_dowear_type(
-    struct monst *mon,
+    struct monster *mon,
     long flag,               /* wornmask value */
     boolean creation,
     boolean racialexception) /* small monsters that are allowed for player
@@ -889,7 +891,7 @@ m_dowear_type(
 #undef RACE_EXCEPTION
 
 struct obj *
-which_armor(struct monst *mon, long flag)
+which_armor(struct monster *mon, long flag)
 {
     if (mon == &gy.youmonst) {
         switch (flag) {
@@ -924,7 +926,7 @@ which_armor(struct monst *mon, long flag)
 /* remove an item of armor and then drop it */
 staticfn void
 m_lose_armor(
-    struct monst *mon,
+    struct monster *mon,
     struct obj *obj,
     boolean polyspot)
 {
@@ -955,7 +957,7 @@ clear_bypass(struct obj *objchn)
 void
 clear_bypasses(void)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     /*
      * 'Object' bypass is also used for one monster function:
@@ -1059,7 +1061,7 @@ nxt_unbypassed_loot(Loot *lootarray, struct obj *listhead)
 }
 
 void
-mon_break_armor(struct monst *mon, boolean polyspot)
+mon_break_armor(struct monster *mon, boolean polyspot)
 {
     struct obj *otmp;
     struct permonst *mdat = mon->data;
@@ -1195,17 +1197,17 @@ mon_break_armor(struct monst *mon, boolean polyspot)
             if (vis)
                 pline("%s saddle falls off.", s_suffix(Monnam(mon)));
         }
-        if (mon == u.usteed)
+        if (mon == u.monster_being_ridden)
             noride = TRUE;
     }
-    if (noride || (mon == u.usteed && !can_ride(mon))) {
+    if (noride || (mon == u.monster_being_ridden && !can_ride(mon))) {
         You("can no longer ride %s.", mon_nam(mon));
-        if (touch_petrifies(u.usteed->data) && !Stone_resistance && rnl(3)) {
+        if (touch_petrifies(u.monster_being_ridden->data) && !Stone_resistance && rnl(3)) {
             char buf[BUFSZ];
 
-            You("touch %s.", mon_nam(u.usteed));
+            You("touch %s.", mon_nam(u.monster_being_ridden));
             Sprintf(buf, "falling off %s",
-                    an(pmname(u.usteed->data, Mgender(u.usteed))));
+                    an(pmname(u.monster_being_ridden->data, Mgender(u.monster_being_ridden))));
             instapetrify(buf);
         }
         dismount_steed(DISMOUNT_FELL);
@@ -1215,7 +1217,7 @@ mon_break_armor(struct monst *mon, boolean polyspot)
 
 /* bias a monster's preferences towards armor that has special benefits. */
 staticfn int
-extra_pref(struct monst *mon, struct obj *obj)
+extra_pref(struct monster *mon, struct obj *obj)
 {
     /* currently only does speed boots, but might be expanded if monsters
      * get to use more armor abilities
@@ -1236,7 +1238,7 @@ extra_pref(struct monst *mon, struct obj *obj)
  *      -1 If the race/object combination is unacceptable.
  */
 int
-racial_exception(struct monst *mon, struct obj *obj)
+racial_exception(struct monster *mon, struct obj *obj)
 {
     const struct permonst *ptr = raceptr(mon);
 
@@ -1254,7 +1256,7 @@ racial_exception(struct monst *mon, struct obj *obj)
 /* Remove an object from a monster's inventory. */
 void
 extract_from_minvent(
-    struct monst *mon,
+    struct monster *mon,
     struct obj *obj,
     boolean do_extrinsics,  /* whether to call update_mon_extrinsics */
     boolean silently)       /* doesn't affect all possible messages,

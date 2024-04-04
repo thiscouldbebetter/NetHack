@@ -2,25 +2,27 @@
 /*-Copyright (c) Robert Patrick Rankin, 2024. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #include "func_tab.h"
 
 extern const char unavailcmd[];                  /* cmd.c [27] */
 extern const char *levltyp[MAX_TYPE + 2];          /* cmd.c */
 
-staticfn int size_monst(struct monst *, boolean);
+staticfn int size_monst(struct monster *, boolean);
 staticfn int size_obj(struct obj *);
 staticfn void count_obj(struct obj *, long *, long *, boolean, boolean);
 staticfn void obj_chain(winid, const char *, struct obj *, boolean, long *,
                       long *);
-staticfn void mon_invent_chain(winid, const char *, struct monst *, long *,
+staticfn void mon_invent_chain(winid, const char *, struct monster *, long *,
                              long *);
-staticfn void mon_chain(winid, const char *, struct monst *, boolean, long *,
+staticfn void mon_chain(winid, const char *, struct monster *, boolean, long *,
                       long *);
 staticfn void contained_stats(winid, const char *, long *, long *);
 staticfn void misc_stats(winid, long *, long *);
 staticfn void you_sanity_check(void);
-staticfn void makemap_unmakemon(struct monst *, boolean);
+staticfn void makemap_unmakemon(struct monster *, boolean);
 staticfn int QSORTCALLBACK migrsort_cmp(const genericptr, const genericptr);
 staticfn void list_migrating_mons(d_level *);
 
@@ -36,7 +38,7 @@ wiz_wish(void) /* Unlimited wishes for debug mode by Paul Polderman */
         flags.verbose = FALSE;
         makewish();
         flags.verbose = save_verbose;
-        (void) encumber_msg();
+        (void) encumbered_message();
     } else
         pline(unavailcmd, ecname_from_fn(wiz_wish));
     return ECMD_OK;
@@ -69,7 +71,7 @@ RESTORE_WARNING_FORMAT_NONLITERAL
 /* used when wiz_makemap() gets rid of monsters for the old incarnation of
    a level before creating a new incarnation of it */
 void
-makemap_unmakemon(struct monst *mtmp, boolean migratory)
+makemap_unmakemon(struct monster *mtmp, boolean migratory)
 {
     int ndx = monsndx(mtmp->data);
 
@@ -108,7 +110,7 @@ makemap_unmakemon(struct monst *mtmp, boolean migratory)
 void
 makemap_remove_mons(void)
 {
-    struct monst *mtmp, **mprev;
+    struct monster *mtmp, **mprev;
 
     /* keep steed and other adjacent pets after releasing them
        from traps, stopping eating, &c as if hero were ascending */
@@ -241,7 +243,7 @@ RESTORE_WARNING_FORMAT_NONLITERAL
 int
 wiz_kill(void)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     coord cc;
     int ans;
     char c, qbuf[QBUFSZ];
@@ -265,12 +267,12 @@ wiz_kill(void)
 
         mtmp = 0;
         if (u_at(cc.x, cc.y)) {
-            if (u.usteed) {
-                Sprintf(qbuf, "Kill %.110s?", mon_nam(u.usteed));
+            if (u.monster_being_ridden) {
+                Sprintf(qbuf, "Kill %.110s?", mon_nam(u.monster_being_ridden));
                 if ((c = ynq(qbuf)) == 'q')
                     break;
                 if (c == 'y')
-                    mtmp = u.usteed;
+                    mtmp = u.monster_being_ridden;
             }
             if (!mtmp) {
                 Sprintf(qbuf, "%s?", Role_if(PM_SAMURAI) ? "Perform seppuku"
@@ -283,7 +285,7 @@ wiz_kill(void)
                 break;
             }
         } else if (u.uswallow) {
-            mtmp = next2u(cc.x, cc.y) ? u.ustuck : 0;
+            mtmp = next2u(cc.x, cc.y) ? u.monster_stuck_to : 0;
         } else {
             mtmp = m_at(cc.x, cc.y);
         }
@@ -299,7 +301,7 @@ wiz_kill(void)
                isn't; note that if it triggers other kills, those might
                be referred to as "it" */
             int tame = !!mtmp->mtame,
-                seen = (canspotmon(mtmp) || (u.uswallow && mtmp == u.ustuck)),
+                seen = (canspotmon(mtmp) || (u.uswallow && mtmp == u.monster_stuck_to)),
                 flgs = (SUPPRESS_IT | SUPPRESS_HALLUCINATION
                         | ((tame && has_mgivenname(mtmp)) ? SUPPRESS_SADDLE
                            : 0)),
@@ -492,7 +494,7 @@ wiz_telekinesis(void)
 {
     int ans = 0;
     coord cc;
-    struct monst *mtmp = (struct monst *) 0;
+    struct monster *mtmp = (struct monster *) 0;
 
     cc.x = u.ux;
     cc.y = u.uy;
@@ -531,8 +533,8 @@ int
 wiz_panic(void)
 {
     if (iflags.debug_fuzzer) {
-        u.uhp = u.uhpmax = 1000;
-        u.uen = u.uenmax = 1000;
+        u.hit_points = u.hit_points_max = 1000;
+        u.energy = u.energy_max = 1000;
         return ECMD_OK;
     }
     if (paranoid_query(TRUE,
@@ -875,7 +877,7 @@ DISABLE_WARNING_CONDEXPR_IS_CONSTANT
 int
 wiz_smell(void)
 {
-    struct monst *mtmp; /* monster being smelled */
+    struct monster *mtmp; /* monster being smelled */
     struct permonst *mptr;
     int ans, glyph;
     coord cc; /* screen pos to sniff */
@@ -897,13 +899,13 @@ wiz_smell(void)
         }
         is_you = FALSE;
         if (u_at(cc.x, cc.y)) {
-            if (u.usteed) {
-                mptr = u.usteed->data;
+            if (u.monster_being_ridden) {
+                mptr = u.monster_being_ridden->data;
             } else {
                 mptr = gy.youmonst.data;
                 is_you = TRUE;
             }
-        } else if ((mtmp = m_at(cc.x, cc.y)) != (struct monst *) 0) {
+        } else if ((mtmp = m_at(cc.x, cc.y)) != (struct monster *) 0) {
             mptr = mtmp->data;
         } else {
             mptr = (struct permonst *) 0;
@@ -1024,7 +1026,7 @@ wiz_intrinsic(void)
                 make_hallucinated(newtimeout, TRUE, 0L);
                 break;
             case SICK:
-                typ = !rn2(2) ? SICK_VOMITABLE : SICK_NONVOMITABLE;
+                typ = !random_integer_between_zero_and(2) ? SICK_VOMITABLE : SICK_NONVOMITABLE;
                 make_sick(newtimeout, wizintrinsic, TRUE, typ);
                 break;
             case SLIMED:
@@ -1163,12 +1165,12 @@ staticfn void
 mon_invent_chain(
     winid win,
     const char *src,
-    struct monst *chain,
+    struct monster *chain,
     long *total_count, long *total_size)
 {
     char buf[BUFSZ];
     long count = 0, size = 0;
-    struct monst *mon;
+    struct monster *mon;
 
     for (mon = chain; mon; mon = mon->nmon)
         count_obj(mon->minvent, &count, &size, TRUE, FALSE);
@@ -1189,7 +1191,7 @@ contained_stats(
 {
     char buf[BUFSZ];
     long count = 0, size = 0;
-    struct monst *mon;
+    struct monster *mon;
 
     count_obj(gi.invent, &count, &size, FALSE, TRUE);
     count_obj(fobj, &count, &size, FALSE, TRUE);
@@ -1211,9 +1213,9 @@ contained_stats(
 }
 
 staticfn int
-size_monst(struct monst *mtmp, boolean incl_wsegs)
+size_monst(struct monster *mtmp, boolean incl_wsegs)
 {
-    int sz = (int) sizeof (struct monst);
+    int sz = (int) sizeof (struct monster);
 
     if (mtmp->wormno && incl_wsegs)
         sz += size_wseg(mtmp);
@@ -1241,13 +1243,13 @@ staticfn void
 mon_chain(
     winid win,
     const char *src,
-    struct monst *chain,
+    struct monster *chain,
     boolean force,
     long *total_count, long *total_size)
 {
     char buf[BUFSZ];
     long count, size;
-    struct monst *mon;
+    struct monster *mon;
     /* mon->wormno means something different for migrating_mons and mydogs */
     boolean incl_wsegs = !strcmpi(src, "fmon");
 
@@ -1385,9 +1387,9 @@ misc_stats(
 staticfn void
 you_sanity_check(void)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
 
-    if (u.uswallow && !u.ustuck) {
+    if (u.uswallow && !u.monster_stuck_to) {
         /* this probably ought to be panic() */
         impossible("sanity_check: swallowed by nothing?");
         display_nhwindow(WIN_MESSAGE, TRUE);
@@ -1398,7 +1400,7 @@ you_sanity_check(void)
     }
     if ((mtmp = m_at(u.ux, u.uy)) != 0) {
         /* u.usteed isn't on the map */
-        if (u.ustuck != mtmp)
+        if (u.monster_stuck_to != mtmp)
             impossible("sanity_check: you over monster");
     }
 
@@ -1431,8 +1433,8 @@ sanity_check(void)
 staticfn int QSORTCALLBACK
 migrsort_cmp(const genericptr vptr1, const genericptr vptr2)
 {
-    const struct monst *m1 = *(const struct monst **) vptr1,
-                       *m2 = *(const struct monst **) vptr2;
+    const struct monster *m1 = *(const struct monster **) vptr1,
+                       *m2 = *(const struct monster **) vptr2;
     int d1 = (int) m1->mux, l1 = (int) m1->muy,
         d2 = (int) m2->mux, l2 = (int) m2->muy;
 
@@ -1459,7 +1461,7 @@ list_migrating_mons(
     int xyloc;
     coordxy x, y;
     char c, prmpt[10], xtra[10], buf[BUFSZ];
-    struct monst *mtmp, **marray;
+    struct monster *mtmp, **marray;
     int here = 0, nxtlv = 0, other = 0;
 
     for (mtmp = gm.migrating_mons; mtmp; mtmp = mtmp->nmon) {
@@ -1510,7 +1512,7 @@ list_migrating_mons(
                where multiple destination levels might be present, sort by
                the destination; 'c' and 'n' don't need to be sorted but we
                do that anyway to get the same tie-breaker as 'o' and 'a' */
-            marray = (struct monst **) alloc((n + 1) * sizeof *marray);
+            marray = (struct monster **) alloc((n + 1) * sizeof *marray);
             n = 0;
             for (mtmp = gm.migrating_mons; mtmp; mtmp = mtmp->nmon) {
                 if (c == 'a')
@@ -1526,7 +1528,7 @@ list_migrating_mons(
                 if (showit)
                     marray[n++] = mtmp;
             }
-            marray[n] = (struct monst *) 0; /* mark end for traversal loop */
+            marray[n] = (struct monster *) 0; /* mark end for traversal loop */
             if (n > 1)
                 qsort((genericptr_t) marray, (size_t) n, sizeof *marray,
                       migrsort_cmp); /* sort elements [0] through [n-1] */
@@ -1595,7 +1597,7 @@ wiz_show_stats(void)
 
     total_mon_count = total_mon_size = 0L;
     putstr(win, 0, "");
-    Sprintf(buf, "  Monsters, base size %ld", (long) sizeof (struct monst));
+    Sprintf(buf, "  Monsters, base size %ld", (long) sizeof (struct monster));
     putstr(win, 0, buf);
     mon_chain(win, "fmon", fmon, TRUE, &total_mon_count, &total_mon_size);
     mon_chain(win, "migrating", gm.migrating_mons, FALSE,
@@ -1777,7 +1779,7 @@ wiz_migrate_mons(void)
     int mcount;
     char inbuf[BUFSZ];
     struct permonst *ptr;
-    struct monst *mtmp;
+    struct monster *mtmp;
 #endif
     d_level tolevel;
 

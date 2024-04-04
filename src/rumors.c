@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #include "dlb.h"
 
@@ -147,7 +149,7 @@ getrumor(
              *   rn2 \ +1  2=T  1=T  0=F
              *   adj./ +0  1=T  0=F -1=F
              */
-            switch (adjtruth = truth + rn2(2)) {
+            switch (adjtruth = truth + random_integer_between_zero_and(2)) {
             case 2: /*(might let a bogus input arg sneak thru)*/
             case 1:
                 beginning = (long) gt.true_rumor_start;
@@ -163,7 +165,7 @@ getrumor(
                 return strcpy(rumor_buf, "Oops...");
             }
             Strcpy(rumor_buf,
-                   get_rnd_line(rumors, line, (unsigned) sizeof line, rn2,
+                   get_rnd_line(rumors, line, (unsigned) sizeof line, random_integer_between_zero_and,
                                 beginning, ending, MD_PAD_RUMORS));
         } while (count++ < 50 && exclude_cookie
                  && !strncmp(rumor_buf, cookie_marker, marklen));
@@ -554,10 +556,10 @@ outrumor(
     case BY_ORACLE:
         /* Oracle delivers the rumor */
         pline("True to her word, the Oracle %ssays: ",
-              (!rn2(4) ? "offhandedly "
-                       : (!rn2(3) ? "casually "
-                                  : (rn2(2) ? "nonchalantly " : ""))));
-        SetVoice((struct monst *) 0, 0, 80, voice_oracle);
+              (!random_integer_between_zero_and(4) ? "offhandedly "
+                       : (!random_integer_between_zero_and(3) ? "casually "
+                                  : (random_integer_between_zero_and(2) ? "nonchalantly " : ""))));
+        SetVoice((struct monster *) 0, 0, 80, voice_oracle);
         verbalize1(line);
         /* [WIS exercised by getrumor()] */
         return;
@@ -656,7 +658,7 @@ outoracle(boolean special, boolean delphi)
            oracle_loc[1..oracle_cnt-1] are normal ones */
         if (go.oracle_cnt <= 1 && !special)
             goto close_oracles; /*(shouldn't happen)*/
-        oracle_idx = special ? 0 : rnd((int) go.oracle_cnt - 1);
+        oracle_idx = special ? 0 : random((int) go.oracle_cnt - 1);
         (void) dlb_fseek(oracles, (long) go.oracle_loc[oracle_idx], SEEK_SET);
         if (!special) /* move offset of very last one into this slot */
             go.oracle_loc[oracle_idx] = go.oracle_loc[--go.oracle_cnt];
@@ -687,7 +689,7 @@ outoracle(boolean special, boolean delphi)
 }
 
 int
-doconsult(struct monst *oracl)
+doconsult(struct monster *oracl)
 {
     long umoney;
     int u_pay, minor_cost = 50, major_cost = 500 + 50 * u.ulevel;
@@ -734,23 +736,23 @@ doconsult(struct monst *oracl)
     }
     money2mon(oracl, (long) u_pay);
     disp.botl = TRUE;
-    if (!u.uevent.major_oracle && !u.uevent.minor_oracle)
+    if (!u.player_event_history.major_oracle && !u.player_event_history.minor_oracle)
         record_achievement(ACH_ORCL);
     add_xpts = 0; /* first oracle of each type gives experience points */
     if (u_pay == minor_cost) {
         outrumor(1, BY_ORACLE);
-        if (!u.uevent.minor_oracle)
-            add_xpts = u_pay / (u.uevent.major_oracle ? 25 : 10);
+        if (!u.player_event_history.minor_oracle)
+            add_xpts = u_pay / (u.player_event_history.major_oracle ? 25 : 10);
         /* 5 pts if very 1st, or 2 pts if major already done */
-        u.uevent.minor_oracle = TRUE;
+        u.player_event_history.minor_oracle = TRUE;
     } else {
         boolean cheapskate = u_pay < major_cost;
 
         outoracle(cheapskate, TRUE);
-        if (!cheapskate && !u.uevent.major_oracle)
-            add_xpts = u_pay / (u.uevent.minor_oracle ? 25 : 10);
+        if (!cheapskate && !u.player_event_history.major_oracle)
+            add_xpts = u_pay / (u.player_event_history.minor_oracle ? 25 : 10);
         /* ~100 pts if very 1st, ~40 pts if minor already done */
-        u.uevent.major_oracle = TRUE;
+        u.player_event_history.major_oracle = TRUE;
         exercise(A_WIS, !cheapskate);
     }
     if (add_xpts) {

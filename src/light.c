@@ -2,6 +2,8 @@
 /* Copyright (c) Dean Luick, 1994                                       */
 /* NetHack may be freely redistributed.  See license for details.       */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 /*
@@ -43,7 +45,7 @@
 
 staticfn light_source *new_light_core(coordxy, coordxy,
                                     int, int, anything *) NONNULLPTRS;
-staticfn void delete_ls(light_source *);
+staticfn void delete_light_source(light_source *);
 staticfn void discard_flashes(void);
 staticfn void write_ls(NHFILE *, light_source *);
 staticfn int maybe_write_ls(NHFILE *, int, boolean);
@@ -123,7 +125,7 @@ del_light_source(int type, anything *id)
             break;
     }
     if (curr) {
-        delete_ls(curr);
+        delete_light_source(curr);
     } else {
         impossible("del_light_source: not found type=%d, id=%s", type,
                    fmt_ptr((genericptr_t) id->a_obj));
@@ -132,7 +134,7 @@ del_light_source(int type, anything *id)
 
 /* remove a light source from the light_base list and free it */
 staticfn void
-delete_ls(light_source *ls)
+delete_light_source(light_source *ls)
 {
     light_source *curr, *prev;
 
@@ -250,7 +252,7 @@ show_transient_light(struct obj *obj, coordxy x, coordxy y)
 {
     light_source *ls = 0;
     anything cameraflash;
-    struct monst *mon;
+    struct monster *mon;
     int radius_squared;
 
     /* Null object indicates camera flash */
@@ -321,7 +323,7 @@ show_transient_light(struct obj *obj, coordxy x, coordxy y)
 void
 transient_light_cleanup(void)
 {
-    struct monst *mon;
+    struct monster *mon;
     int mtempcount;
 
     /* in case we're cleaning up a camera flash, remove all object light
@@ -357,17 +359,17 @@ discard_flashes(void)
     for (ls = gl.light_base; ls; ls = nxt_ls) {
         nxt_ls = ls->next;
         if (ls->type == LS_OBJECT && !ls->id.a_obj)
-            delete_ls(ls);
+            delete_light_source(ls);
     }
 }
 
 /* (mon->mx == 0) implies migrating */
 #define mon_is_local(mon) ((mon)->mx > 0)
 
-struct monst *
+struct monster *
 find_mid(unsigned nid, unsigned fmflags)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if (!nid)
         return &gy.youmonst;
@@ -383,7 +385,7 @@ find_mid(unsigned nid, unsigned fmflags)
         for (mtmp = gm.mydogs; mtmp; mtmp = mtmp->nmon)
             if (mtmp->m_id == nid)
                 return mtmp;
-    return (struct monst *) 0;
+    return (struct monster *) 0;
 }
 
 /* Save all light sources of the given range. */
@@ -568,7 +570,7 @@ void
 light_sources_sanity_check(void)
 {
     light_source *ls;
-    struct monst *mtmp;
+    struct monster *mtmp;
     struct obj *otmp;
     unsigned int auint;
 
@@ -581,7 +583,7 @@ light_sources_sanity_check(void)
             if (find_oid(auint) != otmp)
                 panic("insane light source: can't find obj #%u!", auint);
         } else if (ls->type == LS_MONSTER) {
-            mtmp = (struct monst *) ls->id.a_monst;
+            mtmp = (struct monster *) ls->id.a_monst;
             auint = mtmp->m_id;
             if (find_mid(auint, FM_EVERYWHERE) != mtmp)
                 panic("insane light source: can't find mon #%u!", auint);
@@ -597,7 +599,7 @@ write_ls(NHFILE *nhfp, light_source *ls)
 {
     anything arg_save;
     struct obj *otmp;
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if (ls->type == LS_OBJECT || ls->type == LS_MONSTER) {
         if (ls->flags & LSF_NEEDS_FIXUP) {
@@ -614,7 +616,7 @@ write_ls(NHFILE *nhfp, light_source *ls)
                     impossible("write_ls: can't find obj #%u!",
                                ls->id.a_uint);
             } else { /* ls->type == LS_MONSTER */
-                mtmp = (struct monst *) ls->id.a_monst;
+                mtmp = (struct monster *) ls->id.a_monst;
                 ls->id = cg.zeroany;
                 ls->id.a_uint = mtmp->m_id;
                 if (find_mid((unsigned) ls->id.a_uint, FM_EVERYWHERE) != mtmp)

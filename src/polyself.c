@@ -2,6 +2,8 @@
 /*      Copyright (C) 1987, 1988, 1989 by Ken Arromdee */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /*
  * Polymorph self routine.
  *
@@ -150,7 +152,7 @@ float_vs_flight(void)
 void
 steed_vs_stealth(void)
 {
-    if (u.usteed && !Flying && !Levitation)
+    if (u.monster_being_ridden && !Flying && !Levitation)
         BStealth |= FROMOUTSIDE;
     else
         BStealth &= ~FROMOUTSIDE;
@@ -192,13 +194,13 @@ DISABLE_WARNING_FORMAT_NONLITERAL
 staticfn void
 polyman(const char *fmt, const char *arg)
 {
-    boolean sticking = (sticks(gy.youmonst.data) && u.ustuck && !u.uswallow),
+    boolean sticking = (sticks(gy.youmonst.data) && u.monster_stuck_to && !u.uswallow),
             was_mimicking = (U_AP_TYPE != M_AP_NOTHING);
     boolean was_blind = !!Blind;
 
     if (Upolyd) {
-        u.acurr = u.macurr; /* restore old attribs */
-        u.amax = u.mamax;
+        u.attributes_current = u.macurr; /* restore old attribs */
+        u.attributes_max = u.mamax;
         u.umonnum = u.umonster;
         flags.female = u.mfemale;
     }
@@ -238,7 +240,7 @@ polyman(const char *fmt, const char *arg)
         done(GENOCIDED);
     }
 
-    if (u.twoweap && !could_twoweap(gy.youmonst.data))
+    if (u.using_two_weapons && !could_twoweap(gy.youmonst.data))
         untwoweapon();
 
     if (u.utrap && u.utraptype == TT_PIT) {
@@ -250,7 +252,7 @@ polyman(const char *fmt, const char *arg)
     }
     check_strangling(TRUE);
 
-    if (!Levitation && !u.ustuck && is_pool_or_lava(u.ux, u.uy))
+    if (!Levitation && !u.monster_stuck_to && is_pool_or_lava(u.ux, u.uy))
         spoteffects(TRUE);
 
     see_monsters();
@@ -347,13 +349,13 @@ newman(void)
     u.ulevel = newlvl;
 
     oldgend = poly_gender();
-    if (gs.sex_change_ok && !rn2(10))
+    if (gs.sex_change_ok && !random_integer_between_zero_and(10))
         change_sex();
 
     adjabil(oldlvl, (int) u.ulevel);
 
     /* random experience points for the new experience level */
-    u.uexp = rndexp(FALSE);
+    u.experience = rndexp(FALSE);
 
     /* set up new attribute points (particularly Con) */
     redist_attr();
@@ -372,9 +374,9 @@ newman(void)
      * and the extra got multiplied by 2 or 3.  Repeat the level
      * drain and polyself steps until out of lifesaving capability.)
      */
-    hpmax = u.uhpmax;
+    hpmax = u.hit_points_max;
     for (i = 0; i < oldlvl; i++)
-        hpmax -= (int) u.uhpinc[i];
+        hpmax -= (int) u.hit_points_increment[i];
     /* hpmax * rn1(4,8) / 10; 0.95*hpmax on average */
     hpmax = rounddiv((long) hpmax * (long) rn1(4, 8), 10);
     for (i = 0; (u.ulevel = i) < newlvl; i++)
@@ -382,22 +384,22 @@ newman(void)
     if (hpmax < u.ulevel)
         hpmax = u.ulevel; /* min of 1 HP per level */
     /* retain same proportion for current HP; u.uhp * hpmax / u.uhpmax */
-    u.uhp = rounddiv((long) u.uhp * (long) hpmax, u.uhpmax);
-    u.uhpmax = hpmax;
+    u.hit_points = rounddiv((long) u.hit_points * (long) hpmax, u.hit_points_max);
+    u.hit_points_max = hpmax;
     /*
      * Do the same for spell power.
      */
-    enmax = u.uenmax;
+    enmax = u.energy_max;
     for (i = 0; i < oldlvl; i++)
-        enmax -= (int) u.ueninc[i];
+        enmax -= (int) u.energy_increment[i];
     enmax = rounddiv((long) enmax * (long) rn1(4, 8), 10);
     for (i = 0; (u.ulevel = i) < newlvl; i++)
         enmax += newpw();
     if (enmax < u.ulevel)
         enmax = u.ulevel;
-    u.uen = rounddiv((long) u.uen * (long) enmax,
-                     ((u.uenmax < 1) ? 1 : u.uenmax));
-    u.uenmax = enmax;
+    u.energy = rounddiv((long) u.energy * (long) enmax,
+                     ((u.energy_max < 1) ? 1 : u.energy_max));
+    u.energy_max = enmax;
     /* [should alignment record be tweaked too?] */
 
     u.uhunger = rn1(500, 500);
@@ -405,10 +407,10 @@ newman(void)
         make_sick(0L, (char *) 0, FALSE, SICK_ALL);
     if (Stoned)
         make_stoned(0L, (char *) 0, 0, (char *) 0);
-    if (u.uhp <= 0) {
+    if (u.hit_points <= 0) {
         if (Polymorph_control) { /* even when Stunned || Unaware */
-            if (u.uhp <= 0)
-                u.uhp = 1;
+            if (u.hit_points <= 0)
+                u.hit_points = 1;
         } else {
  dead:      /* we come directly here if experience level went to 0 or less */
             urgent_pline(
@@ -418,7 +420,7 @@ newman(void)
             done(DIED);
             /* must have been life-saved to get here */
             newuhs(FALSE);
-            (void) encumber_msg(); /* used to be done by redist_attr() */
+            (void) encumbered_message(); /* used to be done by redist_attr() */
             return; /* lifesaved */
         }
     }
@@ -447,7 +449,7 @@ newman(void)
 
     disp.botl = TRUE;
     see_monsters();
-    (void) encumber_msg();
+    (void) encumbered_message();
 
     retouch_equipment(2);
     if (!uarmg)
@@ -476,9 +478,9 @@ polyself(int psflags)
     /* being Stunned|Unaware doesn't negate this aspect of Poly_control */
     if (!Polymorph_control && !forcecontrol && !draconian && !iswere
         && !isvamp) {
-        if (rn2(20) > ACURR(A_CON)) {
+        if (random_integer_between_zero_and(20) > ATTRIBUTE_CURRENT(A_CON)) {
             You1(shudder_for_moment);
-            losehp(rnd(30), "system shock", KILLED_BY_AN);
+            losehp(random(30), "system shock", KILLED_BY_AN);
             exercise(A_CON, FALSE);
             return;
         }
@@ -540,11 +542,11 @@ polyself(int psflags)
                        && mntmp != PM_HUMAN) {
                 /* far less general than mkclass() */
                 if (mntmp == PM_ORC)
-                    mntmp = rn2(3) ? PM_HILL_ORC : PM_MORDOR_ORC;
+                    mntmp = random_integer_between_zero_and(3) ? PM_HILL_ORC : PM_MORDOR_ORC;
                 else if (mntmp == PM_ELF)
-                    mntmp = rn2(3) ? PM_GREEN_ELF : PM_GREY_ELF;
+                    mntmp = random_integer_between_zero_and(3) ? PM_GREEN_ELF : PM_GREY_ELF;
                 else if (mntmp == PM_GIANT)
-                    mntmp = rn2(3) ? PM_STONE_GIANT : PM_HILL_GIANT;
+                    mntmp = random_integer_between_zero_and(3) ? PM_STONE_GIANT : PM_HILL_GIANT;
                 /* note: PM_DWARF and PM_GNOME are ordinary monsters and
                    no longer flagged no-poly so have no need for placeholder
                    handling; PM_HUMAN is a placeholder without a suitable
@@ -587,7 +589,7 @@ polyself(int psflags)
                 /* mkclass_poly() can pick a !polyok()
                    candidate; if so, usually try again */
                 if (class) {
-                    if (rn2(3) || --tryct > 0)
+                    if (random_integer_between_zero_and(3) || --tryct > 0)
                         goto by_class;
                     /* no retries left; put one back on counter
                        so that end of loop decrement will yield
@@ -660,11 +662,11 @@ polyself(int psflags)
  do_vampyr:
             if (mntmp < LOW_PM || (mons[mntmp].geno & G_UNIQ)) {
                 mntmp = (gy.youmonst.data == &mons[PM_VAMPIRE_LEADER]
-                         && !rn2(10)) ? PM_WOLF
-                                      : !rn2(4) ? PM_FOG_CLOUD
+                         && !random_integer_between_zero_and(10)) ? PM_WOLF
+                                      : !random_integer_between_zero_and(4) ? PM_FOG_CLOUD
                                                 : PM_VAMPIRE_BAT;
                 if (ismnum(gy.youmonst.cham)
-                    && !is_vampire(gy.youmonst.data) && !rn2(2))
+                    && !is_vampire(gy.youmonst.data) && !random_integer_between_zero_and(2))
                     mntmp = gy.youmonst.cham;
             }
             if (controllable_poly) {
@@ -698,7 +700,7 @@ polyself(int psflags)
      * we deliberately chose something illegal to force newman().
      */
     gs.sex_change_ok++;
-    if (!polyok(&mons[mntmp]) || (!forcecontrol && !rn2(5))
+    if (!polyok(&mons[mntmp]) || (!forcecontrol && !random_integer_between_zero_and(5))
         || your_race(&mons[mntmp])) {
         newman();
     } else {
@@ -724,7 +726,7 @@ int
 polymon(int mntmp)
 {
     char buf[BUFSZ], ustuckNam[BUFSZ];
-    boolean sticking = sticks(gy.youmonst.data) && u.ustuck && !u.uswallow,
+    boolean sticking = sticks(gy.youmonst.data) && u.monster_stuck_to && !u.uswallow,
             was_blind = !!Blind, dochange = FALSE, was_expelled = FALSE,
             was_hiding_under = u.uundetected && hides_under(gy.youmonst.data);
     int mlvl, newMaxStr;
@@ -749,15 +751,15 @@ polymon(int mntmp)
 
     if (!Upolyd) {
         /* Human to monster; save human stats */
-        u.macurr = u.acurr;
-        u.mamax = u.amax;
+        u.macurr = u.attributes_current;
+        u.mamax = u.attributes_max;
         u.mfemale = flags.female;
     } else {
         /* Monster to monster; restore human stats, to be
          * immediately changed to provide stats for the new monster
          */
-        u.acurr = u.macurr;
-        u.amax = u.mamax;
+        u.attributes_current = u.macurr;
+        u.attributes_max = u.mamax;
         flags.female = u.mfemale;
     }
 
@@ -778,11 +780,11 @@ polymon(int mntmp)
         if (!flags.female)
             dochange = TRUE;
     } else if (!is_neuter(&mons[mntmp]) && mntmp != u.ulycn) {
-        if (gs.sex_change_ok && !rn2(10))
+        if (gs.sex_change_ok && !random_integer_between_zero_and(10))
             dochange = TRUE;
     }
 
-    Strcpy(ustuckNam, u.ustuck ? Some_Monnam(u.ustuck) : "");
+    Strcpy(ustuckNam, u.monster_stuck_to ? Some_Monnam(u.monster_stuck_to) : "");
 
     Strcpy(buf, (u.umonnum != mntmp) ? "" : "new ");
     if (dochange) {
@@ -808,7 +810,7 @@ polymon(int mntmp)
      */
     newMaxStr = uasmon_maxStr();
     if (strongmonst(&mons[mntmp])) {
-        ABASE(A_STR) = AMAX(A_STR) = (schar) newMaxStr;
+        ATTRIBUTE_BASE(A_STR) = AMAX(A_STR) = (schar) newMaxStr;
     } else {
         /* not a strongmonst(); if hero has exceptional strength, remove it
            (note: removal is temporary until returning to original form);
@@ -816,8 +818,8 @@ polymon(int mntmp)
            unlike for strongmonst, current strength does not get set to max */
         AMAX(A_STR) = (schar) newMaxStr;
         /* make sure current is not higher than max (strip exceptional Str) */
-        if (ABASE(A_STR) > AMAX(A_STR))
-            ABASE(A_STR) = AMAX(A_STR);
+        if (ATTRIBUTE_BASE(A_STR) > AMAX(A_STR))
+            ATTRIBUTE_BASE(A_STR) = AMAX(A_STR);
     }
 
     if (Stone_resistance && Stoned) { /* parnes@eniac.seas.upenn.edu */
@@ -852,7 +854,7 @@ polymon(int mntmp)
         u.mhmax = golemhp(mntmp);
     } else {
         if (!mlvl)
-            u.mhmax = rnd(4);
+            u.mhmax = random(4);
         else
             u.mhmax = d(mlvl, 8);
         if (is_home_elemental(&mons[mntmp]))
@@ -906,16 +908,16 @@ polymon(int mntmp)
         if (unsolid(gy.youmonst.data)
             /* subset of engulf_target() */
             || (usiz = gy.youmonst.data->msize) >= MZ_HUGE
-            || (u.ustuck->data->msize < usiz && !is_whirly(u.ustuck->data))) {
+            || (u.monster_stuck_to->data->msize < usiz && !is_whirly(u.monster_stuck_to->data))) {
             boolean expels_mesg = TRUE;
 
             if (unsolid(gy.youmonst.data)) {
-                if (canspotmon(u.ustuck)) /* [see below for explanation] */
-                    Strcpy(ustuckNam, Monnam(u.ustuck));
+                if (canspotmon(u.monster_stuck_to)) /* [see below for explanation] */
+                    Strcpy(ustuckNam, Monnam(u.monster_stuck_to));
                 pline("%s can no longer contain you.", ustuckNam);
                 expels_mesg = FALSE;
             }
-            expels(u.ustuck, u.ustuck->data, expels_mesg);
+            expels(u.monster_stuck_to, u.monster_stuck_to->data, expels_mesg);
             was_expelled = TRUE;
             /* FIXME? if expels() triggered rehumanize then we should
                return early */
@@ -924,7 +926,7 @@ polymon(int mntmp)
     /* [note:  this 'sticking' handling is only sufficient for changing from
        grabber to engulfer or vice versa because engulfing by poly'd hero
        always ends immediately so won't be in effect during a polymorph] */
-    } else if (u.ustuck && !sticking /* && !u.uswallow */
+    } else if (u.monster_stuck_to && !sticking /* && !u.uswallow */
                /* being held; if now capable of holding, make holder
                   release so that hero doesn't automagically start holding
                   it; or, release if no longer capable of being held */
@@ -932,29 +934,29 @@ polymon(int mntmp)
         /* u.ustuck name was saved above in case we're changing from can-see
            to can't-see; but might have changed from can't-see to can-see so
            override here if hero knows who u.ustuck is */
-        if (canspotmon(u.ustuck))
-            Strcpy(ustuckNam, Monnam(u.ustuck));
-        set_ustuck((struct monst *) 0);
+        if (canspotmon(u.monster_stuck_to))
+            Strcpy(ustuckNam, Monnam(u.monster_stuck_to));
+        set_ustuck((struct monster *) 0);
         pline("%s loses its grip on you.", ustuckNam);
     } else if (sticking && !sticks(gy.youmonst.data)) {
         /* was holding onto u.ustuck but no longer capable of that */
         uunstick();
     }
 
-    if (u.usteed) {
-        if (touch_petrifies(u.usteed->data) && !Stone_resistance && rnl(3)) {
+    if (u.monster_being_ridden) {
+        if (touch_petrifies(u.monster_being_ridden->data) && !Stone_resistance && rnl(3)) {
             pline("%s touch %s.", no_longer_petrify_resistant,
-                  mon_nam(u.usteed));
+                  mon_nam(u.monster_being_ridden));
             Sprintf(buf, "riding %s",
-                    an(pmname(u.usteed->data, Mgender(u.usteed))));
+                    an(pmname(u.monster_being_ridden->data, Mgender(u.monster_being_ridden))));
             instapetrify(buf);
         }
-        if (!can_ride(u.usteed))
+        if (!can_ride(u.monster_being_ridden))
             dismount_steed(DISMOUNT_POLY);
     }
 
     find_ac();
-    if (((!Levitation && !u.ustuck && !Flying && is_pool_or_lava(u.ux, u.uy))
+    if (((!Levitation && !u.monster_stuck_to && !Flying && is_pool_or_lava(u.ux, u.uy))
          || (Underwater && !Swimming))
         /* if expelled above, expels() already called spoteffects() */
         && !was_expelled) {
@@ -1005,7 +1007,7 @@ polymon(int mntmp)
     disp.botl = TRUE;
     gv.vision_full_recalc = 1;
     see_monsters();
-    (void) encumber_msg();
+    (void) encumbered_message();
 
     retouch_equipment(2);
     /* this might trigger a recursive call to polymon() [stone golem
@@ -1290,17 +1292,17 @@ drop_weapon(int alone)
          */
         if (!alone || cantwield(gy.youmonst.data)) {
             candropwep = canletgo(uwep, "");
-            candropswapwep = !u.twoweap || canletgo(uswapwep, "");
+            candropswapwep = !u.using_two_weapons || canletgo(uswapwep, "");
             if (alone) {
                 what = (candropwep && candropswapwep) ? "drop" : "release";
                 which = is_sword(uwep) ? "sword" : weapon_descr(uwep);
-                if (u.twoweap) {
+                if (u.using_two_weapons) {
                     whichtoo =
                         is_sword(uswapwep) ? "sword" : weapon_descr(uswapwep);
                     if (strcmp(which, whichtoo))
                         which = "weapon";
                 }
-                if (uwep->quan != 1L || u.twoweap)
+                if (uwep->quan != 1L || u.using_two_weapons)
                     which = makeplural(which);
 
                 You("find you must %s %s %s!", what,
@@ -1309,7 +1311,7 @@ drop_weapon(int alone)
             /* if either uwep or wielded uswapwep is flagged as 'in_use'
                then don't drop it or explicitly update inventory; leave
                those actions to caller (or caller's caller, &c) */
-            if (u.twoweap) {
+            if (u.using_two_weapons) {
                 otmp = uswapwep;
                 uswapwepgone();
                 if (otmp->in_use)
@@ -1367,14 +1369,14 @@ rehumanize(void)
 
     if (emits_light(gy.youmonst.data))
         del_light_source(LS_MONSTER, monst_to_any(&gy.youmonst));
-    polyman("You return to %s form!", gu.urace.adj);
+    polyman("You return to %s form!", gu.urace.adjective);
 
-    if (u.uhp < 1) {
+    if (u.hit_points < 1) {
         /* can only happen if some bit of code reduces u.uhp
            instead of u.mh while poly'd */
         Your("old form was not healthy enough to survive.");
         Sprintf(gk.killer.name, "reverting to unhealthy %s form",
-                gu.urace.adj);
+                gu.urace.adjective);
         gk.killer.format = KILLED_BY;
         done(DIED);
     }
@@ -1382,10 +1384,10 @@ rehumanize(void)
 
     disp.botl = TRUE;
     gv.vision_full_recalc = 1;
-    (void) encumber_msg();
-    if (was_flying && !Flying && u.usteed)
+    (void) encumbered_message();
+    if (was_flying && !Flying && u.monster_being_ridden)
         You("and %s return gently to the %s.",
-            mon_nam(u.usteed), surface(u.ux, u.uy));
+            mon_nam(u.monster_being_ridden), surface(u.ux, u.uy));
     retouch_equipment(2);
     if (!uarmg)
         selftouch(no_longer_petrify_resistant);
@@ -1400,11 +1402,11 @@ dobreathe(void)
         You_cant("breathe.  Sorry.");
         return ECMD_OK;
     }
-    if (u.uen < 15) {
+    if (u.energy < 15) {
         You("don't have enough energy to breathe!");
         return ECMD_OK;
     }
-    u.uen -= 15;
+    u.energy -= 15;
     disp.botl = TRUE;
 
     if (!getdir((char *) 0))
@@ -1483,16 +1485,16 @@ dospinweb(void)
         return ECMD_OK;
     }
     if (u.uswallow) {
-        You("release web fluid inside %s.", mon_nam(u.ustuck));
-        if (is_animal(u.ustuck->data)) {
-            expels(u.ustuck, u.ustuck->data, TRUE);
+        You("release web fluid inside %s.", mon_nam(u.monster_stuck_to));
+        if (is_animal(u.monster_stuck_to->data)) {
+            expels(u.monster_stuck_to, u.monster_stuck_to->data, TRUE);
             return ECMD_OK;
         }
-        if (is_whirly(u.ustuck->data)) {
+        if (is_whirly(u.monster_stuck_to->data)) {
             int i;
 
             for (i = 0; i < NATTK; i++)
-                if (u.ustuck->data->mattk[i].aatyp == AT_ENGL)
+                if (u.monster_stuck_to->data->mattk[i].aatyp == AT_ENGL)
                     break;
             if (i == NATTK)
                 impossible("Swallower has no engulfing attack?");
@@ -1500,7 +1502,7 @@ dospinweb(void)
                 char sweep[30];
 
                 sweep[0] = '\0';
-                switch (u.ustuck->data->mattk[i].adtyp) {
+                switch (u.monster_stuck_to->data->mattk[i].adtyp) {
                 case AD_FIRE:
                     Strcpy(sweep, "ignites and ");
                     break;
@@ -1515,7 +1517,7 @@ dospinweb(void)
             }
             return ECMD_OK;
         } /* default: a nasty jelly-like creature */
-        pline_The("web dissolves into %s.", mon_nam(u.ustuck));
+        pline_The("web dissolves into %s.", mon_nam(u.monster_stuck_to));
         return ECMD_OK;
     }
     if (u.utrap) {
@@ -1597,11 +1599,11 @@ int
 dosummon(void)
 {
     int placeholder;
-    if (u.uen < 10) {
+    if (u.energy < 10) {
         You("lack the energy to send forth a call for help!");
         return ECMD_OK;
     }
-    u.uen -= 10;
+    u.energy -= 10;
     disp.botl = TRUE;
 
     You("call upon your brethren for help!");
@@ -1614,7 +1616,7 @@ dosummon(void)
 int
 dogaze(void)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     int looked = 0;
     char qbuf[QBUFSZ];
     int i;
@@ -1638,11 +1640,11 @@ dogaze(void)
         You_cant("gaze at anything you can see.");
         return ECMD_OK;
     }
-    if (u.uen < 15) {
+    if (u.energy < 15) {
         You("lack the energy to use your special gaze!");
         return ECMD_OK;
     }
-    u.uen -= 15;
+    u.energy -= 15;
     disp.botl = TRUE;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -1692,7 +1694,7 @@ dogaze(void)
                         pline_The("fire doesn't burn %s!", mon_nam(mtmp));
                         dmg = 0;
                     }
-                    if (lev > rn2(20)) {
+                    if (lev > random_integer_between_zero_and(20)) {
                         dmg += destroy_items(mtmp, AD_FIRE, orig_dmg);
                         ignite_items(mtmp->minvent);
                     }
@@ -1711,7 +1713,7 @@ dogaze(void)
                     if (!Free_action) {
                         You("are frozen by %s gaze!",
                             s_suffix(mon_nam(mtmp)));
-                        nomul((u.ulevel > 6 || rn2(4))
+                        nomul((u.ulevel > 6 || random_integer_between_zero_and(4))
                                   ? -d((int) mtmp->m_lev + 1,
                                        (int) mtmp->data->mattk[0].damd)
                                   : -200);
@@ -1754,13 +1756,13 @@ dohide(void)
 
     /* can't hide while being held (or holding) or while trapped
        (except for floor hiders [trapper or mimic] in pits) */
-    if (u.ustuck || (u.utrap && (u.utraptype != TT_PIT || on_ceiling))) {
+    if (u.monster_stuck_to || (u.utrap && (u.utraptype != TT_PIT || on_ceiling))) {
         You_cant("hide while you're %s.",
-                 !u.ustuck ? "trapped"
-                   : u.uswallow ? (digests(u.ustuck->data) ? "swallowed"
+                 !u.monster_stuck_to ? "trapped"
+                   : u.uswallow ? (digests(u.monster_stuck_to->data) ? "swallowed"
                                                            : "engulfed")
                      : !sticks(gy.youmonst.data) ? "being held"
-                       : (humanoid(u.ustuck->data) ? "holding someone"
+                       : (humanoid(u.monster_stuck_to->data) ? "holding someone"
                                                    : "holding that creature"));
         if (u.uundetected || (ismimic && U_AP_TYPE != M_AP_NOTHING)) {
             u.uundetected = 0;
@@ -1866,14 +1868,14 @@ dopoly(void)
 int
 domindblast(void)
 {
-    struct monst *mtmp, *nmon;
+    struct monster *mtmp, *nmon;
     int dmg;
 
-    if (u.uen < 10) {
+    if (u.energy < 10) {
         You("concentrate but lack the energy to maintain doing so.");
         return ECMD_OK;
     }
-    u.uen -= 10;
+    u.energy -= 10;
     disp.botl = TRUE;
 
     You("concentrate.");
@@ -1891,8 +1893,8 @@ domindblast(void)
         if (mindless(mtmp->data))
             continue;
         u_sen = telepathic(mtmp->data) && !mtmp->mcansee;
-        if (u_sen || (telepathic(mtmp->data) && rn2(2)) || !rn2(10)) {
-            dmg = rnd(15);
+        if (u_sen || (telepathic(mtmp->data) && random_integer_between_zero_and(2)) || !random_integer_between_zero_and(10)) {
+            dmg = random(15);
             /* wake it up first, to bring hidden monster out of hiding;
                but in case it is currently peaceful, don't make it hostile
                unless it will survive the psychic blast, otherwise hero
@@ -1913,13 +1915,13 @@ domindblast(void)
 void
 uunstick(void)
 {
-    struct monst *mtmp = u.ustuck;
+    struct monster *mtmp = u.monster_stuck_to;
 
     if (!mtmp) {
         impossible("uunstick: no ustuck?");
         return;
     }
-    set_ustuck((struct monst *) 0); /* before pline() */
+    set_ustuck((struct monster *) 0); /* before pline() */
     pline("%s is no longer in your clutches.", Monnam(mtmp));
 }
 
@@ -1942,7 +1944,7 @@ skinback(boolean silently)
 }
 
 const char *
-mbodypart(struct monst *mon, int part)
+mbodypart(struct monster *mon, int part)
 {
     static NEARDATA const char
         *humanoid_parts[] = { "arm",       "eye",  "face",         "finger",

@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 /* "an uncursed greased partly eaten guardian naga hatchling [corpse]" */
@@ -1405,7 +1407,7 @@ doname_base(
             break;
         }
         if (obj->otyp == LEASH && obj->leashmon != 0) {
-            struct monst *mlsh = find_mid(obj->leashmon, FM_FMON);
+            struct monster *mlsh = find_mid(obj->leashmon, FM_FMON);
 
             if (!mlsh) {
                 impossible("leashed monster not on this level");
@@ -1530,7 +1532,7 @@ doname_base(
     }
 
     if ((obj->owornmask & W_WEP) && !gm.mrg_to_wielded) {
-        boolean twoweap_primary = (obj == uwep && u.twoweap),
+        boolean twoweap_primary = (obj == uwep && u.using_two_weapons),
                 tethered = (obj->otyp == AKLYS);
 
 
@@ -1582,7 +1584,7 @@ doname_base(
         }
     }
     if (obj->owornmask & W_SWAPWEP) {
-        if (u.twoweap)
+        if (u.using_two_weapons)
             ConcatF2(bp, 0, " (wielded in %s %s)",
                      URIGHTY ? "left" : "right", body_part(HAND));
         else
@@ -3358,7 +3360,7 @@ rnd_otyp_by_wpnskill(schar skill)
             otyp = i;
         }
     if (n > 0) {
-        n = rn2(n);
+        n = random_integer_between_zero_and(n);
         for (i = gb.bases[WEAPON_CLASS];
              i < NUM_OBJECTS && objects[i].oc_class == WEAPON_CLASS; i++)
             if (objects[i].oc_skill == skill)
@@ -3436,7 +3438,7 @@ rnd_otyp_by_namedesc(
     }
 
     if (n > 0 && maxprob) {
-        prob = rn2(maxprob);
+        prob = random_integer_between_zero_and(maxprob);
         for (i = 0; i < n - 1; i++)
             if ((prob -= (objects[validobjs[i]].oc_prob + xtra_prob)) < 0)
                 break;
@@ -3602,7 +3604,7 @@ wizterrainwish(struct _readobjnam_data *d)
         else if (!strncmpi(bp, "unaligned ", 10))
             al = A_NONE;
         else /* -1 - A_CHAOTIC, 0 - A_NEUTRAL, 1 - A_LAWFUL */
-            al = !rn2(6) ? A_NONE : (rn2((int) A_LAWFUL + 2) - 1);
+            al = !random_integer_between_zero_and(6) ? A_NONE : (random_integer_between_zero_and((int) A_LAWFUL + 2) - 1);
         lev->altarmask = Align2amask(al); /* overlays 'flags' */
         pline("%s altar.", An(align_str(al)));
         madeterrain = TRUE;
@@ -3929,9 +3931,9 @@ readobjnam_preparse(struct _readobjnam_data *d)
         } else if (!strncmpi(d->bp, "moist ", l = 6)
                    || !strncmpi(d->bp, "wet ", l = 4)) {
             if (!strncmpi(d->bp, "wet ", 4))
-                d->wetness = 3 + rn2(3); /* 3..5 */
+                d->wetness = 3 + random_integer_between_zero_and(3); /* 3..5 */
             else
-                d->wetness = rnd(2); /* 1..2 */
+                d->wetness = random(2); /* 1..2 */
 
         /* "unlabeled" and "blank" are synonymous */
         } else if (!strncmpi(d->bp, "unlabeled ", l = 10)
@@ -4595,7 +4597,7 @@ readobjnam_postparse2(struct _readobjnam_data *d)
             s += 9;
         if (!strcmpi(s, "glass")) { /* choose random color */
             /* 9 different kinds */
-            d->typ = FIRST_GLASS_GEM + rn2(NUM_GLASS_GEMS);
+            d->typ = FIRST_GLASS_GEM + random_integer_between_zero_and(NUM_GLASS_GEMS);
             if (objects[d->typ].oc_class == GEM_CLASS)
                 return 2; /*goto typfnd;*/
             else
@@ -4886,7 +4888,7 @@ readobjnam(char *bp, struct obj *no_wish)
         return ((struct obj *) 0);
  any:
     if (!d.oclass)
-        d.oclass = wrpsym[rn2((int) sizeof wrpsym)];
+        d.oclass = wrpsym[random_integer_between_zero_and((int) sizeof wrpsym)];
  typfnd:
     if (d.typ)
         d.oclass = objects[d.typ].oc_class;
@@ -4967,7 +4969,7 @@ readobjnam(char *bp, struct obj *no_wish)
                 /* note: in normal play, explicitly asking for 1 might
                    fail the 'cnt < rnd(6)' test and could produce more
                    than 1 if mksobj() creates the item that way */
-                || d.cnt < rnd(6)
+                || d.cnt < random(6)
                 || (d.cnt <= 7 && Is_candle(d.otmp))
                 || (d.cnt <= 20
                     && (d.typ == ROCK || d.typ == FLINT || is_missile(d.otmp)
@@ -4992,7 +4994,7 @@ readobjnam(char *bp, struct obj *no_wish)
     } else if (d.oclass == ARMOR_CLASS || d.oclass == WEAPON_CLASS
                || is_weptool(d.otmp)
                || (d.oclass == RING_CLASS && objects[d.typ].oc_charged)) {
-        if (d.spe > rnd(5) && d.spe > d.otmp->spe)
+        if (d.spe > random(5) && d.spe > d.otmp->spe)
             d.spe = 0;
         if (d.spe > 2 && Luck < 0)
             d.spesgn = -1;
@@ -5052,7 +5054,7 @@ readobjnam(char *bp, struct obj *no_wish)
         if (P && d.otmp->spe == CORPSTAT_RANDOM)
             d.otmp->spe = is_male(P) ? CORPSTAT_MALE
                           : is_female(P) ? CORPSTAT_FEMALE
-                            : rn2(2) ? CORPSTAT_MALE : CORPSTAT_FEMALE;
+                            : random_integer_between_zero_and(2) ? CORPSTAT_MALE : CORPSTAT_FEMALE;
         if (d.ishistoric && d.typ == STATUE)
             d.otmp->spe |= CORPSTAT_HISTORIC;
         break;
@@ -5070,7 +5072,7 @@ readobjnam(char *bp, struct obj *no_wish)
         break;
     case WAN_WISHING:
         if (!wizard) {
-            d.otmp->spe = (rn2(10) ? -1 : 0);
+            d.otmp->spe = (random_integer_between_zero_and(10) ? -1 : 0);
             break;
         }
         /*FALLTHRU*/
@@ -5230,7 +5232,7 @@ readobjnam(char *bp, struct obj *no_wish)
         d.otmp->odiluted = (d.otmp->otyp != POT_WATER);
 
     /* set tin variety */
-    if (d.otmp->otyp == TIN && d.tvariety >= 0 && (rn2(4) || wizard))
+    if (d.otmp->otyp == TIN && d.tvariety >= 0 && (random_integer_between_zero_and(4) || wizard))
         set_tin_variety(d.otmp, d.tvariety);
 
     if (d.name) {
@@ -5258,7 +5260,7 @@ readobjnam(char *bp, struct obj *no_wish)
     /* more wishing abuse: don't allow wishing for certain artifacts */
     /* and make them pay; charge them for the wish anyway! */
     if ((is_quest_artifact(d.otmp)
-         || (d.otmp->oartifact && rn2(nartifact_exist()) > 1)) && !wizard) {
+         || (d.otmp->oartifact && random_integer_between_zero_and(nartifact_exist()) > 1)) && !wizard) {
         artifact_exists(d.otmp, safe_oname(d.otmp), FALSE, ONAME_NO_FLAGS);
         obfree(d.otmp, (struct obj *) 0);
         d.otmp = &hands_obj;
@@ -5297,7 +5299,7 @@ rnd_class(int first, int last)
         if (!sum) /* all zero, so equal probability */
             return rn1(last - first + 1, first);
 
-        x = rnd(sum);
+        x = random(sum);
         for (i = first; i <= last; i++)
             if ((x -= objects[i].oc_prob) <= 0)
                 return i;
@@ -5490,7 +5492,7 @@ shirt_simple_name(struct obj *shirt UNUSED)
 }
 
 const char *
-mimic_obj_name(struct monst *mtmp)
+mimic_obj_name(struct monster *mtmp)
 {
     if (M_AP_TYPE(mtmp) == M_AP_OBJECT) {
         if (mtmp->mappearance == GOLD_PIECE)

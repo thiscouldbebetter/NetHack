@@ -2,13 +2,15 @@
 /*      Copyright (c) 2004 by Robert Patrick Rankin               */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 #ifdef USE_ISAAC64
 #include "isaac64.h"
 
 staticfn int whichrng(int (*fn)(int));
-staticfn int RND(int);
+staticfn int RANDOM(int);
 staticfn void set_random(unsigned long, int (*)(int));
 
 #if 0
@@ -24,8 +26,8 @@ struct rnglist_t {
 enum { CORE = 0, DISP = 1 };
 
 static struct rnglist_t rnglist[] = {
-    { rn2, FALSE, { 0 } },                      /* CORE */
-    { rn2_on_display_rng, FALSE, { 0 } },       /* DISP */
+    { random_integer_between_zero_and, FALSE, { 0 } },                      /* CORE */
+    { random2_on_display_range, FALSE, { 0 } },       /* DISP */
 };
 
 staticfn int
@@ -58,7 +60,7 @@ init_isaac64(unsigned long seed, int (*fn)(int))
 }
 
 staticfn int
-RND(int x)
+RANDOM(int x)
 {
     return (isaac64_next_uint64(&rnglist[CORE].rng_state) % x);
 }
@@ -67,7 +69,7 @@ RND(int x)
    used in cases where the answer doesn't affect gameplay and we don't
    want to give users easy control over the main RNG sequence. */
 int
-rn2_on_display_rng(int x)
+random2_on_display_range(int x)
 {
     return (isaac64_next_uint64(&rnglist[DISP].rng_state) % x);
 }
@@ -92,14 +94,14 @@ rn2_on_display_rng(int x)
 
 /* 0 <= rn2(x) < x */
 int
-rn2(int x)
+random_integer_between_zero_and(int x)
 {
 #if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
     if (x <= 0) {
         impossible("rn2(%d) attempted", x);
         return 0;
     }
-    x = RND(x);
+    x = RANDOM(x);
     return x;
 #else
     return RND(x);
@@ -139,8 +141,8 @@ rnl(int x)
          */
     }
 
-    i = RND(x);
-    if (adjustment && rn2(37 + abs(adjustment))) {
+    i = RANDOM(x);
+    if (adjustment && random_integer_between_zero_and(37 + abs(adjustment))) {
         i -= adjustment;
         if (i < 0)
             i = 0;
@@ -152,7 +154,7 @@ rnl(int x)
 
 /* 1 <= rnd(x) <= x */
 int
-rnd(int x)
+random(int x)
 {
 #if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
     if (x <= 0) {
@@ -160,14 +162,14 @@ rnd(int x)
         return 1;
     }
 #endif
-    x = RND(x) + 1;
+    x = RANDOM(x) + 1;
     return x;
 }
 
 int
-rnd_on_display_rng(int x)
+random_on_display_range(int x)
 {
-    return rn2_on_display_rng(x) + 1;
+    return random2_on_display_range(x) + 1;
 }
 
 /* d(N,X) == NdX == dX+dX+...+dX N times; n <= d(n,x) <= (n*x) */
@@ -183,7 +185,7 @@ d(int n, int x)
     }
 #endif
     while (n--)
-        tmp += RND(x);
+        tmp += RANDOM(x);
     return tmp; /* Alea iacta est. -- J.C. */
 }
 
@@ -195,7 +197,7 @@ rne(int x)
 
     utmp = (u.ulevel < 15) ? 5 : u.ulevel / 3;
     tmp = 1;
-    while (tmp < utmp && !rn2(x))
+    while (tmp < utmp && !random_integer_between_zero_and(x))
         tmp++;
     return tmp;
 
@@ -216,9 +218,9 @@ rnz(int i)
     long x = (long) i;
     long tmp = 1000L;
 
-    tmp += rn2(1000);
+    tmp += random_integer_between_zero_and(1000);
     tmp *= rne(4);
-    if (rn2(2)) {
+    if (random_integer_between_zero_and(2)) {
         x *= tmp;
         x /= 1000;
     } else {
@@ -279,19 +281,19 @@ extern unsigned long sys_random_seed(void);
  * Only call once.
  */
 void
-init_random(int (*fn)(int))
+initialize_randomizer(int (*fn)(int))
 {
     set_random(sys_random_seed(), fn);
 }
 
 /* Reshuffles the random number generator. */
 void
-reseed_random(int (*fn)(int))
+reseed_randomizer(int (*fn)(int))
 {
    /* only reseed if we are certain that the seed generation is unguessable
     * by the players. */
-    if (has_strong_rngseed)
-        init_random(fn);
+    if (has_strong_randomizer_seed)
+        initialize_randomizer(fn);
 }
 
 /* randomize the given list of numbers  0 <= i < count */
@@ -301,7 +303,7 @@ shuffle_int_array(int *indices, int count)
     int i, iswap, temp;
 
     for (i = count - 1; i > 0; i--) {
-        if ((iswap = rn2(i + 1)) == i)
+        if ((iswap = random_integer_between_zero_and(i + 1)) == i)
             continue;
         temp = indices[i];
         indices[i] = indices[iswap];

@@ -3,6 +3,8 @@
 /*-Copyright (c) Michael Allison, 2008. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #ifdef OPTION_LISTS_ONLY /* (AMIGA) external program for opt lists */
 #include "config.h"
 #include "objclass.h"
@@ -3133,17 +3135,17 @@ optfn_pickup_burden(
                 flags.pickup_burden = UNENCUMBERED;
                 break;
             case 'b': /* Burdened (slight encumbrance) */
-                flags.pickup_burden = SLT_ENCUMBER;
+                flags.pickup_burden = SLIGHTLY_ENCUMBERED;
                 break;
             case 's': /* streSsed (moderate encumbrance) */
-                flags.pickup_burden = MOD_ENCUMBER;
+                flags.pickup_burden = MODERATELY_ENCUMBERED;
                 break;
             case 'n': /* straiNed (heavy encumbrance) */
-                flags.pickup_burden = HVY_ENCUMBER;
+                flags.pickup_burden = HEAVILY_ENCUMBERED;
                 break;
             case 'o': /* OverTaxed (extreme encumbrance) */
             case 't':
-                flags.pickup_burden = EXT_ENCUMBER;
+                flags.pickup_burden = EXTREMELY_ENCUMBERED;
                 break;
             case 'l': /* overLoaded */
                 flags.pickup_burden = OVERLOADED;
@@ -6933,8 +6935,8 @@ initoptions_init(void)
     reset_commands(TRUE); /* init */
 
     /* initialize the random number generator(s) */
-    init_random(rn2);
-    init_random(rn2_on_display_rng);
+    initialize_randomizer(random_integer_between_zero_and);
+    initialize_randomizer(random2_on_display_range);
 
     go.opt_phase = builtin_opt;
     for (i = 0; allopt[i].name; i++) {
@@ -6978,7 +6980,7 @@ initoptions_init(void)
     (void) memcpy((genericptr_t) flags.inv_order,
                   (genericptr_t) def_inv_order, sizeof flags.inv_order);
     flags.pickup_types[0] = '\0';
-    flags.pickup_burden = MOD_ENCUMBER;
+    flags.pickup_burden = MODERATELY_ENCUMBERED;
     flags.sortloot = 'l'; /* sort only loot by default */
 
     for (i = 0; i < NUM_DISCLOSURE_OPTIONS; i++)
@@ -8045,7 +8047,7 @@ fruitadd(char *str, struct fruit *replace_fruit)
        use a random fruit instead... we've got a lot to choose from.
        current_fruit remains as is. */
     if (highest_fruit_id >= 127)
-        return rnd(127);
+        return random(127);
 
     f = newfruit();
     (void) memset((genericptr_t) f, 0, sizeof (struct fruit));

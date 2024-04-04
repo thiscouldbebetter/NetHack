@@ -2,6 +2,8 @@
 /*      Copyright 1988, 1989 by Ken Arromdee                      */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /*
  * Support code for "rogue"-style level.
  */
@@ -23,7 +25,7 @@ roguejoin(coordxy x1, coordxy y1, coordxy x2, coordxy y2, int horiz)
     coordxy x, y, middle;
 
     if (horiz) {
-        middle = x1 + rn2(x2 - x1 + 1);
+        middle = x1 + random_integer_between_zero_and(x2 - x1 + 1);
         for (x = min(x1, middle); x <= max(x1, middle); x++)
             corr(x, y1);
         for (y = min(y1, y2); y <= max(y1, y2); y++)
@@ -31,7 +33,7 @@ roguejoin(coordxy x1, coordxy y1, coordxy x2, coordxy y2, int horiz)
         for (x = min(middle, x2); x <= max(middle, x2); x++)
             corr(x, y2);
     } else {
-        middle = y1 + rn2(y2 - y1 + 1);
+        middle = y1 + random_integer_between_zero_and(y2 - y1 + 1);
         for (y = min(y1, middle); y <= max(y1, middle); y++)
             corr(x1, y);
         for (x = min(x1, x2); x <= max(x1, x2); x++)
@@ -54,7 +56,7 @@ roguecorr(coordxy x, coordxy y, int dir)
             fromx += 1 + 26 * x;
             fromy += 7 * y;
         } else {
-            fromx = gr.r[x][y].rlx + rn2(gr.r[x][y].dx);
+            fromx = gr.r[x][y].rlx + random_integer_between_zero_and(gr.r[x][y].dx);
             fromy = gr.r[x][y].rly + gr.r[x][y].dy;
             fromx += 1 + 26 * x;
             fromy += 7 * y;
@@ -76,7 +78,7 @@ roguecorr(coordxy x, coordxy y, int dir)
             tox += 1 + 26 * x;
             toy += 7 * y;
         } else {
-            tox = gr.r[x][y].rlx + rn2(gr.r[x][y].dx);
+            tox = gr.r[x][y].rlx + random_integer_between_zero_and(gr.r[x][y].dx);
             toy = gr.r[x][y].rly - 1;
             tox += 1 + 26 * x;
             toy += 7 * y;
@@ -97,7 +99,7 @@ roguecorr(coordxy x, coordxy y, int dir)
             fromy += 7 * y;
         } else {
             fromx = gr.r[x][y].rlx + gr.r[x][y].dx;
-            fromy = gr.r[x][y].rly + rn2(gr.r[x][y].dy);
+            fromy = gr.r[x][y].rly + random_integer_between_zero_and(gr.r[x][y].dy);
             fromx += 1 + 26 * x;
             fromy += 7 * y;
             if (!IS_WALL(levl[fromx][fromy].typ))
@@ -119,7 +121,7 @@ roguecorr(coordxy x, coordxy y, int dir)
             toy += 7 * y;
         } else {
             tox = gr.r[x][y].rlx - 1;
-            toy = gr.r[x][y].rly + rn2(gr.r[x][y].dy);
+            toy = gr.r[x][y].rly + random_integer_between_zero_and(gr.r[x][y].dy);
             tox += 1 + 26 * x;
             toy += 7 * y;
             if (!IS_WALL(levl[tox][toy].typ))
@@ -145,23 +147,23 @@ miniwalk(coordxy x, coordxy y)
         q = 0;
 #define doorhere (gr.r[x][y].doortable)
         if (x > 0 && (!(doorhere & XL_LEFT))
-            && (!gr.r[x - 1][y].doortable || !rn2(10)))
+            && (!gr.r[x - 1][y].doortable || !random_integer_between_zero_and(10)))
             dirs[q++] = 0;
         if (x < 2 && (!(doorhere & XL_RIGHT))
-            && (!gr.r[x + 1][y].doortable || !rn2(10)))
+            && (!gr.r[x + 1][y].doortable || !random_integer_between_zero_and(10)))
             dirs[q++] = 1;
         if (y > 0 && (!(doorhere & XL_UP))
-            && (!gr.r[x][y - 1].doortable || !rn2(10)))
+            && (!gr.r[x][y - 1].doortable || !random_integer_between_zero_and(10)))
             dirs[q++] = 2;
         if (y < 2 && (!(doorhere & XL_DOWN))
-            && (!gr.r[x][y + 1].doortable || !rn2(10)))
+            && (!gr.r[x][y + 1].doortable || !random_integer_between_zero_and(10)))
             dirs[q++] = 3;
         /* Rogue levels aren't just 3 by 3 mazes; they have some extra
          * connections, thus that 1/10 chance
          */
         if (!q)
             return;
-        dir = dirs[rn2(q)];
+        dir = dirs[random_integer_between_zero_and(q)];
         switch (dir) { /* Move in direction */
         case 0:
             doorhere |= XL_LEFT;
@@ -217,7 +219,7 @@ makeroguerooms(void)
             /* Note: we want to insure at least 1 room.  So, if the
              * first 8 are all dummies, force the last to be a room.
              */
-            if (!rn2(5) && (gn.nroom || (x < 2 && y < 2))) {
+            if (!random_integer_between_zero_and(5) && (gn.nroom || (x < 2 && y < 2))) {
                 /* Arbitrary: dummy rooms may only go where real
                  * ones do.
                  */
@@ -230,13 +232,13 @@ makeroguerooms(void)
                 here.dy = rn1((y == 2) ? 4 : 3, 2); /* 2-5 high, plus walls */
 
                 /* boundaries of room floor */
-                here.rlx = rnd(23 - here.dx + 1);
-                here.rly = rnd(((y == 2) ? 5 : 4) - here.dy + 1);
+                here.rlx = random(23 - here.dx + 1);
+                here.rly = random(((y == 2) ? 5 : 4) - here.dy + 1);
                 gn.nroom++;
             }
             here.doortable = 0;
         }
-    miniwalk(rn2(3), rn2(3));
+    miniwalk(random_integer_between_zero_and(3), random_integer_between_zero_and(3));
     gn.nroom = 0;
     for (y = 0; y < 3; y++)
         for (x = 0; x < 3; x++) {
@@ -254,7 +256,7 @@ makeroguerooms(void)
                  * level 10, but since Rogue rooms are only
                  * encountered below level 10, use !rn2(7).
                  */
-                add_room(lowx, lowy, hix, hiy, (boolean) !rn2(7), OROOM,
+                add_room(lowx, lowy, hix, hiy, (boolean) !random_integer_between_zero_and(7), OROOM,
                          FALSE);
             }
         }
@@ -277,7 +279,7 @@ makeroguerooms(void)
 void
 corr(coordxy x, coordxy y)
 {
-    if (rn2(50)) {
+    if (random_integer_between_zero_and(50)) {
         levl[x][y].typ = CORR;
     } else {
         levl[x][y].typ = SCORR;
@@ -287,14 +289,14 @@ corr(coordxy x, coordxy y)
 void
 makerogueghost(void)
 {
-    struct monst *ghost;
+    struct monster *ghost;
     struct obj *ghostobj;
     struct mkroom *croom;
     coordxy x, y;
 
     if (!gn.nroom)
         return; /* Should never happen */
-    croom = &gr.rooms[rn2(gn.nroom)];
+    croom = &gr.rooms[random_integer_between_zero_and(gn.nroom)];
     x = somex(croom);
     y = somey(croom);
     if (!(ghost = makemon(&mons[PM_GHOST], x, y, NO_MM_FLAGS)))
@@ -302,50 +304,50 @@ makerogueghost(void)
     ghost->msleeping = 1;
     ghost = christen_monst(ghost, roguename());
 
-    if (rn2(4)) {
+    if (random_integer_between_zero_and(4)) {
         ghostobj = mksobj_at(FOOD_RATION, x, y, FALSE, FALSE);
-        ghostobj->quan = (long) rnd(7);
+        ghostobj->quan = (long) random(7);
         ghostobj->owt = weight(ghostobj);
     }
-    if (rn2(2)) {
+    if (random_integer_between_zero_and(2)) {
         ghostobj = mksobj_at(MACE, x, y, FALSE, FALSE);
-        ghostobj->spe = rnd(3);
-        if (rn2(4))
+        ghostobj->spe = random(3);
+        if (random_integer_between_zero_and(4))
             curse(ghostobj);
     } else {
         ghostobj = mksobj_at(TWO_HANDED_SWORD, x, y, FALSE, FALSE);
-        ghostobj->spe = rnd(5) - 2;
-        if (rn2(4))
+        ghostobj->spe = random(5) - 2;
+        if (random_integer_between_zero_and(4))
             curse(ghostobj);
     }
     ghostobj = mksobj_at(BOW, x, y, FALSE, FALSE);
     ghostobj->spe = 1;
-    if (rn2(4))
+    if (random_integer_between_zero_and(4))
         curse(ghostobj);
 
     ghostobj = mksobj_at(ARROW, x, y, FALSE, FALSE);
     ghostobj->spe = 0;
     ghostobj->quan = (long) rn1(10, 25);
     ghostobj->owt = weight(ghostobj);
-    if (rn2(4))
+    if (random_integer_between_zero_and(4))
         curse(ghostobj);
 
-    if (rn2(2)) {
+    if (random_integer_between_zero_and(2)) {
         ghostobj = mksobj_at(RING_MAIL, x, y, FALSE, FALSE);
-        ghostobj->spe = rn2(3);
-        if (!rn2(3))
+        ghostobj->spe = random_integer_between_zero_and(3);
+        if (!random_integer_between_zero_and(3))
             ghostobj->oerodeproof = TRUE;
-        if (rn2(4))
+        if (random_integer_between_zero_and(4))
             curse(ghostobj);
     } else {
         ghostobj = mksobj_at(PLATE_MAIL, x, y, FALSE, FALSE);
-        ghostobj->spe = rnd(5) - 2;
-        if (!rn2(3))
+        ghostobj->spe = random(5) - 2;
+        if (!random_integer_between_zero_and(3))
             ghostobj->oerodeproof = TRUE;
-        if (rn2(4))
+        if (random_integer_between_zero_and(4))
             curse(ghostobj);
     }
-    if (rn2(2)) {
+    if (random_integer_between_zero_and(2)) {
         ghostobj = mksobj_at(FAKE_AMULET_OF_YENDOR, x, y, TRUE, FALSE);
         ghostobj->known = TRUE;
     }

@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 #include "mfndpos.h"
@@ -11,20 +13,20 @@
 #define DOG_WEAK        500
 #define DOG_STARVE      750
 
-staticfn void dog_starve(struct monst *);
-staticfn boolean dog_hunger(struct monst *, struct edog *);
-staticfn int dog_invent(struct monst *, struct edog *, int);
-staticfn int dog_goal(struct monst *, struct edog *, int, int, int);
-staticfn struct monst *find_targ(struct monst *, int, int, int);
-staticfn int find_friends(struct monst *, struct monst *, int);
-staticfn struct monst *best_target(struct monst *);
-staticfn long score_targ(struct monst *, struct monst *);
-staticfn boolean can_reach_location(struct monst *, coordxy, coordxy, coordxy,
+staticfn void dog_starve(struct monster *);
+staticfn boolean dog_hunger(struct monster *, struct edog *);
+staticfn int dog_invent(struct monster *, struct edog *, int);
+staticfn int dog_goal(struct monster *, struct edog *, int, int, int);
+staticfn struct monster *find_targ(struct monster *, int, int, int);
+staticfn int find_friends(struct monster *, struct monster *, int);
+staticfn struct monster *best_target(struct monster *);
+staticfn long score_targ(struct monster *, struct monster *);
+staticfn boolean can_reach_location(struct monster *, coordxy, coordxy, coordxy,
                                   coordxy) NONNULLARG1;
 
 /* pick a carried item for pet to drop */
 struct obj *
-droppables(struct monst *mon)
+droppables(struct monster *mon)
 {
     /*
      * 'key|pickaxe|&c = &dummy' is used to make various creatures
@@ -149,7 +151,7 @@ cursed_object_at(coordxy x, coordxy y)
 }
 
 int
-dog_nutrition(struct monst *mtmp, struct obj *obj)
+dog_nutrition(struct monster *mtmp, struct obj *obj)
 {
     int nutrit;
 
@@ -211,7 +213,7 @@ dog_nutrition(struct monst *mtmp, struct obj *obj)
 
 /* returns 2 if pet dies, otherwise 1 */
 int
-dog_eat(struct monst *mtmp,
+dog_eat(struct monster *mtmp,
         struct obj *obj, /* if unpaid, then thrown or kicked by hero */
         coordxy x,       /* dog's starting location, */
         coordxy y,       /* might be different from current */
@@ -326,9 +328,9 @@ dog_eat(struct monst *mtmp,
 }
 
 staticfn void
-dog_starve(struct monst *mtmp)
+dog_starve(struct monster *mtmp)
 {
-    if (mtmp->mleashed && mtmp != u.usteed)
+    if (mtmp->mleashed && mtmp != u.monster_being_ridden)
         Your("leash goes slack.");
     else if (cansee(mtmp->mx, mtmp->my))
         pline("%s starves.", Monnam(mtmp));
@@ -340,7 +342,7 @@ dog_starve(struct monst *mtmp)
 
 /* hunger effects -- returns TRUE on starvation */
 staticfn boolean
-dog_hunger(struct monst *mtmp, struct edog *edog)
+dog_hunger(struct monster *mtmp, struct edog *edog)
 {
     if (gm.moves > edog->hungrytime + DOG_WEAK) {
         if (!carnivorous(mtmp->data) && !herbivorous(mtmp->data)) {
@@ -378,7 +380,7 @@ dog_hunger(struct monst *mtmp, struct edog *edog)
  * returns 1 if object eaten (since that counts as dog's move), 2 if died
  */
 staticfn int
-dog_invent(struct monst *mtmp, struct edog *edog, int udist)
+dog_invent(struct monster *mtmp, struct edog *edog, int udist)
 {
     coordxy omx, omy;
     int carryamt = 0;
@@ -395,8 +397,8 @@ dog_invent(struct monst *mtmp, struct edog *edog, int udist)
      * Use udist+1 so steed won't cause divide by zero.
      */
     if (droppables(mtmp)) {
-        if (!rn2(udist + 1) || !rn2(edog->apport))
-            if (rn2(10) < edog->apport) {
+        if (!random_integer_between_zero_and(udist + 1) || !random_integer_between_zero_and(edog->apport))
+            if (random_integer_between_zero_and(10) < edog->apport) {
                 relobj(mtmp, (int) mtmp->minvis, TRUE);
                 if (edog->apport > 1)
                     edog->apport--;
@@ -423,8 +425,8 @@ dog_invent(struct monst *mtmp, struct edog *edog, int udist)
             carryamt = can_carry(mtmp, obj);
             if (carryamt > 0 && !obj->cursed
                 && could_reach_item(mtmp, obj->ox, obj->oy)) {
-                if (rn2(20) < edog->apport + 3) {
-                    if (rn2(udist) || !rn2(edog->apport)) {
+                if (random_integer_between_zero_and(20) < edog->apport + 3) {
+                    if (random_integer_between_zero_and(udist) || !random_integer_between_zero_and(edog->apport)) {
                         otmp = obj;
                         if (carryamt != obj->quan)
                             otmp = splitobj(obj, carryamt);
@@ -461,7 +463,7 @@ dog_invent(struct monst *mtmp, struct edog *edog, int udist)
    returns -1/0/1 (dog's desire to approach player) or -2 (abort move) */
 staticfn int
 dog_goal(
-    struct monst *mtmp,
+    struct monster *mtmp,
     struct edog *edog,
     int after, int udist, int whappr)
 {
@@ -472,7 +474,7 @@ dog_goal(
     int appr;
 
     /* Steeds don't move on their own will */
-    if (mtmp == u.usteed)
+    if (mtmp == u.monster_being_ridden)
         return -2;
 
     omx = mtmp->mx;
@@ -482,17 +484,17 @@ dog_goal(
     dog_has_minvent = (droppables(mtmp) != 0);
 
     if (!edog || mtmp->mleashed) { /* he's not going anywhere... */
-        gg.gtyp = APPORT;
-        gg.gx = u.ux;
-        gg.gy = u.uy;
+        gg.goal_type = APPORT;
+        gg.goal_x = u.ux;
+        gg.goal_y = u.uy;
     } else {
 #define DDIST(x, y) (dist2(x, y, omx, omy))
 #define SQSRCHRADIUS 5
         int min_x, max_x, min_y, max_y;
         coordxy nx, ny;
 
-        gg.gtyp = UNDEF; /* no goal as yet */
-        gg.gx = gg.gy = 0;  /* suppress 'used before set' message */
+        gg.goal_type = UNDEF; /* no goal as yet */
+        gg.goal_x = gg.goal_y = 0;  /* suppress 'used before set' message */
 
         if ((min_x = omx - SQSRCHRADIUS) < 1)
             min_x = 1;
@@ -510,7 +512,7 @@ dog_goal(
             if (nx >= min_x && nx <= max_x && ny >= min_y && ny <= max_y) {
                 otyp = dogfood(mtmp, obj);
                 /* skip inferior goals */
-                if (otyp > gg.gtyp || otyp == UNDEF)
+                if (otyp > gg.goal_type || otyp == UNDEF)
                     continue;
                 /* avoid cursed items unless starving */
                 if (cursed_object_at(nx, ny)
@@ -521,21 +523,21 @@ dog_goal(
                     || !can_reach_location(mtmp, mtmp->mx, mtmp->my, nx, ny))
                     continue;
                 if (otyp < MANFOOD) {
-                    if (otyp < gg.gtyp
-                        || DDIST(nx, ny) < DDIST(gg.gx, gg.gy)) {
-                        gg.gx = nx;
-                        gg.gy = ny;
-                        gg.gtyp = otyp;
+                    if (otyp < gg.goal_type
+                        || DDIST(nx, ny) < DDIST(gg.goal_x, gg.goal_y)) {
+                        gg.goal_x = nx;
+                        gg.goal_y = ny;
+                        gg.goal_type = otyp;
                     }
-                } else if (gg.gtyp == UNDEF && in_masters_sight
+                } else if (gg.goal_type == UNDEF && in_masters_sight
                            && !dog_has_minvent
                            && (!levl[omx][omy].lit || levl[u.ux][u.uy].lit)
                            && (otyp == MANFOOD || m_cansee(mtmp, nx, ny))
-                           && edog->apport > rn2(8)
+                           && edog->apport > random_integer_between_zero_and(8)
                            && can_carry(mtmp, obj) > 0) {
-                    gg.gx = nx;
-                    gg.gy = ny;
-                    gg.gtyp = APPORT;
+                    gg.goal_x = nx;
+                    gg.goal_y = ny;
+                    gg.goal_type = APPORT;
                 }
             }
         }
@@ -544,16 +546,16 @@ dog_goal(
     }
 
     /* follow player if appropriate */
-    if (gg.gtyp == UNDEF || (gg.gtyp != DOGFOOD && gg.gtyp != APPORT
+    if (gg.goal_type == UNDEF || (gg.goal_type != DOGFOOD && gg.goal_type != APPORT
                           && gm.moves < edog->hungrytime)) {
-        gg.gx = u.ux;
-        gg.gy = u.uy;
-        if (after && udist <= 4 && u_at(gg.gx, gg.gy))
+        gg.goal_x = u.ux;
+        gg.goal_y = u.uy;
+        if (after && udist <= 4 && u_at(gg.goal_x, gg.goal_y))
             return -2;
         appr = (udist >= 9) ? 1 : (mtmp->mflee) ? -1 : 0;
         if (udist > 1) {
-            if (!IS_ROOM(levl[u.ux][u.uy].typ) || !rn2(4) || whappr
-                || (dog_has_minvent && rn2(edog->apport)))
+            if (!IS_ROOM(levl[u.ux][u.uy].typ) || !random_integer_between_zero_and(4) || whappr
+                || (dog_has_minvent && random_integer_between_zero_and(edog->apport)))
                 appr = 1;
         }
         /* if you have dog food it'll follow you more closely; if you are
@@ -588,34 +590,34 @@ dog_goal(
         appr = 0;
 
 #define FARAWAY (COLNO + 2) /* position outside screen */
-    if (u_at(gg.gx, gg.gy) && !in_masters_sight) {
+    if (u_at(gg.goal_x, gg.goal_y) && !in_masters_sight) {
         coord *cp;
 
         cp = gettrack(omx, omy);
         if (cp) {
-            gg.gx = cp->x;
-            gg.gy = cp->y;
+            gg.goal_x = cp->x;
+            gg.goal_y = cp->y;
             if (edog)
                 edog->ogoal.x = 0;
         } else {
             /* assume master hasn't moved far, and reuse previous goal */
             if (edog && edog->ogoal.x
                 && (edog->ogoal.x != omx || edog->ogoal.y != omy)) {
-                gg.gx = edog->ogoal.x;
-                gg.gy = edog->ogoal.y;
+                gg.goal_x = edog->ogoal.x;
+                gg.goal_y = edog->ogoal.y;
                 edog->ogoal.x = 0;
             } else {
                 int fardist = FARAWAY * FARAWAY;
-                gg.gx = gg.gy = FARAWAY; /* random */
+                gg.goal_x = gg.goal_y = FARAWAY; /* random */
                 do_clear_area(omx, omy, 9, wantdoor, (genericptr_t) &fardist);
 
                 /* here gx == FARAWAY e.g. when dog is in a vault */
-                if (gg.gx == FARAWAY || (gg.gx == omx && gg.gy == omy)) {
-                    gg.gx = u.ux;
-                    gg.gy = u.uy;
+                if (gg.goal_x == FARAWAY || (gg.goal_x == omx && gg.goal_y == omy)) {
+                    gg.goal_x = u.ux;
+                    gg.goal_y = u.uy;
                 } else if (edog) {
-                    edog->ogoal.x = gg.gx;
-                    edog->ogoal.y = gg.gy;
+                    edog->ogoal.x = gg.goal_x;
+                    edog->ogoal.y = gg.goal_y;
                 }
             }
         }
@@ -626,13 +628,13 @@ dog_goal(
 #undef FARAWAY
 }
 
-staticfn struct monst *
+staticfn struct monster *
 find_targ(
-    struct monst *mtmp,
+    struct monster *mtmp,
     int dx, int dy,
     int maxdist)
 {
-    struct monst *targ = 0;
+    struct monster *targ = 0;
     int curx = mtmp->mx, cury = mtmp->my;
     int dist = 0;
 
@@ -671,9 +673,9 @@ find_targ(
 }
 
 staticfn int
-find_friends(struct monst *mtmp, struct monst *mtarg, int maxdist)
+find_friends(struct monster *mtmp, struct monster *mtarg, int maxdist)
 {
-    struct monst *pal;
+    struct monster *pal;
     int dx = sgn(mtarg->mx - mtmp->mx),
         dy = sgn(mtarg->my - mtmp->my);
     int curx = mtarg->mx, cury = mtarg->my;
@@ -715,7 +717,7 @@ find_friends(struct monst *mtmp, struct monst *mtarg, int maxdist)
 }
 
 staticfn long
-score_targ(struct monst *mtmp, struct monst *mtarg)
+score_targ(struct monster *mtmp, struct monster *mtarg)
 {
     long score = 0L;
 
@@ -725,7 +727,7 @@ score_targ(struct monst *mtmp, struct monst *mtarg)
 
     /* Give 1 in 3 chance of safe breathing even if pet is confused or
      * if you're on the quest start level */
-    if (!mtmp->mconf || !rn2(3) || Is_qstart(&u.uz)) {
+    if (!mtmp->mconf || !random_integer_between_zero_and(3) || Is_qstart(&u.uz)) {
         int mtmp_lev;
         aligntyp align1 = A_NONE, align2 = A_NONE; /* For priests, minions */
         boolean faith1 = TRUE,  faith2 = TRUE;
@@ -790,7 +792,7 @@ score_targ(struct monst *mtmp, struct monst *mtarg)
             /* is_vampshifter() implies (mtmp->cham >= LOW_PM) */
             mtmp_lev = mons[mtmp->cham].mlevel;
             /* actual vampire level would range from 1.0*mlvl to 1.5*mlvl */
-            mtmp_lev += rn2(mtmp_lev / 2 + 1);
+            mtmp_lev += random_integer_between_zero_and(mtmp_lev / 2 + 1);
             /* we don't expect actual level in weak form to exceed
                base level of strong form, but handle that if it happens */
             if (mtmp->m_lev > mtmp_lev)
@@ -807,19 +809,19 @@ score_targ(struct monst *mtmp, struct monst *mtarg)
     }
     /* Fuzz factor to make things less predictable when very
        similar targets are abundant. */
-    score += rnd(5);
+    score += random(5);
     /* Pet may decide not to use ranged attack when confused */
-    if (mtmp->mconf && !rn2(3))
+    if (mtmp->mconf && !random_integer_between_zero_and(3))
         score -= 1000;
     return score;
 }
 
-staticfn struct monst *
-best_target(struct monst *mtmp)   /* Pet */
+staticfn struct monster *
+best_target(struct monster *mtmp)   /* Pet */
 {
     int dx, dy;
     long bestscore = -40000L, currscore;
-    struct monst *best_targ = 0, *temp_targ = 0;
+    struct monster *best_targ = 0, *temp_targ = 0;
 
     /* Help! */
     if (!mtmp)
@@ -866,9 +868,9 @@ best_target(struct monst *mtmp)   /* Pet */
 
 /* Pet considers and maybe executes a ranged attack */
 int
-pet_ranged_attk(struct monst *mtmp)
+pet_ranged_attk(struct monster *mtmp)
 {
-    struct monst *mtarg;
+    struct monster *mtarg;
     int hungry = 0;
 
     /* How hungry is the pet? */
@@ -884,7 +886,7 @@ pet_ranged_attk(struct monst *mtmp)
     mtarg = best_target(mtmp);
 
     /* Hungry pets are unlikely to use breath/spit attacks */
-    if (mtarg && (!hungry || !rn2(5))) {
+    if (mtarg && (!hungry || !random_integer_between_zero_and(5))) {
         int mstatus = M_ATTK_MISS;
 
         if (mtarg == &gy.youmonst) {
@@ -911,7 +913,7 @@ pet_ranged_attk(struct monst *mtmp)
              * nothing will happen.
              */
             if ((mstatus & M_ATTK_HIT) && !(mstatus & M_ATTK_DEF_DIED)
-                && rn2(4) && mtarg != &gy.youmonst) {
+                && random_integer_between_zero_and(4) && mtarg != &gy.youmonst) {
 
                 /* Can monster see?  If it can, it can retaliate
                  * even if the pet is invisible, since it'll see
@@ -954,7 +956,7 @@ pet_ranged_attk(struct monst *mtmp)
  */
 int
 dog_move(
-    struct monst *mtmp, /* pet */
+    struct monster *mtmp, /* pet */
     int after) /* this is extra fast monster movement */
 {
     int omx, omy; /* original mtmp position */
@@ -971,7 +973,7 @@ dog_move(
     int chi = -1, nidist, ndist;
     coord poss[9];
     long info[9], allowflags;
-#define GDIST(x, y) (dist2(x, y, gg.gx, gg.gy))
+#define GDIST(x, y) (dist2(x, y, gg.goal_x, gg.goal_y))
 
     /*
      * Tame Angels have isminion set and an ispriest structure instead of
@@ -992,7 +994,7 @@ dog_move(
 
     udist = distu(omx, omy);
     /* Let steeds eat and maybe throw rider during Conflict */
-    if (mtmp == u.usteed) {
+    if (mtmp == u.monster_being_ridden) {
         if (Conflict && !resist_conflict(mtmp)) {
             dismount_steed(DISMOUNT_THROWN);
             return MMOVE_MOVED;
@@ -1058,7 +1060,7 @@ dog_move(
     }
 
     better_with_displacing = should_displace(mtmp, poss, info, cnt,
-                                             gg.gx, gg.gy);
+                                             gg.goal_x, gg.goal_y);
 
     chcnt = 0;
     chi = -1;
@@ -1079,7 +1081,7 @@ dog_move(
 
         if ((info[i] & ALLOW_M) && MON_AT(nx, ny)) {
             int mstatus;
-            struct monst *mtmp2 = m_at(nx, ny);
+            struct monster *mtmp2 = m_at(nx, ny);
             /* weight the audacity of the pet to attack a differently-leveled
              * foe based on its fraction of max HP:
              *       100%: up to level + 2
@@ -1097,10 +1099,10 @@ dog_move(
             int balk = mtmp->m_lev + ((5 * mtmp->mhp) / mtmp->mhpmax) - 2;
 
             if ((int) mtmp2->m_lev >= balk
-                || (mtmp2->data == &mons[PM_FLOATING_EYE] && rn2(10)
+                || (mtmp2->data == &mons[PM_FLOATING_EYE] && random_integer_between_zero_and(10)
                     && mtmp->mcansee && haseyes(mtmp->data) && mtmp2->mcansee
                     && (perceives(mtmp->data) || !mtmp2->minvis))
-                || (mtmp2->data == &mons[PM_GELATINOUS_CUBE] && rn2(10))
+                || (mtmp2->data == &mons[PM_GELATINOUS_CUBE] && random_integer_between_zero_and(10))
                 || (max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
                 || ((mtmp->mhp * 4 < mtmp->mhpmax
                      || mtmp2->data->msound == MS_GUARDIAN
@@ -1121,7 +1123,7 @@ dog_move(
                 return MMOVE_DIED;
 
             if ((mstatus & (M_ATTK_HIT | M_ATTK_DEF_DIED)) == M_ATTK_HIT
-                && rn2(4)
+                && random_integer_between_zero_and(4)
                 && mtmp2->mlstmv != gm.moves
                 && !onscary(mtmp->mx, mtmp->my, mtmp2)
                 /* monnear check needed: long worms hit on tail */
@@ -1137,7 +1139,7 @@ dog_move(
         if ((info[i] & ALLOW_MDISP) && MON_AT(nx, ny)
             && better_with_displacing && !undesirable_disp(mtmp, nx, ny)) {
             int mstatus;
-            struct monst *mtmp2 = m_at(nx, ny);
+            struct monster *mtmp2 = m_at(nx, ny);
 
             mstatus = mdisplacem(mtmp, mtmp2, FALSE); /* displace monster */
             if (mstatus & M_ATTK_DEF_DIED)
@@ -1163,7 +1165,7 @@ dog_move(
                     /* 1/40 chance of stepping on it anyway, in case
                      * it has to pass one to follow the player...
                      */
-                    if (trap->tseen && rn2(40))
+                    if (trap->tseen && random_integer_between_zero_and(40))
                         continue;
                 }
             }
@@ -1194,7 +1196,7 @@ dog_move(
         /* didn't find something to eat; if we saw a cursed item and
            aren't being forced to walk on it, usually keep looking */
         if (cursemsg[i] && !mtmp->mleashed && uncursedcnt > 0
-            && rn2(13 * uncursedcnt))
+            && random_integer_between_zero_and(13 * uncursedcnt))
             continue;
 
         /*
@@ -1206,14 +1208,14 @@ dog_move(
             k = edog ? uncursedcnt : cnt;
             for (j = 0; j < MTSZ && j < k - 1; j++)
                 if (nx == mtmp->mtrack[j].x && ny == mtmp->mtrack[j].y)
-                    if (rn2(MTSZ * (k - j)))
+                    if (random_integer_between_zero_and(MTSZ * (k - j)))
                         goto nxti;
         }
 
         j = ((ndist = GDIST(nx, ny)) - nidist) * appr;
-        if ((j == 0 && !rn2(++chcnt)) || j < 0
+        if ((j == 0 && !random_integer_between_zero_and(++chcnt)) || j < 0
             || (j > 0 && !whappr
-                && ((omx == nix && omy == niy && !rn2(3)) || !rn2(12)))) {
+                && ((omx == nix && omy == niy && !random_integer_between_zero_and(3)) || !random_integer_between_zero_and(12)))) {
             nix = nx;
             niy = ny;
             nidist = ndist;
@@ -1315,7 +1317,7 @@ dog_move(
 
 /* check if a monster could pick up objects from a location */
 boolean
-could_reach_item(struct monst *mon, coordxy nx, coordxy ny)
+could_reach_item(struct monster *mon, coordxy nx, coordxy ny)
 {
     if ((!is_pool(nx, ny) || is_swimmer(mon->data))
         && (!is_lava(nx, ny) || likes_lava(mon->data))
@@ -1332,7 +1334,7 @@ could_reach_item(struct monst *mon, coordxy nx, coordxy ny)
  * calls deep.
  */
 staticfn boolean
-can_reach_location(struct monst *mon, coordxy mx, coordxy my, coordxy fx, coordxy fy)
+can_reach_location(struct monster *mon, coordxy mx, coordxy my, coordxy fx, coordxy fy)
 {
     int i, j;
     int dist;
@@ -1373,8 +1375,8 @@ wantdoor(coordxy x, coordxy y, genericptr_t distance)
     int ndist, *dist_ptr = (int *) distance;
 
     if (*dist_ptr > (ndist = distu(x, y))) {
-        gg.gx = x;
-        gg.gy = y;
+        gg.goal_x = x;
+        gg.goal_y = y;
         *dist_ptr = ndist;
     }
 }
@@ -1398,7 +1400,7 @@ static const struct qmchoices {
 };
 
 void
-finish_meating(struct monst *mtmp)
+finish_meating(struct monster *mtmp)
 {
     mtmp->meating = 0;
     if (M_AP_TYPE(mtmp) != M_AP_NOTHING && mtmp->data->mlet != S_MIMIC) {
@@ -1410,7 +1412,7 @@ finish_meating(struct monst *mtmp)
 }
 
 void
-quickmimic(struct monst *mtmp)
+quickmimic(struct monster *mtmp)
 {
     int idx = 0, trycnt = 5, spotted, seeloc;
     char buf[BUFSZ];
@@ -1424,11 +1426,11 @@ quickmimic(struct monst *mtmp)
        rider taking on an unsuitable shape, but its message works fine
        for this and also avoids inflicting damage during forced dismount;
        do this before changing so that dismount refers to original shape */
-    if (mtmp == u.usteed)
+    if (mtmp == u.monster_being_ridden)
         dismount_steed(DISMOUNT_POLY);
 
     do {
-        idx = rn2(SIZE(qm));
+        idx = random_integer_between_zero_and(SIZE(qm));
         if (qm[idx].mndx != 0 && monsndx(mtmp->data) == qm[idx].mndx)
             break;
         if (qm[idx].mlet != 0 && mtmp->data->mlet == qm[idx].mlet)

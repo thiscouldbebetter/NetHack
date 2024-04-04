@@ -3,6 +3,7 @@
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
 #include "config.h"
 #include "permonst.h"
 #include "wintype.h"
@@ -63,12 +64,12 @@ static struct permonst mons_init[NUMMONS + 1] = {
 #undef NAM
 #undef NAMS
 
-void monst_globals_init(void); /* in hack.h but we're using config.h */
+void monster_globals_initialize(void); /* in hack.h but we're using config.h */
 
 struct permonst mons[SIZE(mons_init)];
 
 void
-monst_globals_init(void)
+monster_globals_initialize(void)
 {
     memcpy(mons, mons_init, sizeof mons);
     return;

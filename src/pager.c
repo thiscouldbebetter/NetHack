@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /*
  * This file contains the command routines dowhatis() and dohelp() and
  * a few other help related facilities such as data.base lookup.
@@ -15,7 +17,7 @@ staticfn boolean is_swallow_sym(int);
 staticfn int append_str(char *, const char *) NONNULLPTRS;
 staticfn void trap_description(char *, int, coordxy, coordxy) NONNULLARG1;
 staticfn void look_at_object(char *, coordxy, coordxy, int) NONNULLARG1;
-staticfn void look_at_monster(char *, char *, struct monst *,
+staticfn void look_at_monster(char *, char *, struct monster *,
                                                coordxy, coordxy) NONNULLARG13;
 /* lookat() can return Null */
 staticfn struct permonst *lookat(coordxy, coordxy, char *, char *) NONNULLPTRS;
@@ -111,13 +113,13 @@ self_lookat(char *outbuf)
     /* include race with role unless polymorphed */
     race[0] = '\0';
     if (!Upolyd)
-        Sprintf(race, "%s ", gu.urace.adj);
+        Sprintf(race, "%s ", gu.urace.adjective);
     Sprintf(outbuf, "%s%s%s called %s",
             /* being blinded may hide invisibility from self */
             (Invis && (senseself() || !Blind)) ? "invisible " : "", race,
             pmname(&mons[u.umonnum], Ugender), gp.plname);
-    if (u.usteed)
-        Sprintf(eos(outbuf), ", mounted on %s", y_monnam(u.usteed));
+    if (u.monster_being_ridden)
+        Sprintf(eos(outbuf), ", mounted on %s", y_monnam(u.monster_being_ridden));
     if (u.uundetected || (Upolyd && U_AP_TYPE))
         mhidden_description(&gy.youmonst, FALSE, eos(outbuf));
     if (Punished)
@@ -131,7 +133,7 @@ self_lookat(char *outbuf)
 /* format a description of 'mon's health for look_at_monster(), done_in_by();
    result isn't Healer-specific (not trained for arbitrary creatures) */
 char *
-monhealthdescr(struct monst *mon, boolean addspace, char *outbuf)
+monhealthdescr(struct monster *mon, boolean addspace, char *outbuf)
 {
 #if 0   /* [disable this for the time being] */
     int mhp_max = max(mon->mhpmax, 1), /* bullet proofing */
@@ -180,7 +182,7 @@ trap_description(char *outbuf, int tnum, coordxy x, coordxy y)
    detection and for probing; also when looking at self */
 void
 mhidden_description(
-    struct monst *mon,
+    struct monster *mon,
     boolean altmon, /* for probing: if mimicking a monster, say so */
     char *outbuf)
 {
@@ -240,7 +242,7 @@ boolean
 object_from_map(int glyph, coordxy x, coordxy y, struct obj **obj_p)
 {
     boolean fakeobj = FALSE, mimic_obj = FALSE;
-    struct monst *mtmp;
+    struct monster *mtmp;
     struct obj *otmp;
     int glyphotyp = glyph_to_obj(glyph);
 
@@ -349,7 +351,7 @@ look_at_object(
 staticfn void
 look_at_monster(
     char *buf, char *monbuf, /* buf: output, monbuf: optional output */
-    struct monst *mtmp,
+    struct monster *mtmp,
     coordxy x, coordxy y)
 {
     char *name, monnambuf[BUFSZ], healthbuf[BUFSZ];
@@ -369,7 +371,7 @@ look_at_monster(
                     ? "peaceful "
                     : "",
             name);
-    if (u.ustuck == mtmp) {
+    if (u.monster_stuck_to == mtmp) {
         if (u.uswallow || iflags.save_uswallow) /* monster detection */
             Strcat(buf, digests(mtmp->data) ? ", swallowing you"
                                             : ", engulfing you");
@@ -581,7 +583,7 @@ ice_descr(coordxy x, coordxy y, char *outbuf)
 staticfn struct permonst *
 lookat(coordxy x, coordxy y, char *buf, char *monbuf)
 {
-    struct monst *mtmp = (struct monst *) 0;
+    struct monster *mtmp = (struct monster *) 0;
     struct permonst *pm = (struct permonst *) 0;
     int glyph;
 
@@ -589,7 +591,7 @@ lookat(coordxy x, coordxy y, char *buf, char *monbuf)
     glyph = glyph_at(x, y);
     if (u_at(x, y) && canspotself()
         && !(iflags.save_uswallow
-             && glyph == mon_to_glyph(u.ustuck, rn2_on_display_rng))
+             && glyph == mon_to_glyph(u.monster_stuck_to, random2_on_display_range))
         && (!iflags.terrainmode || (iflags.terrainmode & TER_MON) != 0)) {
         /* fill in buf[] */
         (void) self_lookat(buf);
@@ -628,8 +630,8 @@ lookat(coordxy x, coordxy y, char *buf, char *monbuf)
     } else if (u.uswallow) {
         /* when swallowed, we're only called for spots adjacent to hero,
            and blindness doesn't prevent hero from feeling what holds him */
-        Sprintf(buf, "interior of %s", mon_nam(u.ustuck));
-        pm = u.ustuck->data;
+        Sprintf(buf, "interior of %s", mon_nam(u.monster_stuck_to));
+        pm = u.monster_stuck_to->data;
     } else if (glyph_is_monster(glyph)) {
         gb.bhitpos.x = x;
         gb.bhitpos.y = y;
@@ -1859,7 +1861,7 @@ look_all(
             glyph = glyph_at(x, y);
             if (do_mons) {
                 if (glyph_is_monster(glyph)) {
-                    struct monst *mtmp;
+                    struct monster *mtmp;
 
                     gb.bhitpos.x = x; /* [is this actually necessary?] */
                     gb.bhitpos.y = y;

@@ -2,6 +2,8 @@
 /* Copyright (c) David Cohrs, 1991                                */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #ifndef WINTYPE_H
 #define WINTYPE_H
 
@@ -11,7 +13,7 @@ typedef int winid; /* a window identifier */
 typedef union any {
     genericptr_t a_void;
     struct obj *a_obj;
-    struct monst *a_monst;
+    struct monster *a_monst;
     int a_int;
     int a_xint16;
     int a_xint8;

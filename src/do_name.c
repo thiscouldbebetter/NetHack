@@ -3,12 +3,14 @@
 /*-Copyright (c) Pasi Kallinen, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 staticfn char *nextmbuf(void);
 staticfn char *name_from_player(char *, const char *, const char *);
 staticfn void do_mgivenname(void);
-staticfn boolean alreadynamed(struct monst *, char *, char *) NONNULLPTRS;
+staticfn boolean alreadynamed(struct monster *, char *, char *) NONNULLPTRS;
 staticfn void do_oname(struct obj *) NONNULLARG1;
 staticfn char *docall_xname(struct obj *) NONNULLARG1;
 staticfn void namefloorobj(void);
@@ -29,7 +31,7 @@ nextmbuf(void)
 /* allocate space for a monster's name; removes old name if there is one */
 void
 new_mgivenname(
-    struct monst *mon,
+    struct monster *mon,
     int lth) /* desired length (caller handles adding 1 for terminator) */
 {
     if (lth) {
@@ -48,7 +50,7 @@ new_mgivenname(
 
 /* release a monster's name; retains mextra even if all fields are now null */
 void
-free_mgivenname(struct monst *mon)
+free_mgivenname(struct monster *mon)
 {
     if (has_mgivenname(mon)) {
         free((genericptr_t) MGIVENNAME(mon));
@@ -129,8 +131,8 @@ name_from_player(
 
 /* historical note: this returns a monster pointer because it used to
    allocate a new bigger block of memory to hold the monster and its name */
-struct monst *
-christen_monst(struct monst *mtmp, const char *name)
+struct monster *
+christen_monst(struct monster *mtmp, const char *name)
 {
     int lth;
     char buf[PL_PSIZ];
@@ -155,7 +157,7 @@ christen_monst(struct monst *mtmp, const char *name)
    monster's name, or is an attempt to delete the monster's name; if so, give
    alternate reject message for do_mgivenname() */
 staticfn boolean
-alreadynamed(struct monst *mtmp, char *monnambuf, char *usrbuf)
+alreadynamed(struct monster *mtmp, char *monnambuf, char *usrbuf)
 {
     char pronounbuf[10], *p;
 
@@ -201,7 +203,7 @@ do_mgivenname(void)
     char buf[BUFSZ], monnambuf[BUFSZ], qbuf[QBUFSZ];
     coord cc;
     int cx, cy;
-    struct monst *mtmp = 0;
+    struct monster *mtmp = 0;
     boolean do_swallow = FALSE;
 
     if (Hallucination) {
@@ -216,8 +218,8 @@ do_mgivenname(void)
     cx = cc.x, cy = cc.y;
 
     if (u_at(cx, cy)) {
-        if (u.usteed && canspotmon(u.usteed)) {
-            mtmp = u.usteed;
+        if (u.monster_being_ridden && canspotmon(u.monster_being_ridden)) {
+            mtmp = u.monster_being_ridden;
         } else {
             pline("This %s creature is called %s and cannot be renamed.",
                   beautiful(), gp.plname);
@@ -231,7 +233,7 @@ do_mgivenname(void)
         int glyph = glyph_at(cx, cy);
 
         if (glyph_is_swallow(glyph)) {
-            mtmp = u.ustuck;
+            mtmp = u.monster_stuck_to;
             do_swallow = TRUE;
         }
     }
@@ -346,7 +348,7 @@ do_oname(struct obj *obj)
         /* for "the Foo of Bar", only scuff "Foo of Bar" part */
         bufp = !strncmpi(buf, "the ", 4) ? (buf + 4) : buf;
         do {
-            wipeout_text(bufp, rnd_on_display_rng(2), (unsigned) 0);
+            wipeout_text(bufp, random_on_display_range(2), (unsigned) 0);
         } while (!strcmp(buf, bufcpy));
         pline("While engraving, your %s slips.", body_part(HAND));
         display_nhwindow(WIN_MESSAGE, FALSE);
@@ -725,7 +727,7 @@ namefloorobj(void)
 
            note: the 30 is hardcoded in xlev_to_rank, so should be
            hardcoded here too */
-        unames[1] = rank_of(rn2_on_display_rng(30) + 1,
+        unames[1] = rank_of(random2_on_display_range(30) + 1,
                             Role_switch, flags.female);
         /* random fake monster */
         unames[2] = bogusmon(tmpbuf, (char *) 0);
@@ -737,7 +739,7 @@ namefloorobj(void)
         unames[5] = "Wibbly Wobbly";
         pline("%s %s to call you \"%s.\"",
               The(buf), use_plural ? "decide" : "decides",
-              unames[rn2_on_display_rng(SIZE(unames))]);
+              unames[random2_on_display_range(SIZE(unames))]);
     } else if (call_ok(obj) == GETOBJ_EXCLUDE) {
         pline("%s %s can't be assigned a type name.",
               use_plural ? "Those" : "That", buf);
@@ -768,7 +770,7 @@ static const char *const ghostnames[] = {
 const char *
 rndghostname(void)
 {
-    return rn2(7) ? ROLL_FROM(ghostnames)
+    return random_integer_between_zero_and(7) ? ROLL_FROM(ghostnames)
                   : (const char *) gp.plname;
 }
 
@@ -815,7 +817,7 @@ rndghostname(void)
  */
 char *
 x_monnam(
-    struct monst *mtmp,
+    struct monster *mtmp,
     int article,
     const char *adjective,
     int suppress,
@@ -836,7 +838,7 @@ x_monnam(
     if (article == ARTICLE_YOUR && !mtmp->mtame)
         article = ARTICLE_THE;
 
-    if (u.uswallow && mtmp == u.ustuck) {
+    if (u.uswallow && mtmp == u.monster_stuck_to) {
         /*
          * This monster has become important, for the moment anyway.
          * As the hero's consumer, it is worthy of ARTICLE_THE.
@@ -849,7 +851,7 @@ x_monnam(
     do_hallu = Hallucination && !(suppress & SUPPRESS_HALLUCINATION);
     do_invis = mtmp->minvis && !(suppress & SUPPRESS_INVISIBLE);
     do_it = !canspotmon(mtmp) && article != ARTICLE_YOUR
-            && !gp.program_state.gameover && mtmp != u.usteed
+            && !gp.program_state.gameover && mtmp != u.monster_being_ridden
             && !engulfing_u(mtmp) && !(suppress & SUPPRESS_IT);
     do_saddle = !(suppress & SUPPRESS_SADDLE);
     do_name = !(suppress & SUPPRESS_NAME) || type_is_pname(mdat);
@@ -861,7 +863,7 @@ x_monnam(
        when hallucinating, the more specific values might be inverted */
     if (do_it) {
         Strcpy(buf, !augment_it ? "it"
-                    : (!do_hallu ? humanoid(mdat) : !rn2(2)) ? "someone"
+                    : (!do_hallu ? humanoid(mdat) : !random_integer_between_zero_and(2)) ? "someone"
                       : "something");
         return buf;
     }
@@ -1001,14 +1003,14 @@ x_monnam(
 }
 
 char *
-l_monnam(struct monst *mtmp)
+l_monnam(struct monster *mtmp)
 {
     return x_monnam(mtmp, ARTICLE_NONE, (char *) 0,
                     (has_mgivenname(mtmp)) ? SUPPRESS_SADDLE : 0, TRUE);
 }
 
 char *
-mon_nam(struct monst *mtmp)
+mon_nam(struct monster *mtmp)
 {
     return x_monnam(mtmp, ARTICLE_THE, (char *) 0,
                     (has_mgivenname(mtmp)) ? SUPPRESS_SADDLE : 0, FALSE);
@@ -1019,7 +1021,7 @@ mon_nam(struct monst *mtmp)
  * the player with a cursed potion of invisibility
  */
 char *
-noit_mon_nam(struct monst *mtmp)
+noit_mon_nam(struct monster *mtmp)
 {
     return x_monnam(mtmp, ARTICLE_THE, (char *) 0,
                     (has_mgivenname(mtmp) ? (SUPPRESS_SADDLE | SUPPRESS_IT)
@@ -1030,7 +1032,7 @@ noit_mon_nam(struct monst *mtmp)
 /* in between noit_mon_nam() and mon_nam(); if the latter would pick "it",
    use "someone" (for humanoids) or "something" (for others) instead */
 char *
-some_mon_nam(struct monst *mtmp)
+some_mon_nam(struct monster *mtmp)
 {
     return x_monnam(mtmp, ARTICLE_THE, (char *) 0,
                     (has_mgivenname(mtmp) ? (SUPPRESS_SADDLE | AUGMENT_IT)
@@ -1039,7 +1041,7 @@ some_mon_nam(struct monst *mtmp)
 }
 
 char *
-Monnam(struct monst *mtmp)
+Monnam(struct monster *mtmp)
 {
     char *bp = mon_nam(mtmp);
 
@@ -1048,7 +1050,7 @@ Monnam(struct monst *mtmp)
 }
 
 char *
-noit_Monnam(struct monst *mtmp)
+noit_Monnam(struct monster *mtmp)
 {
     char *bp = noit_mon_nam(mtmp);
 
@@ -1057,7 +1059,7 @@ noit_Monnam(struct monst *mtmp)
 }
 
 char *
-Some_Monnam(struct monst *mtmp)
+Some_Monnam(struct monster *mtmp)
 {
     char *bp = some_mon_nam(mtmp);
 
@@ -1067,7 +1069,7 @@ Some_Monnam(struct monst *mtmp)
 
 /* return "a dog" rather than "Fido", honoring hallucination and visibility */
 char *
-noname_monnam(struct monst *mtmp, int article)
+noname_monnam(struct monster *mtmp, int article)
 {
     return x_monnam(mtmp, article, (char *) 0, SUPPRESS_NAME, FALSE);
 }
@@ -1075,21 +1077,21 @@ noname_monnam(struct monst *mtmp, int article)
 /* monster's own name -- overrides hallucination and [in]visibility
    so shouldn't be used in ordinary messages (mainly for disclosure) */
 char *
-m_monnam(struct monst *mtmp)
+m_monnam(struct monster *mtmp)
 {
     return x_monnam(mtmp, ARTICLE_NONE, (char *) 0, EXACT_NAME, FALSE);
 }
 
 /* pet name: "your little dog" */
 char *
-y_monnam(struct monst *mtmp)
+y_monnam(struct monster *mtmp)
 {
     int prefix, suppression_flag;
 
     prefix = mtmp->mtame ? ARTICLE_YOUR : ARTICLE_THE;
     suppression_flag = (has_mgivenname(mtmp)
                         /* "saddled" is redundant when mounted */
-                        || mtmp == u.usteed)
+                        || mtmp == u.monster_being_ridden)
                            ? SUPPRESS_SADDLE
                            : 0;
 
@@ -1097,7 +1099,7 @@ y_monnam(struct monst *mtmp)
 }
 
 char *
-Adjmonnam(struct monst *mtmp, const char *adj)
+Adjmonnam(struct monster *mtmp, const char *adj)
 {
     char *bp = x_monnam(mtmp, ARTICLE_THE, adj,
                         has_mgivenname(mtmp) ? SUPPRESS_SADDLE : 0, FALSE);
@@ -1107,14 +1109,14 @@ Adjmonnam(struct monst *mtmp, const char *adj)
 }
 
 char *
-a_monnam(struct monst *mtmp)
+a_monnam(struct monster *mtmp)
 {
     return x_monnam(mtmp, ARTICLE_A, (char *) 0,
                     has_mgivenname(mtmp) ? SUPPRESS_SADDLE : 0, FALSE);
 }
 
 char *
-Amonnam(struct monst *mtmp)
+Amonnam(struct monster *mtmp)
 {
     char *bp = a_monnam(mtmp);
 
@@ -1126,7 +1128,7 @@ Amonnam(struct monst *mtmp)
    identification of the endgame altars via their attending priests */
 char *
 distant_monnam(
-    struct monst *mon,
+    struct monster *mon,
     int article, /* only ARTICLE_NONE and ARTICLE_THE are handled here */
     char *outbuf)
 {
@@ -1146,7 +1148,7 @@ distant_monnam(
 /* returns mon_nam(mon) relative to other_mon; normal name unless they're
    the same, in which case the reference is to {him|her|it} self */
 char *
-mon_nam_too(struct monst *mon, struct monst *other_mon)
+mon_nam_too(struct monster *mon, struct monster *other_mon)
 {
     char *outbuf;
 
@@ -1177,7 +1179,7 @@ mon_nam_too(struct monst *mon, struct monst *other_mon)
    be distorted by Hallu; if that's plural, adjust monnamtext and verb */
 char *
 monverbself(
-    struct monst *mon,
+    struct monster *mon,
     char *monnamtext, /* modifiable 'mbuf' with adequate room at end */
     const char *verb,
     const char *othertext)
@@ -1209,7 +1211,7 @@ monverbself(
 /* for debugging messages, where data might be suspect and we aren't
    taking what the hero does or doesn't know into consideration */
 char *
-minimal_monnam(struct monst *mon, boolean ckloc)
+minimal_monnam(struct monster *mon, boolean ckloc)
 {
     struct permonst *ptr;
     char *outbuf = nextmbuf();
@@ -1244,7 +1246,7 @@ minimal_monnam(struct monst *mon, boolean ckloc)
 
 #ifndef PMNAME_MACROS
 int
-Mgender(struct monst *mtmp)
+Mgender(struct monster *mtmp)
 {
     int mgender = MALE;
 
@@ -1268,7 +1270,7 @@ pmname(struct permonst *pm, int mgender)
 
 /* mons[]->pmname for a monster */
 const char *
-mon_pmname(struct monst *mon)
+mon_pmname(struct monster *mon)
 {
     /* for neuter, mon->data->pmnames[MALE] will be Null and use [NEUTRAL] */
     return pmname(mon->data, mon->female ? FEMALE : MALE);
@@ -1331,7 +1333,7 @@ bogusmon(char *buf, char *code)
     if (code)
         *code = '\0';
     /* might fail (return empty buf[]) if the file isn't available */
-    get_rnd_text(BOGUSMONFILE, buf, rn2_on_display_rng, MD_PAD_BOGONS);
+    get_rnd_text(BOGUSMONFILE, buf, random2_on_display_range, MD_PAD_BOGONS);
     if (!*mnam) {
         Strcpy(buf, "bogon");
     } else if (strchr(bogon_codes, *mnam)) { /* strip prefix if present */
@@ -1355,14 +1357,14 @@ rndmonnam(char *code)
         *code = '\0';
 
     do {
-        name = rn2_on_display_rng(SPECIAL_PM + BOGUSMONSIZE - LOW_PM) + LOW_PM;
+        name = random2_on_display_range(SPECIAL_PM + BOGUSMONSIZE - LOW_PM) + LOW_PM;
     } while (name < SPECIAL_PM
              && (type_is_pname(&mons[name]) || (mons[name].geno & G_NOGEN)));
 
     if (name >= SPECIAL_PM) {
         mnam = bogusmon(buf, code);
     } else {
-        mnam = strcpy(buf, pmname(&mons[name], rn2_on_display_rng(2)));
+        mnam = strcpy(buf, pmname(&mons[name], random2_on_display_range(2)));
     }
     return mnam;
 #undef BOGUSMONSIZE
@@ -1392,7 +1394,7 @@ roguename(void)
                 return i + 5;
             }
     }
-    return rn2(3) ? (rn2(2) ? "Michael Toy" : "Kenneth Arnold")
+    return random_integer_between_zero_and(3) ? (random_integer_between_zero_and(2) ? "Michael Toy" : "Kenneth Arnold")
                   : "Glenn Wichman";
 }
 
@@ -1419,7 +1421,7 @@ const char *
 hcolor(const char *colorpref)
 {
     return (Hallucination || !colorpref)
-        ? hcolors[rn2_on_display_rng(SIZE(hcolors))]
+        ? hcolors[random2_on_display_range(SIZE(hcolors))]
         : colorpref;
 }
 
@@ -1427,7 +1429,7 @@ hcolor(const char *colorpref)
 const char *
 rndcolor(void)
 {
-    int k = rn2(CLR_MAX);
+    int k = random_integer_between_zero_and(CLR_MAX);
 
     return Hallucination ? hcolor((char *) 0)
                          : (k == NO_COLOR) ? "colorless"
@@ -1460,7 +1462,7 @@ hliquid(
            among the choices */
         if (liquidpref && *liquidpref)
             ++count;
-        indx = rn2_on_display_rng(count);
+        indx = random2_on_display_range(count);
         if (IndexOk(indx, hliquids))
             return hliquids[indx];
     }
@@ -1481,7 +1483,7 @@ static const char *const coynames[] = {
 };
 
 char *
-coyotename(struct monst *mtmp, char *buf)
+coyotename(struct monster *mtmp, char *buf)
 {
     if (mtmp && buf) {
         Sprintf(buf, "%s - %s",
@@ -1498,21 +1500,21 @@ rndorcname(char *s)
     static const char *const v[] = { "a", "ai", "og", "u" };
     static const char *const snd[] = { "gor", "gris", "un", "bane", "ruk",
                                  "oth","ul", "z", "thos","akh","hai" };
-    int i, iend = rn1(2, 3), vstart = rn2(2);
+    int i, iend = rn1(2, 3), vstart = random_integer_between_zero_and(2);
 
     if (s) {
         *s = '\0';
         for (i = 0; i < iend; ++i) {
             vstart = 1 - vstart;                /* 0 -> 1, 1 -> 0 */
-            Sprintf(eos(s), "%s%s", (i > 0 && !rn2(30)) ? "-" : "",
+            Sprintf(eos(s), "%s%s", (i > 0 && !random_integer_between_zero_and(30)) ? "-" : "",
                     vstart ? ROLL_FROM(v) : ROLL_FROM(snd));
         }
     }
     return s;
 }
 
-struct monst *
-christen_orc(struct monst *mtmp, const char *gang, const char *other)
+struct monster *
+christen_orc(struct monster *mtmp, const char *gang, const char *other)
 {
     int sz = 0;
     char buf[BUFSZ], buf2[BUFSZ], *orcname;
@@ -1570,7 +1572,7 @@ noveltitle(int *novidx)
 {
     int j, k = SIZE(sir_Terry_novels);
 
-    j = rn2(k);
+    j = random_integer_between_zero_and(k);
     if (novidx) {
         if (*novidx == -1)
             *novidx = j;

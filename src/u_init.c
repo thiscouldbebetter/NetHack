@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 struct trobj {
@@ -619,23 +621,23 @@ u_init_role(void)
      */
     case PM_ARCHEOLOGIST:
         ini_inv(Archeologist);
-        if (!rn2(10))
+        if (!random_integer_between_zero_and(10))
             ini_inv(Tinopener);
-        else if (!rn2(4))
+        else if (!random_integer_between_zero_and(4))
             ini_inv(Lamp);
-        else if (!rn2(5))
+        else if (!random_integer_between_zero_and(5))
             ini_inv(Magicmarker);
         knows_object(SACK);
         knows_object(TOUCHSTONE);
         skill_init(Skill_A);
         break;
     case PM_BARBARIAN:
-        if (rn2(100) >= 50) { /* see above comment */
+        if (random_integer_between_zero_and(100) >= 50) { /* see above comment */
             Barbarian[B_MAJOR].trotyp = BATTLE_AXE;
             Barbarian[B_MINOR].trotyp = SHORT_SWORD;
         }
         ini_inv(Barbarian);
-        if (!rn2(6))
+        if (!random_integer_between_zero_and(6))
             ini_inv(Lamp);
         knows_class(WEAPON_CLASS); /* excluding polearms */
         knows_class(ARMOR_CLASS);
@@ -647,9 +649,9 @@ u_init_role(void)
         skill_init(Skill_C);
         break;
     case PM_HEALER:
-        u.umoney0 = rn1(1000, 1001);
+        u.money0 = rn1(1000, 1001);
         ini_inv(Healer);
-        if (!rn2(25))
+        if (!random_integer_between_zero_and(25))
             ini_inv(Lamp);
         knows_object(POT_FULL_HEALING);
         skill_init(Skill_H);
@@ -667,11 +669,11 @@ u_init_role(void)
             SPE_HEALING, SPE_PROTECTION, SPE_CONFUSE_MONSTER
         };
 
-        Monk[M_BOOK].trotyp = M_spell[rn2(90) / 30]; /* [0..2] */
+        Monk[M_BOOK].trotyp = M_spell[random_integer_between_zero_and(90) / 30]; /* [0..2] */
         ini_inv(Monk);
-        if (!rn2(4))
+        if (!random_integer_between_zero_and(4))
             ini_inv(Magicmarker);
-        else if (!rn2(10))
+        else if (!random_integer_between_zero_and(10))
             ini_inv(Lamp);
         knows_class(ARMOR_CLASS);
         /* sufficiently martial-arts oriented item to ignore language issue */
@@ -681,9 +683,9 @@ u_init_role(void)
     }
     case PM_CLERIC: /* priest/priestess */
         ini_inv(Priest);
-        if (!rn2(5))
+        if (!random_integer_between_zero_and(5))
             ini_inv(Magicmarker);
-        else if (!rn2(10))
+        else if (!random_integer_between_zero_and(10))
             ini_inv(Lamp);
         knows_object(POT_WATER);
         skill_init(Skill_P);
@@ -704,9 +706,9 @@ u_init_role(void)
         break;
     case PM_ROGUE:
         Rogue[R_DAGGERS].trquan = rn1(10, 6);
-        u.umoney0 = 0;
+        u.money0 = 0;
         ini_inv(Rogue);
-        if (!rn2(5))
+        if (!random_integer_between_zero_and(5))
             ini_inv(Blindfold);
         knows_object(SACK);
         knows_class(WEAPON_CLASS); /* daggers only */
@@ -715,7 +717,7 @@ u_init_role(void)
     case PM_SAMURAI:
         Samurai[S_ARROWS].trquan = rn1(20, 26);
         ini_inv(Samurai);
-        if (!rn2(5))
+        if (!random_integer_between_zero_and(5))
             ini_inv(Blindfold);
         knows_class(WEAPON_CLASS); /* all weapons */
         knows_class(ARMOR_CLASS);
@@ -731,21 +733,21 @@ u_init_role(void)
         break;
     case PM_TOURIST:
         Tourist[T_DARTS].trquan = rn1(20, 21);
-        u.umoney0 = rnd(1000);
+        u.money0 = random(1000);
         ini_inv(Tourist);
-        if (!rn2(25))
+        if (!random_integer_between_zero_and(25))
             ini_inv(Tinopener);
-        else if (!rn2(25))
+        else if (!random_integer_between_zero_and(25))
             ini_inv(Leash);
-        else if (!rn2(25))
+        else if (!random_integer_between_zero_and(25))
             ini_inv(Towel);
-        else if (!rn2(20))
+        else if (!random_integer_between_zero_and(20))
             ini_inv(Magicmarker);
         skill_init(Skill_T);
         break;
     case PM_VALKYRIE:
         ini_inv(Valkyrie);
-        if (!rn2(6))
+        if (!random_integer_between_zero_and(6))
             ini_inv(Lamp);
         knows_class(WEAPON_CLASS); /* excludes polearms */
         knows_class(ARMOR_CLASS);
@@ -753,7 +755,7 @@ u_init_role(void)
         break;
     case PM_WIZARD:
         ini_inv(Wizard);
-        if (!rn2(5))
+        if (!random_integer_between_zero_and(5))
             ini_inv(Blindfold);
         skill_init(Skill_W);
         break;
@@ -842,9 +844,9 @@ u_init_carry_attr_boost(void)
 {
     /* make sure you can carry all you have - especially for Tourists */
     while (inv_weight() > 0) {
-        if (adjattrib(A_STR, 1, TRUE))
+        if (adjust_attribute(A_STR, 1, TRUE))
             continue;
-        if (adjattrib(A_CON, 1, TRUE))
+        if (adjust_attribute(A_CON, 1, TRUE))
             continue;
         /* only get here when didn't boost strength or constitution */
         break;
@@ -863,7 +865,7 @@ u_init(void)
     /* zero u, including pointer values --
      * necessary when aborting from a failed restore */
     (void) memset((genericptr_t) &u, 0, sizeof(u));
-    u.ustuck = (struct monst *) 0;
+    u.monster_stuck_to = (struct monster *) 0;
     (void) memset((genericptr_t) &ubirthday, 0, sizeof(ubirthday));
     (void) memset((genericptr_t) &urealtime, 0, sizeof(urealtime));
 
@@ -895,25 +897,25 @@ u_init(void)
     u.utolev = u.uz;
 
     u.umoved = FALSE;
-    u.umortality = 0;
-    u.ugrave_arise = NON_PM;
+    u.times_died = 0;
+    u.risen_from_grave = NON_PM;
 
     u.umonnum = u.umonster = gu.urole.mnum;
     u.ulycn = NON_PM;
     set_uasmon();
 
     u.ulevel = 0; /* set up some of the initial attributes */
-    u.uhp = u.uhpmax = u.uhppeak = newhp();
-    u.uen = u.uenmax = u.uenpeak = newpw();
-    u.uspellprot = 0;
+    u.hit_points = u.hit_points_max = u.hit_points_peak = newhp();
+    u.energy = u.energy_max = u.energy_peak = newpw();
+    u.spell_protection = 0;
     adjabil(0, 1);
     u.ulevel = u.ulevelmax = 1;
 
     init_uhunger();
     for (i = 0; i <= MAXSPELL; i++)
         gs.spl_book[i].sp_id = NO_SPELL;
-    u.ublesscnt = 300; /* no prayers just yet */
-    u.ualignbase[A_CURRENT] = u.ualignbase[A_ORIGINAL] = u.ualign.type =
+    u.blessing_duration = 300; /* no prayers just yet */
+    u.ualignbase[A_CURRENT] = u.ualignbase[A_ORIGINAL] = u.alignment.type =
         aligns[flags.initalign].value;
 
 #if defined(BSD) && !defined(POSIX_TYPES)
@@ -939,7 +941,7 @@ u_init(void)
     u_init_race();
 
     /* roughly based on distribution in human population */
-    u.uhandedness = rn2(10) ? RIGHT_HANDED : LEFT_HANDED;
+    u.uhandedness = random_integer_between_zero_and(10) ? RIGHT_HANDED : LEFT_HANDED;
 
     if (discover)
         ini_inv(Wishing);
@@ -947,9 +949,9 @@ u_init(void)
     if (wizard)
         read_wizkit();
 
-    if (u.umoney0)
+    if (u.money0)
         ini_inv(Money);
-    u.umoney0 += hidden_gold(TRUE); /* in case sack has gold in it */
+    u.money0 += hidden_gold(TRUE); /* in case sack has gold in it */
 
     find_ac();     /* get initial ac value */
     init_attr(75); /* init attribute values */
@@ -959,8 +961,8 @@ u_init(void)
 
     /* If we have at least one spell, force starting Pw to be enough,
        so hero can cast the level 1 spell they should have */
-    if (num_spells() && (u.uenmax < SPELL_LEV_PW(1)))
-        u.uen = u.uenmax = u.uenpeak = u.ueninc[u.ulevel] = SPELL_LEV_PW(1);
+    if (num_spells() && (u.energy_max < SPELL_LEV_PW(1)))
+        u.energy = u.energy_max = u.energy_peak = u.energy_increment[u.ulevel] = SPELL_LEV_PW(1);
 
     return;
 }
@@ -1119,7 +1121,7 @@ ini_inv_adjust_obj(struct trobj *trop, struct obj *obj)
 {
     if (trop->trclass == COIN_CLASS) {
         /* no "blessed" or "identified" money */
-        obj->quan = u.umoney0;
+        obj->quan = u.money0;
     } else {
         if (objects[obj->otyp].oc_uses_known)
             obj->known = 1;
@@ -1129,7 +1131,7 @@ ini_inv_adjust_obj(struct trobj *trop, struct obj *obj)
             obj->otrapped = 0;
         }
         obj->cursed = 0;
-        if (obj->opoisoned && u.ualign.type != A_CHAOTIC)
+        if (obj->opoisoned && u.alignment.type != A_CHAOTIC)
             obj->opoisoned = 0;
         if (obj->oclass == WEAPON_CLASS || obj->oclass == TOOL_CLASS) {
             obj->quan = (long) trop->trquan;
@@ -1141,7 +1143,7 @@ ini_inv_adjust_obj(struct trobj *trop, struct obj *obj)
         if (trop->trspe != UNDEF_SPE) {
             obj->spe = trop->trspe;
             if (trop->trotyp == MAGIC_MARKER && obj->spe < 96)
-                obj->spe += rn2(4);
+                obj->spe += random_integer_between_zero_and(4);
         } else {
             /* Don't start with +0 or negative rings */
             if (objects[obj->otyp].oc_class == RING_CLASS

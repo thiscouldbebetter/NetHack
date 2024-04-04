@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #include "artifact.h"
 #include "artilist.h"
@@ -21,12 +23,12 @@ staticfn struct artifact *get_artifact(struct obj *) NONNULL; /* never returns n
                              ? &artilist[(int) (o)->oartifact] \
                              : &artilist[ART_NONARTIFACT]) */
 
-staticfn boolean bane_applies(const struct artifact *, struct monst *)
+staticfn boolean bane_applies(const struct artifact *, struct monster *)
                       NONNULLARG12;
-staticfn int spec_applies(const struct artifact *, struct monst *) NONNULLARG12;
+staticfn int spec_applies(const struct artifact *, struct monster *) NONNULLARG12;
 staticfn int invoke_ok(struct obj *);
 staticfn int arti_invoke(struct obj *);
-staticfn boolean Mb_hit(struct monst * magr, struct monst *mdef,
+staticfn boolean Mb_hit(struct monster * magr, struct monster *mdef,
                       struct obj *, int *, int, boolean, char *);
 staticfn unsigned long abil_to_spfx(long *) NONNULLARG1;
 staticfn uchar abil_to_adtyp(long *) NONNULLARG1;
@@ -185,7 +187,7 @@ mk_artifact(
                 break; /* skip all other candidates */
             }
             /* found something to consider for random selection */
-            if (a->alignment != A_NONE || u.ugifts > 0) {
+            if (a->alignment != A_NONE || u.artifacts_bestowed_count > 0) {
                 /* right alignment, or non-aligned with at least 1
                    previous gift bestowed, makes this one viable */
                 eligible[n++] = m;
@@ -209,7 +211,7 @@ mk_artifact(
 
     if (n) {
         /* found at least one candidate; pick one at random */
-        m = eligible[rn2(n)]; /* [0..n-1] */
+        m = eligible[random_integer_between_zero_and(n)]; /* [0..n-1] */
         a = &artilist[m];
 
         /* make an appropriate object if necessary, then christen it */
@@ -808,7 +810,7 @@ static boolean touch_blasted; /* for retouch_object() */
  * fooled by such trappings.
  */
 int
-touch_artifact(struct obj *obj, struct monst *mon)
+touch_artifact(struct obj *obj, struct monster *mon)
 {
     const struct artifact *oart = get_artifact(obj);
     boolean badclass, badalign, self_willed, yours;
@@ -827,8 +829,8 @@ touch_artifact(struct obj *obj, struct monst *mon)
                        || (oart->race != NON_PM && !Race_if(oart->race)));
         badalign = ((oart->spfx & SPFX_RESTR) != 0
                     && oart->alignment != A_NONE
-                    && (oart->alignment != u.ualign.type
-                        || u.ualign.record < 0));
+                    && (oart->alignment != u.alignment.type
+                        || u.alignment.record < 0));
     } else if (!is_covetous(mon->data) && !is_mplayer(mon->data)) {
         badclass = self_willed && oart->role != NON_PM
                    && oart != &artilist[ART_EXCALIBUR];
@@ -845,7 +847,7 @@ touch_artifact(struct obj *obj, struct monst *mon)
         badalign = bane_applies(oart, mon);
 
     if (((badclass || badalign) && self_willed)
-        || (badalign && (!yours || !rn2(4)))) {
+        || (badalign && (!yours || !random_integer_between_zero_and(4)))) {
         int dmg, tmp;
         char buf[BUFSZ];
 
@@ -856,7 +858,7 @@ touch_artifact(struct obj *obj, struct monst *mon)
         dmg = d((Antimagic ? 2 : 4), (self_willed ? 10 : 4));
         /* add half (maybe quarter) of the usual silver damage bonus */
         if (objects[obj->otyp].oc_material == SILVER && Hate_silver)
-            tmp = rnd(10), dmg += Maybe_Half_Phys(tmp);
+            tmp = random(10), dmg += Maybe_Half_Phys(tmp);
         Sprintf(buf, "touching %s", oart->name);
         losehp(dmg, buf, KILLED_BY); /* magic damage, not physical */
         exercise(A_WIS, FALSE);
@@ -893,7 +895,7 @@ arti_immune(struct obj *obj, int dtyp)
 }
 
 staticfn boolean
-bane_applies(const struct artifact *oart, struct monst *mon)
+bane_applies(const struct artifact *oart, struct monster *mon)
 {
     struct artifact atmp;
 
@@ -909,7 +911,7 @@ bane_applies(const struct artifact *oart, struct monst *mon)
 
 /* decide whether an artifact's special attacks apply against mtmp */
 staticfn int
-spec_applies(const struct artifact *weap, struct monst *mtmp)
+spec_applies(const struct artifact *weap, struct monster *mtmp)
 {
     struct permonst *ptr;
     boolean yours;
@@ -932,7 +934,7 @@ spec_applies(const struct artifact *weap, struct monst *mtmp)
                     && ((!Upolyd && (gu.urace.selfmask & weap->mtype))
                         || ((weap->mtype & M2_WERE) && ismnum(u.ulycn)))));
     } else if (weap->spfx & SPFX_DALIGN) {
-        return yours ? (u.ualign.type != weap->alignment)
+        return yours ? (u.alignment.type != weap->alignment)
                      : (ptr->maligntyp == A_NONE
                         || sgn(ptr->maligntyp) != weap->alignment);
     } else if (weap->spfx & SPFX_ATTK) {
@@ -948,7 +950,7 @@ spec_applies(const struct artifact *weap, struct monst *mtmp)
             return !(yours ? Shock_resistance : resists_elec(mtmp));
         case AD_MAGM:
         case AD_STUN:
-            return !(yours ? Antimagic : (rn2(100) < ptr->mr));
+            return !(yours ? Antimagic : (random_integer_between_zero_and(100) < ptr->mr));
         case AD_DRST:
             return !(yours ? Poison_resistance : resists_poison(mtmp));
         case AD_DRLI:
@@ -976,7 +978,7 @@ spec_m2(struct obj *otmp)
 
 /* special attack bonus */
 int
-spec_abon(struct obj *otmp, struct monst *mon)
+spec_abon(struct obj *otmp, struct monster *mon)
 {
     const struct artifact *weap = get_artifact(otmp);
 
@@ -985,13 +987,13 @@ spec_abon(struct obj *otmp, struct monst *mon)
 
     if (weap != &artilist[ART_NONARTIFACT]
             && weap->attk.damn && spec_applies(weap, mon))
-        return rnd((int) weap->attk.damn);
+        return random((int) weap->attk.damn);
     return 0;
 }
 
 /* special damage bonus */
 int
-spec_dbon(struct obj *otmp, struct monst *mon, int tmp)
+spec_dbon(struct obj *otmp, struct monster *mon, int tmp)
 {
     const struct artifact *weap = get_artifact(otmp);
 
@@ -1007,7 +1009,7 @@ spec_dbon(struct obj *otmp, struct monst *mon, int tmp)
         gs.spec_dbon_applies = spec_applies(weap, mon);
 
     if (gs.spec_dbon_applies)
-        return weap->attk.damd ? rnd((int) weap->attk.damd) : max(tmp, 1);
+        return weap->attk.damd ? random((int) weap->attk.damd) : max(tmp, 1);
     return 0;
 }
 
@@ -1149,8 +1151,8 @@ static const char *const mb_verb[2][NUM_MB_INDICES] = {
 
 /* called when someone is being hit by Magicbane */
 staticfn boolean
-Mb_hit(struct monst *magr, /* attacker */
-       struct monst *mdef, /* defender */
+Mb_hit(struct monster *magr, /* attacker */
+       struct monster *mdef, /* defender */
        struct obj *mb,     /* Magicbane */
        int *dmgptr,        /* extra damage target will suffer */
        int dieroll,        /* d20 that has already scored a hit */
@@ -1177,7 +1179,7 @@ Mb_hit(struct monst *magr, /* attacker */
        in that case it will only happen if the other effect fails;
        extra damage will apply regardless; 3.4.1: sometimes might
        just probe even when it hasn't been enchanted */
-    do_stun = (max(mb->spe, 0) < rn2(gs.spec_dbon_applies ? 11 : 7));
+    do_stun = (max(mb->spe, 0) < random_integer_between_zero_and(gs.spec_dbon_applies ? 11 : 7));
 
     /* the special effects also boost physical damage; increments are
        generally cumulative, but since the stun effect is based on a
@@ -1187,18 +1189,18 @@ Mb_hit(struct monst *magr, /* attacker */
        [note that a successful save against AD_STUN doesn't actually
        prevent the target from ending up stunned] */
     attack_indx = MB_INDEX_PROBE;
-    *dmgptr += rnd(4); /* (2..3)d4 */
+    *dmgptr += random(4); /* (2..3)d4 */
     if (do_stun) {
         attack_indx = MB_INDEX_STUN;
-        *dmgptr += rnd(4); /* (3..4)d4 */
+        *dmgptr += random(4); /* (3..4)d4 */
     }
     if (dieroll <= scare_dieroll) {
         attack_indx = MB_INDEX_SCARE;
-        *dmgptr += rnd(4); /* (3..5)d4 */
+        *dmgptr += random(4); /* (3..5)d4 */
     }
     if (dieroll <= (scare_dieroll / 2)) {
         attack_indx = MB_INDEX_CANCEL;
-        *dmgptr += rnd(4); /* (4..6)d4 */
+        *dmgptr += random(4); /* (4..6)d4 */
     }
 
     /* give the hit message prior to inflicting the effects */
@@ -1228,10 +1230,10 @@ Mb_hit(struct monst *magr, /* attacker */
             if (youdefend) {
                 if (gy.youmonst.data != old_mdat)
                     *dmgptr = 0; /* rehumanized, so no more damage */
-                if (u.uenmax > 0) {
-                    u.uenmax--;
-                    if (u.uen > 0)
-                        u.uen--;
+                if (u.energy_max > 0) {
+                    u.energy_max--;
+                    if (u.energy > 0)
+                        u.energy--;
                     disp.botl = TRUE;
                     You("lose magical energy!");
                 }
@@ -1243,10 +1245,10 @@ Mb_hit(struct monst *magr, /* attacker */
                 if (mdef->data == &mons[PM_CLAY_GOLEM])
                     mdef->mhp = 1; /* cancelled clay golems will die */
                 if (youattack && attacktype(mdef->data, AT_MAGC)) {
-                    u.uenmax++;
-                    if (u.uenmax > u.uenpeak)
-                        u.uenpeak = u.uenmax;
-                    u.uen++;
+                    u.energy_max++;
+                    if (u.energy_max > u.energy_peak)
+                        u.energy_peak = u.energy_max;
+                    u.energy++;
                     disp.botl = TRUE;
                     You("absorb magical energy!");
                 }
@@ -1262,13 +1264,13 @@ Mb_hit(struct monst *magr, /* attacker */
                 nomul(-3);
                 gm.multi_reason = "being scared stiff";
                 gn.nomovemsg = "";
-                if (magr && magr == u.ustuck && sticks(gy.youmonst.data)) {
-                    set_ustuck((struct monst *) 0);
+                if (magr && magr == u.monster_stuck_to && sticks(gy.youmonst.data)) {
+                    set_ustuck((struct monster *) 0);
                     You("release %s!", mon_nam(magr));
                 }
             }
         } else {
-            if (rn2(2) && resist(mdef, WEAPON_CLASS, 0, NOTELL))
+            if (random_integer_between_zero_and(2) && resist(mdef, WEAPON_CLASS, 0, NOTELL))
                 resisted = TRUE;
             else
                 monflee(mdef, 3, FALSE, (mdef->mhp > *dmgptr));
@@ -1282,7 +1284,7 @@ Mb_hit(struct monst *magr, /* attacker */
         break;
 
     case MB_INDEX_PROBE:
-        if (youattack && (mb->spe == 0 || !rn2(3 * abs(mb->spe)))) {
+        if (youattack && (mb->spe == 0 || !random_integer_between_zero_and(3 * abs(mb->spe)))) {
             pline_The("%s is insightful.", verb);
             /* pre-damage status */
             probe_monster(mdef);
@@ -1300,7 +1302,7 @@ Mb_hit(struct monst *magr, /* attacker */
             do_stun = FALSE;
     }
     /* lastly, all this magic can be confusing... */
-    do_confuse = !rn2(12);
+    do_confuse = !random_integer_between_zero_and(12);
     if (do_confuse) {
         if (youdefend)
             make_confused((HConfusion & TIMEOUT) + 4L, FALSE);
@@ -1348,8 +1350,8 @@ DISABLE_WARNING_FORMAT_NONLITERAL
  */
 boolean
 artifact_hit(
-    struct monst *magr, /* attacker; might be Null if 'mdef' is youmonst */
-    struct monst *mdef, /* defender */
+    struct monster *magr, /* attacker; might be Null if 'mdef' is youmonst */
+    struct monster *mdef, /* defender */
     struct obj *otmp,   /* artifact weapon */
     int *dmgptr,        /* output */
     int dieroll)        /* needed for Magicbane and vorpal blades */
@@ -1379,7 +1381,7 @@ artifact_hit(
 
     realizes_damage = (youdefend || vis
                        /* feel the effect even if not seen */
-                       || (youattack && mdef == u.ustuck));
+                       || (youattack && mdef == u.monster_stuck_to));
 
     /* the four basic attacks: fire, cold, shock and missiles */
     if (attacks(AD_FIRE, otmp)) {
@@ -1391,7 +1393,7 @@ artifact_hit(
                                 ? "vaporizes part of"
                                 : "burns",
                       hittee, !gs.spec_dbon_applies ? '.' : '!');
-        if (!rn2(4)) {
+        if (!random_integer_between_zero_and(4)) {
             int itemdmg = destroy_items(mdef, AD_FIRE, *dmgptr);
             if (!youdefend)
                 *dmgptr += itemdmg; /* item destruction dmg */
@@ -1406,7 +1408,7 @@ artifact_hit(
             pline_The("ice-cold blade %s %s%c",
                       !gs.spec_dbon_applies ? "hits" : "freezes", hittee,
                       !gs.spec_dbon_applies ? '.' : '!');
-        if (!rn2(4)) {
+        if (!random_integer_between_zero_and(4)) {
             int itemdmg = destroy_items(mdef, AD_COLD, *dmgptr);
             if (!youdefend)
                 *dmgptr += itemdmg; /* item destruction dmg */
@@ -1420,7 +1422,7 @@ artifact_hit(
                       hittee, !gs.spec_dbon_applies ? '.' : '!');
         if (gs.spec_dbon_applies)
             wake_nearto(mdef->mx, mdef->my, 4 * 4);
-        if (!rn2(5)) {
+        if (!random_integer_between_zero_and(5)) {
             int itemdmg = destroy_items(mdef, AD_ELEC, *dmgptr);
             if (!youdefend)
                 *dmgptr += itemdmg; /* item destruction dmg */
@@ -1490,7 +1492,7 @@ artifact_hit(
                  * value to the damage so that this reduction in
                  * damage does not prevent death.
                  */
-                *dmgptr = 2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER;
+                *dmgptr = 2 * (Upolyd ? u.mh : u.hit_points) + FATAL_DAMAGE_MODIFIER;
                 pline("%s cuts you in half!", wepdesc);
                 otmp->dknown = TRUE;
                 return TRUE;
@@ -1537,7 +1539,7 @@ artifact_hit(
                           body_part(NECK));
                     return TRUE;
                 }
-                *dmgptr = 2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER;
+                *dmgptr = 2 * (Upolyd ? u.mh : u.hit_points) + FATAL_DAMAGE_MODIFIER;
                 pline(ROLL_FROM(behead_msg), wepdesc, "you");
                 otmp->dknown = TRUE;
                 /* Should amulets fall off? */
@@ -1596,7 +1598,7 @@ artifact_hit(
             }
             return vis;
         } else { /* youdefend */
-            int oldhpmax = u.uhpmax;
+            int oldhpmax = u.hit_points_max;
 
             if (Blind) {
                 You_feel("an %s drain your %s!",
@@ -1617,7 +1619,7 @@ artifact_hit(
             }
             losexp("life drainage");
             if (magr && magr->mhp < magr->mhpmax) {
-                magr->mhp += (abs(oldhpmax - u.uhpmax) + 1) / 2;
+                magr->mhp += (abs(oldhpmax - u.hit_points_max) + 1) / 2;
                 if (magr->mhp > magr->mhpmax)
                     magr->mhp = magr->mhpmax;
             }
@@ -1706,7 +1708,7 @@ arti_invoke(struct obj *obj)
             break;
         }
         case HEALING: {
-            int healamt = (u.uhpmax + 1 - u.uhp) / 2;
+            int healamt = (u.hit_points_max + 1 - u.hit_points) / 2;
             long creamed = (long) u.ucreamed;
 
             if (Upolyd)
@@ -1727,7 +1729,7 @@ arti_invoke(struct obj *obj)
                 if (Upolyd)
                     u.mh += healamt;
                 else
-                    u.uhp += healamt;
+                    u.hit_points += healamt;
             }
             if (Sick)
                 make_sick(0L, (char *) 0, FALSE, SICK_ALL);
@@ -1739,14 +1741,14 @@ arti_invoke(struct obj *obj)
             break;
         }
         case ENERGY_BOOST: {
-            int epboost = (u.uenmax + 1 - u.uen) / 2;
+            int epboost = (u.energy_max + 1 - u.energy) / 2;
 
             if (epboost > 120)
                 epboost = 120; /* arbitrary */
             else if (epboost < 12)
-                epboost = u.uenmax - u.uen;
+                epboost = u.energy_max - u.energy;
             if (epboost) {
-                u.uen += epboost;
+                u.energy += epboost;
                 disp.botl = TRUE;
                 You_feel("re-energized.");
             } else
@@ -1829,7 +1831,7 @@ arti_invoke(struct obj *obj)
             else
                 newlev.dlevel = gd.dungeons[i].dunlev_ureached;
 
-            if (u.uhave.amulet || In_endgame(&u.uz) || In_endgame(&newlev)
+            if (u.player_carrying_special_objects.amulet || In_endgame(&u.uz) || In_endgame(&newlev)
                 || newlev.dnum == u.uz.dnum || !next_to_u()) {
                 You_feel("very disoriented for a moment.");
             } else {
@@ -1856,12 +1858,12 @@ arti_invoke(struct obj *obj)
             if (obj->blessed) {
                 if (otmp->spe < 0)
                     otmp->spe = 0;
-                otmp->quan += rnd(10);
+                otmp->quan += random(10);
             } else if (obj->cursed) {
                 if (otmp->spe > 0)
                     otmp->spe = 0;
             } else
-                otmp->quan += rnd(5);
+                otmp->quan += random(5);
             otmp->owt = weight(otmp);
             otmp = hold_another_object(otmp, "Suddenly %s out.",
                                        aobjnam(otmp, "fall"), (char *) 0);
@@ -1870,7 +1872,7 @@ arti_invoke(struct obj *obj)
         }
         case BANISH: {
             int nvanished = 0, nstayed = 0;
-            struct monst *mtmp, *mtmp2;
+            struct monster *mtmp, *mtmp2;
             d_level dest;
 
             find_hell(&dest);
@@ -1896,11 +1898,11 @@ arti_invoke(struct obj *obj)
                     chance++;
 
                 mtmp->msleeping = mtmp->mtame = mtmp->mpeaceful = 0;
-                if (chance <= 1 || !rn2(chance)) {
+                if (chance <= 1 || !random_integer_between_zero_and(chance)) {
                     if (!Inhell) {
                         nvanished++;
                         /* banish to a random level in Gehennom */
-                        dest.dlevel = rn2(dunlevs_in_dungeon(&dest));
+                        dest.dlevel = random_integer_between_zero_and(dunlevs_in_dungeon(&dest));
                         migrate_mon(mtmp, ledger_no(&dest), MIGR_RANDOM);
                     } else {
                         u_teleport_mon(mtmp, FALSE);
@@ -1941,7 +1943,7 @@ arti_invoke(struct obj *obj)
                     if (vulnerable) /* could be fatal if Unchanging */
                         (void) lightdamage(obj, TRUE, 2 * damg);
 
-                    if (!flashburn((long) (damg + rnd(damg))) && !vulnerable)
+                    if (!flashburn((long) (damg + random(damg))) && !vulnerable)
                         pline("%s", nothing_seems_to_happen);
                 }
             } else {
@@ -2068,7 +2070,7 @@ arti_speak(struct obj *obj)
     if (!*line)
         line = "NetHack rumors file closed for renovation.";
     pline("%s:", Tobjnam(obj, "whisper"));
-    SetVoice((struct monst *) 0, 0, 80, voice_talking_artifact);
+    SetVoice((struct monster *) 0, 0, 80, voice_talking_artifact);
     verbalize1(line);
     return ECMD_TIME;
 }
@@ -2162,7 +2164,7 @@ what_gives(long *abil)
                      | W_AMUL | W_RINGL | W_RINGR | W_TOOL
                      | W_ART | W_ARTI);
 
-    if (u.twoweap)
+    if (u.using_two_weapons)
         wornmask |= W_SWAPWEP;
     dtyp = abil_to_adtyp(abil);
     spfx = abil_to_spfx(abil);
@@ -2321,9 +2323,9 @@ retouch_object(
             /* damage is somewhat arbitrary; half the usual 1d20 physical
                for silver, 1d10 magical for <foo>bane, potentially both */
             if (ag)
-                tmp = rnd(10), dmg += Maybe_Half_Phys(tmp);
+                tmp = random(10), dmg += Maybe_Half_Phys(tmp);
             if (bane)
-                dmg += rnd(10);
+                dmg += random(10);
             Sprintf(buf, "handling %s", what);
             losehp(dmg, buf, KILLED_BY);
             exercise(A_CON, FALSE);
@@ -2373,7 +2375,7 @@ untouchable(
 {
     struct artifact *art;
     boolean beingworn, carryeffect, invoked;
-    long wearmask = ~(W_QUIVER | (u.twoweap ? 0L : W_SWAPWEP) | W_BALL);
+    long wearmask = ~(W_QUIVER | (u.using_two_weapons ? 0L : W_SWAPWEP) | W_BALL);
 
     beingworn = (obj /* never Null; this pacifies static analysis when
                       * the get_artifact() macro tests 'obj' for Null */
@@ -2433,7 +2435,7 @@ retouch_equipment(
 
     dropit = (dropflag > 0); /* drop all or drop weapon */
     /* check secondary weapon first, before possibly unwielding primary */
-    if (u.twoweap) {
+    if (u.using_two_weapons) {
         bypass_obj(uswapwep); /* so loop below won't process it again */
         (void) untouchable(uswapwep, dropit);
     }
@@ -2444,7 +2446,7 @@ retouch_equipment(
     }
 
     /* in case someone is daft enough to add artifact or silver saddle */
-    if (u.usteed && (obj = which_armor(u.usteed, W_SADDLE)) != 0) {
+    if (u.monster_being_ridden && (obj = which_armor(u.monster_being_ridden, W_SADDLE)) != 0) {
         /* untouchable() calls retouch_object() which expects an object in
            hero's inventory, but remove_worn_item() will be harmless for
            saddle and we're suppressing drop, so this works as intended */
@@ -2545,7 +2547,7 @@ mkot_trap_warn(void)
 /* Master Key is magic key if its bless/curse state meets our criteria:
    not cursed for rogues or blessed for non-rogues */
 boolean
-is_magic_key(struct monst *mon, /* if null, non-rogue is assumed */
+is_magic_key(struct monster *mon, /* if null, non-rogue is assumed */
              struct obj *obj)
 {
     if (is_art(obj, ART_MASTER_KEY_OF_THIEVERY)) {
@@ -2560,7 +2562,7 @@ is_magic_key(struct monst *mon, /* if null, non-rogue is assumed */
 
 /* figure out whether 'mon' (usually youmonst) is carrying the magic key */
 struct obj *
-has_magic_key(struct monst *mon) /* if null, hero assumed */
+has_magic_key(struct monster *mon) /* if null, hero assumed */
 {
     struct obj *o;
     short key = artilist[ART_MASTER_KEY_OF_THIEVERY].otyp;

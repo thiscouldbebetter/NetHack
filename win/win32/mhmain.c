@@ -2,6 +2,8 @@
 /* Copyright (C) 2001 by Alex Kompel  */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "winMS.h"
 #include <commdlg.h>
 #include "config.h"
@@ -763,7 +765,7 @@ VOID CALLBACK FuzzTimerProc(
         int i_pos = 0;
         int c = randomkey();
         SHORT k = VkKeyScanA(c);
-        BOOL gen_alt = (rn2(50) == 0) && isalpha(c);
+        BOOL gen_alt = (random_integer_between_zero_and(50) == 0) && isalpha(c);
 
         if (!iflags.debug_fuzzer) {
             KillTimer(hwnd, IDT_FUZZ_TIMER);

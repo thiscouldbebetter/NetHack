@@ -2,9 +2,11 @@
 /*      Copyright (C) 1990 by Ken Arromdee */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
-staticfn int explosionmask(struct monst *, uchar, char) NONNULLARG1;
+staticfn int explosionmask(struct monster *, uchar, char) NONNULLARG1;
 staticfn void engulfer_explosion_msg(uchar, char);
 
 /* Note: Arrays are column first, while the screen is row first */
@@ -24,7 +26,7 @@ enum explode_action {
 /* check if shield effects are needed for location affected by explosion */
 staticfn int
 explosionmask(
-    struct monst *m, /* target monster (might be youmonst) */
+    struct monster *m, /* target monster (might be youmonst) */
     uchar adtyp,     /* damage type */
     char olet)       /* object class (only matters for AD_DISN) */
 {
@@ -119,7 +121,7 @@ engulfer_explosion_msg(uchar adtyp, char olet)
 {
     const char *adj = (char *) 0;
 
-    if (digests(u.ustuck->data)) {
+    if (digests(u.monster_stuck_to->data)) {
         switch (adtyp) {
         case AD_FIRE:
             adj = "heartburn";
@@ -146,7 +148,7 @@ engulfer_explosion_msg(uchar adtyp, char olet)
             adj = "fried";
             break;
         }
-        pline("%s gets %s!", Monnam(u.ustuck), adj);
+        pline("%s gets %s!", Monnam(u.monster_stuck_to), adj);
     } else {
         switch (adtyp) {
         case AD_FIRE:
@@ -174,7 +176,7 @@ engulfer_explosion_msg(uchar adtyp, char olet)
             adj = "fried";
             break;
         }
-        pline("%s gets slightly %s!", Monnam(u.ustuck), adj);
+        pline("%s gets slightly %s!", Monnam(u.monster_stuck_to), adj);
     }
 }
 
@@ -209,7 +211,7 @@ explode(
     boolean visible, any_shield;
     int uhurt = 0; /* 0=unhurt, 1=items damaged, 2=you and items damaged */
     const char *str = (const char *) 0;
-    struct monst *mtmp, *mdef = 0;
+    struct monster *mtmp, *mdef = 0;
     uchar adtyp;
     int explmask[3][3]; /* 0=normal explosion, 1=do shieldeff, 2=do nothing */
     coordxy xx, yy;
@@ -273,13 +275,13 @@ explode(
     /* held but not engulfed implies holder is reaching into second spot
        so might get hit by double damage */
     grabbed = grabbing = FALSE;
-    if (u.ustuck && !u.uswallow) {
+    if (u.monster_stuck_to && !u.uswallow) {
         if (Upolyd && sticks(gy.youmonst.data))
             grabbing = TRUE;
         else
             grabbed = TRUE;
-        grabxy.x = u.ustuck->mx;
-        grabxy.y = u.ustuck->my;
+        grabxy.x = u.monster_stuck_to->mx;
+        grabxy.y = u.monster_stuck_to->my;
     } else
         grabxy.x = grabxy.y = 0; /* lint suppression */
     /* FIXME:
@@ -368,7 +370,7 @@ explode(
             /* can be both you and mtmp if you're swallowed or riding */
             mtmp = m_at(xx, yy);
             if (!mtmp && u_at(xx, yy))
-                mtmp = u.usteed;
+                mtmp = u.monster_being_ridden;
             if (mtmp && DEADMONSTER(mtmp))
                 mtmp = 0;
             if (mtmp) {
@@ -484,7 +486,7 @@ explode(
 
                 mtmp = m_at(xx, yy);
                 if (!mtmp && u_at(xx, yy))
-                    mtmp = u.usteed;
+                    mtmp = u.monster_being_ridden;
                 if (!mtmp)
                     continue;
                 if (do_hallu) {
@@ -540,7 +542,7 @@ explode(
                     /* if grabber is reaching into hero's spot and
                        hero's spot is within explosion radius, grabber
                        gets hit by double damage */
-                    if (grabbed && mtmp == u.ustuck && next2u(x, y))
+                    if (grabbed && mtmp == u.monster_stuck_to && next2u(x, y))
                         mdam *= 2;
                     /* being resistant to opposite type of damage makes
                        target more vulnerable to current type of damage
@@ -628,7 +630,7 @@ explode(
             if (Upolyd)
                 u.mh -= damu;
             else
-                u.uhp -= damu;
+                u.hit_points -= damu;
             disp.botl = TRUE;
         }
 
@@ -638,7 +640,7 @@ explode(
         else
             monstunseesu_ad(adtyp);
 
-        if (u.uhp <= 0 || (Upolyd && u.mh <= 0)) {
+        if (u.hit_points <= 0 || (Upolyd && u.mh <= 0)) {
             if (Upolyd) {
                 rehumanize();
             } else {
@@ -731,7 +733,7 @@ scatter(coordxy sx, coordxy sy,  /* location of objects to scatter */
     boolean used_up;
     boolean individual_object = obj ? TRUE : FALSE;
     boolean shop_origin, lostgoods = FALSE;
-    struct monst *mtmp, *shkp = 0;
+    struct monster *mtmp, *shkp = 0;
     struct scatter_chain *stmp, *stmp2 = 0;
     struct scatter_chain *schain = (struct scatter_chain *) 0;
     long total = 0L;
@@ -759,7 +761,7 @@ scatter(coordxy sx, coordxy sy,  /* location of objects to scatter */
             qtmp = otmp->quan - 1L;
             if (qtmp > LARGEST_INT)
                 qtmp = LARGEST_INT;
-            qtmp = (long) rnd((int) qtmp);
+            qtmp = (long) random((int) qtmp);
             otmp = splitobj(otmp, qtmp);
         } else {
             obj = (struct obj *) 0; /* all used */
@@ -770,7 +772,7 @@ scatter(coordxy sx, coordxy sy,  /* location of objects to scatter */
         /* 9 in 10 chance of fracturing boulders or statues */
         if ((scflags & MAY_FRACTURE) != 0
             && (otmp->otyp == BOULDER || otmp->otyp == STATUE)
-            && rn2(10)) {
+            && random_integer_between_zero_and(10)) {
             if (otmp->otyp == BOULDER) {
                 if (cansee(sx, sy)) {
                     pline("%s apart.", Tobjnam(otmp, "break"));
@@ -804,7 +806,7 @@ scatter(coordxy sx, coordxy sy,  /* location of objects to scatter */
 
             /* 1 in 10 chance of destruction of obj; glass, egg destruction */
         } else if ((scflags & MAY_DESTROY) != 0
-                   && (!rn2(10) || (objects[otmp->otyp].oc_material == GLASS
+                   && (!random_integer_between_zero_and(10) || (objects[otmp->otyp].oc_material == GLASS
                                     || otmp->otyp == EGG))) {
             if (breaks(otmp, (coordxy) sx, (coordxy) sy))
                 used_up = TRUE;
@@ -816,13 +818,13 @@ scatter(coordxy sx, coordxy sy,  /* location of objects to scatter */
             stmp->obj = otmp;
             stmp->ox = sx;
             stmp->oy = sy;
-            tmp = rn2(N_DIRS); /* get the direction */
+            tmp = random_integer_between_zero_and(N_DIRS); /* get the direction */
             stmp->dx = xdir[tmp];
             stmp->dy = ydir[tmp];
             tmp = blastforce - (otmp->owt / 40);
             if (tmp < 1)
                 tmp = 1;
-            stmp->range = rnd(tmp); /* anywhere up to that determ. by wt */
+            stmp->range = random(tmp); /* anywhere up to that determ. by wt */
             if (farthest < stmp->range)
                 farthest = stmp->range;
             stmp->stopped = FALSE;
@@ -1008,7 +1010,7 @@ adtyp_to_expltype(const int adtyp)
  * This is some common code between explmu() and explmm().
  */
 void
-mon_explodes(struct monst *mon, struct attack *mattk)
+mon_explodes(struct monster *mon, struct attack *mattk)
 {
     int dmg;
     int type;

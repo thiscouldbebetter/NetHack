@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /*
  *      This module contains code for calculation of "to hit" and damage
  *      bonuses for any given weapon used, as well as weapons selection
@@ -143,7 +145,7 @@ weapon_descr(struct obj *obj)
  *      of "otmp" against the monster.
  */
 int
-hitval(struct obj *otmp, struct monst *mon)
+hitval(struct obj *otmp, struct monster *mon)
 {
     int tmp = 0;
     struct permonst *ptr = mon->data;
@@ -210,7 +212,7 @@ hitval(struct obj *otmp, struct monst *mon)
  *      of "otmp" against the monster.
  */
 int
-dmgval(struct obj *otmp, struct monst *mon)
+dmgval(struct obj *otmp, struct monster *mon)
 {
     int tmp = 0, otyp = otmp->otyp;
     struct permonst *ptr = mon->data;
@@ -221,7 +223,7 @@ dmgval(struct obj *otmp, struct monst *mon)
 
     if (bigmonst(ptr)) {
         if (objects[otyp].oc_wldam)
-            tmp = rnd(objects[otyp].oc_wldam);
+            tmp = random(objects[otyp].oc_wldam);
         switch (otyp) {
         case IRON_CHAIN:
         case CROSSBOW_BOLT:
@@ -236,13 +238,13 @@ dmgval(struct obj *otmp, struct monst *mon)
         case FLAIL:
         case RANSEUR:
         case VOULGE:
-            tmp += rnd(4);
+            tmp += random(4);
             break;
 
         case ACID_VENOM:
         case HALBERD:
         case SPETUM:
-            tmp += rnd(6);
+            tmp += random(6);
             break;
 
         case BATTLE_AXE:
@@ -259,7 +261,7 @@ dmgval(struct obj *otmp, struct monst *mon)
         }
     } else {
         if (objects[otyp].oc_wsdam)
-            tmp = rnd(objects[otyp].oc_wsdam);
+            tmp = random(objects[otyp].oc_wsdam);
         switch (otyp) {
         case IRON_CHAIN:
         case CROSSBOW_BOLT:
@@ -282,11 +284,11 @@ dmgval(struct obj *otmp, struct monst *mon)
         case ELVEN_BROADSWORD:
         case RUNESWORD:
         case VOULGE:
-            tmp += rnd(4);
+            tmp += random(4);
             break;
 
         case ACID_VENOM:
-            tmp += rnd(6);
+            tmp += random(6);
             break;
         }
     }
@@ -309,7 +311,7 @@ dmgval(struct obj *otmp, struct monst *mon)
 
         if ((int) otmp->owt > wt) {
             wt = ((int) otmp->owt - wt) / IRON_BALL_W_INCR;
-            tmp += rnd(4 * wt);
+            tmp += random(4 * wt);
             if (tmp > 25)
                 tmp = 25; /* objects[].oc_wldam */
         }
@@ -321,13 +323,13 @@ dmgval(struct obj *otmp, struct monst *mon)
         int bonus = 0;
 
         if (otmp->blessed && mon_hates_blessings(mon))
-            bonus += rnd(4);
+            bonus += random(4);
         if (is_axe(otmp) && is_wooden(ptr))
-            bonus += rnd(4);
+            bonus += random(4);
         if (objects[otyp].oc_material == SILVER && mon_hates_silver(mon))
-            bonus += rnd(20);
+            bonus += random(20);
         if (artifact_light(otmp) && otmp->lamplit && hates_light(ptr))
-            bonus += rnd(8);
+            bonus += random(8);
 
         /* if the weapon is going to get a double damage bonus, adjust
            this bonus so that effectively it's added after the doubling */
@@ -355,8 +357,8 @@ dmgval(struct obj *otmp, struct monst *mon)
    return value is the amount of the extra damage */
 int
 special_dmgval(
-    struct monst *magr, /* attacker */
-    struct monst *mdef, /* defender */
+    struct monster *magr, /* attacker */
+    struct monster *mdef, /* defender */
     long armask,        /* armor mask, multiple bits accepted for
                          * W_ARMC|W_ARM|W_ARMU or
                          * W_ARMG|W_RINGL|W_RINGR only */
@@ -389,14 +391,14 @@ special_dmgval(
 
     if (obj) {
         if (obj->blessed && mon_hates_blessings(mdef))
-            bonus += rnd(4);
+            bonus += random(4);
         /* the only silver armor is shield of reflection (silver dragon
            scales refer to color, not material) and the only way to hit
            with one--aside from throwing--is to wield it and perform a
            weapon hit, but we include a general check here */
         if (objects[obj->otyp].oc_material == SILVER
             && mon_hates_silver(mdef)) {
-            bonus += rnd(20);
+            bonus += random(20);
             silverhit |= armask;
         }
 
@@ -405,7 +407,7 @@ special_dmgval(
         if (left_ring && uleft) {
             if (objects[uleft->otyp].oc_material == SILVER
                 && mon_hates_silver(mdef)) {
-                bonus += rnd(20);
+                bonus += random(20);
                 silverhit |= W_RINGL;
             }
         }
@@ -415,7 +417,7 @@ special_dmgval(
                 /* two silver rings don't give double silver damage
                    but 'silverhit' messages might be adjusted for them */
                 if (!(silverhit & W_RINGL))
-                    bonus += rnd(20);
+                    bonus += random(20);
                 silverhit |= W_RINGR;
             }
         }
@@ -429,7 +431,7 @@ special_dmgval(
 /* give a "silver <item> sears <target>" message;
    not used for weapon hit, so we only handle rings */
 void
-silver_sears(struct monst *magr UNUSED, struct monst *mdef,
+silver_sears(struct monster *magr UNUSED, struct monster *mdef,
              long silverhit)
 {
     char rings[20]; /* plenty of room for "rings" */
@@ -461,7 +463,7 @@ silver_sears(struct monst *magr UNUSED, struct monst *mdef,
     }
 }
 
-staticfn struct obj *oselect(struct monst *, int);
+staticfn struct obj *oselect(struct monster *, int);
 #define Oselect(x) \
     do {                                        \
         if ((otmp = oselect(mtmp, x)) != 0)     \
@@ -469,7 +471,7 @@ staticfn struct obj *oselect(struct monst *, int);
     } while (0)
 
 staticfn struct obj *
-oselect(struct monst *mtmp, int type)
+oselect(struct monster *mtmp, int type)
 {
     struct obj *otmp;
 
@@ -508,7 +510,7 @@ static NEARDATA const int pwep[] = { HALBERD,       BARDICHE, SPETUM,
 
 /* select a ranged weapon for the monster */
 struct obj *
-select_rwep(struct monst *mtmp)
+select_rwep(struct monster *mtmp)
 {
     struct obj *otmp;
     struct obj *mwep;
@@ -653,7 +655,7 @@ static const NEARDATA short hwep[] = {
 
 /* select a hand to hand weapon for the monster */
 struct obj *
-select_hwep(struct monst *mtmp)
+select_hwep(struct monster *mtmp)
 {
     struct obj *otmp;
     int i;
@@ -695,7 +697,7 @@ select_hwep(struct monst *mtmp)
  * otherwise never unwield stuff on their own.  Might print message.
  */
 void
-possibly_unwield(struct monst *mon, boolean polyspot)
+possibly_unwield(struct monster *mon, boolean polyspot)
 {
     struct obj *obj, *mw_tmp;
 
@@ -749,7 +751,7 @@ possibly_unwield(struct monst *mon, boolean polyspot)
  * Returns 1 if the monster took time to do it, 0 if it did not.
  */
 int
-mon_wield_item(struct monst *mon)
+mon_wield_item(struct monster *mon)
 {
     struct obj *obj;
     boolean exclaim = TRUE; /* assume mon is planning to attack */
@@ -881,7 +883,7 @@ mon_wield_item(struct monst *mon)
 
 /* force monster to stop wielding current weapon, if any */
 void
-mwepgone(struct monst *mon)
+mwepgone(struct monster *mon)
 {
     struct obj *mwep = MON_WEP(mon);
 
@@ -896,7 +898,7 @@ int
 abon(void)
 {
     int sbon;
-    int str = ACURR(A_STR), dex = ACURR(A_DEX);
+    int str = ATTRIBUTE_CURRENT(A_STR), dex = ATTRIBUTE_CURRENT(A_DEX);
 
     if (Upolyd)
         return (adj_lev(&mons[u.umonnum]) - 3);
@@ -933,7 +935,7 @@ abon(void)
 int
 dbon(void)
 {
-    int str = ACURR(A_STR);
+    int str = ATTRIBUTE_CURRENT(A_STR);
 
     if (Upolyd)
         return 0;
@@ -1388,7 +1390,7 @@ drain_weapon_skill(int n) /* number of skills to drain */
     while (--n >= 0) {
         if (u.skills_advanced) {
             /* Pick a random skill, deleting it from the list. */
-            i = rn2(u.skills_advanced);
+            i = random_integer_between_zero_and(u.skills_advanced);
             skill = u.skill_record[i];
             tmpskills[skill] = 1;
             for (; i < u.skills_advanced - 1; i++) {
@@ -1404,7 +1406,7 @@ drain_weapon_skill(int n) /* number of skills to drain */
             curradv = practice_needed_to_advance(P_SKILL(skill));
             prevadv = practice_needed_to_advance(P_SKILL(skill) - 1);
             if (P_ADVANCE(skill) >= curradv)
-                P_ADVANCE(skill) = prevadv + rn2(curradv - prevadv);
+                P_ADVANCE(skill) = prevadv + random_integer_between_zero_and(curradv - prevadv);
         }
     }
 
@@ -1433,7 +1435,7 @@ weapon_type(struct obj *obj)
 int
 uwep_skill_type(void)
 {
-    if (u.twoweap)
+    if (u.using_two_weapons)
         return P_TWO_WEAPON_COMBAT;
     return weapon_type(uwep);
 }
@@ -1452,7 +1454,7 @@ weapon_hit_bonus(struct obj *weapon)
     wep_type = weapon_type(weapon);
     /* use two weapon skill only if attacking with one of the wielded weapons
      */
-    type = (u.twoweap && (weapon == uwep || weapon == uswapwep))
+    type = (u.using_two_weapons && (weapon == uwep || weapon == uswapwep))
                ? P_TWO_WEAPON_COMBAT
                : wep_type;
     if (type == P_NONE) {
@@ -1512,7 +1514,7 @@ weapon_hit_bonus(struct obj *weapon)
     }
 
     /* KMH -- It's harder to hit while you are riding */
-    if (u.usteed) {
+    if (u.monster_being_ridden) {
         switch (P_SKILL(P_RIDING)) {
         case P_ISRESTRICTED:
         case P_UNSKILLED:
@@ -1526,7 +1528,7 @@ weapon_hit_bonus(struct obj *weapon)
         case P_EXPERT:
             break;
         }
-        if (u.twoweap)
+        if (u.using_two_weapons)
             bonus -= 2;
     }
 
@@ -1546,7 +1548,7 @@ weapon_dam_bonus(struct obj *weapon)
     wep_type = weapon_type(weapon);
     /* use two weapon skill only if attacking with one of the wielded weapons
      */
-    type = (u.twoweap && (weapon == uwep || weapon == uswapwep))
+    type = (u.using_two_weapons && (weapon == uwep || weapon == uswapwep))
                ? P_TWO_WEAPON_COMBAT
                : wep_type;
     if (type == P_NONE) {
@@ -1606,7 +1608,7 @@ weapon_dam_bonus(struct obj *weapon)
     }
 
     /* KMH -- Riding gives some thrusting damage */
-    if (u.usteed && type != P_TWO_WEAPON_COMBAT) {
+    if (u.monster_being_ridden && type != P_TWO_WEAPON_COMBAT) {
         switch (P_SKILL(P_RIDING)) {
         case P_ISRESTRICTED:
         case P_UNSKILLED:
@@ -1707,7 +1709,7 @@ skill_init(const struct def_skill *class_skill)
 }
 
 void
-setmnotwielded(struct monst *mon, struct obj *obj)
+setmnotwielded(struct monster *mon, struct obj *obj)
 {
     if (!obj)
         return;

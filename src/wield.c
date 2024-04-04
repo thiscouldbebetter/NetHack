@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2009. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 /* KMH -- Differences between the three weapon slots.
@@ -122,7 +124,7 @@ setuwep(struct obj *obj)
     if (obj) {
         gu.unweapon = (obj->oclass == WEAPON_CLASS)
                        ? is_launcher(obj) || is_ammo(obj) || is_missile(obj)
-                             || (is_pole(obj) && !u.usteed)
+                             || (is_pole(obj) && !u.monster_being_ridden)
                        : !is_weptool(obj) && !is_wet_towel(obj);
     } else
         gu.unweapon = TRUE; /* for "bare hands" message */
@@ -164,7 +166,7 @@ ready_weapon(struct obj *wep)
 {
     /* Separated function so swapping works easily */
     int res = ECMD_OK;
-    boolean was_twoweap = u.twoweap, had_wep = (uwep != 0);
+    boolean was_twoweap = u.using_two_weapons, had_wep = (uwep != 0);
 
     if (!wep) {
         /* No weapon */
@@ -222,7 +224,7 @@ ready_weapon(struct obj *wep)
         }
 
         setuwep(wep);
-        if (was_twoweap && !u.twoweap && flags.verbose) {
+        if (was_twoweap && !u.using_two_weapons && flags.verbose) {
             /* skip this message if we already got "empty handed" one above;
                also, Null is not safe for neither TWOWEAPOK() or bimanual() */
             if (uwep)
@@ -252,10 +254,10 @@ ready_weapon(struct obj *wep)
         }
 #endif
         if (wep->unpaid) {
-            struct monst *this_shkp;
+            struct monster *this_shkp;
 
             if ((this_shkp = shop_keeper(inside_shop(u.ux, u.uy)))
-                != (struct monst *) 0) {
+                != (struct monster *) 0) {
                 pline("%s says \"You be careful with my %s!\"",
                       shkname(this_shkp), xname(wep));
             }
@@ -291,7 +293,7 @@ ready_ok(struct obj *obj)
         return uquiver ? GETOBJ_SUGGEST : GETOBJ_DOWNPLAY;
 
     /* downplay when wielded, unless more than one */
-    if (obj == uwep || (obj == uswapwep && u.twoweap))
+    if (obj == uwep || (obj == uswapwep && u.using_two_weapons))
         return (obj->quan == 1) ? GETOBJ_DOWNPLAY : GETOBJ_SUGGEST;
 
     if (is_ammo(obj)) {
@@ -487,7 +489,7 @@ doswapweapon(void)
             You("have no secondary weapon readied.");
     }
 
-    if (u.twoweap && !can_twoweapon())
+    if (u.using_two_weapons && !can_twoweapon())
         untwoweapon();
 
     return result;
@@ -508,7 +510,7 @@ doquiver_core(const char *verb) /* "ready" or "fire" */
     struct obj *newquiver;
     int res;
     boolean finish_splitting = FALSE,
-            was_uwep = FALSE, was_twoweap = u.twoweap;
+            was_uwep = FALSE, was_twoweap = u.using_two_weapons;
 
     /* Since the quiver isn't in your hands, don't check cantwield(),
        will_weld(), touch_petrifies(), etc. */
@@ -606,7 +608,7 @@ doquiver_core(const char *verb) /* "ready" or "fire" */
         if (uswapwep->quan > 1L && inv_cnt(FALSE) < invlet_basic
             && splittable(uswapwep)) {
             Sprintf(qbuf, "%s %ld %s.  Ready %ld of them?",
-                    u.twoweap ? "You are dual wielding"
+                    u.using_two_weapons ? "You are dual wielding"
                               : "Your alternate weapon is",
                     uswapwep->quan, simpleonames(uswapwep),
                     uswapwep->quan - 1L);
@@ -627,7 +629,7 @@ doquiver_core(const char *verb) /* "ready" or "fire" */
 
             Sprintf(qbuf, "%s your %s weapon.  Ready %s instead?",
                     !use_plural ? "That is" : "Those are",
-                    u.twoweap ? "second" : "alternate",
+                    u.using_two_weapons ? "second" : "alternate",
                     !use_plural ? "it" : "them");
         }
         /* require confirmation to ready the alternate weapon */
@@ -635,7 +637,7 @@ doquiver_core(const char *verb) /* "ready" or "fire" */
             (void) Shk_Your(qbuf, uswapwep); /* replace qbuf[] contents */
             pline("%s%s %s %s.", qbuf,
                   simpleonames(uswapwep), otense(uswapwep, "remain"),
-                  u.twoweap ? "wielded" : "as secondary weapon");
+                  u.using_two_weapons ? "wielded" : "as secondary weapon");
             return ECMD_OK;
         }
         /* quivering alternate weapon, so no more uswapwep */
@@ -670,7 +672,7 @@ doquiver_core(const char *verb) /* "ready" or "fire" */
     if (was_uwep) {
         You("are now %s.", empty_handed());
         res = 1;
-    } else if (was_twoweap && !u.twoweap) {
+    } else if (was_twoweap && !u.using_two_weapons) {
         You("%s.", are_no_longer_twoweap);
         res = 1;
     }
@@ -749,7 +751,7 @@ wield_tool(struct obj *obj,
     if (uwep && uwep != obj)
         return FALSE; /* rewielded old object after dying */
     /* applying weapon or tool that gets wielded ends two-weapon combat */
-    if (u.twoweap)
+    if (u.using_two_weapons)
         untwoweapon();
     if (obj->oclass != WEAPON_CLASS)
         gu.unweapon = TRUE;
@@ -818,7 +820,7 @@ drop_uswapwep(void)
     if (!obj->cursed)
         /* attempting to two-weapon while Glib */
         pline("%s from your %s!", Yobjnam2(obj, "slip"), left_hand);
-    else if (!u.twoweap)
+    else if (!u.using_two_weapons)
         /* attempting to two-weapon when uswapwep is cursed */
         pline("%s your grasp and %s from your %s!",
               Yobjnam2(obj, "evade"), otense(obj, "drop"), left_hand);
@@ -832,7 +834,7 @@ drop_uswapwep(void)
 void
 set_twoweap(boolean on_off)
 {
-    u.twoweap = on_off;
+    u.using_two_weapons = on_off;
 }
 
 /* the #twoweapon command */
@@ -840,7 +842,7 @@ int
 dotwoweapon(void)
 {
     /* You can always toggle it off */
-    if (u.twoweap) {
+    if (u.using_two_weapons) {
         You("switch to your primary weapon.");
         set_twoweap(FALSE); /* u.twoweap = FALSE */
         update_inventory();
@@ -853,7 +855,7 @@ dotwoweapon(void)
         You("begin two-weapon combat.");
         set_twoweap(TRUE); /* u.twoweap = TRUE */
         update_inventory();
-        return (rnd(20) > ACURR(A_DEX)) ? ECMD_TIME : ECMD_OK;
+        return (random(20) > ATTRIBUTE_CURRENT(A_DEX)) ? ECMD_TIME : ECMD_OK;
     }
     return ECMD_OK;
 }
@@ -900,7 +902,7 @@ uqwepgone(void)
 void
 untwoweapon(void)
 {
-    if (u.twoweap) {
+    if (u.using_two_weapons) {
         You("%s.", can_no_longer_twoweap);
         set_twoweap(FALSE); /* u.twoweap = FALSE */
         update_inventory();
@@ -962,7 +964,7 @@ chwepon(struct obj *otmp, int amount)
         if (otyp != STRANGE_OBJECT)
             makeknown(otyp);
         if (multiple)
-            (void) encumber_msg();
+            (void) encumbered_message();
         return 1;
     } else if (uwep->otyp == CRYSKNIFE && amount < 0) {
         multiple = (uwep->quan > 1L);
@@ -979,7 +981,7 @@ chwepon(struct obj *otmp, int amount)
         if (otyp != STRANGE_OBJECT && otmp->bknown)
             makeknown(otyp);
         if (multiple)
-            (void) encumber_msg();
+            (void) encumbered_message();
         return 1;
     }
 
@@ -992,7 +994,7 @@ chwepon(struct obj *otmp, int amount)
     }
     /* there is a (soft) upper and lower limit to uwep->spe */
     if (((uwep->spe > 5 && amount >= 0) || (uwep->spe < -5 && amount < 0))
-        && rn2(3)) {
+        && random_integer_between_zero_and(3)) {
         if (!Blind)
             pline("%s %s for a while and then %s.",
                   Yobjnam2(uwep, "violently glow"), color,
@@ -1036,7 +1038,7 @@ chwepon(struct obj *otmp, int amount)
     /* an elven magic clue, cookie@keebler */
     /* elven weapons vibrate warningly when enchanted beyond a limit */
     if ((uwep->spe > 5)
-        && (is_elven_weapon(uwep) || uwep->oartifact || !rn2(7)))
+        && (is_elven_weapon(uwep) || uwep->oartifact || !random_integer_between_zero_and(7)))
         pline("%s unexpectedly.", Yobjnam2(uwep, "suddenly vibrate"));
 
     return 1;

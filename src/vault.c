@@ -3,24 +3,26 @@
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
-staticfn boolean clear_fcorr(struct monst *, boolean) NONNULLARG1;
+staticfn boolean clear_fcorr(struct monster *, boolean) NONNULLARG1;
 staticfn void blackout(coordxy, coordxy);
-staticfn void restfakecorr(struct monst *) NONNULLARG1;
-staticfn void parkguard(struct monst *) NONNULLARG1;
-staticfn boolean in_fcorridor(struct monst *, coordxy, coordxy) NONNULLARG1;
-staticfn boolean find_guard_dest(struct monst *, coordxy *, coordxy *)
+staticfn void restfakecorr(struct monster *) NONNULLARG1;
+staticfn void parkguard(struct monster *) NONNULLARG1;
+staticfn boolean in_fcorridor(struct monster *, coordxy, coordxy) NONNULLARG1;
+staticfn boolean find_guard_dest(struct monster *, coordxy *, coordxy *)
                                  NONNULLARG23;
 staticfn void move_gold(struct obj *, int) NONNULLARG1;
-staticfn void wallify_vault(struct monst *) NONNULLARG1;
-staticfn void gd_mv_monaway(struct monst *, int, int) NONNULLARG1;
-staticfn void gd_pick_corridor_gold(struct monst *, int, int) NONNULLARG1;
-staticfn int gd_move_cleanup(struct monst *, boolean, boolean) NONNULLARG1;
-staticfn void gd_letknow(struct monst *) NONNULLARG1;
+staticfn void wallify_vault(struct monster *) NONNULLARG1;
+staticfn void gd_mv_monaway(struct monster *, int, int) NONNULLARG1;
+staticfn void gd_pick_corridor_gold(struct monster *, int, int) NONNULLARG1;
+staticfn int gd_move_cleanup(struct monster *, boolean, boolean) NONNULLARG1;
+staticfn void gd_letknow(struct monster *) NONNULLARG1;
 
 void
-newegd(struct monst *mtmp)
+newegd(struct monster *mtmp)
 {
     if (!mtmp->mextra)
         mtmp->mextra = newmextra();
@@ -31,7 +33,7 @@ newegd(struct monst *mtmp)
 }
 
 void
-free_egd(struct monst *mtmp)
+free_egd(struct monster *mtmp)
 {
     if (mtmp->mextra && EGD(mtmp)) {
         free((genericptr_t) EGD(mtmp));
@@ -44,10 +46,10 @@ free_egd(struct monst *mtmp)
    maintained by guard 'grd'; if guard is still in it, removal will fail,
    to be tried again later */
 staticfn boolean
-clear_fcorr(struct monst *grd, boolean forceshow)
+clear_fcorr(struct monster *grd, boolean forceshow)
 {
     coordxy fcx, fcy, fcbeg;
-    struct monst *mtmp;
+    struct monster *mtmp;
     boolean sawcorridor = FALSE,
             silently = gp.program_state.stopprint ? TRUE : FALSE;
     struct egd *egrd = EGD(grd);
@@ -109,7 +111,7 @@ clear_fcorr(struct monst *grd, boolean forceshow)
     /* only give encased message if hero is still alive (might get here
        via paygd() -> mongone() -> grddead() when game is over;
        died: no message, quit: message) */
-    if (IS_ROCK(levl[u.ux][u.uy].typ) && (Upolyd ? u.mh : u.uhp) > 0
+    if (IS_ROCK(levl[u.ux][u.uy].typ) && (Upolyd ? u.mh : u.hit_points) > 0
         && !silently)
         You("are encased in rock.");
     return TRUE;
@@ -141,7 +143,7 @@ blackout(coordxy x, coordxy y)
 }
 
 staticfn void
-restfakecorr(struct monst *grd)
+restfakecorr(struct monster *grd)
 {
     /* it seems you left the corridor - let the guard disappear */
     if (clear_fcorr(grd, FALSE)) {
@@ -152,7 +154,7 @@ restfakecorr(struct monst *grd)
 
 /* move guard--dead to alive--to <0,0> until temporary corridor is removed */
 staticfn void
-parkguard(struct monst *grd)
+parkguard(struct monster *grd)
 {
     /* either guard is dead or will now be treated as if so;
        monster traversal loops should skip it */
@@ -172,7 +174,7 @@ parkguard(struct monst *grd)
 
 /* called in mon.c */
 boolean
-grddead(struct monst *grd)
+grddead(struct monster *grd)
 {
     boolean dispose = clear_fcorr(grd, TRUE);
 
@@ -189,7 +191,7 @@ grddead(struct monst *grd)
 }
 
 staticfn boolean
-in_fcorridor(struct monst *grd, coordxy x, coordxy y)
+in_fcorridor(struct monster *grd, coordxy x, coordxy y)
 {
     int fci;
     struct egd *egrd = EGD(grd);
@@ -200,10 +202,10 @@ in_fcorridor(struct monst *grd, coordxy x, coordxy y)
     return FALSE;
 }
 
-struct monst *
+struct monster *
 findgd(void)
 {
-    struct monst *mtmp, **mprev;
+    struct monster *mtmp, **mprev;
 
     /* this might find a guard parked at <0,0> since it'll be on fmon list */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -230,14 +232,14 @@ findgd(void)
             return mtmp;
         }
     }
-    return (struct monst *) 0;
+    return (struct monster *) 0;
 }
 
 void
 vault_summon_gd(void)
 {
     if (vault_occupied(u.urooms) && !findgd())
-        u.uinvault = (VAULT_GUARD_TIME - 1);
+        u.in_a_vault = (VAULT_GUARD_TIME - 1);
 }
 
 char
@@ -253,7 +255,7 @@ vault_occupied(char *array)
 
 /* hero has teleported out of vault while a guard is active */
 void
-uleftvault(struct monst *grd)
+uleftvault(struct monster *grd)
 {
     /* only called if caller has checked vault_occupied() and findgd() */
     if (!grd || !grd->isgd || DEADMONSTER(grd)) {
@@ -278,7 +280,7 @@ uleftvault(struct monst *grd)
 }
 
 staticfn boolean
-find_guard_dest(struct monst *guard, coordxy *rx, coordxy *ry)
+find_guard_dest(struct monster *guard, coordxy *rx, coordxy *ry)
 {
     coordxy x, y, dd, lx, ly;
 
@@ -316,18 +318,18 @@ find_guard_dest(struct monst *guard, coordxy *rx, coordxy *ry)
 void
 invault(void)
 {
-    struct monst *guard;
+    struct monster *guard;
     struct obj *otmp;
     boolean spotted;
     int trycount, vaultroom = (int) vault_occupied(u.urooms);
 
     if (!vaultroom) {
-        u.uinvault = 0;
+        u.in_a_vault = 0;
         return;
     }
-    ++u.uinvault;
-    if (u.uinvault < VAULT_GUARD_TIME
-        || (u.uinvault % (VAULT_GUARD_TIME / 2)) != 0)
+    ++u.in_a_vault;
+    if (u.in_a_vault < VAULT_GUARD_TIME
+        || (u.in_a_vault % (VAULT_GUARD_TIME / 2)) != 0)
         return;
 
     guard = findgd();
@@ -339,7 +341,7 @@ invault(void)
         long umoney;
 
         /* first find the goal for the guard */
-        if (!find_guard_dest((struct monst *) 0, &rx, &ry))
+        if (!find_guard_dest((struct monster *) 0, &rx, &ry))
             return;
         gdx = rx, gdy = ry;
         vaultroom -= ROOMOFFSET;
@@ -493,7 +495,7 @@ invault(void)
             (void) mungspaces(buf);
         } while (!buf[0] && --trycount > 0);
 
-        if (u.ualign.type == A_LAWFUL
+        if (u.alignment.type == A_LAWFUL
             /* ignore trailing text, in case player includes rank */
             && strncmpi(buf, gp.plname, (int) strlen(gp.plname)) != 0) {
             adjalign(-1); /* Liar! */
@@ -623,15 +625,15 @@ move_gold(struct obj *gold, int vroom)
 
     remove_object(gold);
     newsym(gold->ox, gold->oy);
-    nx = gr.rooms[vroom].lx + rn2(2);
-    ny = gr.rooms[vroom].ly + rn2(2);
+    nx = gr.rooms[vroom].lx + random_integer_between_zero_and(2);
+    ny = gr.rooms[vroom].ly + random_integer_between_zero_and(2);
     place_object(gold, nx, ny);
     stackobj(gold);
     newsym(nx, ny);
 }
 
 staticfn void
-wallify_vault(struct monst *grd)
+wallify_vault(struct monster *grd)
 {
     int typ;
     coordxy x, y;
@@ -639,7 +641,7 @@ wallify_vault(struct monst *grd)
     char tmp_viz;
     coordxy lox = gr.rooms[vlt].lx - 1, hix = gr.rooms[vlt].hx + 1,
           loy = gr.rooms[vlt].ly - 1, hiy = gr.rooms[vlt].hy + 1;
-    struct monst *mon;
+    struct monster *mon;
     struct obj *gold, *rocks;
     struct trap *trap;
     boolean fixed = FALSE;
@@ -718,9 +720,9 @@ wallify_vault(struct monst *grd)
 }
 
 staticfn void
-gd_mv_monaway(struct monst *grd, int nx, int ny)
+gd_mv_monaway(struct monster *grd, int nx, int ny)
 {
-    struct monst *mtmp = m_at(nx, ny);
+    struct monster *mtmp = m_at(nx, ny);
 
     if (mtmp && mtmp != grd) {
         if (!Deaf) {
@@ -735,7 +737,7 @@ gd_mv_monaway(struct monst *grd, int nx, int ny)
 /* have guard pick gold off the floor, possibly moving to the gold's
    position before message and back to his current spot after */
 staticfn void
-gd_pick_corridor_gold(struct monst *grd, int goldx, int goldy)
+gd_pick_corridor_gold(struct monster *grd, int goldx, int goldy)
 {
     struct obj *gold;
     coord newcc, bestcc;
@@ -820,7 +822,7 @@ gd_pick_corridor_gold(struct monst *grd, int goldx, int goldy)
 /* return 1: guard moved, -2: died  */
 staticfn int
 gd_move_cleanup(
-    struct monst *grd,
+    struct monster *grd,
     boolean semi_dead,
     boolean disappear_msg_seen)
 {
@@ -852,7 +854,7 @@ gd_move_cleanup(
 }
 
 staticfn void
-gd_letknow(struct monst *grd)
+gd_letknow(struct monster *grd)
 {
     if (!cansee(grd->mx, grd->my) || !mon_visible(grd))
         You_hear("%s.",
@@ -871,7 +873,7 @@ gd_letknow(struct monst *grd)
  * return  1: guard moved,  0: guard didn't,  -1: let m_move do it,  -2: died
  */
 int
-gd_move(struct monst *grd)
+gd_move(struct monster *grd)
 {
     coordxy x, y, nx, ny, m, n, ex, ey;
     coordxy dx, dy, ggx = 0, ggy = 0, fci;
@@ -1047,8 +1049,8 @@ gd_move(struct monst *grd)
         return 0;
     }
     if (um_dist(grd->mx, grd->my, 1) || egrd->gddone) {
-        if (!egrd->gddone && !rn2(10) && !Deaf && !u.uswallow
-            && !(u.ustuck && !sticks(gy.youmonst.data))) {
+        if (!egrd->gddone && !random_integer_between_zero_and(10) && !Deaf && !u.uswallow
+            && !(u.monster_stuck_to && !sticks(gy.youmonst.data))) {
             SetVoice(grd, 0, 80, 0);
             verbalize("Move along!");
         }
@@ -1187,7 +1189,7 @@ gd_move(struct monst *grd)
 void
 paygd(boolean silently)
 {
-    struct monst *grd = findgd();
+    struct monster *grd = findgd();
     long umoney = money_cnt(gi.invent);
     struct obj *coins, *nextcoins;
     int gdx, gdy;
@@ -1196,7 +1198,7 @@ paygd(boolean silently)
     if (!umoney || !grd)
         return;
 
-    if (u.uinvault) {
+    if (u.in_a_vault) {
         if (!silently)
             Your("%ld %s goes into the Magic Memory Vault.",
                  umoney, currency(umoney));
@@ -1209,8 +1211,8 @@ paygd(boolean silently)
         mnexto(grd, RLOC_NOMSG);
         if (!silently)
             pline("%s remits your gold to the vault.", Monnam(grd));
-        gdx = gr.rooms[EGD(grd)->vroom].lx + rn2(2);
-        gdy = gr.rooms[EGD(grd)->vroom].ly + rn2(2);
+        gdx = gr.rooms[EGD(grd)->vroom].lx + random_integer_between_zero_and(2);
+        gdy = gr.rooms[EGD(grd)->vroom].ly + random_integer_between_zero_and(2);
         Sprintf(buf, "To Croesus: here's the gold recovered from %s the %s.",
                 gp.plname,
                 pmname(&mons[u.umonster], flags.female ? FEMALE : MALE));
@@ -1260,7 +1262,7 @@ gd_sound(void)
 void
 vault_gd_watching(unsigned int activity)
 {
-    struct monst *guard = findgd();
+    struct monster *guard = findgd();
 
     if (guard && guard->mx && guard->mcansee && m_canseeu(guard)) {
         if (activity == GD_EATGOLD || activity == GD_DESTROYGOLD)

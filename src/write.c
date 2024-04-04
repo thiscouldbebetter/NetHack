@@ -1,6 +1,8 @@
 /* NetHack 3.7	write.c	$NHDT-Date: 1702023275 2023/12/08 08:14:35 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.41 $ */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 staticfn int cost(struct obj *) NONNULLARG1;
@@ -218,7 +220,7 @@ dowrite(struct obj *pen)
              *   and 2/3 chance to keep previous 50:50
              *   choice; so on for higher match counts.
              */
-            && !rn2(++deferralchance)) {
+            && !random_integer_between_zero_and(++deferralchance)) {
             deferred = i;
             /* writing by user-assigned name is same as by description:
                fails for books, works for scrolls (having an assigned
@@ -241,7 +243,7 @@ dowrite(struct obj *pen)
         pline("It's obscene!");
         return ECMD_TIME;
     } else if (i == SPE_NOVEL) {
-        boolean fanfic = !rn2(3), tearup = !rn2(3);
+        boolean fanfic = !random_integer_between_zero_and(3), tearup = !random_integer_between_zero_and(3);
 
         if (!fanfic) {
             You("%s to write the Great Yendorian Novel, but %s inspiration.",

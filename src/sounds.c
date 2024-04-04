@@ -2,23 +2,25 @@
 /*      Copyright (c) 1989 Janet Walz, Mike Threepoint */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
-staticfn boolean throne_mon_sound(struct monst *);
-staticfn boolean beehive_mon_sound(struct monst *);
-staticfn boolean morgue_mon_sound(struct monst *);
-staticfn boolean zoo_mon_sound(struct monst *);
-staticfn boolean temple_priest_sound(struct monst *);
-staticfn boolean mon_is_gecko(struct monst *);
-staticfn int domonnoise(struct monst *);
+staticfn boolean throne_mon_sound(struct monster *);
+staticfn boolean beehive_mon_sound(struct monster *);
+staticfn boolean morgue_mon_sound(struct monster *);
+staticfn boolean zoo_mon_sound(struct monster *);
+staticfn boolean temple_priest_sound(struct monster *);
+staticfn boolean mon_is_gecko(struct monster *);
+staticfn int domonnoise(struct monster *);
 staticfn int dochat(void);
-staticfn struct monst *responsive_mon_at(int, int);
-staticfn int mon_in_room(struct monst *, int);
-staticfn boolean oracle_sound(struct monst *);
+staticfn struct monster *responsive_mon_at(int, int);
+staticfn int mon_in_room(struct monster *, int);
+staticfn boolean oracle_sound(struct monster *);
 
 /* this easily could be a macro, but it might overtax dumb compilers */
 staticfn int
-mon_in_room(struct monst *mon, int rmtyp)
+mon_in_room(struct monster *mon, int rmtyp)
 {
     int rno = levl[mon->mx][mon->my].roomno;
     if (rno >= ROOMOFFSET)
@@ -28,7 +30,7 @@ mon_in_room(struct monst *mon, int rmtyp)
 
 
 staticfn boolean
-throne_mon_sound(struct monst *mtmp)
+throne_mon_sound(struct monster *mtmp)
 {
     if ((mtmp->msleeping || is_lord(mtmp->data)
          || is_prince(mtmp->data)) && !is_animal(mtmp->data)
@@ -39,7 +41,7 @@ throne_mon_sound(struct monst *mtmp)
             "Someone shouts \"Off with %s head!\"",
             "Queen Beruthiel's cats!",
         };
-        int which = rn2(3) + (Hallucination ? 1 : 0);
+        int which = random_integer_between_zero_and(3) + (Hallucination ? 1 : 0);
 
         if (which != 2) {
             if (which == 0) {
@@ -60,13 +62,13 @@ throne_mon_sound(struct monst *mtmp)
 
 
 staticfn boolean
-beehive_mon_sound(struct monst *mtmp)
+beehive_mon_sound(struct monster *mtmp)
 {
     if ((mtmp->data->mlet == S_ANT && is_flyer(mtmp->data))
         && mon_in_room(mtmp, BEEHIVE)) {
         int hallu = Hallucination ? 1 : 0;
 
-        switch (rn2(2) + hallu) {
+        switch (random_integer_between_zero_and(2) + hallu) {
         case 0:
             Soundeffect(se_low_buzzing, 30);
             You_hear("a low buzzing.");
@@ -87,14 +89,14 @@ beehive_mon_sound(struct monst *mtmp)
 }
 
 staticfn boolean
-morgue_mon_sound(struct monst *mtmp)
+morgue_mon_sound(struct monster *mtmp)
 {
     if ((is_undead(mtmp->data) || is_vampshifter(mtmp))
         && mon_in_room(mtmp, MORGUE)) {
         int hallu = Hallucination ? 1 : 0;
         const char *hair = body_part(HAIR); /* hair/fur/scales */
 
-        switch (rn2(2) + hallu) {
+        switch (random_integer_between_zero_and(2) + hallu) {
         case 0:
             You("suddenly realize it is unnaturally quiet.");
             break;
@@ -113,11 +115,11 @@ morgue_mon_sound(struct monst *mtmp)
 }
 
 staticfn boolean
-zoo_mon_sound(struct monst *mtmp)
+zoo_mon_sound(struct monster *mtmp)
 {
     if ((mtmp->msleeping || is_animal(mtmp->data))
         && mon_in_room(mtmp, ZOO)) {
-        int hallu = Hallucination ? 1 : 0, selection = rn2(2) + hallu;
+        int hallu = Hallucination ? 1 : 0, selection = random_integer_between_zero_and(2) + hallu;
         static const char *const zoo_msg[3] = {
             "a sound reminiscent of an elephant stepping on a peanut.",
             "a sound reminiscent of a seal barking.", "Doctor Dolittle!",
@@ -129,7 +131,7 @@ zoo_mon_sound(struct monst *mtmp)
 }
 
 staticfn boolean
-temple_priest_sound(struct monst *mtmp)
+temple_priest_sound(struct monster *mtmp)
 {
     if (mtmp->ispriest && inhistemple(mtmp)
         /* priest must be active */
@@ -158,7 +160,7 @@ temple_priest_sound(struct monst *mtmp)
             in_sight = canseemon(mtmp) || cansee(ax, ay);
 
         do {
-            msg = temple_msg[rn2(SIZE(temple_msg) - 1 + hallu)];
+            msg = temple_msg[random_integer_between_zero_and(SIZE(temple_msg) - 1 + hallu)];
             if (strchr(msg, '*') && speechless)
                 continue;
             if (strchr(msg, '#') && in_sight)
@@ -179,7 +181,7 @@ temple_priest_sound(struct monst *mtmp)
 }
 
 staticfn boolean
-oracle_sound(struct monst *mtmp)
+oracle_sound(struct monster *mtmp)
 {
     if (mtmp->data != &mons[PM_ORACLE])
         return FALSE;
@@ -194,7 +196,7 @@ oracle_sound(struct monst *mtmp)
             "someone say \"No more woodchucks!\"",
             "a loud ZOT!" /* both rec.humor.oracle */
         };
-        You_hear1(ora_msg[rn2(3) + hallu * 2]);
+        You_hear1(ora_msg[random_integer_between_zero_and(3) + hallu * 2]);
     }
     return TRUE;
 }
@@ -204,46 +206,46 @@ dosounds(void)
 {
     struct mkroom *sroom;
     int hallu, vx, vy;
-    struct monst *mtmp;
+    struct monster *mtmp;
 
     if (Deaf || !flags.acoustics || u.uswallow || Underwater)
         return;
 
     hallu = Hallucination ? 1 : 0;
 
-    if (gl.level.flags.nfountains && !rn2(400)) {
+    if (gl.level.flags.nfountains && !random_integer_between_zero_and(400)) {
         static const char *const fountain_msg[4] = {
             "bubbling water.", "water falling on coins.",
             "the splashing of a naiad.", "a soda fountain!",
         };
-        You_hear1(fountain_msg[rn2(3) + hallu]);
+        You_hear1(fountain_msg[random_integer_between_zero_and(3) + hallu]);
     }
-    if (gl.level.flags.nsinks && !rn2(300)) {
+    if (gl.level.flags.nsinks && !random_integer_between_zero_and(300)) {
         static const char *const sink_msg[3] = {
             "a slow drip.", "a gurgling noise.", "dishes being washed!",
         };
-        You_hear1(sink_msg[rn2(2) + hallu]);
+        You_hear1(sink_msg[random_integer_between_zero_and(2) + hallu]);
     }
-    if (gl.level.flags.has_court && !rn2(200)) {
+    if (gl.level.flags.has_court && !random_integer_between_zero_and(200)) {
         if (get_iter_mons(throne_mon_sound))
             return;
     }
-    if (gl.level.flags.has_swamp && !rn2(200)) {
+    if (gl.level.flags.has_swamp && !random_integer_between_zero_and(200)) {
         static const char *const swamp_msg[3] = {
             "hear mosquitoes!", "smell marsh gas!", /* so it's a smell...*/
             "hear Donald Duck!",
         };
-        You1(swamp_msg[rn2(2) + hallu]);
+        You1(swamp_msg[random_integer_between_zero_and(2) + hallu]);
         return;
     }
-    if (gl.level.flags.has_vault && !rn2(200)) {
+    if (gl.level.flags.has_vault && !random_integer_between_zero_and(200)) {
         if (!(sroom = search_special(VAULT))) {
             /* strange ... */
             gl.level.flags.has_vault = 0;
             return;
         }
         if (gd_sound())
-            switch (rn2(2) + hallu) {
+            switch (random_integer_between_zero_and(2) + hallu) {
             case 1: {
                 boolean gold_in_vault = FALSE;
 
@@ -275,15 +277,15 @@ dosounds(void)
             }
         return;
     }
-    if (gl.level.flags.has_beehive && !rn2(200)) {
+    if (gl.level.flags.has_beehive && !random_integer_between_zero_and(200)) {
         if (get_iter_mons(beehive_mon_sound))
             return;
     }
-    if (gl.level.flags.has_morgue && !rn2(200)) {
+    if (gl.level.flags.has_morgue && !random_integer_between_zero_and(200)) {
         if (get_iter_mons(morgue_mon_sound))
             return;
     }
-    if (gl.level.flags.has_barracks && !rn2(200)) {
+    if (gl.level.flags.has_barracks && !random_integer_between_zero_and(200)) {
         static const char *const barracks_msg[4] = {
             "blades being honed.", "loud snoring.", "dice being thrown.",
             "General MacArthur!",
@@ -301,16 +303,16 @@ dosounds(void)
                 && mon_in_room(mtmp, BARRACKS)
                 /* sleeping implies not-yet-disturbed (usually) */
                 && (mtmp->msleeping || ++count > 5)) {
-                You_hear1(barracks_msg[rn2(3) + hallu]);
+                You_hear1(barracks_msg[random_integer_between_zero_and(3) + hallu]);
                 return;
             }
         }
     }
-    if (gl.level.flags.has_zoo && !rn2(200)) {
+    if (gl.level.flags.has_zoo && !random_integer_between_zero_and(200)) {
         if (get_iter_mons(zoo_mon_sound))
             return;
     }
-    if (gl.level.flags.has_shop && !rn2(200)) {
+    if (gl.level.flags.has_shop && !random_integer_between_zero_and(200)) {
         if (!(sroom = search_special(ANY_SHOP))) {
             /* strange... */
             gl.level.flags.has_shop = 0;
@@ -322,16 +324,16 @@ dosounds(void)
                 "someone cursing shoplifters.",
                 "the chime of a cash register.", "Neiman and Marcus arguing!",
             };
-            You_hear1(shop_msg[rn2(2) + hallu]);
+            You_hear1(shop_msg[random_integer_between_zero_and(2) + hallu]);
         }
         return;
     }
-    if (gl.level.flags.has_temple && !rn2(200)
+    if (gl.level.flags.has_temple && !random_integer_between_zero_and(200)
         && !(Is_astralevel(&u.uz) || Is_sanctum(&u.uz))) {
         if (get_iter_mons(temple_priest_sound))
             return;
     }
-    if (Is_oracle_level(&u.uz) && !rn2(400)) {
+    if (Is_oracle_level(&u.uz) && !random_integer_between_zero_and(400)) {
         if (get_iter_mons(oracle_sound))
             return;
     }
@@ -347,7 +349,7 @@ static const char *const h_sounds[] = {
 };
 
 const char *
-growl_sound(struct monst *mtmp)
+growl_sound(struct monster *mtmp)
 {
     const char *ret;
 
@@ -398,7 +400,7 @@ growl_sound(struct monst *mtmp)
 
 /* the sounds of a seriously abused pet, including player attacking it */
 void
-growl(struct monst *mtmp)
+growl(struct monster *mtmp)
 {
     const char *growl_verb = 0;
 
@@ -423,7 +425,7 @@ growl(struct monst *mtmp)
 
 /* the sounds of mistreated pets */
 void
-yelp(struct monst *mtmp)
+yelp(struct monster *mtmp)
 {
     const char *yelp_verb = 0;
     enum sound_effect_entries se = se_yelp;
@@ -475,7 +477,7 @@ yelp(struct monst *mtmp)
 
 /* the sounds of distressed pets */
 void
-whimper(struct monst *mtmp)
+whimper(struct monster *mtmp)
 {
     const char *whimper_verb = 0;
     enum sound_effect_entries se = se_canine_whine;
@@ -515,7 +517,7 @@ whimper(struct monst *mtmp)
 
 /* pet makes "I'm hungry" noises */
 void
-beg(struct monst *mtmp)
+beg(struct monster *mtmp)
 {
     if (helpless(mtmp)
         || !(carnivorous(mtmp->data) || herbivorous(mtmp->data)))
@@ -542,7 +544,7 @@ beg(struct monst *mtmp)
 
 /* hero has attacked a peaceful monster within 'mon's view */
 const char *
-maybe_gasp(struct monst *mon)
+maybe_gasp(struct monster *mon)
 {
     static const char *const Exclam[] = {
         "Gasp!", "Uh-oh.", "Oh my!", "What?", "Why?",
@@ -613,7 +615,7 @@ maybe_gasp(struct monst *mon)
    "its cries sound like {mommy,daddy}"
    regardless of what type of sound--if any--the creature made] */
 const char *
-cry_sound(struct monst *mtmp)
+cry_sound(struct monster *mtmp)
 {
     const char *ret = 0;
     struct permonst *ptr = mtmp->data;
@@ -656,7 +658,7 @@ cry_sound(struct monst *mtmp)
 
 /* return True if mon is a gecko or seems to look like one (hallucination) */
 staticfn boolean
-mon_is_gecko(struct monst *mon)
+mon_is_gecko(struct monster *mon)
 {
     int glyph;
 
@@ -676,7 +678,7 @@ mon_is_gecko(struct monst *mon)
 DISABLE_WARNING_FORMAT_NONLITERAL
 
 staticfn int /* check calls to this */
-domonnoise(struct monst *mtmp)
+domonnoise(struct monster *mtmp)
 {
     char verbuf[BUFSZ];
     const char *pline_msg = 0, /* Monnam(mtmp) will be prepended */
@@ -731,7 +733,7 @@ domonnoise(struct monst *mtmp)
         quest_chat(mtmp);
         break;
     case MS_SELL: /* pitch, pay, total */
-        if (!Hallucination || is_silent(ptr) || (mtmp->isshk && !rn2(2))) {
+        if (!Hallucination || is_silent(ptr) || (mtmp->isshk && !random_integer_between_zero_and(2))) {
             shk_chat(mtmp);
         } else {
             /* approximation of GEICO's advertising slogan (it actually
@@ -803,7 +805,7 @@ domonnoise(struct monst *mtmp)
                             : "Young Fool");
                 verbl_msg = verbuf;
             } else {
-                vampindex = rn2(SIZE(vampmsg));
+                vampindex = random_integer_between_zero_and(SIZE(vampmsg));
                 if (vampindex == 0) {
                     Sprintf(verbuf, vampmsg[vampindex], body_part(BLOOD));
                     verbl_msg = verbuf;
@@ -820,7 +822,7 @@ domonnoise(struct monst *mtmp)
         break;
     }
     case MS_WERE:
-        if (flags.moonphase == FULL_MOON && (night() ^ !rn2(13))) {
+        if (flags.moonphase == FULL_MOON && (night() ^ !random_integer_between_zero_and(13))) {
             pline("%s throws back %s head and lets out a blood curdling %s!",
                   Monnam(mtmp), mhis(mtmp),
                   (ptr == &mons[PM_HUMAN_WERERAT]) ? "shriek" : "howl");
@@ -937,7 +939,7 @@ domonnoise(struct monst *mtmp)
         pline_msg = "wails mournfully.";
         break;
     case MS_GROAN:
-        if (!rn2(3)) {
+        if (!random_integer_between_zero_and(3)) {
             Soundeffect(se_groan, 60);
             pline_msg = "groans.";
         }
@@ -976,7 +978,7 @@ domonnoise(struct monst *mtmp)
             "giggles.", "chuckles.", "snickers.", "laughs.",
         };
         Soundeffect(se_laughter, 60);
-        pline_msg = laugh_msg[rn2(4)];
+        pline_msg = laugh_msg[random_integer_between_zero_and(4)];
         break;
     }
     case MS_MUMBLE:
@@ -1003,7 +1005,7 @@ domonnoise(struct monst *mtmp)
         break;
     case MS_BOAST: /* giants */
         if (!mtmp->mpeaceful) {
-            switch (rn2(4)) {
+            switch (random_integer_between_zero_and(4)) {
             case 0:
                 pline("%s boasts about %s gem collection.", Monnam(mtmp),
                       mhis(mtmp));
@@ -1033,7 +1035,7 @@ domonnoise(struct monst *mtmp)
         else if (mtmp->mhp < mtmp->mhpmax / 4)
             pline_msg = "moans.";
         else if (mtmp->mconf || mtmp->mstun)
-            verbl_msg = !rn2(3) ? "Huh?" : rn2(2) ? "What?" : "Eh?";
+            verbl_msg = !random_integer_between_zero_and(3) ? "Huh?" : random_integer_between_zero_and(2) ? "What?" : "Eh?";
         else if (!mtmp->mcansee)
             verbl_msg = "I can't see!";
         else if (mtmp->mtrapped) {
@@ -1057,7 +1059,7 @@ domonnoise(struct monst *mtmp)
         else if (ptr->mlet == S_CENTAUR)
             pline_msg = "discusses hunting.";
         else if (is_gnome(ptr)) {
-            if (Hallucination && (gnomeplan = rn2(4)) % 2) {
+            if (Hallucination && (gnomeplan = random_integer_between_zero_and(4)) % 2) {
                 /* skipped for rn2(4) result of 0 or 2;
                    gag from an early episode of South Park called "Gnomes";
                    initially, Tweek (introduced in that episode) is the only
@@ -1108,9 +1110,9 @@ domonnoise(struct monst *mtmp)
                 (void) doseduce(mtmp);
                 break;
             }
-            swval = ((poly_gender() != (int) mtmp->female) ? rn2(3) : 0);
+            swval = ((poly_gender() != (int) mtmp->female) ? random_integer_between_zero_and(3) : 0);
         } else
-            swval = ((poly_gender() == 0) ? rn2(3) : 0);
+            swval = ((poly_gender() == 0) ? random_integer_between_zero_and(3) : 0);
         switch (swval) {
         case 2:
             verbl_msg = "Hello, sailor.";
@@ -1131,7 +1133,7 @@ domonnoise(struct monst *mtmp)
                 "Anything you say can be used against you.",
                 "You're under arrest!", "Stop in the name of the Law!",
             };
-            verbl_msg = arrest_msg[rn2(3)];
+            verbl_msg = arrest_msg[random_integer_between_zero_and(3)];
         }
         break;
     case MS_BRIBE:
@@ -1181,8 +1183,8 @@ domonnoise(struct monst *mtmp)
                 "The food's not fit for Orcs!",
                 "My feet hurt, I've been on them all day!",
             };
-        verbl_msg = mtmp->mpeaceful ? soldier_pax_msg[rn2(3)]
-                                    : soldier_foe_msg[rn2(3)];
+        verbl_msg = mtmp->mpeaceful ? soldier_pax_msg[random_integer_between_zero_and(3)]
+                                    : soldier_foe_msg[random_integer_between_zero_and(3)];
         break;
     }
     case MS_RIDER: {
@@ -1202,11 +1204,11 @@ domonnoise(struct monst *mtmp)
                 verbl_msg = verbuf;
             }
             gc.context.tribute.Deathnotice = 1;
-        } else if (ms_Death && rn2(3) && Death_quote(verbuf, sizeof verbuf)) {
+        } else if (ms_Death && random_integer_between_zero_and(3) && Death_quote(verbuf, sizeof verbuf)) {
             verbl_msg = verbuf;
         /* end of tribute addition */
 
-        } else if (ms_Death && !rn2(10)) {
+        } else if (ms_Death && !random_integer_between_zero_and(10)) {
             pline_msg = "is busy reading a copy of Sandman #8.";
         } else
             verbl_msg = "Who do you think you are, War?";
@@ -1226,7 +1228,7 @@ domonnoise(struct monst *mtmp)
                and without quotation marks */
             char tmpbuf[BUFSZ];
             pline1(ucase(strcpy(tmpbuf, verbl_msg)));
-            SetVoice((struct monst *) 0, 0, 80, voice_death); 
+            SetVoice((struct monster *) 0, 0, 80, voice_death); 
             sound_speak(tmpbuf);
         } else {
             SetVoice(mtmp, 0, 80, 0);
@@ -1251,7 +1253,7 @@ dotalk(void)
 staticfn int
 dochat(void)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     int tx, ty;
     struct obj *otmp;
 
@@ -1289,12 +1291,12 @@ dochat(void)
         return ECMD_CANCEL;
     }
 
-    if (u.usteed && u.dz > 0) {
-        if (helpless(u.usteed)) {
-            pline("%s seems not to notice you.", Monnam(u.usteed));
+    if (u.monster_being_ridden && u.dz > 0) {
+        if (helpless(u.monster_being_ridden)) {
+            pline("%s seems not to notice you.", Monnam(u.monster_being_ridden));
             return ECMD_TIME;
         } else
-            return domonnoise(u.usteed);
+            return domonnoise(u.monster_being_ridden);
     }
 
     if (u.dz) {
@@ -1355,7 +1357,7 @@ dochat(void)
                     "suggests a stint of rehab...",
                     "doesn't seem to be interested.",
                 };
-                int idx = rn2(10);
+                int idx = random_integer_between_zero_and(10);
 
                 if (idx >= SIZE(walltalk))
                     idx = SIZE(walltalk) - 1;
@@ -1403,16 +1405,16 @@ dochat(void)
 }
 
 /* is there a monster at <x,y> that can see the hero and react? */
-staticfn struct monst *
+staticfn struct monster *
 responsive_mon_at(int x, int y)
 {
-    struct monst *mtmp = isok(x, y) ? m_at(x, y) : 0;
+    struct monster *mtmp = isok(x, y) ? m_at(x, y) : 0;
 
     if (mtmp && (helpless(mtmp) /* immobilized monst */
                  || !mtmp->mcansee || !haseyes(mtmp->data) /* blind monst */
                  || (Invis && !perceives(mtmp->data)) /* unseen hero */
                  || (x != mtmp->mx || y != mtmp->my))) /* worm tail */
-        mtmp = (struct monst *) 0;
+        mtmp = (struct monster *) 0;
     return mtmp;
 }
 
@@ -1420,7 +1422,7 @@ responsive_mon_at(int x, int y)
 int
 tiphat(void)
 {
-    struct monst *mtmp;
+    struct monster *mtmp;
     struct obj *otmp;
     int x, y, range, glyph, vismon, unseen, statue, res;
 
@@ -1443,11 +1445,11 @@ tiphat(void)
     You("briefly doff your %s.", helm_simple_name(uarmh));
 
     if (!u.dx && !u.dy) {
-        if (u.usteed && u.dz > 0) {
-            if (helpless(u.usteed))
-                pline("%s doesn't notice.", Monnam(u.usteed));
+        if (u.monster_being_ridden && u.dz > 0) {
+            if (helpless(u.monster_being_ridden))
+                pline("%s doesn't notice.", Monnam(u.monster_being_ridden));
             else
-                (void) domonnoise(u.usteed);
+                (void) domonnoise(u.monster_being_ridden);
         } else if (u.dz) {
             pline("There's no one %s there.", (u.dz < 0) ? "up" : "down");
         } else {
@@ -1456,7 +1458,7 @@ tiphat(void)
         return res;
     }
 
-    mtmp = (struct monst *) 0;
+    mtmp = (struct monster *) 0;
     vismon = unseen = statue = 0, glyph = GLYPH_MON_OFF;
     x = u.ux, y = u.uy;
     for (range = 1; range <= BOLT_LIM + 1; ++range) {
@@ -1475,7 +1477,7 @@ tiphat(void)
                       && otmp->otyp == STATUE)); /* or actual statue */
         if (vismon && (M_AP_TYPE(mtmp) == M_AP_FURNITURE
                        || M_AP_TYPE(mtmp) == M_AP_OBJECT))
-            vismon = 0, mtmp = (struct monst *) 0;
+            vismon = 0, mtmp = (struct monster *) 0;
         if (vismon || unseen || (statue && Hallucination)
             /* unseen adjacent monster will respond if able */
             || (range == 1 && mtmp && responsive_mon_at(x, y)
@@ -1512,8 +1514,8 @@ tiphat(void)
             static const char *const reaction[3] = {
                 "curses", "gestures rudely", "gestures offensively",
             };
-            int which = !Deaf ? rn2(3) : rn1(2, 1),
-                twice = (Deaf || which > 0 || rn2(3)) ? 0 : rn1(2, 1);
+            int which = !Deaf ? random_integer_between_zero_and(3) : rn1(2, 1),
+                twice = (Deaf || which > 0 || random_integer_between_zero_and(3)) ? 0 : rn1(2, 1);
 
             pline("%s %s%s%s at you...", Monnam(mtmp), reaction[which],
                   twice ? " and " : "", twice ? reaction[twice] : "");
@@ -2134,7 +2136,7 @@ base_soundname_to_filename(
 #endif
 
 void
-set_voice(struct monst *mtmp SPEECHONLY, int32_t tone SPEECHONLY, int32_t volume SPEECHONLY, int32_t moreinfo SPEECHONLY)
+set_voice(struct monster *mtmp SPEECHONLY, int32_t tone SPEECHONLY, int32_t volume SPEECHONLY, int32_t moreinfo SPEECHONLY)
 {
 #ifdef SND_SPEECH
     int32_t gender = (mtmp && mtmp->female) ? FEMALE : MALE;

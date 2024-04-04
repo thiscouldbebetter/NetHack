@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 /* doengrave() data */
@@ -54,8 +56,8 @@ random_engraving(char *outbuf)
 
     /* a random engraving may come from the "rumors" file,
        or from the "engrave" file (formerly in an array here) */
-    if (!rn2(4) || !(rumor = getrumor(0, outbuf, TRUE)) || !*rumor)
-        (void) get_rnd_text(ENGRAVEFILE, outbuf, rn2, MD_PAD_RUMORS);
+    if (!random_integer_between_zero_and(4) || !(rumor = getrumor(0, outbuf, TRUE)) || !*rumor)
+        (void) get_rnd_text(ENGRAVEFILE, outbuf, random_integer_between_zero_and, MD_PAD_RUMORS);
 
     wipeout_text(outbuf, (int) (strlen(outbuf) / 4), 0);
     return outbuf;
@@ -130,8 +132,8 @@ wipeout_text(
             /* pick next character */
             if (!seed) {
                 /* random */
-                nxt = rn2((int) lth);
-                use_rubout = rn2(4);
+                nxt = random_integer_between_zero_and((int) lth);
+                use_rubout = random_integer_between_zero_and(4);
             } else {
                 /* predictable; caller can reproduce the same sequence by
                    supplying the same arguments later, or a pseudo-random
@@ -160,7 +162,7 @@ wipeout_text(
                          * Pick one of the substitutes at random.
                          */
                         if (!seed) {
-                            j = rn2((int) ln);
+                            j = random_integer_between_zero_and((int) ln);
                         } else {
                             seed *= 31, seed %= (BUFSZ - 1);
                             j = seed % ln;
@@ -188,16 +190,16 @@ can_reach_floor(boolean check_pit)
     struct trap *t;
 
     if (u.uswallow
-        || (u.ustuck && !sticks(gy.youmonst.data)
+        || (u.monster_stuck_to && !sticks(gy.youmonst.data)
             /* assume that arms are pinned rather than that the hero
                has been lifted up above the floor [doesn't explain
                how hero can attack the creature holding him or her;
                that's life in nethack...] */
-            && attacktype(u.ustuck->data, AT_HUGS))
+            && attacktype(u.monster_stuck_to->data, AT_HUGS))
         || (Levitation && !(Is_airlevel(&u.uz) || Is_waterlevel(&u.uz))))
         return FALSE;
     /* Restricted/unskilled riders can't reach the floor */
-    if (u.usteed && P_SKILL(P_RIDING) < P_BASIC)
+    if (u.monster_being_ridden && P_SKILL(P_RIDING) < P_BASIC)
         return FALSE;
     if (u.uundetected && ceiling_hider(gy.youmonst.data))
         return FALSE;
@@ -271,9 +273,9 @@ wipe_engr_at(coordxy x, coordxy y, xint16 cnt, boolean magical)
     /* Headstones and some specially marked engravings are indelible */
     if (ep && ep->engr_type != HEADSTONE && !ep->nowipeout) {
         debugpline1("asked to erode %d characters", cnt);
-        if (ep->engr_type != BURN || is_ice(x, y) || (magical && !rn2(2))) {
+        if (ep->engr_type != BURN || is_ice(x, y) || (magical && !random_integer_between_zero_and(2))) {
             if (ep->engr_type != DUST && ep->engr_type != ENGR_BLOOD) {
-                cnt = rn2(1 + 50 / (cnt + 1)) ? 0 : 1;
+                cnt = random_integer_between_zero_and(1 + 50 / (cnt + 1)) ? 0 : 1;
                 debugpline1("actually eroding %d characters", cnt);
             }
             wipeout_text(ep->engr_txt[actual_text], (int) cnt, 0);
@@ -286,7 +288,7 @@ wipe_engr_at(coordxy x, coordxy y, xint16 cnt, boolean magical)
 }
 
 void
-read_engr_at(coordxy x, coordxy y)
+read_engraving_at(coordxy x, coordxy y)
 {
     struct engr *ep = engr_at(x, y);
     const char *eloc = surface(x, y);
@@ -396,7 +398,7 @@ make_engr_at(
             exercise(A_WIS, TRUE);
     }
     ep->engr_time = e_time;
-    ep->engr_type = (xint8) ((e_type > 0) ? e_type : rnd(N_ENGRAVE - 1));
+    ep->engr_type = (xint8) ((e_type > 0) ? e_type : random(N_ENGRAVE - 1));
     ep->engr_szeach = smem;
     ep->engr_alloc = smem * 3;
     /* we do not set ep->eread; the caller will need to if required */
@@ -451,10 +453,10 @@ u_can_engrave(void)
     int levtyp = SURFACE_AT(u.ux, u.uy);
 
     if (u.uswallow) {
-        if (is_animal(u.ustuck->data)) {
+        if (is_animal(u.monster_stuck_to->data)) {
             pline("What would you write?  \"Jonah was here\"?");
             return FALSE;
-        } else if (is_whirly(u.ustuck->data)) {
+        } else if (is_whirly(u.monster_stuck_to->data)) {
             cant_reach_floor(u.ux, u.uy, FALSE, FALSE);
             return FALSE;
         }
@@ -519,8 +521,8 @@ doengrave_ctx_init(struct _doengrave_ctx *de)
     if (is_demon(gy.youmonst.data) || is_vampire(gy.youmonst.data))
         de->type = ENGR_BLOOD;
 
-    de->jello = (u.uswallow && !(is_animal(u.ustuck->data)
-                                 || is_whirly(u.ustuck->data)));
+    de->jello = (u.uswallow && !(is_animal(u.monster_stuck_to->data)
+                                 || is_whirly(u.monster_stuck_to->data)));
     de->frosted = is_ice(u.ux, u.uy);
 }
 
@@ -734,7 +736,7 @@ doengrave_sfx_item(struct _doengrave_ctx *de)
     case WAND_CLASS:
         if (zappable(de->otmp)) {
             check_unpaid(de->otmp);
-            if (de->otmp->cursed && !rn2(WAND_BACKFIRE_CHANCE)) {
+            if (de->otmp->cursed && !random_integer_between_zero_and(WAND_BACKFIRE_CHANCE)) {
                 wand_explode(de->otmp, 0);
                 de->ret = ECMD_TIME;
                 return FALSE;
@@ -930,7 +932,7 @@ doengrave(void)
     }
 
     if (de->jello) {
-        You("tickle %s with %s.", mon_nam(u.ustuck), de->writer);
+        You("tickle %s with %s.", mon_nam(u.monster_stuck_to), de->writer);
         Your("message dissolves...");
         goto doengr_exit;
     }
@@ -1135,10 +1137,10 @@ doengrave(void)
     for (sp = de->ebuf; *sp; sp++) {
         if (*sp == ' ')
             continue;
-        if (((de->type == DUST || de->type == ENGR_BLOOD) && !rn2(25))
-            || (Blind && !rn2(11)) || (Confusion && !rn2(7))
-            || (Stunned && !rn2(4)) || (Hallucination && !rn2(2)))
-            *sp = ' ' + rnd(96 - 2); /* ASCII '!' thru '~'
+        if (((de->type == DUST || de->type == ENGR_BLOOD) && !random_integer_between_zero_and(25))
+            || (Blind && !random_integer_between_zero_and(11)) || (Confusion && !random_integer_between_zero_and(7))
+            || (Stunned && !random_integer_between_zero_and(4)) || (Hallucination && !random_integer_between_zero_and(2)))
+            *sp = ' ' + random(96 - 2); /* ASCII '!' thru '~'
                                         (excludes ' ' and DEL) */
     }
 
@@ -1162,7 +1164,7 @@ doengrave(void)
         pline("%s", de->post_engr_text);
     if (de->doblind && !resists_blnd(&gy.youmonst)) {
         You("are blinded by the flash!");
-        make_blinded((long) rnd(50), FALSE);
+        make_blinded((long) random(50), FALSE);
         if (!Blind)
             Your1(vision_clears);
     }
@@ -1534,8 +1536,8 @@ rloc_engr(struct engr *ep)
         if (--tryct < 0)
             return;
         tx = rn1(COLNO - 3, 2);
-        ty = rn2(ROWNO);
-    } while (engr_at(tx, ty) || !goodpos(tx, ty, (struct monst *) 0, 0));
+        ty = random_integer_between_zero_and(ROWNO);
+    } while (engr_at(tx, ty) || !goodpos(tx, ty, (struct monster *) 0, 0));
 
     ep->engr_x = tx;
     ep->engr_y = ty;
@@ -1559,7 +1561,7 @@ make_grave(coordxy x, coordxy y, const char *str)
     /* Engrave the headstone */
     del_engr_at(x, y);
     if (!str)
-        str = get_rnd_text(EPITAPHFILE, buf, rn2, MD_PAD_RUMORS);
+        str = get_rnd_text(EPITAPHFILE, buf, random_integer_between_zero_and, MD_PAD_RUMORS);
     make_engr_at(x, y, str, 0L, HEADSTONE);
     return;
 }

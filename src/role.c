@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 /*** Table of all roles ***/
@@ -716,9 +718,9 @@ randrole(boolean for_display)
     int res = SIZE(roles) - 1;
 
     if (for_display)
-        res = rn2_on_display_rng(res);
+        res = random2_on_display_range(res);
     else
-        res = rn2(res);
+        res = random_integer_between_zero_and(res);
     return res;
 }
 
@@ -735,7 +737,7 @@ randrole_filtered(void)
             && ok_gend(i, ROLE_NONE, ROLE_RANDOM, ROLE_NONE)
             && ok_align(i, ROLE_NONE, ROLE_NONE, ROLE_RANDOM))
             set[n++] = i;
-    return n ? set[rn2(n)] : randrole(FALSE);
+    return n ? set[random_integer_between_zero_and(n)] : randrole(FALSE);
 }
 
 int
@@ -791,7 +793,7 @@ randrace(int rolenum)
     /* Pick a random race */
     /* Use a factor of 100 in case of bad random number generators */
     if (n)
-        n = rn2(n * 100) / 100;
+        n = random_integer_between_zero_and(n * 100) / 100;
     for (i = 0; races[i].noun; i++)
         if (roles[rolenum].allow & races[i].allow & ROLE_RACEMASK) {
             if (n)
@@ -801,7 +803,7 @@ randrace(int rolenum)
         }
 
     /* This role has no permitted races? */
-    return rn2(SIZE(races) - 1);
+    return random_integer_between_zero_and(SIZE(races) - 1);
 }
 
 int
@@ -820,7 +822,7 @@ str2race(const char *str)
         if (!strncmpi(str, races[i].noun, len))
             return i;
         /* check adjective too */
-        if (races[i].adj && !strncmpi(str, races[i].adj, len))
+        if (races[i].adjective && !strncmpi(str, races[i].adjective, len))
             return i;
         /* Or the filecode? */
         if (!strcmpi(str, races[i].filecode))
@@ -857,7 +859,7 @@ randgend(int rolenum, int racenum)
 
     /* Pick a random gender */
     if (n)
-        n = rn2(n);
+        n = random_integer_between_zero_and(n);
     for (i = 0; i < ROLE_GENDERS; i++)
         if (roles[rolenum].allow & races[racenum].allow & genders[i].allow
             & ROLE_GENDMASK) {
@@ -868,7 +870,7 @@ randgend(int rolenum, int racenum)
         }
 
     /* This role/race has no permitted genders? */
-    return rn2(ROLE_GENDERS);
+    return random_integer_between_zero_and(ROLE_GENDERS);
 }
 
 int
@@ -920,7 +922,7 @@ randalign(int rolenum, int racenum)
 
     /* Pick a random alignment */
     if (n)
-        n = rn2(n);
+        n = random_integer_between_zero_and(n);
     for (i = 0; i < ROLE_ALIGNS; i++)
         if (roles[rolenum].allow & races[racenum].allow & aligns[i].allow
             & ROLE_ALIGNMASK) {
@@ -931,7 +933,7 @@ randalign(int rolenum, int racenum)
         }
 
     /* This role/race has no permitted alignments? */
-    return rn2(ROLE_ALIGNS);
+    return random_integer_between_zero_and(ROLE_ALIGNS);
 }
 
 int
@@ -1024,7 +1026,7 @@ pick_role(int racenum, int gendnum, int alignnum, int pickhow)
     }
     if (roles_ok == 0 || (roles_ok > 1 && pickhow == PICK_RIGID))
         return ROLE_NONE;
-    return set[rn2(roles_ok)];
+    return set[random_integer_between_zero_and(roles_ok)];
 }
 
 /* is racenum compatible with any rolenum/gendnum/alignnum constraints? */
@@ -1084,7 +1086,7 @@ pick_race(int rolenum, int gendnum, int alignnum, int pickhow)
     }
     if (races_ok == 0 || (races_ok > 1 && pickhow == PICK_RIGID))
         return ROLE_NONE;
-    races_ok = rn2(races_ok);
+    races_ok = random_integer_between_zero_and(races_ok);
     for (i = 0; i < SIZE(races) - 1; i++) {
         if (ok_race(rolenum, i, gendnum, alignnum)) {
             if (races_ok == 0)
@@ -1149,7 +1151,7 @@ pick_gend(int rolenum, int racenum, int alignnum, int pickhow)
     }
     if (gends_ok == 0 || (gends_ok > 1 && pickhow == PICK_RIGID))
         return ROLE_NONE;
-    gends_ok = rn2(gends_ok);
+    gends_ok = random_integer_between_zero_and(gends_ok);
     for (i = 0; i < ROLE_GENDERS; i++) {
         if (ok_gend(rolenum, racenum, i, alignnum)) {
             if (gends_ok == 0)
@@ -1214,7 +1216,7 @@ pick_align(int rolenum, int racenum, int gendnum, int pickhow)
     }
     if (aligns_ok == 0 || (aligns_ok > 1 && pickhow == PICK_RIGID))
         return ROLE_NONE;
-    aligns_ok = rn2(aligns_ok);
+    aligns_ok = random_integer_between_zero_and(aligns_ok);
     for (i = 0; i < ROLE_ALIGNS; i++) {
         if (ok_align(rolenum, racenum, gendnum, i)) {
             if (aligns_ok == 0)
@@ -1516,7 +1518,7 @@ root_plselection_prompt(
             if (donefirst)
                 Strcat(buf, " ");
             Strcat(buf, (rolenum == ROLE_NONE) ? races[racenum].noun
-                                               : races[racenum].adj);
+                                               : races[racenum].adjective);
             donefirst = TRUE;
         } else if (!validrole(rolenum)) {
             if (donefirst)
@@ -2028,7 +2030,7 @@ role_init(void)
         gq.quest_status.ldrgend =
             is_neuter(pm) ? 2 : is_female(pm) ? 1 : is_male(pm)
                                                         ? 0
-                                                        : (rn2(100) < 50);
+                                                        : (random_integer_between_zero_and(100) < 50);
     }
 
     /* Fix up the quest guardians */
@@ -2049,7 +2051,7 @@ role_init(void)
         /* if gender is random, we choose it now instead of waiting
            until the nemesis monster is created */
         gq.quest_status.nemgend = is_neuter(pm) ? 2 : is_female(pm) ? 1
-                                   : is_male(pm) ? 0 : (rn2(100) < 50);
+                                   : is_male(pm) ? 0 : (random_integer_between_zero_and(100) < 50);
     }
 
     /* Fix up the god names */
@@ -2106,7 +2108,7 @@ role_init(void)
 }
 
 const char *
-Hello(struct monst *mtmp)
+Hello(struct monster *mtmp)
 {
     switch (Role_switch) {
     case PM_KNIGHT:
@@ -2813,7 +2815,7 @@ plsel_startmenu(int ttyrows, int aspect)
                 gp.plname,
                 aligns[ALGN].adj,
                 genders[GEND].adj,
-                races[RACE].adj,
+                races[RACE].adjective,
                 rolename);
     }
 

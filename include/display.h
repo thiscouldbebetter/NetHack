@@ -3,6 +3,8 @@
 /* and Dave Cohrs, 1990.                                          */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
@@ -53,7 +55,7 @@
    is_pool() vs is_pool_or_lava(): hero who is underwater can see adjacent
    lava, but presumably any monster there is on top so not sensed */
 #define _sensemon(mon) \
-    (   (!u.uswallow || (mon) == u.ustuck)                                   \
+    (   (!u.uswallow || (mon) == u.monster_stuck_to)                                   \
      && (!Underwater || (mdistu(mon) <= 2 && is_pool((mon)->mx, (mon)->my))) \
      && (Detect_monsters || tp_sensemon(mon) || MATCH_WARN_OF_MON(mon))   )
 
@@ -206,7 +208,7 @@
  * memory (this isn't important at present but may be if we need
  * reproducible gameplay for some reason).
  */
-#define newsym_rn2 rn2_on_display_rng
+#define newsym_rn2 random2_on_display_range
 
 /*
  * covers_objects()
@@ -244,8 +246,8 @@
  * _if_ the hero can be seen have already been done.
  */
 #define maybe_display_usteed(otherwise_self)                 \
-    ((u.usteed && mon_visible(u.usteed))                     \
-         ? ridden_mon_to_glyph(u.usteed, rn2_on_display_rng) \
+    ((u.monster_being_ridden && mon_visible(u.monster_being_ridden))                     \
+         ? ridden_mon_to_glyph(u.monster_being_ridden, random2_on_display_range) \
          : (otherwise_self))
 
 #define display_self() \

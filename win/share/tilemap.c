@@ -1308,8 +1308,8 @@ init_tilemap(void)
 }
 
 #if defined(OBTAIN_TILEMAP)
-extern void monst_globals_init(void);
-extern void objects_globals_init(void);
+extern void monster_globals_initialize(void);
+extern void objects_globals_initialize(void);
 #endif
 
 DISABLE_WARNING_UNREACHABLE_CODE
@@ -1324,8 +1324,8 @@ main(int argc UNUSED, char *argv[] UNUSED)
     const char indent[] = "    ";
 
 #if defined(OBTAIN_TILEMAP)
-    objects_globals_init();
-    monst_globals_init();
+    objects_globals_initialize();
+    monster_globals_initialize();
 #endif
 
     init_tilemap();

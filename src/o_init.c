@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 staticfn void setgemprobs(d_level *);
@@ -84,13 +86,13 @@ randomize_gem_colors(void)
 {
 #define COPY_OBJ_DESCR(o_dst, o_src) \
     o_dst.oc_descr_idx = o_src.oc_descr_idx, o_dst.oc_color = o_src.oc_color
-    if (rn2(2)) { /* change turquoise from green to blue? */
+    if (random_integer_between_zero_and(2)) { /* change turquoise from green to blue? */
         COPY_OBJ_DESCR(objects[TURQUOISE], objects[SAPPHIRE]);
     }
-    if (rn2(2)) { /* change aquamarine from green to blue? */
+    if (random_integer_between_zero_and(2)) { /* change aquamarine from green to blue? */
         COPY_OBJ_DESCR(objects[AQUAMARINE], objects[SAPPHIRE]);
     }
-    switch (rn2(4)) { /* change fluorite from violet? */
+    switch (random_integer_between_zero_and(4)) { /* change fluorite from violet? */
     case 0:
         break;
     case 1: /* blue */
@@ -124,7 +126,7 @@ shuffle(int o_low, int o_high, boolean domaterial)
         if (objects[j].oc_name_known)
             continue;
         do
-            i = j + rn2(o_high - j + 1);
+            i = j + random_integer_between_zero_and(o_high - j + 1);
         while (objects[i].oc_name_known);
         sw = objects[j].oc_descr_idx;
         objects[j].oc_descr_idx = objects[i].oc_descr_idx;
@@ -225,7 +227,7 @@ init_objects(void)
 #ifdef TILES_IN_GLYPHMAP
     shuffle_tiles();
 #endif
-    objects[WAN_NOTHING].oc_dir = rn2(2) ? NODIR : IMMEDIATE;
+    objects[WAN_NOTHING].oc_dir = random_integer_between_zero_and(2) ? NODIR : IMMEDIATE;
 }
 
 /* Compute the total probability of each object class.

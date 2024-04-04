@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 static NEARDATA const char see_yourself[] = "see yourself";
@@ -117,10 +119,10 @@ toggle_stealth(
             else
                 You("walk very quietly.");
         } else {
-            boolean riding = (u.usteed != NULL);
+            boolean riding = (u.monster_being_ridden != NULL);
 
             You("%s%s are noisy.", riding ? "and " : "sure",
-                riding ? x_monnam(u.usteed, ARTICLE_YOUR, (char *) NULL,
+                riding ? x_monnam(u.monster_being_ridden, ARTICLE_YOUR, (char *) NULL,
                                   (SUPPRESS_SADDLE | SUPPRESS_HALLUCINATION),
                                   FALSE)
                        : "");
@@ -205,7 +207,7 @@ Boots_on(void)
         break;
     case FUMBLE_BOOTS:
         if (!oldprop && !(HFumbling & ~TIMEOUT))
-            incr_itimeout(&HFumbling, rnd(20));
+            incr_itimeout(&HFumbling, random(20));
         break;
     case LEVITATION_BOOTS:
         if (!oldprop && !HLevitation && !(BLevitation & FROMOUTSIDE)) {
@@ -437,8 +439,8 @@ Helmet_on(void)
            including levitation; uarmh could get dropped or destroyed here
            by hero falling onto a polymorph trap or into water (emergency
            disrobe) or maybe lava (probably not, helm isn't 'organic') */
-        uchangealign((u.ualign.type != A_NEUTRAL)
-                         ? -u.ualign.type
+        uchangealign((u.alignment.type != A_NEUTRAL)
+                         ? -u.alignment.type
                          : (uarmh->o_id % 2) ? A_CHAOTIC : A_LAWFUL,
                      A_CG_HELM_ON);
         /* makeknown(HELM_OF_OPPOSITE_ALIGNMENT); -- below, after Tobjnam() */
@@ -465,8 +467,8 @@ Helmet_on(void)
             pline("My brain hurts!"); /* Monty Python's Flying Circus */
         } else if (uarmh && uarmh->otyp == DUNCE_CAP) {
             You_feel("%s.", /* track INT change; ignore WIS */
-                     ACURR(A_INT)
-                             <= (ABASE(A_INT) + ABON(A_INT) + ATEMP(A_INT))
+                     ATTRIBUTE_CURRENT(A_INT)
+                             <= (ATTRIBUTE_BASE(A_INT) + ABON(A_INT) + ATEMP(A_INT))
                          ? "like sitting in a corner"
                          : "giddy");
         } else {
@@ -551,7 +553,7 @@ Gloves_on(void)
         break;
     case GAUNTLETS_OF_FUMBLING:
         if (!oldprop && !(HFumbling & ~TIMEOUT))
-            incr_itimeout(&HFumbling, rnd(20));
+            incr_itimeout(&HFumbling, random(20));
         break;
     case GAUNTLETS_OF_POWER:
         makeknown(uarmg->otyp);
@@ -582,7 +584,7 @@ wielding_corpse(
         return;
     /* note: can't dual-wield with non-weapons/weapon-tools so u.twoweap
        will always be false if uswapwep happens to be a corpse */
-    if (obj != uwep && (obj != uswapwep || !u.twoweap))
+    if (obj != uwep && (obj != uswapwep || !u.using_two_weapons))
         return;
 
     if (touch_petrifies(&mons[obj->corpsenm]) && !Stone_resistance) {
@@ -640,7 +642,7 @@ Gloves_off(void)
     }
     setworn((struct obj *) 0, W_ARMG);
     gc.context.takeoff.cancelled_don = FALSE;
-    (void) encumber_msg(); /* immediate feedback for GoP */
+    (void) encumbered_message(); /* immediate feedback for GoP */
 
     /* usually can't remove gloves when they're slippery but it can
        be done by having them fall off (polymorph), stolen, or
@@ -660,7 +662,7 @@ Gloves_off(void)
        be cockatrice corpses, life-saving for the first would need to
        prevent the second from being fatal since conceptually they'd
        be being touched simultaneously.] */
-    if (u.twoweap && uswapwep && uswapwep->otyp == CORPSE)
+    if (u.using_two_weapons && uswapwep && uswapwep->otyp == CORPSE)
         wielding_corpse(uswapwep, gloves, on_purpose);
 
     if (condtests[bl_bareh].enabled)
@@ -983,7 +985,7 @@ Amulet_on(void)
         }
         break;
     case AMULET_OF_RESTFUL_SLEEP: {
-        long newnap = (long) rnd(100), oldnap = (HSleepy & TIMEOUT);
+        long newnap = (long) random(100), oldnap = (HSleepy & TIMEOUT);
 
         /* avoid clobbering FROMOUTSIDE bit, which might have
            gotten set by previously eating one of these amulets */
@@ -1130,9 +1132,9 @@ adjust_attrib(struct obj *obj, int which, int val)
     int old_attrib;
     boolean observable;
 
-    old_attrib = ACURR(which);
+    old_attrib = ATTRIBUTE_CURRENT(which);
     ABON(which) += val;
-    observable = (old_attrib != ACURR(which));
+    observable = (old_attrib != ATTRIBUTE_CURRENT(which));
     /* if didn't change, usually means ring is +0 but might
         be because nonzero couldn't go below min or above max;
         learn +0 enchantment if attribute value is not stuck
@@ -1226,10 +1228,10 @@ Ring_on(struct obj *obj)
         adjust_attrib(obj, A_CHA, obj->spe);
         break;
     case RIN_INCREASE_ACCURACY: /* KMH */
-        u.uhitinc += obj->spe;
+        u.hit_increment += obj->spe;
         break;
     case RIN_INCREASE_DAMAGE:
-        u.udaminc += obj->spe;
+        u.damage_increment += obj->spe;
         break;
     case RIN_PROTECTION_FROM_SHAPE_CHAN:
         rescham();
@@ -1325,10 +1327,10 @@ Ring_off_or_gone(struct obj *obj, boolean gone)
         adjust_attrib(obj, A_CHA, -obj->spe);
         break;
     case RIN_INCREASE_ACCURACY: /* KMH */
-        u.uhitinc -= obj->spe;
+        u.hit_increment -= obj->spe;
         break;
     case RIN_INCREASE_DAMAGE:
-        u.udaminc -= obj->spe;
+        u.damage_increment -= obj->spe;
         break;
     case RIN_PROTECTION:
         /* might have been put on while blind and we can now see
@@ -1979,7 +1981,7 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
                                                    ? c_axe
                                                    : c_weapon);
             err++;
-        } else if (u.twoweap) {
+        } else if (u.using_two_weapons) {
             if (noisy)
                 You("cannot wear a shield while wielding two weapons.");
             err++;
@@ -2116,7 +2118,7 @@ accessory_or_armor_on(struct obj *obj)
                 You("narrowly avoid losing all chance at your goal.");
             else /* converted */
                 You("are suddenly overcome with shame and change your mind.");
-            u.ublessed = 0; /* lose your god's protection */
+            u.blessed = 0; /* lose your god's protection */
             makeknown(obj->otyp);
             disp.botl = TRUE; /* for AC after zeroing u.ublessed */
             return ECMD_TIME;
@@ -2382,15 +2384,15 @@ find_ac(void)
 
     /* armor class from other sources */
     if (HProtection & INTRINSIC)
-        uac -= u.ublessed;
-    uac -= u.uspellprot;
+        uac -= u.blessed;
+    uac -= u.spell_protection;
 
     /* put a cap on armor class [3.7: was +127,-128, now reduced to +/- 99 */
     if (abs(uac) > AC_MAX)
         uac = sgn(uac) * AC_MAX;
 
-    if (uac != u.uac) {
-        u.uac = uac;
+    if (uac != u.armor_class) {
+        u.armor_class = uac;
         disp.botl = TRUE;
 #if 0
         /* these could conceivably be achieved out of order (by being near
@@ -2450,7 +2452,7 @@ glibr(void)
     }
 
     otmp = uswapwep;
-    if (u.twoweap && otmp) {
+    if (u.using_two_weapons && otmp) {
         /* secondary weapon doesn't need nearly as much handling as
            primary; when in two-weapon mode, we know it's one-handed
            with something else in the other hand and also that it's
@@ -2511,7 +2513,7 @@ glibr(void)
 }
 
 struct obj *
-some_armor(struct monst *victim)
+some_armor(struct monster *victim)
 {
     struct obj *otmph, *otmp;
 
@@ -2522,16 +2524,16 @@ some_armor(struct monst *victim)
         otmph = (victim == &gy.youmonst) ? uarmu : which_armor(victim, W_ARMU);
 
     otmp = (victim == &gy.youmonst) ? uarmh : which_armor(victim, W_ARMH);
-    if (otmp && (!otmph || !rn2(4)))
+    if (otmp && (!otmph || !random_integer_between_zero_and(4)))
         otmph = otmp;
     otmp = (victim == &gy.youmonst) ? uarmg : which_armor(victim, W_ARMG);
-    if (otmp && (!otmph || !rn2(4)))
+    if (otmp && (!otmph || !random_integer_between_zero_and(4)))
         otmph = otmp;
     otmp = (victim == &gy.youmonst) ? uarmf : which_armor(victim, W_ARMF);
-    if (otmp && (!otmph || !rn2(4)))
+    if (otmp && (!otmph || !random_integer_between_zero_and(4)))
         otmph = otmp;
     otmp = (victim == &gy.youmonst) ? uarms : which_armor(victim, W_ARMS);
-    if (otmp && (!otmph || !rn2(4)))
+    if (otmp && (!otmph || !random_integer_between_zero_and(4)))
         otmph = otmp;
     return otmph;
 }
@@ -2659,7 +2661,7 @@ select_off(struct obj *otmp)
         }
     }
     /* basic curse check */
-    if (otmp == uquiver || (otmp == uswapwep && !u.twoweap)) {
+    if (otmp == uquiver || (otmp == uswapwep && !u.using_two_weapons)) {
         ; /* some items can be removed even when cursed */
     } else {
         /* otherwise, this is fundamental */
@@ -2706,7 +2708,7 @@ staticfn struct obj *
 do_takeoff(void)
 {
     struct obj *otmp = (struct obj *) 0;
-    boolean was_twoweap = u.twoweap;
+    boolean was_twoweap = u.using_two_weapons;
     struct takeoff_info *doff = &gc.context.takeoff;
 
     gc.context.takeoff.mask |= I_SPECIAL; /* set flag for cancel_doff() */

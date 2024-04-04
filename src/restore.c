@@ -3,6 +3,8 @@
 /*-Copyright (c) Michael Allison, 2009. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #include "tcap.h" /* for TERMLIB and ASCIIGRAPH */
 
@@ -22,8 +24,8 @@ staticfn void restlevchn(NHFILE *);
 staticfn void restdamage(NHFILE *);
 staticfn void restobj(NHFILE *, struct obj *);
 staticfn struct obj *restobjchn(NHFILE *, boolean);
-staticfn void restmon(NHFILE *, struct monst *);
-staticfn struct monst *restmonchn(NHFILE *);
+staticfn void restmon(NHFILE *, struct monster *);
+staticfn struct monster *restmonchn(NHFILE *);
 staticfn struct fruit *loadfruitchn(NHFILE *);
 staticfn void freefruitchn(struct fruit *);
 staticfn void ghostfruit(struct obj *);
@@ -304,7 +306,7 @@ restobjchn(NHFILE *nhfp, boolean frozen)
 
 /* restore one monster */
 staticfn void
-restmon(NHFILE *nhfp, struct monst *mtmp)
+restmon(NHFILE *nhfp, struct monster *mtmp)
 {
     int buflen = 0;
 
@@ -312,7 +314,7 @@ restmon(NHFILE *nhfp, struct monst *mtmp)
         Mread(nhfp->fd, mtmp, sizeof *mtmp);
 
     /* next monster pointer is invalid */
-    mtmp->nmon = (struct monst *) 0;
+    mtmp->nmon = (struct monster *) 0;
     /* non-null mextra needs to be reconstructed */
     if (mtmp->mextra) {
         mtmp->mextra = newmextra();
@@ -373,11 +375,11 @@ restmon(NHFILE *nhfp, struct monst *mtmp)
     } /* mextra */
 }
 
-staticfn struct monst *
+staticfn struct monster *
 restmonchn(NHFILE *nhfp)
 {
-    struct monst *mtmp, *mtmp2 = 0;
-    struct monst *first = (struct monst *) 0;
+    struct monster *mtmp, *mtmp2 = 0;
+    struct monster *first = (struct monster *) 0;
     int offset, buflen = 0;
     boolean ghostly = (nhfp->ftype == NHF_BONESFILE);
 
@@ -578,7 +580,7 @@ restgamestate(NHFILE *nhfp)
         /* savefile has wizard or explore mode, but player is no longer
            authorized to access either; can't downgrade mode any further, so
            fail restoration. */
-        u.uhp = 0; 
+        u.hit_points = 0; 
     }
 
     if (nhfp->structlevel)
@@ -600,7 +602,7 @@ restgamestate(NHFILE *nhfp)
 #ifdef CLIPPING
     cliparound(u.ux, u.uy);
 #endif
-    if (u.uhp <= 0 && (!Upolyd || u.mh <= 0)) {
+    if (u.hit_points <= 0 && (!Upolyd || u.mh <= 0)) {
         u.ux = u.uy = 0; /* affects pline() [hence You()] */
         You("were not healthy enough to survive restoration.");
         /* wiz1_level.dlevel is used by mklev.c to see if lots of stuff is
@@ -691,7 +693,7 @@ restgamestate(NHFILE *nhfp)
     /* must come after all mons & objs are restored */
     relink_timers(FALSE);
     relink_light_sources(FALSE);
-    adj_erinys(u.ualign.abuse);
+    adj_erinys(u.alignment.abuse);
     /* inventory display is now viable */
     iflags.perm_invent = defer_perm_invent;
     return TRUE;
@@ -752,7 +754,7 @@ dorecover(NHFILE *nhfp)
            is not really affiliated with an open file */
         close_nhfile(nhfp);
         (void) delete_savefile();
-        u.usteed_mid = u.ustuck_mid = 0;
+        u.monster_being_ridden_id = u.monster_stuck_to_id = 0;
         gp.program_state.restoring = 0;
         return 0;
     }
@@ -771,8 +773,8 @@ dorecover(NHFILE *nhfp)
      * afterwards, and in the meantime at least u.usteed may mislead
      * place_monster() on other levels
      */
-    u.ustuck = (struct monst *) 0;
-    u.usteed = (struct monst *) 0;
+    u.monster_stuck_to = (struct monster *) 0;
+    u.monster_being_ridden = (struct monster *) 0;
 
 #ifdef MICRO
 #ifdef AMII_GRAPHICS
@@ -869,7 +871,7 @@ dorecover(NHFILE *nhfp)
         ge.early_raw_messages = 0;
         wait_synch();
     }
-    u.usteed_mid = u.ustuck_mid = 0;
+    u.monster_being_ridden_id = u.monster_stuck_to_id = 0;
     gp.program_state.beyond_savefile_load = 1;
 
     docrt();
@@ -994,7 +996,7 @@ void
 getlev(NHFILE *nhfp, int pid, xint8 lev)
 {
     struct trap *trap;
-    struct monst *mtmp;
+    struct monster *mtmp;
     long elapsed;
     branch *br;
     int hpid = 0;
@@ -1110,18 +1112,18 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
     /* reset level.monsters for new level */
     for (x = 0; x < COLNO; x++)
         for (y = 0; y < ROWNO; y++)
-            gl.level.monsters[x][y] = (struct monst *) 0;
+            gl.level.monsters[x][y] = (struct monster *) 0;
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (mtmp->isshk)
             set_residency(mtmp, FALSE);
-        if (mtmp->m_id == u.usteed_mid) {
+        if (mtmp->m_id == u.monster_being_ridden_id) {
             /* steed is kept on fmon list but off the map */
-            u.usteed = mtmp;
-            u.usteed_mid = 0;
+            u.monster_being_ridden = mtmp;
+            u.monster_being_ridden_id = 0;
         } else {
-            if (mtmp->m_id == u.ustuck_mid) {
+            if (mtmp->m_id == u.monster_stuck_to_id) {
                 set_ustuck(mtmp);
-                u.ustuck_mid = 0;
+                u.monster_stuck_to_id = 0;
             }
             place_monster(mtmp, mtmp->mx, mtmp->my);
             if (mtmp->wormno)
@@ -1138,7 +1140,7 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
                shopkeepers will reset based on name */
             if (!mtmp->isshk)
                 mtmp->mpeaceful = (is_unicorn(mtmp->data)
-                                   && (sgn(u.ualign.type)
+                                   && (sgn(u.alignment.type)
                                        == sgn(mtmp->data->maligntyp))) ? 1
                                   : peace_minded(mtmp->data);
             set_malign(mtmp);
@@ -1149,7 +1151,7 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
            them is different now than when the level was saved */
         restore_cham(mtmp);
         /* give hiders a chance to hide before their next move */
-        if (ghostly || (elapsed > 00 && elapsed > (long) rnd(10)))
+        if (ghostly || (elapsed > 00 && elapsed > (long) random(10)))
             hide_monst(mtmp);
     }
     restdamage(nhfp);
@@ -1383,7 +1385,7 @@ reset_oattached_mids(boolean ghostly)
 
     for (otmp = fobj; otmp; otmp = otmp->nobj) {
         if (ghostly && has_omonst(otmp)) {
-            struct monst *mtmp = OMONST(otmp);
+            struct monster *mtmp = OMONST(otmp);
 
             mtmp->m_id = 0;
             mtmp->mpeaceful = mtmp->mtame = 0; /* pet's owner died! */

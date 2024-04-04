@@ -1147,8 +1147,8 @@ console_poskey(coordxy *x, coordxy *y, int *mod)
         int poskey = randomkey();
 
         if (poskey == 0) {
-            *x = rn2(console.width);
-            *y = rn2(console.height);
+            *x = random_integer_between_zero_and(console.width);
+            *y = random_integer_between_zero_and(console.height);
         }
         return poskey;
     }

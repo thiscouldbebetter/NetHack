@@ -3,6 +3,8 @@
 /*-Copyright (c) Pasi Kallinen, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #ifndef HACK_H
 #define HACK_H
 
@@ -82,7 +84,7 @@
 #define SHOP_BARS_COST 300L /* cost of iron bars */
 #define SHOP_HOLE_COST 200L /* cost of making hole/trapdoor */
 #define SHOP_WALL_COST 200L /* cost of destroying a wall */
-#define SHOP_WALL_DMG  (10L * ACURRSTR) /* damaging a wall */
+#define SHOP_WALL_DMG  (10L * ATTRIBUTE_CURRENT_STRENGTH) /* damaging a wall */
 #define SHOP_PIT_COST  100L /* cost of making a pit */
 #define SHOP_WEB_COST   30L /* cost of removing a web */
 
@@ -431,15 +433,15 @@ struct early_opt {
 /* symbolic names for capacity levels */
 enum encumbrance_types {
     UNENCUMBERED = 0,
-    SLT_ENCUMBER = 1, /* Burdened */
-    MOD_ENCUMBER = 2, /* Stressed */
-    HVY_ENCUMBER = 3, /* Strained */
-    EXT_ENCUMBER = 4, /* Overtaxed */
+    SLIGHTLY_ENCUMBERED = 1, /* Burdened */
+    MODERATELY_ENCUMBERED = 2, /* Stressed */
+    HEAVILY_ENCUMBERED = 3, /* Strained */
+    EXTREMELY_ENCUMBERED = 4, /* Overtaxed */
     OVERLOADED   = 5  /* Overloaded */
 };
 
 struct entity {
-    struct monst *emon;     /* youmonst for the player */
+    struct monster *emon;     /* youmonst for the player */
     struct permonst *edata; /* must be non-zero for record to be valid */
     int ex, ey;
 };
@@ -710,7 +712,7 @@ enum polyself_flags {
 };
 
 struct repo { /* repossession context */
-    struct monst *shopkeeper;
+    struct monster *shopkeeper;
     coord location;
 };
 
@@ -1406,7 +1408,7 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define BZ_M_WAND(bztyp) (-30 - (bztyp))   /* -39..-30 */
 
 /* pick a random entry from array */
-#define ROLL_FROM(array) array[rn2(SIZE(array))]
+#define ROLL_FROM(array) array[random_integer_between_zero_and(SIZE(array))]
 /* array with terminator variation */
 /* #define ROLL_FROMT(array) array[rn2(SIZE(array) - 1)] */
 
@@ -1448,10 +1450,10 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define mdistu(mon) distu((mon)->mx, (mon)->my)
 #define onlineu(xx, yy) online2((coordxy)(xx), (coordxy)(yy), u.ux, u.uy)
 
-#define rn1(x, y) (rn2(x) + (y))
+#define rn1(x, y) (random_integer_between_zero_and(x) + (y))
 
 /* negative armor class is randomly weakened to prevent invulnerability */
-#define AC_VALUE(AC) ((AC) >= 0 ? (AC) : -rnd(-(AC)))
+#define AC_VALUE(AC) ((AC) >= 0 ? (AC) : -random(-(AC)))
 
 #if defined(MICRO) && !defined(__DJGPP__)
 #define getuid() 1

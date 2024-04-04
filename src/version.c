@@ -3,6 +3,8 @@
 /*-Copyright (c) Michael Allison, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 #include "dlb.h"
 
@@ -567,7 +569,7 @@ dump_version_info(void)
 
     if (strlen(hname) > 33)
         hname = eos(nhStr(hname)) - 33; /* discard const for eos() */
-    runtime_info_init();
+    runtime_info_initialize();
     Snprintf(buf, sizeof buf, "%-12.33s %08lx %08lx %08lx %08lx %08lx",
              hname,
              nomakedefs.version_number,

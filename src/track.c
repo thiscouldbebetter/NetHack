@@ -4,6 +4,8 @@
 /* NetHack may be freely redistributed.  See license for details. */
 /* track.c - version 1.0.2 */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 #define UTSZ 100

@@ -3,6 +3,8 @@
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #define NEED_VARARGS
 
 #include "hack.h"
@@ -2450,7 +2452,7 @@ choose_random_part(char *str, char sep)
             nsep++;
         str++;
     }
-    csep = rn2(nsep);
+    csep = random_integer_between_zero_and(nsep);
     str = begin;
     while ((csep > 0) && *str) {
         str++;
@@ -4823,14 +4825,14 @@ choose_passage(int passagecnt, /* total of available passages */
             /* collect MAXPASSAGES of the N indices */
             gc.context.novel.count = MAXPASSAGES;
             for (idx = i = 0; i < passagecnt; ++i, --range)
-                if (range > 0 && rn2(range) < limit) {
+                if (range > 0 && random_integer_between_zero_and(range) < limit) {
                     gc.context.novel.pasg[idx++] = (xint16) (i + 1);
                     --limit;
                 }
         }
     }
 
-    idx = rn2(gc.context.novel.count);
+    idx = random_integer_between_zero_and(gc.context.novel.count);
     res = (int) gc.context.novel.pasg[idx];
     /* move the last slot's passage index into the slot just used
        and reduce the number of passages available */
@@ -5054,7 +5056,7 @@ livelog_add(long ll_type, const char *str)
                aligns[] uses [0] lawful, [1] neutral, [2] chaotic;
                u.ualign.type uses -1 chaotic, 0 neutral, 1 lawful;
            so subtracting from 1 converts from either to the other */
-        aindx = 1 - u.ualign.type;
+        aindx = 1 - u.alignment.type;
         /* format relies on STD C's implicit concatenation of
            adjacent string literals */
         (void) fprintf(livelogfile,

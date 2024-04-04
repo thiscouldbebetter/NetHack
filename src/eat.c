@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "hack.h"
 
 staticfn int eatmdone(void);
@@ -27,7 +29,7 @@ staticfn void consume_tin(const char *);
 staticfn void start_tin(struct obj *);
 staticfn int eatcorpse(struct obj *);
 staticfn void start_eating(struct obj *, boolean);
-staticfn void garlic_breath(struct monst *);
+staticfn void garlic_breath(struct monster *);
 staticfn void fprefx(struct obj *);
 staticfn void fpostfx(struct obj *);
 staticfn int bite(void);
@@ -129,7 +131,7 @@ init_uhunger(void)
     u.uhs = NOT_HUNGRY;
     if (ATEMP(A_STR) < 0) {
         ATEMP(A_STR) = 0;
-        (void) encumber_msg();
+        (void) encumbered_message();
     }
 }
 
@@ -247,14 +249,14 @@ choke(struct obj *food)
     if (u.uhs != SATIATED) {
         if (!food || food->otyp != AMULET_OF_STRANGULATION)
             return;
-    } else if (Role_if(PM_KNIGHT) && u.ualign.type == A_LAWFUL) {
+    } else if (Role_if(PM_KNIGHT) && u.alignment.type == A_LAWFUL) {
         adjalign(-1); /* gluttony is unchivalrous */
         You_feel("like a glutton!");
     }
 
     exercise(A_CON, FALSE);
 
-    if (Breathless || Hunger || (!Strangled && !rn2(20))) {
+    if (Breathless || Hunger || (!Strangled && !random_integer_between_zero_and(20))) {
         /* choking by eating AoS doesn't involve stuffing yourself */
         if (food && food->otyp == AMULET_OF_STRANGULATION) {
             You("choke, but recover your composure.");
@@ -592,14 +594,14 @@ eating_conducts(struct permonst *pd)
 /* handle side-effects of mind flayer's tentacle attack */
 int
 eat_brains(
-    struct monst *magr,
-    struct monst *mdef,
+    struct monster *magr,
+    struct monster *mdef,
     boolean visflag,
     int *dmg_p) /* for dishing out extra damage in lieu of Int loss */
 {
     struct permonst *pd = mdef->data;
     boolean give_nutrit = FALSE;
-    int result = M_ATTK_HIT, xtra_dmg = rnd(10);
+    int result = M_ATTK_HIT, xtra_dmg = random(10);
 
     if (noncorporeal(pd)) {
         if (visflag)
@@ -660,12 +662,12 @@ eat_brains(
             exercise(A_WIS, FALSE);
             *dmg_p += xtra_dmg; /* Rider takes extra damage */
         } else {
-            morehungry(-rnd(30)); /* cannot choke */
-            if (ABASE(A_INT) < AMAX(A_INT)) {
+            morehungry(-random(30)); /* cannot choke */
+            if (ATTRIBUTE_BASE(A_INT) < AMAX(A_INT)) {
                 /* recover lost Int; won't increase current max */
-                ABASE(A_INT) += rnd(4);
-                if (ABASE(A_INT) > AMAX(A_INT))
-                    ABASE(A_INT) = AMAX(A_INT);
+                ATTRIBUTE_BASE(A_INT) += random(4);
+                if (ATTRIBUTE_BASE(A_INT) > AMAX(A_INT))
+                    ATTRIBUTE_BASE(A_INT) = AMAX(A_INT);
                 disp.botl = TRUE;
             }
             exercise(A_WIS, TRUE);
@@ -680,7 +682,7 @@ eat_brains(
          * monster mind flayer is eating hero's brain
          */
         /* no such thing as mindless players */
-        if (ABASE(A_INT) <= ATTRMIN(A_INT)) {
+        if (ATTRIBUTE_BASE(A_INT) <= ATTRMIN(A_INT)) {
             static NEARDATA const char brainlessness[] = "brainlessness";
 
             if (Lifesaved) {
@@ -700,7 +702,7 @@ eat_brains(
             done(DIED);
             /* can only get here when in wizard or explore mode and user has
                explicitly chosen not to die; arbitrarily boost intelligence */
-            ABASE(A_INT) = ATTRMIN(A_INT) + 2;
+            ATTRIBUTE_BASE(A_INT) = ATTRMIN(A_INT) + 2;
             You_feel("like a scarecrow.");
         }
         give_nutrit = TRUE; /* in case a conflicted pet is doing this */
@@ -731,7 +733,7 @@ eat_brains(
     }
 
     if (give_nutrit && magr->mtame && !magr->isminion) {
-        EDOG(magr)->hungrytime += rnd(60);
+        EDOG(magr)->hungrytime += random(60);
         magr->mconf = 0;
     }
 
@@ -850,7 +852,7 @@ fix_petrification(void)
 
     if (Hallucination)
         Sprintf(buf, "What a pity--you just ruined a future piece of %sart!",
-                ACURR(A_CHA) > 15 ? "fine " : "");
+                ATTRIBUTE_CURRENT(A_CHA) > 15 ? "fine " : "");
     else
         Strcpy(buf, "You feel limber!");
     make_stoned(0L, buf, 0, (char *) 0);
@@ -946,7 +948,7 @@ should_givit(int type, struct permonst *ptr)
     switch (type) {
     case POISON_RES:
         if ((ptr == &mons[PM_KILLER_BEE] || ptr == &mons[PM_SCORPION])
-            && !rn2(4))
+            && !random_integer_between_zero_and(4))
             chance = 1;
         else
             chance = 15;
@@ -965,7 +967,7 @@ should_givit(int type, struct permonst *ptr)
         break;
     }
 
-    return (ptr->mlevel > rn2(chance));
+    return (ptr->mlevel > random_integer_between_zero_and(chance));
 }
 
 staticfn boolean
@@ -973,7 +975,7 @@ temp_givit(int type, struct permonst *ptr)
 {
     int chance = (type == STONE_RES) ? 6 : (type == ACID_RES) ? 3 : 0;
 
-    return chance ? (ptr->mlevel > rn2(chance)) : FALSE;
+    return chance ? (ptr->mlevel > random_integer_between_zero_and(chance)) : FALSE;
 }
 
 /* givit() tries to give you an intrinsic based on the monster's level
@@ -1083,19 +1085,19 @@ staticfn void
 eye_of_newt_buzz(void)
 {
     /* MRKR: "eye of newt" may give small magical energy boost */
-    if (rn2(3) || 3 * u.uen <= 2 * u.uenmax) {
-        int old_uen = u.uen;
+    if (random_integer_between_zero_and(3) || 3 * u.energy <= 2 * u.energy_max) {
+        int old_uen = u.energy;
 
-        u.uen += rnd(3);
-        if (u.uen > u.uenmax) {
-            if (!rn2(3)) {
-                u.uenmax++;
-                if (u.uenmax > u.uenpeak)
-                    u.uenpeak = u.uenmax;
+        u.energy += random(3);
+        if (u.energy > u.energy_max) {
+            if (!random_integer_between_zero_and(3)) {
+                u.energy_max++;
+                if (u.energy_max > u.energy_peak)
+                    u.energy_peak = u.energy_max;
             }
-            u.uen = u.uenmax;
+            u.energy = u.energy_max;
         }
-        if (old_uen != u.uen) {
+        if (old_uen != u.energy) {
             You_feel("a mild buzz.");
             disp.botl = TRUE;
         }
@@ -1134,7 +1136,7 @@ cpostfx(int pm)
         if (Upolyd)
             u.mh = u.mhmax;
         else
-            u.uhp = u.uhpmax;
+            u.hit_points = u.hit_points_max;
         make_blinded(0L, !u.ucreamed);
         disp.botl = TRUE;
         check_intrinsics = TRUE; /* might also convey poison resistance */
@@ -1177,7 +1179,7 @@ cpostfx(int pm)
             You_cant("resist the temptation to mimic %s.",
                      Hallucination ? "an orange" : "a pile of gold");
             /* A pile of gold can't ride. */
-            if (u.usteed)
+            if (u.monster_being_ridden)
                 dismount_steed(DISMOUNT_FELL);
             nomul(-tmp);
             gm.multi_reason = "pretending to be a pile of gold";
@@ -1247,10 +1249,10 @@ cpostfx(int pm)
         break;
     case PM_MIND_FLAYER:
     case PM_MASTER_MIND_FLAYER:
-        if (ABASE(A_INT) < ATTRMAX(A_INT)) {
-            if (!rn2(2)) {
+        if (ATTRIBUTE_BASE(A_INT) < ATTRMAX(A_INT)) {
+            if (!random_integer_between_zero_and(2)) {
                 pline("Yum!  That was real brain food!");
-                (void) adjattrib(A_INT, 1, FALSE);
+                (void) adjust_attribute(A_INT, 1, FALSE);
                 break; /* don't give them telepathy, too */
             }
         } else {
@@ -1326,13 +1328,13 @@ corpse_intrinsic(struct permonst *ptr)
            with this one, and a count-1 in count chance
            of keeping the old choice (note that 1 in 1 and
            0 in 1 are what we want for the first candidate) */
-        if (!rn2(count)) {
+        if (!random_integer_between_zero_and(count)) {
             debugpline2("Intrinsic %d replacing %d", i, prop);
             prop = i;
         }
     }
     /* if strength is the only candidate, give it 50% chance */
-    if (conveys_STR && count == 1 && !rn2(2))
+    if (conveys_STR && count == 1 && !random_integer_between_zero_and(2))
         prop = 0;
 
     return prop;
@@ -1440,11 +1442,11 @@ set_tin_variety(struct obj *obj, int forcetype)
         if (r < 0 || r >= TTSZ)
             r = ROTTEN_TIN; /* shouldn't happen */
         while ((r == ROTTEN_TIN && !obj->cursed) || !tintxts[r].fodder)
-            r = rn2(TTSZ - 1);
+            r = random_integer_between_zero_and(TTSZ - 1);
     } else if (forcetype >= 0 && forcetype < TTSZ - 1) {
         r = forcetype;
     } else {               /* RANDOM_TIN */
-        r = rn2(TTSZ - 1); /* take your pick */
+        r = random_integer_between_zero_and(TTSZ - 1); /* take your pick */
         if (r == ROTTEN_TIN && (ismnum(mnum) && nonrotting_corpse(mnum)))
             r = HOMEMADE_TIN; /* lizards don't rot */
     }
@@ -1466,10 +1468,10 @@ tin_variety(
         r = -(obj->spe);
         --r; /* get rid of the offset */
     } else {
-        r = rn2(TTSZ - 1);
+        r = random_integer_between_zero_and(TTSZ - 1);
     }
 
-    if (!displ && r == HOMEMADE_TIN && !obj->blessed && !rn2(7))
+    if (!displ && r == HOMEMADE_TIN && !obj->blessed && !random_integer_between_zero_and(7))
         r = ROTTEN_TIN; /* some homemade tins go bad */
 
     if (r == ROTTEN_TIN && (ismnum(mnum) && nonrotting_corpse(mnum)))
@@ -1485,7 +1487,7 @@ consume_tin(const char *mesg)
     struct obj *tin = gc.context.tin.tin;
 
     r = tin_variety(tin, FALSE);
-    if (tin->otrapped || (tin->cursed && r != HOMEMADE_TIN && !rn2(8))) {
+    if (tin->otrapped || (tin->cursed && r != HOMEMADE_TIN && !random_integer_between_zero_and(8))) {
         b_trapped("tin", NO_PART);
         tin = costly_tin(COST_DSTROY);
         goto use_up_tin;
@@ -1605,8 +1607,8 @@ consume_tin(const char *mesg)
 
         tin = costly_tin(COST_OPEN);
         lesshungry(tin->blessed ? 600                   /* blessed */
-                   : !tin->cursed ? (400 + rnd(200))    /* uncursed */
-                     : (200 + rnd(400)));               /* cursed */
+                   : !tin->cursed ? (400 + random(200))    /* uncursed */
+                     : (200 + random(400)));               /* cursed */
     }
 
  use_up_tin:
@@ -1657,7 +1659,7 @@ start_tin(struct obj *otmp)
            access); 1 turn delay case is non-deterministic:  getting
            interrupted and retrying might yield another 1 turn delay
            or might open immediately on 2nd (or 3rd, 4th, ...) try */
-        tmp = (uwep && uwep->blessed && uwep->otyp == TIN_OPENER) ? 0 : rn2(2);
+        tmp = (uwep && uwep->blessed && uwep->otyp == TIN_OPENER) ? 0 : random_integer_between_zero_and(2);
         if (!tmp)
             mesg = "The tin opens like magic!";
         else
@@ -1666,7 +1668,7 @@ start_tin(struct obj *otmp)
         switch (uwep->otyp) {
         case TIN_OPENER:
             mesg = "You easily open the tin."; /* iff tmp==0 */
-            tmp = rn2(uwep->cursed ? 3 : !uwep->blessed ? 2 : 1);
+            tmp = random_integer_between_zero_and(uwep->cursed ? 3 : !uwep->blessed ? 2 : 1);
             break;
         case DAGGER:
         case SILVER_DAGGER:
@@ -1700,7 +1702,7 @@ start_tin(struct obj *otmp)
                 stackobj(otmp);
             return;
         }
-        tmp = rn1(1 + 500 / ((int) (ACURR(A_DEX) + ACURRSTR)), 10);
+        tmp = rn1(1 + 500 / ((int) (ATTRIBUTE_CURRENT(A_DEX) + ATTRIBUTE_CURRENT_STRENGTH)), 10);
     }
 
     gc.context.tin.tin = otmp;
@@ -1720,7 +1722,7 @@ int
 Hear_again(void)
 {
     /* Chance of deafness going away while fainted/sleeping/etc. */
-    if (!rn2(2)) {
+    if (!random_integer_between_zero_and(2)) {
         make_deaf(0L, FALSE);
         disp.botl = TRUE;
     }
@@ -1733,22 +1735,22 @@ rottenfood(struct obj *obj)
 {
     pline("Blecch!  %s %s!",
           is_rottable(obj) ? "Rotten" : "Awful", foodword(obj));
-    if (!rn2(4)) {
+    if (!random_integer_between_zero_and(4)) {
         if (Hallucination)
             You_feel("rather trippy.");
         else
             You_feel("rather %s.", body_part(LIGHT_HEADED));
         make_confused(HConfusion + d(2, 4), FALSE);
-    } else if (!rn2(4) && !Blind) {
+    } else if (!random_integer_between_zero_and(4) && !Blind) {
         pline("Everything suddenly goes dark.");
         /* hero is not Blind, but Blinded timer might be nonzero if
            blindness is being overridden by the Eyes of the Overworld */
         make_blinded(BlindedTimeout + (long) d(2, 10), FALSE);
         if (!Blind)
             Your1(vision_clears);
-    } else if (!rn2(3)) {
+    } else if (!random_integer_between_zero_and(3)) {
         const char *what, *where;
-        int duration = rnd(10);
+        int duration = random(10);
 
         if (!Blind)
             what = "goes", where = "dark";
@@ -1756,7 +1758,7 @@ rottenfood(struct obj *obj)
             what = "you lose control of", where = "yourself";
         else
             what = "you slap against the",
-            where = (u.usteed) ? "saddle" : surface(u.ux, u.uy);
+            where = (u.monster_being_ridden) ? "saddle" : surface(u.ux, u.uy);
         pline_The("world spins and %s %s.", what, where);
         incr_itimeout(&HDeaf, duration);
         disp.botl = TRUE;
@@ -1803,7 +1805,7 @@ eatcorpse(struct obj *otmp)
     if (!nonrotting_corpse(mnum)) {
         long age = peek_at_iced_corpse_age(otmp);
 
-        rotted = (gm.moves - age) / (10L + rn2(20));
+        rotted = (gm.moves - age) / (10L + random_integer_between_zero_and(20));
         if (otmp->cursed)
             rotted += 2L;
         else if (otmp->blessed)
@@ -1842,30 +1844,30 @@ eatcorpse(struct obj *otmp)
     } else if (acidic(&mons[mnum]) && !Acid_resistance) {
         tp++;
         You("have a very bad case of stomach acid.");   /* not body_part() */
-        losehp(rnd(15), !glob ? "acidic corpse" : "acidic glob",
+        losehp(random(15), !glob ? "acidic corpse" : "acidic glob",
                KILLED_BY_AN); /* acid damage */
-    } else if (poisonous(&mons[mnum]) && rn2(5)) {
+    } else if (poisonous(&mons[mnum]) && random_integer_between_zero_and(5)) {
         tp++;
         pline("Ecch - that must have been poisonous!");
         if (!Poison_resistance) {
-            poison_strdmg(rnd(4), rnd(15),
+            poison_strdmg(random(4), random(15),
                           !glob ? "poisonous corpse" : "poisonous glob",
                           KILLED_BY_AN);
         } else
             You("seem unaffected by the poison.");
 
     /* now any corpse left too long will make you mildly ill */
-    } else if ((rotted > 5L || (rotted > 3L && rn2(5))) && !Sick_resistance) {
+    } else if ((rotted > 5L || (rotted > 3L && random_integer_between_zero_and(5))) && !Sick_resistance) {
         tp++;
         You_feel("%ssick.", (Sick) ? "very " : "");
-        losehp(rnd(8), !glob ? "cadaver" : "rotted glob", KILLED_BY_AN);
+        losehp(random(8), !glob ? "cadaver" : "rotted glob", KILLED_BY_AN);
     }
 
     /* delay is weight dependent */
     gc.context.victual.reqtime
         = 3 + ((!glob ? mons[mnum].cwt : otmp->owt) >> 6);
 
-    if (!tp && !nonrotting_corpse(mnum) && (otmp->orotten || !rn2(7))) {
+    if (!tp && !nonrotting_corpse(mnum) && (otmp->orotten || !random_integer_between_zero_and(7))) {
         if (rottenfood(otmp)) {
             otmp->orotten = TRUE;
             (void) touchfood(otmp);
@@ -1902,15 +1904,15 @@ eatcorpse(struct obj *otmp)
                 palatable = ((vegetarian(&mons[mnum])
                               ? herbivorous(gy.youmonst.data)
                               : carnivorous(gy.youmonst.data))
-                             && rn2(10)
-                             && (rotted < 1 || !rn2((int) rotted + 1)));
+                             && random_integer_between_zero_and(10)
+                             && (rotted < 1 || !random_integer_between_zero_and((int) rotted + 1)));
         const char *pmxnam = food_xname(otmp, FALSE);
         static const char *const palatable_msgs[] = {
             /* first char: T = tastes ... , I = is ... */
             /* veggies are always just "okay" */
             "Tokay", "Istringy", "Igamey", "Ifatty", "Itough"
         };
-        int idx = vegetarian(&mons[mnum]) ? 0 : rn2(SIZE(palatable_msgs));
+        int idx = vegetarian(&mons[mnum]) ? 0 : random_integer_between_zero_and(SIZE(palatable_msgs));
         const char *palat_msg = palatable_msgs[idx];
         boolean use_is = (Hallucination || (palatable && *palat_msg == 'I'));
 
@@ -1999,7 +2001,7 @@ eating_glob(struct obj *glob)
 
 /* scare nearby monster when hero eats garlic */
 staticfn void
-garlic_breath(struct monst *mtmp)
+garlic_breath(struct monster *mtmp)
 {
     if (olfaction(mtmp->data) && distu(mtmp->mx, mtmp->my) < 7)
         monflee(mtmp, 0, FALSE, FALSE);
@@ -2039,7 +2041,7 @@ fprefx(struct obj *otmp)
             newexplevel();
             /* not cannibalism, but we use similar criteria
                for deciding whether to be sickened by this meal */
-            if (rn2(2) && !CANNIBAL_ALLOWED())
+            if (random_integer_between_zero_and(2) && !CANNIBAL_ALLOWED())
                 make_vomiting((long) rn1(gc.context.victual.reqtime, 14),
                               FALSE);
         }
@@ -2137,14 +2139,14 @@ bounded_increase(int old, int inc, int typ)
     if (absinc == 0 || sgnold != sgninc || absold + absinc < 10) {
         ; /* use inc as-is */
     } else if (absold + absinc < 20) {
-        absinc = rnd(absinc); /* 1..n */
+        absinc = random(absinc); /* 1..n */
         if (absold + absinc < 10)
             absinc = 10 - absold;
         inc = sgninc * absinc;
     } else if (absold + absinc < 40) {
-        absinc = rn2(absinc) ? 1 : 0;
+        absinc = random_integer_between_zero_and(absinc) ? 1 : 0;
         if (absold + absinc < 20)
-            absinc = rnd(20 - absold);
+            absinc = random(20 - absold);
         inc = sgninc * absinc;
     } else {
         inc = 0; /* no further increase allowed via this method */
@@ -2175,11 +2177,11 @@ eataccessory(struct obj *otmp)
     oldprop = u.uprops[objects[typ].oc_oprop].intrinsic;
     if (otmp == uleft || otmp == uright) {
         Ring_gone(otmp);
-        if (u.uhp <= 0)
+        if (u.hit_points <= 0)
             return; /* died from sink fall */
     }
     otmp->known = otmp->dknown = 1; /* by taste */
-    if (!rn2(otmp->oclass == RING_CLASS ? 3 : 5)) {
+    if (!random_integer_between_zero_and(otmp->oclass == RING_CLASS ? 3 : 5)) {
         switch (otmp->otyp) {
         default:
             if (!objects[typ].oc_oprop)
@@ -2227,34 +2229,34 @@ eataccessory(struct obj *otmp)
 
         case RIN_ADORNMENT:
             accessory_has_effect(otmp);
-            if (adjattrib(A_CHA, otmp->spe, -1))
+            if (adjust_attribute(A_CHA, otmp->spe, -1))
                 makeknown(typ);
             break;
         case RIN_GAIN_STRENGTH:
             accessory_has_effect(otmp);
-            if (adjattrib(A_STR, otmp->spe, -1))
+            if (adjust_attribute(A_STR, otmp->spe, -1))
                 makeknown(typ);
             break;
         case RIN_GAIN_CONSTITUTION:
             accessory_has_effect(otmp);
-            if (adjattrib(A_CON, otmp->spe, -1))
+            if (adjust_attribute(A_CON, otmp->spe, -1))
                 makeknown(typ);
             break;
         case RIN_INCREASE_ACCURACY:
             accessory_has_effect(otmp);
-            u.uhitinc = (schar) bounded_increase((int) u.uhitinc, otmp->spe,
+            u.hit_increment = (schar) bounded_increase((int) u.hit_increment, otmp->spe,
                                                  RIN_INCREASE_ACCURACY);
             break;
         case RIN_INCREASE_DAMAGE:
             accessory_has_effect(otmp);
-            u.udaminc = (schar) bounded_increase((int) u.udaminc, otmp->spe,
+            u.damage_increment = (schar) bounded_increase((int) u.damage_increment, otmp->spe,
                                                  RIN_INCREASE_DAMAGE);
             break;
         case RIN_PROTECTION:
         case AMULET_OF_GUARDING:
             accessory_has_effect(otmp);
             HProtection |= FROMOUTSIDE;
-            u.ublessed = bounded_increase(u.ublessed,
+            u.blessed = bounded_increase(u.blessed,
                                           (typ == RIN_PROTECTION) ? otmp->spe
                                            : 2, /* fixed amount for amulet */
                                           typ);
@@ -2289,7 +2291,7 @@ eataccessory(struct obj *otmp)
             choke(otmp);
             break;
         case AMULET_OF_RESTFUL_SLEEP: { /* another bad idea! */
-            long newnap = (long) rnd(100), oldnap = (HSleepy & TIMEOUT);
+            long newnap = (long) random(100), oldnap = (HSleepy & TIMEOUT);
 
             if (!(HSleepy & FROMOUTSIDE))
                 accessory_has_effect(otmp);
@@ -2418,7 +2420,7 @@ fpostfx(struct obj *otmp)
         break;
     case CARROT:
         if (!u.uswallow
-            || !attacktype_fordmg(u.ustuck->data, AT_ENGL, AD_BLND))
+            || !attacktype_fordmg(u.monster_stuck_to->data, AT_ENGL, AD_BLND))
             make_blinded((long) u.ucreamed, TRUE);
         break;
     case FORTUNE_COOKIE:
@@ -2436,21 +2438,21 @@ fpostfx(struct obj *otmp)
         /* This stuff seems to be VERY healthy! */
         gainstr(otmp, 1, TRUE);
         if (Upolyd) {
-            u.mh += otmp->cursed ? -rnd(20) : rnd(20), disp.botl = TRUE;
+            u.mh += otmp->cursed ? -random(20) : random(20), disp.botl = TRUE;
             if (u.mh > u.mhmax) {
-                if (!rn2(17))
+                if (!random_integer_between_zero_and(17))
                     u.mhmax++;
                 u.mh = u.mhmax;
             } else if (u.mh <= 0) {
                 rehumanize();
             }
         } else {
-            u.uhp += otmp->cursed ? -rnd(20) : rnd(20), disp.botl = TRUE;
-            if (u.uhp > u.uhpmax) {
-                if (!rn2(17))
-                    setuhpmax(u.uhpmax + 1);
-                u.uhp = u.uhpmax;
-            } else if (u.uhp <= 0) {
+            u.hit_points += otmp->cursed ? -random(20) : random(20), disp.botl = TRUE;
+            if (u.hit_points > u.hit_points_max) {
+                if (!random_integer_between_zero_and(17))
+                    setuhpmax(u.hit_points_max + 1);
+                u.hit_points = u.hit_points_max;
+            } else if (u.hit_points <= 0) {
                 gk.killer.format = KILLED_BY_AN;
                 Strcpy(gk.killer.name, "rotten lump of royal jelly");
                 done(POISONING);
@@ -2696,7 +2698,7 @@ doeat_nonfood(struct obj *otmp)
     if (otmp->oclass == WEAPON_CLASS && otmp->opoisoned) {
         pline("Ecch - that must have been poisonous!");
         if (!Poison_resistance) {
-            poison_strdmg(rnd(4), rnd(15), xname(otmp), KILLED_BY_AN);
+            poison_strdmg(random(4), random(15), xname(otmp), KILLED_BY_AN);
         } else
             You("seem unaffected by the poison.");
     } else if (!nodelicious) {
@@ -2786,7 +2788,7 @@ doeat(void)
         pline("Ulch - that %s was rustproofed!", xname(otmp));
         /* The regurgitated object's rustproofing is gone now */
         otmp->oerodeproof = 0;
-        make_stunned((HStun & TIMEOUT) + (long) rn2(10), TRUE);
+        make_stunned((HStun & TIMEOUT) + (long) random_integer_between_zero_and(10), TRUE);
         /*
          * We don't expect rust monsters to be wielding welded weapons
          * or wearing cursed rings which were rustproofed, but guard
@@ -2917,7 +2919,7 @@ doeat(void)
             && (otmp->cursed || (!nonrotting_food(otmp->otyp)
                                  && (gm.moves - otmp->age)
                                         > (otmp->blessed ? 50L : 30L)
-                                 && (otmp->orotten || !rn2(7))))) {
+                                 && (otmp->orotten || !random_integer_between_zero_and(7))))) {
             if (rottenfood(otmp)) {
                 otmp->orotten = TRUE;
                 dont_start = TRUE;
@@ -3057,7 +3059,7 @@ gethungry(void)
        this first uhunger decrement, but to stay in such form the hero
        will need to wear an Amulet of Unchanging so still burn a small
        amount of nutrition in the 'moves % 20' ring/amulet check below */
-    if ((!Unaware || !rn2(10)) /* slow metabolic rate while asleep */
+    if ((!Unaware || !random_integer_between_zero_and(10)) /* slow metabolic rate while asleep */
         && (carnivorous(gy.youmonst.data)
             || herbivorous(gy.youmonst.data)
             || metallivorous(gy.youmonst.data))
@@ -3074,13 +3076,13 @@ gethungry(void)
      * Also causes melee-induced hunger to vary from turn-based hunger
      * instead of just replicating that.
      */
-    accessorytime = rn2(20); /* rn2(20) replaces (int) (gm.moves % 20L) */
+    accessorytime = random_integer_between_zero_and(20); /* rn2(20) replaces (int) (gm.moves % 20L) */
     if (accessorytime % 2) { /* odd */
         /* Regeneration uses up food, unless due to an artifact */
         if ((HRegeneration & ~FROMFORM)
             || (ERegeneration & ~(W_ARTI | W_WEP)))
             u.uhunger--;
-        if (near_capacity() > SLT_ENCUMBER)
+        if (near_capacity() > SLIGHTLY_ENCUMBERED)
             u.uhunger--;
     } else { /* even */
         if (Hunger)
@@ -3152,7 +3154,7 @@ gethungry(void)
                 u.uhunger--;
             break;
         case 16:
-            if (u.uhave.amulet)
+            if (u.player_carrying_special_objects.amulet)
                 u.uhunger--;
             break;
         default:
@@ -3299,7 +3301,7 @@ newuhs(boolean incr)
 
         if (is_fainted())
             newhs = FAINTED;
-        if (u.uhs <= WEAK || rn2(20 - uhunger_div_by_10) >= 19) {
+        if (u.uhs <= WEAK || random_integer_between_zero_and(20 - uhunger_div_by_10) >= 19) {
             if (!is_fainted() && gm.multi >= 0 /* %% */) {
                 int duration = 10 - uhunger_div_by_10;
 
@@ -3320,7 +3322,7 @@ newuhs(boolean incr)
         /* this used to be -(200 + 20 * Con) but that was when being asleep
            suppressed per-turn uhunger decrement but being fainted didn't;
            now uhunger becomes more negative at a slower rate */
-        } else if (u.uhunger < -(100 + 10 * (int) ACURR(A_CON))) {
+        } else if (u.uhunger < -(100 + 10 * (int) ATTRIBUTE_CURRENT(A_CON))) {
             u.uhs = STARVED;
             disp.botl = TRUE;
             bot();
@@ -3388,7 +3390,7 @@ newuhs(boolean incr)
         u.uhs = newhs;
         disp.botl = TRUE;
         bot();
-        if ((Upolyd ? u.mh : u.uhp) < 1) {
+        if ((Upolyd ? u.mh : u.hit_points) < 1) {
             You("die from hunger and exhaustion.");
             gk.killer.format = KILLED_BY;
             Strcpy(gk.killer.name, "exhaustion");
@@ -3480,7 +3482,7 @@ floorfood(
     /* if we can't touch floor objects then use invent food only;
        same when 'm' prefix is used--for #eat, it means "skip floor food" */
     if (iflags.menu_requested
-        || !can_reach_floor(TRUE) || (feeding && u.usteed)
+        || !can_reach_floor(TRUE) || (feeding && u.monster_being_ridden)
         || (is_pool_or_lava(u.ux, u.uy)
             && (Wwalking || is_clinger(uptr) || (Flying && !Breathless))))
         goto skipfloor;
