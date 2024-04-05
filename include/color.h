@@ -11,23 +11,27 @@
  * exceptions, these are listed below.	Bright black doesn't mean very
  * much, so it is used as the "default" foreground color of the screen.
  */
-#define COLOR_CODE_BLACK 0
-#define COLOR_CODE_RED 1
-#define COLOR_CODE_GREEN 2
-#define COLOR_CODE_BROWN 3 /* on IBM, low-intensity yellow is brown */
-#define COLOR_CODE_BLUE 4
-#define COLOR_CODE_MAGENTA 5
-#define COLOR_CODE_CYAN 6
-#define COLOR_CODE_GRAY 7 /* low-intensity white */
-#define COLOR_CODE_NONE 8
-#define COLOR_CODE_ORANGE 9
-#define COLOR_CODE_BRIGHT_GREEN 10
-#define COLOR_CODE_YELLOW 11
-#define COLOR_CODE_BRIGHT_BLUE 12
-#define COLOR_CODE_BRIGHT_MAGENTA 13
-#define COLOR_CODE_BRIGHT_CYAN 14
-#define COLOR_CODE_WHITE 15
-#define COLOR_CODE_MAX 16
+enum color_codes {
+    COLOR_CODE_BLACK = 0,
+    COLOR_CODE_RED = 1,
+    COLOR_CODE_GREEN = 2,
+    COLOR_CODE_BROWN = 3, /* on IBM, low-intensity yellow is brown */
+    COLOR_CODE_BLUE = 4,
+    COLOR_CODE_MAGENTA = 5,
+    COLOR_CODE_CYAN = 6,
+    COLOR_CODE_GRAY = 7, /* low-intensity white */
+    COLOR_CODE_NONE = 8,
+    COLOR_CODE_ORANGE = 9,
+    COLOR_CODE_BRIGHT_GREEN = 10,
+    COLOR_CODE_YELLOW = 11,
+    COLOR_CODE_BRIGHT_BLUE = 12,
+    COLOR_CODE_BRIGHT_MAGENTA = 13,
+    COLOR_CODE_BRIGHT_CYAN = 14,
+    COLOR_CODE_WHITE = 15,
+    COLOR_CODE_MAX = 16
+};
+
+
 
 /* The "half-way" point for tty-based color systems.  This is used in */
 /* the tty color setup code.  (IMHO, it should be removed - dean).    */
