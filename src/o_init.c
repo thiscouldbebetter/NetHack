@@ -581,7 +581,7 @@ choose_disco_sort(
     menu_item *selected;
     anything any;
     int i, n, choice;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -829,7 +829,7 @@ doclassdisco(void)
          *sorted_lines[NUM_OBJECTS]; /* overkill */
     int i, ct, dis, xtras, sorted_ct;
     boolean traditional, alphabetized, lootsort;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     if (!flags.discosort || !(p = strchr(disco_order_let, flags.discosort)))
         flags.discosort = 'o';
@@ -1035,7 +1035,7 @@ rename_disco(void)
     winid tmpwin;
     anything any;
     menu_item *selected = 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     any = cg.zeroany;
     tmpwin = create_nhwindow(NHW_MENU);

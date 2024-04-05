@@ -1576,7 +1576,7 @@ goto_level(
        keep context; if on the floor, it's about to be saved+freed and
        maybe_reset_pick() needs to do its carried() check before that */
     maybe_reset_pick((struct obj *) 0);
-    reset_trapset(); /* even if to-be-armed trap obj is accompanying hero */
+    reset_setting_trap(); /* even if to-be-armed trap obj is accompanying hero */
     iflags.travelcc.x = iflags.travelcc.y = 0; /* travel destination cache */
     gc.context.polearm.hitmon = (struct monster *) 0; /* polearm target */
     /* digging context is level-aware and can actually be resumed if

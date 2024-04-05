@@ -52,10 +52,10 @@ struct text_map_info_t {
     X11_color colors[ROWNO][COLNO];     /* Color of each character. */
     X11_color framecolors[ROWNO][COLNO];  /* Color of background
                                                  behind text */
-    GC color_gcs[CLR_MAX],              /* GC for each color */
-        inv_color_gcs[CLR_MAX];         /* GC for each inverse color */
-#define copy_gc color_gcs[NO_COLOR]
-#define inv_copy_gc inv_color_gcs[NO_COLOR]
+    GC color_gcs[COLOR_CODE_MAX],              /* GC for each color */
+        inv_color_gcs[COLOR_CODE_MAX];         /* GC for each inverse color */
+#define copy_gc color_gcs[COLOR_CODE_NONE]
+#define inv_copy_gc inv_color_gcs[COLOR_CODE_NONE]
 #if 0
     /* was else from old textcolor days */
     GC copy_gc,      /* Drawing GC */
@@ -228,7 +228,7 @@ struct xwindow {
     int prevy, cursy; /*   map and "plain" status windows.*/
 
     boolean nh_colors_inited;
-    XColor nh_colors[CLR_MAX];
+    XColor nh_colors[COLOR_CODE_MAX];
     XFontStruct *boldfs;       /* Bold font */
     Display *boldfs_dpy;       /* Bold font display */
     char *title;

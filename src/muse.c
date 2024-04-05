@@ -3147,7 +3147,7 @@ green_mon(struct monster *mon)
 
     if (Hallucination)
         return FALSE;
-    return (ptr->mcolor == CLR_GREEN || ptr->mcolor == CLR_BRIGHT_GREEN);
+    return (ptr->mcolor == COLOR_CODE_GREEN || ptr->mcolor == COLOR_CODE_BRIGHT_GREEN);
 #if 0
     if (iflags.use_color)
         return (ptr->mcolor == CLR_GREEN || ptr->mcolor == CLR_BRIGHT_GREEN);

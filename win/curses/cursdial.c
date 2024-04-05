@@ -596,7 +596,7 @@ curs_new_menu_item(winid wid, const char *str)
     new_item->accelerator = '\0';
     new_item->group_accel = '\0';
     new_item->attr = ATR_NONE;
-    new_item->color = NO_COLOR;
+    new_item->color = COLOR_CODE_NONE;
     new_item->str = new_str;
     new_item->presel = FALSE;
     new_item->selected = FALSE;
@@ -1190,7 +1190,7 @@ menu_display_page(
     int count, curletter, entry_cols, start_col, num_lines;
     char *tmpstr;
     boolean first_accel = TRUE;
-    int color = NO_COLOR, attr;
+    int color = COLOR_CODE_NONE, attr;
 
     /* letters assigned to entries on current page */
     if (selectors)
@@ -1298,7 +1298,7 @@ menu_display_page(
         }
 #endif
 	color = menu_item_ptr->color;
-        if (color == NO_COLOR)
+        if (color == COLOR_CODE_NONE)
             color = NONE;
 	attr = menu_item_ptr->attr;
 	/* attr is already a curses attr (A_ not ATR_) */

@@ -1021,7 +1021,7 @@ query_objlist(const char *qstr,        /* query string */
     unsigned sortflags;
     glyph_info tmpglyphinfo = nul_glyphinfo;
     Loot *sortedolist, *srtoli;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     *pick_list = (menu_item *) 0;
     if (!olist && !engulfer)
@@ -1224,7 +1224,7 @@ query_category(
             do_blessed = FALSE, do_cursed = FALSE,
             do_uncursed = FALSE, do_buc_unknown = FALSE,
             do_worn = FALSE, verify_All = FALSE;
-    int num_buc_types = 0, num_justpicked = 0, clr = NO_COLOR;
+    int num_buc_types = 0, num_justpicked = 0, clr = COLOR_CODE_NONE;
 
     *pick_list = (menu_item *) 0;
     if (!olist)
@@ -2167,7 +2167,7 @@ doloot_core(void)
     int prev_inquiry = 0;
     boolean prev_loot = FALSE;
     int num_conts = 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     ga.abort_looting = FALSE;
 
@@ -3370,7 +3370,7 @@ in_or_out_menu(
     char buf[BUFSZ];
     int n;
     const char *menuselector = flags.lootabc ? abc_chars : lootchars;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     any = cg.zeroany;
     win = create_nhwindow(NHW_MENU);
@@ -3468,7 +3468,7 @@ choose_tip_container_menu(void)
     anything any;
     menu_item *pick_list = (menu_item *) 0;
     struct obj dummyobj, *otmp;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     any = cg.zeroany;
     win = create_nhwindow(NHW_MENU);
@@ -3836,7 +3836,7 @@ tipcontainer_gettarget(
     menu_item *pick_list = (menu_item *) 0;
     struct obj dummyobj, *otmp;
     boolean hands_available = TRUE, exclude_it;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
 #if 0   /* [skip potential early return so that menu response is needed
          *  regardless of whether other containers are being carried] */

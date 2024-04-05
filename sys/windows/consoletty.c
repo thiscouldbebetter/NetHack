@@ -279,12 +279,12 @@ struct keyboard_handling_t {
 };
 
 static DWORD ccount, acount;
-#ifndef CLR_MAX
+#ifndef COLOR_CODE_MAX
 #define CLR_MAX 16
 #endif
 
-int ttycolors[CLR_MAX];
-int ttycolors_inv[CLR_MAX];
+int ttycolors[COLOR_CODE_MAX];
+int ttycolors_inv[COLOR_CODE_MAX];
 
 #define MAX_OVERRIDES 256
 unsigned char key_overrides[MAX_OVERRIDES];
@@ -294,9 +294,9 @@ char erase_char, kill_char;
 static INPUT_RECORD bogus_key;
 
 #ifdef VIRTUAL_TERMINAL_SEQUENCES
-long customcolors[CLR_MAX];
-const char *esc_seq_colors[CLR_MAX];
-const char *esc_seq_bkcolors[CLR_MAX];
+long customcolors[COLOR_CODE_MAX];
+const char *esc_seq_colors[COLOR_CODE_MAX];
+const char *esc_seq_bkcolors[COLOR_CODE_MAX];
 
 struct rgbvalues {
     int idx;
@@ -457,76 +457,76 @@ init_custom_colors(void)
 {
     char bkcolorbuf[32];
 
-    customcolors[CLR_BLACK] = rgbtable_to_long(&rgbtable[131]);
-    customcolors[CLR_RED] = rgbtable_to_long(&rgbtable[5]);
-    customcolors[CLR_GREEN] = rgbtable_to_long(&rgbtable[31]);
-    customcolors[CLR_BROWN] = rgbtable_to_long(&rgbtable[104]);
-    customcolors[CLR_BLUE] = rgbtable_to_long(&rgbtable[58]);
-    customcolors[CLR_MAGENTA] = rgbtable_to_long(&rgbtable[76]);
-    customcolors[CLR_CYAN] = rgbtable_to_long(&rgbtable[48]);
-    customcolors[CLR_GRAY] = rgbtable_to_long(&rgbtable[73]);
-    customcolors[NO_COLOR] = rgbtable_to_long(&rgbtable[137]);
-    customcolors[CLR_ORANGE] = rgbtable_to_long(&rgbtable[15]);
-    customcolors[CLR_BRIGHT_GREEN] = rgbtable_to_long(&rgbtable[34]);
-    customcolors[CLR_YELLOW] = rgbtable_to_long(&rgbtable[18]);
-    customcolors[CLR_BRIGHT_BLUE] = rgbtable_to_long(&rgbtable[69]);
-    customcolors[CLR_BRIGHT_MAGENTA] = rgbtable_to_long(&rgbtable[84]);
-    customcolors[CLR_BRIGHT_CYAN] = rgbtable_to_long(&rgbtable[49]);
-    customcolors[CLR_WHITE] = rgbtable_to_long(&rgbtable[138]);
+    customcolors[COLOR_CODE_BLACK] = rgbtable_to_long(&rgbtable[131]);
+    customcolors[COLOR_CODE_RED] = rgbtable_to_long(&rgbtable[5]);
+    customcolors[COLOR_CODE_GREEN] = rgbtable_to_long(&rgbtable[31]);
+    customcolors[COLOR_CODE_BROWN] = rgbtable_to_long(&rgbtable[104]);
+    customcolors[COLOR_CODE_BLUE] = rgbtable_to_long(&rgbtable[58]);
+    customcolors[COLOR_CODE_MAGENTA] = rgbtable_to_long(&rgbtable[76]);
+    customcolors[COLOR_CODE_CYAN] = rgbtable_to_long(&rgbtable[48]);
+    customcolors[COLOR_CODE_GRAY] = rgbtable_to_long(&rgbtable[73]);
+    customcolors[COLOR_CODE_NONE] = rgbtable_to_long(&rgbtable[137]);
+    customcolors[COLOR_CODE_ORANGE] = rgbtable_to_long(&rgbtable[15]);
+    customcolors[COLOR_CODE_BRIGHT_GREEN] = rgbtable_to_long(&rgbtable[34]);
+    customcolors[COLOR_CODE_YELLOW] = rgbtable_to_long(&rgbtable[18]);
+    customcolors[COLOR_CODE_BRIGHT_BLUE] = rgbtable_to_long(&rgbtable[69]);
+    customcolors[COLOR_CODE_BRIGHT_MAGENTA] = rgbtable_to_long(&rgbtable[84]);
+    customcolors[COLOR_CODE_BRIGHT_CYAN] = rgbtable_to_long(&rgbtable[49]);
+    customcolors[COLOR_CODE_WHITE] = rgbtable_to_long(&rgbtable[138]);
 
 /*    esc_seq_colors[CLR_BLACK] = "\x1b[30m"; */
-    esc_seq_colors[CLR_BLACK] = "\x1b[38;2;47;79;79m";
-    esc_seq_colors[CLR_RED] = "\x1b[31m";
-    esc_seq_colors[CLR_GREEN] = "\x1b[32m";
-    esc_seq_colors[CLR_YELLOW] = "\x1b[38;2;255;255;0m";
-    esc_seq_colors[CLR_BLUE] = "\x1b[38;2;100;149;237m";
-    esc_seq_colors[CLR_MAGENTA] = "\x1b[35m";
-    esc_seq_colors[CLR_CYAN] = "\x1b[36m";
-    esc_seq_colors[CLR_WHITE] = "\x1b[37m";
+    esc_seq_colors[COLOR_CODE_BLACK] = "\x1b[38;2;47;79;79m";
+    esc_seq_colors[COLOR_CODE_RED] = "\x1b[31m";
+    esc_seq_colors[COLOR_CODE_GREEN] = "\x1b[32m";
+    esc_seq_colors[COLOR_CODE_YELLOW] = "\x1b[38;2;255;255;0m";
+    esc_seq_colors[COLOR_CODE_BLUE] = "\x1b[38;2;100;149;237m";
+    esc_seq_colors[COLOR_CODE_MAGENTA] = "\x1b[35m";
+    esc_seq_colors[COLOR_CODE_CYAN] = "\x1b[36m";
+    esc_seq_colors[COLOR_CODE_WHITE] = "\x1b[37m";
 
-    esc_seq_colors[CLR_BROWN] = "\x1b[38;2;205;133;63m";
+    esc_seq_colors[COLOR_CODE_BROWN] = "\x1b[38;2;205;133;63m";
 //    esc_seq_colors[CLR_GRAY] = "\x1b[31m\x1b[32m\x1b[34m";
-    esc_seq_colors[CLR_GRAY] = "\x1b[90m";
-    esc_seq_colors[NO_COLOR] = "\x1b[39m";
-    esc_seq_colors[CLR_ORANGE] = "\x1b[38;2;255;140;0m";
-    esc_seq_colors[CLR_BRIGHT_GREEN] = "\x1b[39m";
-    esc_seq_colors[CLR_BRIGHT_BLUE] = "\x1b[34m\x1b[94m";
-    esc_seq_colors[CLR_BRIGHT_MAGENTA] = "\x1b[35m\x1b[95m";
-    esc_seq_colors[CLR_BRIGHT_CYAN] = "\x1b[36m\x1b[96m";
+    esc_seq_colors[COLOR_CODE_GRAY] = "\x1b[90m";
+    esc_seq_colors[COLOR_CODE_NONE] = "\x1b[39m";
+    esc_seq_colors[COLOR_CODE_ORANGE] = "\x1b[38;2;255;140;0m";
+    esc_seq_colors[COLOR_CODE_BRIGHT_GREEN] = "\x1b[39m";
+    esc_seq_colors[COLOR_CODE_BRIGHT_BLUE] = "\x1b[34m\x1b[94m";
+    esc_seq_colors[COLOR_CODE_BRIGHT_MAGENTA] = "\x1b[35m\x1b[95m";
+    esc_seq_colors[COLOR_CODE_BRIGHT_CYAN] = "\x1b[36m\x1b[96m";
 
      /* Sprintf(tmp, "\033[%dm", ((color % 8) + 40)); */
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((CLR_BLACK % 8) + 40));
-    esc_seq_bkcolors[CLR_BLACK] = dupstr(bkcolorbuf);
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((CLR_RED % 8) + 40));
-    esc_seq_bkcolors[CLR_RED] = dupstr(bkcolorbuf);
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((CLR_GREEN % 8) + 40));
-    esc_seq_bkcolors[CLR_GREEN] = dupstr(bkcolorbuf);
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((CLR_YELLOW % 8) + 40));
-    esc_seq_bkcolors[CLR_YELLOW] = dupstr(bkcolorbuf);
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((CLR_BLUE % 8) + 40));
-    esc_seq_bkcolors[CLR_BLUE] = dupstr(bkcolorbuf);
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((CLR_MAGENTA % 8) + 40));
-    esc_seq_bkcolors[CLR_MAGENTA] = dupstr(bkcolorbuf);
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((CLR_CYAN % 8) + 40));
-    esc_seq_bkcolors[CLR_CYAN] = dupstr(bkcolorbuf);
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((CLR_WHITE % 8) + 40));
-    esc_seq_bkcolors[CLR_WHITE] = dupstr(bkcolorbuf);
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((CLR_BROWN % 8) + 40));
-    esc_seq_bkcolors[CLR_BROWN] = dupstr(bkcolorbuf);
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((CLR_GRAY % 8) + 40));
-    esc_seq_bkcolors[CLR_GRAY] = dupstr(bkcolorbuf);
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((NO_COLOR % 8) + 40));
-    esc_seq_bkcolors[NO_COLOR] = dupstr(bkcolorbuf);
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((CLR_ORANGE % 8) + 40));
-    esc_seq_bkcolors[CLR_ORANGE] = dupstr(bkcolorbuf);
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((CLR_BRIGHT_BLUE % 8) + 40));
-    esc_seq_bkcolors[CLR_BRIGHT_BLUE] = dupstr(bkcolorbuf);
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((CLR_BRIGHT_GREEN % 8) + 40));
-    esc_seq_bkcolors[CLR_BRIGHT_GREEN] = dupstr(bkcolorbuf);
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((CLR_BRIGHT_MAGENTA % 8) + 40));
-    esc_seq_bkcolors[CLR_BRIGHT_MAGENTA] = dupstr(bkcolorbuf);
-    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((CLR_BRIGHT_CYAN % 8) + 40));
-    esc_seq_bkcolors[CLR_BRIGHT_CYAN] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_BLACK % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_BLACK] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_RED % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_RED] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_GREEN % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_GREEN] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_YELLOW % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_YELLOW] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_BLUE % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_BLUE] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_MAGENTA % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_MAGENTA] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_CYAN % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_CYAN] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_WHITE % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_WHITE] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_BROWN % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_BROWN] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_GRAY % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_GRAY] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_NONE % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_NONE] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_ORANGE % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_ORANGE] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_BRIGHT_BLUE % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_BRIGHT_BLUE] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_BRIGHT_GREEN % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_BRIGHT_GREEN] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_BRIGHT_MAGENTA % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_BRIGHT_MAGENTA] = dupstr(bkcolorbuf);
+    Snprintf(bkcolorbuf, sizeof bkcolorbuf, "\x1b[%dm", ((COLOR_CODE_BRIGHT_CYAN % 8) + 40));
+    esc_seq_bkcolors[COLOR_CODE_BRIGHT_CYAN] = dupstr(bkcolorbuf);
 }
 
 void emit_start_bold(void);
@@ -1479,7 +1479,7 @@ term_end_extracolor(void)
     console.color24 = 0L;
     console.color256idx = 0;
 #endif
-    console.current_nhcolor = NO_COLOR;
+    console.current_nhcolor = COLOR_CODE_NONE;
 }
 
 void
@@ -1609,7 +1609,7 @@ tty_delay_output(void)
  * CLR_MAGENTA           5
  * CLR_CYAN              6
  * CLR_GRAY              7  low-intensity white
- * NO_COLOR              8
+ * COLOR_CODE_NONE              8
  * CLR_ORANGE            9
  * CLR_BRIGHT_GREEN     10
  * CLR_YELLOW           11
@@ -1624,41 +1624,41 @@ tty_delay_output(void)
 static void
 init_ttycolor(void)
 {
-    ttycolors[CLR_BLACK]        = FOREGROUND_INTENSITY; /* fix by Quietust */
-    ttycolors[CLR_RED]          = FOREGROUND_RED;
-    ttycolors[CLR_GREEN]        = FOREGROUND_GREEN;
-    ttycolors[CLR_BROWN]        = FOREGROUND_GREEN | FOREGROUND_RED;
-    ttycolors[CLR_BLUE]         = FOREGROUND_BLUE;
-    ttycolors[CLR_MAGENTA]      = FOREGROUND_BLUE | FOREGROUND_RED;
-    ttycolors[CLR_CYAN]         = FOREGROUND_GREEN | FOREGROUND_BLUE;
-    ttycolors[CLR_GRAY]         = FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE;
-    ttycolors[NO_COLOR]         = FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED;
-    ttycolors[CLR_ORANGE]       = FOREGROUND_RED | FOREGROUND_INTENSITY;
-    ttycolors[CLR_BRIGHT_GREEN] = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
-    ttycolors[CLR_YELLOW]       = FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY;
-    ttycolors[CLR_BRIGHT_BLUE]  = FOREGROUND_BLUE | FOREGROUND_INTENSITY;
-    ttycolors[CLR_BRIGHT_MAGENTA]=FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY;
-    ttycolors[CLR_BRIGHT_CYAN]  = FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
-    ttycolors[CLR_WHITE]        = FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED
+    ttycolors[COLOR_CODE_BLACK]        = FOREGROUND_INTENSITY; /* fix by Quietust */
+    ttycolors[COLOR_CODE_RED]          = FOREGROUND_RED;
+    ttycolors[COLOR_CODE_GREEN]        = FOREGROUND_GREEN;
+    ttycolors[COLOR_CODE_BROWN]        = FOREGROUND_GREEN | FOREGROUND_RED;
+    ttycolors[COLOR_CODE_BLUE]         = FOREGROUND_BLUE;
+    ttycolors[COLOR_CODE_MAGENTA]      = FOREGROUND_BLUE | FOREGROUND_RED;
+    ttycolors[COLOR_CODE_CYAN]         = FOREGROUND_GREEN | FOREGROUND_BLUE;
+    ttycolors[COLOR_CODE_GRAY]         = FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE;
+    ttycolors[COLOR_CODE_NONE]         = FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED;
+    ttycolors[COLOR_CODE_ORANGE]       = FOREGROUND_RED | FOREGROUND_INTENSITY;
+    ttycolors[COLOR_CODE_BRIGHT_GREEN] = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+    ttycolors[COLOR_CODE_YELLOW]       = FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY;
+    ttycolors[COLOR_CODE_BRIGHT_BLUE]  = FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+    ttycolors[COLOR_CODE_BRIGHT_MAGENTA]=FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY;
+    ttycolors[COLOR_CODE_BRIGHT_CYAN]  = FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+    ttycolors[COLOR_CODE_WHITE]        = FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED
                                     | FOREGROUND_INTENSITY;
 
-    ttycolors_inv[CLR_BLACK]       = BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED
+    ttycolors_inv[COLOR_CODE_BLACK]       = BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED
                                         | BACKGROUND_INTENSITY;
-    ttycolors_inv[CLR_RED]         = BACKGROUND_RED | BACKGROUND_INTENSITY;
-    ttycolors_inv[CLR_GREEN]       = BACKGROUND_GREEN;
-    ttycolors_inv[CLR_BROWN]       = BACKGROUND_GREEN | BACKGROUND_RED;
-    ttycolors_inv[CLR_BLUE]        = BACKGROUND_BLUE | BACKGROUND_INTENSITY;
-    ttycolors_inv[CLR_MAGENTA]     = BACKGROUND_BLUE | BACKGROUND_RED;
-    ttycolors_inv[CLR_CYAN]        = BACKGROUND_GREEN | BACKGROUND_BLUE;
-    ttycolors_inv[CLR_GRAY]        = BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_BLUE;
-    ttycolors_inv[NO_COLOR]        = BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED;
-    ttycolors_inv[CLR_ORANGE]      = BACKGROUND_RED | BACKGROUND_INTENSITY;
-    ttycolors_inv[CLR_BRIGHT_GREEN]= BACKGROUND_GREEN | BACKGROUND_INTENSITY;
-    ttycolors_inv[CLR_YELLOW]      = BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY;
-    ttycolors_inv[CLR_BRIGHT_BLUE] = BACKGROUND_BLUE | BACKGROUND_INTENSITY;
-    ttycolors_inv[CLR_BRIGHT_MAGENTA] =BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_INTENSITY;
-    ttycolors_inv[CLR_BRIGHT_CYAN] = BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY;
-    ttycolors_inv[CLR_WHITE]       = BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED
+    ttycolors_inv[COLOR_CODE_RED]         = BACKGROUND_RED | BACKGROUND_INTENSITY;
+    ttycolors_inv[COLOR_CODE_GREEN]       = BACKGROUND_GREEN;
+    ttycolors_inv[COLOR_CODE_BROWN]       = BACKGROUND_GREEN | BACKGROUND_RED;
+    ttycolors_inv[COLOR_CODE_BLUE]        = BACKGROUND_BLUE | BACKGROUND_INTENSITY;
+    ttycolors_inv[COLOR_CODE_MAGENTA]     = BACKGROUND_BLUE | BACKGROUND_RED;
+    ttycolors_inv[COLOR_CODE_CYAN]        = BACKGROUND_GREEN | BACKGROUND_BLUE;
+    ttycolors_inv[COLOR_CODE_GRAY]        = BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_BLUE;
+    ttycolors_inv[COLOR_CODE_NONE]        = BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED;
+    ttycolors_inv[COLOR_CODE_ORANGE]      = BACKGROUND_RED | BACKGROUND_INTENSITY;
+    ttycolors_inv[COLOR_CODE_BRIGHT_GREEN]= BACKGROUND_GREEN | BACKGROUND_INTENSITY;
+    ttycolors_inv[COLOR_CODE_YELLOW]      = BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY;
+    ttycolors_inv[COLOR_CODE_BRIGHT_BLUE] = BACKGROUND_BLUE | BACKGROUND_INTENSITY;
+    ttycolors_inv[COLOR_CODE_BRIGHT_MAGENTA] =BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_INTENSITY;
+    ttycolors_inv[COLOR_CODE_BRIGHT_CYAN] = BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY;
+    ttycolors_inv[COLOR_CODE_WHITE]       = BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED
                                        | BACKGROUND_INTENSITY;
     init_ttycolor_completed = TRUE;
 }
@@ -1743,22 +1743,22 @@ term_start_raw_bold(void)
 void
 term_start_color(int color)
 {
-    if (color == NO_COLOR) {
+    if (color == COLOR_CODE_NONE) {
         term_end_color();
-    } else if (color >= 0 && color < CLR_MAX) {
+    } else if (color >= 0 && color < COLOR_CODE_MAX) {
         console.current_nhcolor = color;
     } else {
-       console.current_nhcolor = NO_COLOR;
+       console.current_nhcolor = COLOR_CODE_NONE;
     }
 }
 
 void
 term_start_bgcolor(int color)
 {
-    if (color != NO_COLOR && (color >= 0 && color < CLR_MAX)) {
+    if (color != COLOR_CODE_NONE && (color >= 0 && color < COLOR_CODE_MAX)) {
         console.current_nhbkcolor = color;
     } else {
-        console.current_nhbkcolor = NO_COLOR;
+        console.current_nhbkcolor = COLOR_CODE_NONE;
     }
 }
 
@@ -1769,8 +1769,8 @@ term_end_color(void)
 #ifndef VIRTUAL_TERMINAL_SEQUENCES
     console.attr = (console.foreground | console.background);
 #endif /* ! VIRTUAL_TERMINAL_SEQUENCES */
-    console.current_nhcolor = NO_COLOR;
-    console.current_nhbkcolor = NO_COLOR;
+    console.current_nhcolor = COLOR_CODE_NONE;
+    console.current_nhbkcolor = COLOR_CODE_NONE;
 }
 
 void
@@ -2594,7 +2594,7 @@ void nethack_enter_consoletty(void)
 #ifdef VIRTUAL_TERMINAL_SEQUENCES
     init_custom_colors();
 #endif /* VIRTUAL_TERMINAL_SEQUENCES */
-    console.current_nhcolor = NO_COLOR;
+    console.current_nhcolor = COLOR_CODE_NONE;
     console.is_ready = TRUE;
 }
 #endif /* TTY_GRAPHICS */

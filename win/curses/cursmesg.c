@@ -3,6 +3,8 @@
 /* Copyright (c) Karl Garrison, 2010. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "curses.h"
 #include "hack.h"
 #include "wincurs.h"
@@ -263,7 +265,7 @@ curscolor(int nhcolor, boolean *boldon)
             }
         } else
 #endif /* USE_DARKGRAY */
-            nhcolor = CLR_BLUE;
+            nhcolor = COLOR_CODE_BLUE;
     }
     curses_color = nhcolor + 1;
     if (COLORS < 16) {
@@ -499,7 +501,7 @@ curses_prev_mesg(void)
     boolean do_lifo = (iflags.prevmsg_window != 'f');
 #ifdef DEBUG
     static int showturn = 0; /* 1: show hero_seq value in separators */
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     /*
      * Set DEBUGFILES=MesgTurn in environment or sysconf to decorate

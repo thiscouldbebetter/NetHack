@@ -11,33 +11,33 @@ struct color_names {
 };
 
 static const struct color_names colornames[] = {
-    { "black", CLR_BLACK },
-    { "red", CLR_RED },
-    { "green", CLR_GREEN },
-    { "brown", CLR_BROWN },
-    { "blue", CLR_BLUE },
-    { "magenta", CLR_MAGENTA },
-    { "cyan", CLR_CYAN },
-    { "gray", CLR_GRAY },
-    { "orange", CLR_ORANGE },
-    { "light green", CLR_BRIGHT_GREEN },
-    { "yellow", CLR_YELLOW },
-    { "light blue", CLR_BRIGHT_BLUE },
-    { "light magenta", CLR_BRIGHT_MAGENTA },
-    { "light cyan", CLR_BRIGHT_CYAN },
-    { "white", CLR_WHITE },
-    { "no color", NO_COLOR },
-    { (const char *) 0, CLR_BLACK }, /* everything after this is an alias */
-    { "transparent", NO_COLOR },
-    { "purple", CLR_MAGENTA },
-    { "light purple", CLR_BRIGHT_MAGENTA },
-    { "bright purple", CLR_BRIGHT_MAGENTA },
-    { "grey", CLR_GRAY },
-    { "bright red", CLR_ORANGE },
-    { "bright green", CLR_BRIGHT_GREEN },
-    { "bright blue", CLR_BRIGHT_BLUE },
-    { "bright magenta", CLR_BRIGHT_MAGENTA },
-    { "bright cyan", CLR_BRIGHT_CYAN }
+    { "black", COLOR_CODE_BLACK },
+    { "red", COLOR_CODE_RED },
+    { "green", COLOR_CODE_GREEN },
+    { "brown", COLOR_CODE_BROWN },
+    { "blue", COLOR_CODE_BLUE },
+    { "magenta", COLOR_CODE_MAGENTA },
+    { "cyan", COLOR_CODE_CYAN },
+    { "gray", COLOR_CODE_GRAY },
+    { "orange", COLOR_CODE_ORANGE },
+    { "light green", COLOR_CODE_BRIGHT_GREEN },
+    { "yellow", COLOR_CODE_YELLOW },
+    { "light blue", COLOR_CODE_BRIGHT_BLUE },
+    { "light magenta", COLOR_CODE_BRIGHT_MAGENTA },
+    { "light cyan", COLOR_CODE_BRIGHT_CYAN },
+    { "white", COLOR_CODE_WHITE },
+    { "no color", COLOR_CODE_NONE },
+    { (const char *) 0, COLOR_CODE_BLACK }, /* everything after this is an alias */
+    { "transparent", COLOR_CODE_NONE },
+    { "purple", COLOR_CODE_MAGENTA },
+    { "light purple", COLOR_CODE_BRIGHT_MAGENTA },
+    { "bright purple", COLOR_CODE_BRIGHT_MAGENTA },
+    { "grey", COLOR_CODE_GRAY },
+    { "bright red", COLOR_CODE_ORANGE },
+    { "bright green", COLOR_CODE_BRIGHT_GREEN },
+    { "bright blue", COLOR_CODE_BRIGHT_BLUE },
+    { "bright magenta", COLOR_CODE_BRIGHT_MAGENTA },
+    { "bright cyan", COLOR_CODE_BRIGHT_CYAN }
 };
 
 struct attr_names {
@@ -70,7 +70,7 @@ static struct nethack_color colortable[] = {
   { nh_color,    5,   0, "magenta",                 "", 255,   0, 255 },
   { nh_color,    6,   0, "cyan",                    "",   0, 255, 255 },
   { nh_color,    7,   0, "gray",                    "", 128, 128, 128 },
-  { no_color,    8,   0, "nocolor",                 "",   0,   0,   0 },
+  { COLOR_CODE_NONE,    8,   0, "nocolor",                 "",   0,   0,   0 },
   { nh_color,    9,   0, "orange",                  "", 255, 165,   0 },
   { nh_color,   10,   0, "bright-green",            "",   0, 128,   0 },
   { nh_color,   11,   0, "yellow",                  "", 255, 255,   0 },
@@ -222,7 +222,7 @@ static struct nethack_color colortable[] = {
 int32
 colortable_to_int32(struct nethack_color *cte)
 {
-    int32 clr = NO_COLOR | NH_BASIC_COLOR;
+    int32 clr = COLOR_CODE_NONE | NH_BASIC_COLOR;
 
     if (cte->colortyp == rgb_color)
         clr = (cte->r << 16) | (cte->g << 8) | cte->b;
@@ -248,7 +248,7 @@ color_attr_parse_str(color_attr *ca, char *str)
 {
     char buf[BUFSZ];
     char *amp = NULL;
-    int tmp, c = NO_COLOR, a = ATR_NONE;
+    int tmp, c = COLOR_CODE_NONE, a = ATR_NONE;
 
     (void) strncpy(buf, str, sizeof buf - 1);
     buf[sizeof buf - 1] = '\0';
@@ -262,19 +262,19 @@ color_attr_parse_str(color_attr *ca, char *str)
         a = match_str2attr(amp, TRUE);
         /* FIXME: match_str2clr & match_str2attr give config_error_add(),
            so this is useless */
-        if (c >= CLR_MAX && a == -1) {
+        if (c >= COLOR_CODE_MAX && a == -1) {
             /* try other way around */
             c = match_str2clr(amp, FALSE);
             a = match_str2attr(buf, TRUE);
         }
-        if (c >= CLR_MAX || a == -1)
+        if (c >= COLOR_CODE_MAX || a == -1)
             return FALSE;
     } else {
         /* one param only */
         tmp = match_str2attr(buf, FALSE);
         if (tmp == -1) {
             tmp = match_str2clr(buf, FALSE);
-            if (tmp >= CLR_MAX)
+            if (tmp >= COLOR_CODE_MAX)
                 return FALSE;
             c = tmp;
         } else {
@@ -334,7 +334,7 @@ clr2colorname(int clr)
 int
 match_str2clr(char *str, boolean suppress_msg)
 {
-    int i, c = CLR_MAX;
+    int i, c = COLOR_CODE_MAX;
 
     /* allow "lightblue", "light blue", and "light-blue" to match "light blue"
        (also junk like "_l i-gh_t---b l u e" but we won't worry about that);
@@ -348,10 +348,10 @@ match_str2clr(char *str, boolean suppress_msg)
     if (i == SIZE(colornames) && digit(*str))
         c = atoi(str);
 
-    if (c < 0 || c >= CLR_MAX) {
+    if (c < 0 || c >= COLOR_CODE_MAX) {
         if (!suppress_msg)
             config_error_add("Unknown color '%.60s'", str);
-        c = CLR_MAX; /* "none of the above" */
+        c = COLOR_CODE_MAX; /* "none of the above" */
     }
     return c;
 }
@@ -386,7 +386,7 @@ query_attr(const char *prompt, int dflt_attr)
     int i, pick_cnt;
     menu_item *picks = (menu_item *) 0;
     boolean allow_many = (prompt && !strncmpi(prompt, "Choose", 6));
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -476,7 +476,7 @@ query_color(const char *prompt, int dflt_color)
             break;
         any.a_int = i + 1;
         add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                 ATR_NONE, NO_COLOR, colornames[i].name,
+                 ATR_NONE, COLOR_CODE_NONE, colornames[i].name,
                  (colornames[i].color == dflt_color) ? MENU_ITEMFLAGS_SELECTED
                                                      : MENU_ITEMFLAGS_NONE);
     }
@@ -492,7 +492,7 @@ query_color(const char *prompt, int dflt_color)
         i = colornames[picks[0].item.a_int - 1].color;
         /* pick_cnt==2: explicitly picked something other than the
            preselected entry */
-        if (pick_cnt == 2 && i == NO_COLOR)
+        if (pick_cnt == 2 && i == COLOR_CODE_NONE)
             i = colornames[picks[1].item.a_int - 1].color;
         free((genericptr_t) picks);
         return i;
@@ -547,7 +547,7 @@ basic_menu_colors(
                 if (!colornames[i].name) /* first alias entry has no name */
                     break;
                 c = colornames[i].color;
-                if (c == CLR_BLACK || c == CLR_WHITE || c == NO_COLOR)
+                if (c == COLOR_CODE_BLACK || c == COLOR_CODE_WHITE || c == COLOR_CODE_NONE)
                     continue; /* skip these */
                 Sprintf(cnm, patternfmt, colornames[i].name);
                 add_menu_coloring_parsed(cnm, c, ATR_NONE);
@@ -602,7 +602,7 @@ add_menu_coloring_parsed(const char *str, int c, int a)
 boolean
 add_menu_coloring(char *tmpstr) /* never Null but could be empty */
 {
-    int c = NO_COLOR, a = ATR_NONE;
+    int c = COLOR_CODE_NONE, a = ATR_NONE;
     char *tmps, *cs, *amp;
     char str[BUFSZ];
 
@@ -620,7 +620,7 @@ add_menu_coloring(char *tmpstr) /* never Null but could be empty */
         *amp = '\0';
 
     c = match_str2clr(tmps, FALSE);
-    if (c >= CLR_MAX)
+    if (c >= COLOR_CODE_MAX)
         return FALSE;
 
     if (amp) {
@@ -712,7 +712,7 @@ check_enhanced_colors(char *buf)
     unsigned r, g, b;
     int32 retcolor = -1, color;
 
-    if ((color = match_str2clr(buf, TRUE)) != CLR_MAX)  {
+    if ((color = match_str2clr(buf, TRUE)) != COLOR_CODE_MAX)  {
         retcolor = color | NH_BASIC_COLOR;
     } else if (sscanf(buf, "#%02x%02x%02x%c", &r, &g, &b, &xtra) >= 3) {
         retcolor = !xtra ? (int32) ((r << 16) | (g << 8) | b) : -1;
@@ -1010,7 +1010,7 @@ closest_color(uint32 lcolor, uint32 *closecolor, uint16 *clridx)
 uint32
 get_nhcolor_from_256_index(int idx)
 {
-    uint32 retcolor = NO_COLOR | NH_BASIC_COLOR;
+    uint32 retcolor = COLOR_CODE_NONE | NH_BASIC_COLOR;
 
     if (IndexOk(idx, color_256_definitions))
         retcolor = color_256_definitions[idx].value;

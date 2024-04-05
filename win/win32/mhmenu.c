@@ -1040,7 +1040,7 @@ onDrawItem(HWND hWnd, WPARAM wParam, LPARAM lParam)
                              ? menu_fg_color
                              : (COLORREF) GetSysColor(DEFAULT_COLOR_FG_MENU));
 
-    if (item->color != NO_COLOR)
+    if (item->color != COLOR_CODE_NONE)
         (void) SetTextColor(lpdis->hDC, nhcolor_to_RGB(item->color));
 
     GetTextMetrics(lpdis->hDC, &tm);

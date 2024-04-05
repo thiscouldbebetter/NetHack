@@ -28,7 +28,7 @@ const char *c_obj_colors[] = {
     "magenta",        /* CLR_MAGENTA */
     "cyan",           /* CLR_CYAN */
     "gray",           /* CLR_GRAY */
-    "transparent",    /* no_color */
+    "transparent",    /* COLOR_CODE_NONE */
     "orange",         /* CLR_ORANGE */
     "bright green",   /* CLR_BRIGHT_GREEN */
     "yellow",         /* CLR_YELLOW */
@@ -898,7 +898,7 @@ static const struct instance_globals_w g_init_w = {
     /* mkmaze.c */
     UNDEFINED_PTR, /* wportal */
     /* new */
-    { wdmode_traditional, NO_COLOR },       /* wsettings */
+    { wdmode_traditional, COLOR_CODE_NONE },       /* wsettings */
     TRUE, /* havestate*/
     IVMAGIC  /* w_magic to validate that structure layout has been preserved */
 };

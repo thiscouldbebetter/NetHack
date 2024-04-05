@@ -2175,7 +2175,7 @@ tport_menu(
 {
     char tmpbuf[BUFSZ];
     anything any;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     lchoices->lev[lchoices->idx] = lvl_p->dlevel;
     lchoices->dgn[lchoices->idx] = lvl_p->dnum;
@@ -3581,7 +3581,7 @@ print_mapseen(
     any = cg.zeroany;
     if (final == -1)
         any.a_int = ledger_no(&(mptr->lev)) + 1;
-    add_menu(win, &nul_glyphinfo, &any, 0, 0, ATR_NONE, NO_COLOR,
+    add_menu(win, &nul_glyphinfo, &any, 0, 0, ATR_NONE, COLOR_CODE_NONE,
              buf, MENU_ITEMFLAGS_NONE);
 
     if (mptr->flags.forgot)

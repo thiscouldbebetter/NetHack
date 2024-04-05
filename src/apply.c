@@ -2786,7 +2786,7 @@ use_stone(struct obj *tstone)
 }
 
 void
-reset_trapset(void)
+reset_setting_trap(void)
 {
     gt.trapinfo.tobj = 0;
     gt.trapinfo.force_bungle = 0;
@@ -2830,7 +2830,7 @@ use_trap(struct obj *otmp)
                          : "in this place"; /* Air/Water Plane catch-all */
     if (what) {
         You_cant("set a trap %s!", what);
-        reset_trapset();
+        reset_setting_trap();
         return;
     }
     ttyp = (otmp->otyp == LAND_MINE) ? LANDMINE : BEAR_TRAP;
@@ -2870,14 +2870,14 @@ use_trap(struct obj *otmp)
                     gt.trapinfo.force_bungle = TRUE;
                     break;
                 case BEAR_TRAP: /* drop it without arming it */
-                    reset_trapset();
+                    reset_setting_trap();
                     You("drop %s!", the(trapname(ttyp, FALSE)));
                     dropx(otmp);
                     return;
                 }
             }
         } else {
-            reset_trapset();
+            reset_setting_trap();
             return;
         }
     }
@@ -2896,7 +2896,7 @@ set_trap(void)
 
     if (!otmp || !carried(otmp) || !u_at(gt.trapinfo.tx, gt.trapinfo.ty)) {
         /* trap object might have been stolen or hero teleported */
-        reset_trapset();
+        reset_setting_trap();
         return 0;
     }
 
@@ -2922,7 +2922,7 @@ set_trap(void)
         Your("trap setting attempt fails.");
     }
     useup(otmp);
-    reset_trapset();
+    reset_setting_trap();
     return 0;
 }
 
@@ -3692,7 +3692,7 @@ use_grapple(struct obj *obj)
         anything any;
         char buf[BUFSZ];
         menu_item *selected;
-        int clr = NO_COLOR;
+        int clr = COLOR_CODE_NONE;
 
         any = cg.zeroany; /* set all bits to zero */
         any.a_int = 1; /* use index+1 (cant use 0) as identifier */

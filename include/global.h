@@ -104,7 +104,7 @@ typedef unsigned readLenType;
 #endif
 #define BOOL_RANDOM (-1)
 
-enum optchoice { opt_in, opt_out};
+enum opt_in_or_out { opt_in, opt_out};
 
 /*
  * type nhsym: loadable symbols go into this type

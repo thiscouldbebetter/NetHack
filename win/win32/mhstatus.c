@@ -354,8 +354,8 @@ onWMPaint(HWND hWnd, WPARAM wParam, LPARAM lParam)
 
                 winos_ascii_to_wide_str((const unsigned char *) str, wbuf, SIZE(wbuf));
 
-                nFg = (clr == NO_COLOR ? status_fg_color
-                    : ((clr >= 0 && clr < CLR_MAX) ? nhcolor_to_RGB(clr)
+                nFg = (clr == COLOR_CODE_NONE ? status_fg_color
+                    : ((clr >= 0 && clr < COLOR_CODE_MAX) ? nhcolor_to_RGB(clr)
                         : status_fg_color));
 
                 if (atr & HL_DIM) {

@@ -280,17 +280,17 @@
    which conflicted with the corresponding dragon colors */
 enum zap_colors {
     zap_color_missile    = HI_ZAP,
-    zap_color_fire       = CLR_ORANGE,
-    zap_color_frost      = CLR_WHITE,
+    zap_color_fire       = COLOR_CODE_ORANGE,
+    zap_color_frost      = COLOR_CODE_WHITE,
     zap_color_sleep      = HI_ZAP,
-    zap_color_death      = CLR_BLACK,
-    zap_color_lightning  = CLR_WHITE,
-    zap_color_poison_gas = CLR_GREEN,
-    zap_color_acid       = CLR_YELLOW
+    zap_color_death      = COLOR_CODE_BLACK,
+    zap_color_lightning  = COLOR_CODE_WHITE,
+    zap_color_poison_gas = COLOR_CODE_GREEN,
+    zap_color_acid       = COLOR_CODE_YELLOW
 };
 
 enum altar_colors {
-    altar_color_unaligned = CLR_RED,
+    altar_color_unaligned = COLOR_CODE_RED,
 #if defined(USE_GENERAL_ALTAR_COLORS)
         /* On OSX with TERM=xterm-color256 these render as
          *  white -> tty: gray, curses: ok
@@ -306,11 +306,11 @@ enum altar_colors {
     altar_color_neutral = CLR_GRAY,
     altar_color_lawful  = CLR_WHITE,
 #else
-    altar_color_chaotic = CLR_GRAY,
-    altar_color_neutral = CLR_GRAY,
-    altar_color_lawful  = CLR_GRAY,
+    altar_color_chaotic = COLOR_CODE_GRAY,
+    altar_color_neutral = COLOR_CODE_GRAY,
+    altar_color_lawful  = COLOR_CODE_GRAY,
 #endif
-    altar_color_other = CLR_BRIGHT_MAGENTA,
+    altar_color_other = COLOR_CODE_BRIGHT_MAGENTA,
 };
 
 /* types of explosions */
@@ -337,13 +337,13 @@ enum expl_types {
 };
 
 enum explode_colors {
-    explode_color_dark = CLR_BLACK,
-    explode_color_noxious = CLR_GREEN,
-    explode_color_muddy = CLR_BROWN,
-    explode_color_wet = CLR_BLUE,
-    explode_color_magical = CLR_MAGENTA,
-    explode_color_fiery = CLR_ORANGE,
-    explode_color_frosty = CLR_WHITE
+    explode_color_dark = COLOR_CODE_BLACK,
+    explode_color_noxious = COLOR_CODE_GREEN,
+    explode_color_muddy = COLOR_CODE_BROWN,
+    explode_color_wet = COLOR_CODE_BLUE,
+    explode_color_magical = COLOR_CODE_MAGENTA,
+    explode_color_fiery = COLOR_CODE_ORANGE,
+    explode_color_frosty = COLOR_CODE_WHITE
 };
 enum altar_types {
     altar_unaligned,

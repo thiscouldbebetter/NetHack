@@ -2938,7 +2938,7 @@ staticfn void
 ia_addmenu(winid win, int act, char let, const char *txt)
 {
     anything any;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     any = cg.zeroany;
     any.a_int = act;
@@ -2956,7 +2956,7 @@ itemactions_pushkeys(struct obj *otmp, int act)
             break;
         case IA_UNWIELD:
             cmdq_add_ec(CQ_CANNED, (otmp == uwep) ? dowield
-                        : (otmp == uswapwep) ? remarm_swapwep
+                        : (otmp == uswapwep) ? remover_armor_swap_weapon
                           : (otmp == uquiver) ? dowieldquiver
                             : donull); /* can't happen */
             cmdq_add_key(CQ_CANNED, '-');
@@ -3535,7 +3535,7 @@ display_pickinv(
     boolean (*filter)(struct obj *) = (boolean (*)(OBJ_P)) 0;
 
     boolean wizid = (wizard && iflags.override_ID), gotsomething = FALSE;
-    int clr = NO_COLOR, menu_behavior = MENU_BEHAVE_STANDARD;
+    int clr = COLOR_CODE_NONE, menu_behavior = MENU_BEHAVE_STANDARD;
     boolean show_gold = TRUE, inuse_only = FALSE, skipped_gold = FALSE,
             doing_perm_invent = FALSE, save_flags_sortpack = flags.sortpack,
             usextra = (xtra_choice && allowxtra);
@@ -3915,7 +3915,7 @@ display_used_invlets(char avoidlet)
     winid win;
     anything any;
     menu_item *selected;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     if (gi.invent) {
         win = create_nhwindow(NHW_MENU);

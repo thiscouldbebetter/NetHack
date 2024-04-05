@@ -296,18 +296,18 @@ curses_parse_wid_colors(int wid, char *fg, char *bg)
     if (nhwins[wid].clr_inited)
         return;
 
-    int nh_fg = fg ? match_str2clr(fg, TRUE) : CLR_MAX;
-    int nh_bg = bg ? match_str2clr(bg, TRUE) : CLR_MAX;
+    int nh_fg = fg ? match_str2clr(fg, TRUE) : COLOR_CODE_MAX;
+    int nh_bg = bg ? match_str2clr(bg, TRUE) : COLOR_CODE_MAX;
     int r, g, b;
 
-    if (nh_fg == CLR_MAX) {
+    if (nh_fg == COLOR_CODE_MAX) {
         if (fg && parse_hexstr(fg, &r, &g, &b)) {
             nh_fg = curses_init_rgb(r, g, b);
         } else {
             nh_fg = -1;
         }
     }
-    if (nh_bg == CLR_MAX) {
+    if (nh_bg == COLOR_CODE_MAX) {
         if (bg && parse_hexstr(bg, &r, &g, &b)) {
             nh_bg = curses_init_rgb(r, g, b);
         } else {
@@ -654,7 +654,7 @@ curses_puts(winid wid, int attr, const char *text)
         }
         Id = cg.zeroany;
         curses_add_nhmenu_item(wid, &nul_glyphinfo, &Id, 0, 0,
-                               attr, NO_COLOR, text, MENU_ITEMFLAGS_NONE);
+                               attr, COLOR_CODE_NONE, text, MENU_ITEMFLAGS_NONE);
     } else {
         curses_set_wid_colors(wid, NULL);
         waddstr(win, text);
@@ -739,7 +739,7 @@ write_char(WINDOW * win, int x, int y, nethack_char nch)
 {
     int curscolor = nch.color, cursattr = nch.attr;
 
-    if (nch.framecolor != NO_COLOR) {
+    if (nch.framecolor != COLOR_CODE_NONE) {
         curscolor = get_framecolor(nch.color, nch.framecolor);
         if (nch.attr == A_REVERSE)
             cursattr = A_NORMAL; /* hilited pet looks odd otherwise */
@@ -840,22 +840,22 @@ curses_draw_map(int sx, int sy, int ex, int ey)
 #ifdef MAP_SCROLLBARS
     hsb_back.ch = '-';
     hsb_back.color = SCROLLBAR_BACK_COLOR;
-    hsb_back.framecolor = NO_COLOR;
+    hsb_back.framecolor = COLOR_CODE_NONE;
     hsb_back.attr = A_NORMAL;
     hsb_back.unicode_representation = NULL;
     hsb_bar.ch = '*';
     hsb_bar.color = SCROLLBAR_COLOR;
-    hsb_bar.framecolor = NO_COLOR;
+    hsb_bar.framecolor = COLOR_CODE_NONE;
     hsb_bar.attr = A_NORMAL;
     hsb_bar.unicode_representation = NULL;
     vsb_back.ch = '|';
     vsb_back.color = SCROLLBAR_BACK_COLOR;
-    vsb_back.framecolor = NO_COLOR;
+    vsb_back.framecolor = COLOR_CODE_NONE;
     vsb_back.attr = A_NORMAL;
     vsb_back.unicode_representation = NULL;
     vsb_bar.ch = '*';
     vsb_bar.color = SCROLLBAR_COLOR;
-    vsb_bar.framecolor = NO_COLOR;
+    vsb_bar.framecolor = COLOR_CODE_NONE;
     vsb_bar.attr = A_NORMAL;
     vsb_bar.unicode_representation = NULL;
 
@@ -921,7 +921,7 @@ clear_map(void)
     for (x = 0; x < COLNO; x++) {
         for (y = 0; y < ROWNO; y++) {
             map[y][x].ch = ' ';
-            map[y][x].color = NO_COLOR;
+            map[y][x].color = COLOR_CODE_NONE;
             map[y][x].attr = A_NORMAL;
             map[y][x].unicode_representation = NULL;
         }

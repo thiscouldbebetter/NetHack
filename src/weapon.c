@@ -1178,7 +1178,7 @@ enhance_weapon_skill(void)
     anything any;
     winid win;
     boolean speedy = FALSE;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     /* player knows about #enhance, don't show tip anymore */
     gc.context.tips[TIP_ENHANCE] = TRUE;

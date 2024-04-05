@@ -76,7 +76,7 @@ COLORREF message_bg_color = RGB(0, 0, 0);
 COLORREF message_fg_color = RGB(0xFF, 0xFF, 0xFF);
 
 strbuf_t raw_print_strbuf = { 0 };
-color_attr mswin_menu_promptstyle = { NO_COLOR, ATR_NONE };
+color_attr mswin_menu_promptstyle = { COLOR_CODE_NONE, ATR_NONE };
 
 /* Interface definition, for windows.c */
 struct window_procs mswin_procs = {
@@ -338,7 +338,7 @@ prompt_for_player_selection(void)
     anything any;
     menu_item *selected = 0;
     DWORD box_result;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     logDebug("prompt_for_player_selection()\n");
 
@@ -2429,7 +2429,7 @@ mswin_read_reg(void)
     DWORD safe_buf;
     char keystring[MAX_PATH];
     int i;
-    COLORREF default_mapcolors[CLR_MAX] = {
+    COLORREF default_mapcolors[COLOR_CODE_MAX] = {
         RGB(0x55, 0x55, 0x55), /* CLR_BLACK */
         RGB(0xFF, 0x00, 0x00), /* CLR_RED */
         RGB(0x00, 0x80, 0x00), /* CLR_GREEN */
@@ -2438,7 +2438,7 @@ mswin_read_reg(void)
         RGB(0xFF, 0x00, 0xFF), /* CLR_MAGENTA */
         RGB(0x00, 0xFF, 0xFF), /* CLR_CYAN */
         RGB(0xC0, 0xC0, 0xC0), /* CLR_GRAY */
-        RGB(0xFF, 0xFF, 0xFF), /* NO_COLOR */
+        RGB(0xFF, 0xFF, 0xFF), /* COLOR_CODE_NONE */
         RGB(0xFF, 0xA5, 0x00), /* CLR_ORANGE */
         RGB(0x00, 0xFF, 0x00), /* CLR_BRIGHT_GREEN */
         RGB(0xFF, 0xFF, 0x00), /* CLR_YELLOW */
@@ -2457,7 +2457,7 @@ mswin_read_reg(void)
     GetNHApp()->saveRegistrySettings = 1; /* Normally, we always save */
     GetNHApp()->regNetHackMode = TRUE;
 
-    for (i = 0; i < CLR_MAX; i++)
+    for (i = 0; i < COLOR_CODE_MAX; i++)
         GetNHApp()->regMapColors[i] = default_mapcolors[i];
 
     if (RegOpenKeyEx(HKEY_CURRENT_USER, keystring, 0, KEY_READ, &key)
@@ -2512,7 +2512,7 @@ mswin_read_reg(void)
     NHGETREG_DWORD(INVENTBOTTOM, GetNHApp()->rtInvenWindow.bottom);
 #undef NHGETREG_DWORD
 
-    for (i = 0; i < CLR_MAX; i++) {
+    for (i = 0; i < COLOR_CODE_MAX; i++) {
         COLORREF cl;
         char mapcolorkey[64];
         sprintf(mapcolorkey, "MapColor%02d", i);
@@ -2600,7 +2600,7 @@ mswin_write_reg(void)
         NHSETREG_DWORD(INVENTBOTTOM, GetNHApp()->rtInvenWindow.bottom);
 #undef NHSETREG_DWORD
 
-        for (i = 0; i < CLR_MAX; i++) {
+        for (i = 0; i < COLOR_CODE_MAX; i++) {
             COLORREF cl = GetNHApp()->regMapColors[i];
             char mapcolorkey[64];
             sprintf(mapcolorkey, "MapColor%02d", i);
@@ -2986,7 +2986,7 @@ mswin_status_init(void)
     for (int i = 0; i < MAXBLSTATS; ++i) {
 #ifdef STATUS_HILITES
         _status_hilites[i].thresholdtype = 0;
-        _status_hilites[i].behavior = BL_TH_NONE;
+        _status_hilites[i].behavior = BL_THRESHOLD_NONE;
         _status_hilites[i].under = BL_HILITE_NONE;
         _status_hilites[i].over = BL_HILITE_NONE;
 #endif /* STATUS_HILITES */
@@ -3057,11 +3057,11 @@ mswin_condcolor(long bm, unsigned long *bmarray)
     int i;
 
     if (bm && bmarray)
-        for (i = 0; i < CLR_MAX; ++i) {
+        for (i = 0; i < COLOR_CODE_MAX; ++i) {
             if ((bm & bmarray[i]) != 0)
                 return i;
         }
-    return NO_COLOR;
+    return COLOR_CODE_NONE;
 }
 
 static int

@@ -6,7 +6,7 @@
 #define WINPROCS_H
 
 #include "botl.h"
-#ifndef CLR_MAX
+#ifndef COLOR_CODE_MAX
 #include "color.h"
 #endif
 
@@ -27,7 +27,7 @@ struct window_procs {
     enum wp_ids wp_id;
     unsigned long wincap; /* window port capability options supported */
     unsigned long wincap2; /* additional window port capability options */
-    boolean has_color[CLR_MAX];
+    boolean has_color[COLOR_CODE_MAX];
     void (*win_init_nhwindows)(int *, char **);
     void (*win_player_selection)(void);
     void (*win_askname)(void);

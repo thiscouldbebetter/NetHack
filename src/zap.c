@@ -5320,7 +5320,7 @@ zap_over_floor(
                 You_hear1(hear_txt);
             if (picking_at(x, y)) {
                 stop_occupation();
-                reset_pick();
+                reset_picking_lock_or_forcing_chest();
             }
         }
     }

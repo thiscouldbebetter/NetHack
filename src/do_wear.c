@@ -39,8 +39,8 @@ staticfn void Ring_off_or_gone(struct obj *, boolean);
 staticfn int select_off(struct obj *);
 staticfn struct obj *do_takeoff(void);
 staticfn int take_off(void);
-staticfn int menu_remarm(int);
-staticfn void wornarm_destroyed(struct obj *);
+staticfn int menu_remove_armor(int);
+staticfn void worn_armor_destroyed(struct obj *);
 staticfn void count_worn_stuff(struct obj **, boolean);
 staticfn int armor_or_accessory_off(struct obj *);
 staticfn int accessory_or_armor_on(struct obj *);
@@ -1701,12 +1701,12 @@ armor_or_accessory_off(struct obj *obj)
         return ECMD_OK;
     }
 
-    reset_remarm(); /* clear context.takeoff.mask and context.takeoff.what */
+    reset_remove_all_armor(); /* clear context.takeoff.mask and context.takeoff.what */
     (void) select_off(obj);
     if (!gc.context.takeoff.mask)
         return ECMD_OK;
     /* none of armoroff()/Ring_/Amulet/Blindf_off() use context.takeoff.mask */
-    reset_remarm();
+    reset_remove_all_armor();
 
     if (obj->owornmask & W_ARMOR) {
         (void) armoroff(obj);
@@ -2872,7 +2872,7 @@ take_off(void)
 
 /* clear saved context to avoid inappropriate resumption of interrupted 'A' */
 void
-reset_remarm(void)
+reset_remove_all_armor(void)
 {
     gc.context.takeoff.what = gc.context.takeoff.mask = 0L;
     gc.context.takeoff.disrobing[0] = '\0';
@@ -2880,7 +2880,7 @@ reset_remarm(void)
 
 /* the #takeoffall command -- remove multiple worn items */
 int
-doddoremarm(void)
+doddo_remove_armor(void)
 {
     int result = 0;
 
@@ -2898,7 +2898,7 @@ doddoremarm(void)
     if (flags.menu_style != MENU_TRADITIONAL
         || (result = ggetobj("take off", select_off, 0, FALSE,
                              (unsigned *) 0)) < -1)
-        result = menu_remarm(result);
+        result = menu_remove_armor(result);
 
     if (gc.context.takeoff.mask) {
         (void) strncpy(gc.context.takeoff.disrobing,
@@ -2920,7 +2920,7 @@ doddoremarm(void)
 /* #altunwield - just unwield alternate weapon, item-action '-' when picking
    uswapwep from context-sensitive inventory */
 int
-remarm_swapwep(void)
+remover_armor_swap_weapon(void)
 {
     struct _cmd_queue cq, *cmdq;
     unsigned oldbknown;
@@ -2941,14 +2941,14 @@ remarm_swapwep(void)
                                    * behave as if a cursed secondary weapon
                                    * can't be unwielded even though things
                                    * don't work that way... */
-    reset_remarm();
+    reset_remove_all_armor();
     gc.context.takeoff.what = gc.context.takeoff.mask = W_SWAPWEP;
     (void) do_takeoff();
     return (!uswapwep || uswapwep->bknown != oldbknown) ? ECMD_TIME : ECMD_OK;
 }
 
 staticfn int
-menu_remarm(int retry)
+menu_remove_armor(int retry)
 {
     int n, i = 0;
     menu_item *pick_list;
@@ -2998,34 +2998,34 @@ menu_remarm(int retry)
     return 0;
 }
 
-/* take off the specific worn object and if it still exists after that,
-   destroy it (taking off the item might already destroy it by dunking
-   hero into lava) */
+/* Take off the specific worn object, and if it still exists after that,
+   destroy it. (Taking off the item might already destroy it by dunking
+   hero into lava.) */
 staticfn void
-wornarm_destroyed(struct obj *wornarm)
+worn_armor_destroyed(struct obj* worn_armor)
 {
     struct obj *invobj;
-    unsigned wornoid = wornarm->o_id;
+    unsigned wornoid = worn_armor->o_id;
 
     /* cancel_don() resets 'afternmv' when appropriate but doesn't reset
        uarmc/uarm/&c so doing this now won't interfere with the tests in
        'if (wornarm==uarmc) ... else if (wornarm==uarm) ... else ...' */
-    if (donning(wornarm))
+    if (donning(worn_armor))
         cancel_don();
 
-    if (wornarm == uarmc)
+    if (worn_armor == uarmc)
         (void) Cloak_off();
-    else if (wornarm == uarm)
+    else if (worn_armor == uarm)
         (void) Armor_off();
-    else if (wornarm == uarmu)
+    else if (worn_armor == uarmu)
         (void) Shirt_off();
-    else if (wornarm == uarmh)
+    else if (worn_armor == uarmh)
         (void) Helmet_off();
-    else if (wornarm == uarmg)
+    else if (worn_armor == uarmg)
         (void) Gloves_off();
-    else if (wornarm == uarmf)
+    else if (worn_armor == uarmf)
         (void) Boots_off();
-    else if (wornarm == uarms)
+    else if (worn_armor == uarms)
         (void) Shield_off();
 
     /* 'wornarm' might be destroyed as a side-effect of xxx_off() so
@@ -3034,8 +3034,8 @@ wornarm_destroyed(struct obj *wornarm)
        have re-used the stale memory for a new item yet but verify o_id
        just in case */
     for (invobj = gi.invent; invobj; invobj = invobj->nobj)
-        if (invobj == wornarm && invobj->o_id == wornoid) {
-            useup(wornarm);
+        if (invobj == worn_armor && invobj->o_id == wornoid) {
+            useup(worn_armor);
             break;
         }
 }
@@ -3105,7 +3105,7 @@ destroy_arm(struct obj *atmp)
     }
 
     /* cancel_don() if applicable, Cloak_off()/Armor_off()/&c, and useup() */
-    wornarm_destroyed(otmp);
+    worn_armor_destroyed(otmp);
     /* glove loss means wielded weapon will be touched */
     if (losing_gloves)
         selftouch("You");

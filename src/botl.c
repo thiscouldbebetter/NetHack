@@ -536,7 +536,7 @@ staticfn void status_hilites_viewall(void);
 
 #define has_hilite(i) (gb.blstats[0][(i)].thresholds)
 /* TH_UPDOWN encompasses specific 'up' and 'down' also general 'changed' */
-#define Is_Temp_Hilite(rule) ((rule) && (rule)->behavior == BL_TH_UPDOWN)
+#define Is_Temp_Hilite(rule) ((rule) && (rule)->behavior == BL_THRESHOLD_UPDOWN)
 
 /* pointers to current hilite rule and list of this field's defined rules */
 #define INIT_THRESH  , (struct hilite_s *) 0, (struct hilite_s *) 0
@@ -1047,7 +1047,7 @@ stat_update_time(void)
     eval_notify_windowport_field(fld, gv.valset, idx);
     if ((windowprocs.wincap2 & WC2_FLUSH_STATUS) != 0L)
         status_update(BL_FLUSH, (genericptr_t) 0, 0, 0,
-                      NO_COLOR, (unsigned long *) 0);
+                      COLOR_CODE_NONE, (unsigned long *) 0);
     return;
 }
 
@@ -1138,7 +1138,7 @@ cond_menu(void)
     menu_item *picks = (menu_item *) 0;
     char mbuf[QBUFSZ];
     boolean showmenu = TRUE;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
     boolean changed = FALSE;
 
     do {
@@ -1250,7 +1250,7 @@ eval_notify_windowport_field(
 {
     static int oldrndencode = 0;
     static nhsym oldgoldsym = 0;
-    int pc, chg, color = NO_COLOR;
+    int pc, chg, color = COLOR_CODE_NONE;
     unsigned anytype;
     boolean updated = FALSE, reset;
     struct istat_s *curr, *prev;
@@ -1262,7 +1262,7 @@ eval_notify_windowport_field(
     anytype = gb.blstats[idx][fld].anytype;
     curr = &gb.blstats[idx][fld];
     prev = &gb.blstats[1 - idx][fld];
-    color = NO_COLOR;
+    color = COLOR_CODE_NONE;
 
     chg = gu.update_all ? 0 : compare_blstats(prev, curr);
     /*
@@ -1349,7 +1349,7 @@ eval_notify_windowport_field(
                                                chg, pc, &color);
                 prev->hilite_rule = curr->hilite_rule;
                 if (chg == 2) {
-                    color = NO_COLOR;
+                    color = COLOR_CODE_NONE;
                     chg = 0;
                 }
             }
@@ -1416,11 +1416,11 @@ evaluate_and_notify_windowport(
      */
     if (disp.botlx && (windowprocs.wincap2 & WC2_RESET_STATUS) != 0L)
         status_update(BL_RESET, (genericptr_t) 0, 0, 0,
-                      NO_COLOR, (unsigned long *) 0);
+                      COLOR_CODE_NONE, (unsigned long *) 0);
     else if ((updated || disp.botlx)
              && (windowprocs.wincap2 & WC2_FLUSH_STATUS) != 0L)
         status_update(BL_FLUSH, (genericptr_t) 0, 0, 0,
-                      NO_COLOR, (unsigned long *) 0);
+                      COLOR_CODE_NONE, (unsigned long *) 0);
 
     disp.botl = disp.botlx = disp.time_botl = FALSE;
     gu.update_all = FALSE;
@@ -2124,45 +2124,45 @@ get_hilite(
                or changed rule for HP would always show that up or changed
                highlight even when within the critical-hp threshold because
                the value will go up by at least one on every move */
-            if (crit_hp && hl->behavior != BL_TH_CRITICALHP)
+            if (crit_hp && hl->behavior != BL_THRESHOLD_CRITICALHP)
                 continue;
             /* if we've already matched a temporary highlight, it takes
                precedence over all persistent ones; we still process
                updown rules to get the last one which qualifies */
-            if ((updown || changed) && hl->behavior != BL_TH_UPDOWN)
+            if ((updown || changed) && hl->behavior != BL_THRESHOLD_UPDOWN)
                 continue;
             /* among persistent highlights, if a 'percentage' or 'absolute'
                rule has been matched, it takes precedence over 'always' */
-            if (perc_or_abs && hl->behavior == BL_TH_ALWAYS_HILITE)
+            if (perc_or_abs && hl->behavior == BL_THRESHOLD_ALWAYS_HILITE)
                 continue;
 
             switch (hl->behavior) {
-            case BL_TH_VAL_PERCENTAGE: /* percent values are always ANY_INT */
-                if (hl->rel == EQ_VALUE && pc == hl->value.a_int) {
+            case BL_THRESHOLD_VALUE_PERCENTAGE: /* percent values are always ANY_INT */
+                if (hl->relationships == EQ_VALUE && pc == hl->value.a_int) {
                     rule = hl;
                     min_pc = max_pc = hl->value.a_int;
                     exactmatch = perc_or_abs = TRUE;
                 } else if (exactmatch) {
                     ; /* already found best fit, skip lt,ge,&c */
-                } else if (hl->rel == LT_VALUE
+                } else if (hl->relationships == LT_VALUE
                            && (pc < hl->value.a_int)
                            && (hl->value.a_int <= min_pc)) {
                     rule = hl;
                     min_pc = hl->value.a_int;
                     perc_or_abs = TRUE;
-                } else if (hl->rel == LE_VALUE
+                } else if (hl->relationships == LE_VALUE
                            && (pc <= hl->value.a_int)
                            && (hl->value.a_int <= min_pc)) {
                     rule = hl;
                     min_pc = hl->value.a_int;
                     perc_or_abs = TRUE;
-                } else if (hl->rel == GT_VALUE
+                } else if (hl->relationships == GT_VALUE
                            && (pc > hl->value.a_int)
                            && (hl->value.a_int >= max_pc)) {
                     rule = hl;
                     max_pc = hl->value.a_int;
                     perc_or_abs = TRUE;
-                } else if (hl->rel == GE_VALUE
+                } else if (hl->relationships == GE_VALUE
                            && (pc >= hl->value.a_int)
                            && (hl->value.a_int >= max_pc)) {
                     rule = hl;
@@ -2170,53 +2170,53 @@ get_hilite(
                     perc_or_abs = TRUE;
                 }
                 break;
-            case BL_TH_UPDOWN: /* uses 'chg' (set by caller), not 'dt' */
+            case BL_THRESHOLD_UPDOWN: /* uses 'chg' (set by caller), not 'dt' */
                 /* specific 'up' or 'down' takes precedence over general
                    'changed' regardless of their order in the rule set */
-                if (chg < 0 && hl->rel == LT_VALUE) {
+                if (chg < 0 && hl->relationships == LT_VALUE) {
                     rule = hl;
                     updown = TRUE;
-                } else if (chg > 0 && hl->rel == GT_VALUE) {
+                } else if (chg > 0 && hl->relationships == GT_VALUE) {
                     rule = hl;
                     updown = TRUE;
-                } else if (chg != 0 && hl->rel == EQ_VALUE && !updown) {
+                } else if (chg != 0 && hl->relationships == EQ_VALUE && !updown) {
                     rule = hl;
                     changed = TRUE;
                 }
                 break;
-            case BL_TH_VAL_ABSOLUTE: /* either ANY_INT or ANY_LONG */
+            case BL_THRESHOLD_VALUE_ABSOLUTE: /* either ANY_INT or ANY_LONG */
                 /*
                  * The int and long variations here are identical aside from
                  * union field and min_/max_ variable names.  If you change
                  * one, be sure to make a corresponding change in the other.
                  */
                 if (dt == ANY_INT) {
-                    if (hl->rel == EQ_VALUE
+                    if (hl->relationships == EQ_VALUE
                         && hl->value.a_int == value->a_int) {
                         rule = hl;
                         min_ival = max_ival = hl->value.a_int;
                         exactmatch = perc_or_abs = TRUE;
                     } else if (exactmatch) {
                         ; /* already found best fit, skip lt,ge,&c */
-                    } else if (hl->rel == LT_VALUE
+                    } else if (hl->relationships == LT_VALUE
                                && (value->a_int < hl->value.a_int)
                                && (hl->value.a_int <= min_ival)) {
                         rule = hl;
                         min_ival = hl->value.a_int;
                         perc_or_abs = TRUE;
-                    } else if (hl->rel == LE_VALUE
+                    } else if (hl->relationships == LE_VALUE
                                && (value->a_int <= hl->value.a_int)
                                && (hl->value.a_int <= min_ival)) {
                         rule = hl;
                         min_ival = hl->value.a_int;
                         perc_or_abs = TRUE;
-                    } else if (hl->rel == GT_VALUE
+                    } else if (hl->relationships == GT_VALUE
                                && (value->a_int > hl->value.a_int)
                                && (hl->value.a_int >= max_ival)) {
                         rule = hl;
                         max_ival = hl->value.a_int;
                         perc_or_abs = TRUE;
-                    } else if (hl->rel == GE_VALUE
+                    } else if (hl->relationships == GE_VALUE
                                && (value->a_int >= hl->value.a_int)
                                && (hl->value.a_int >= max_ival)) {
                         rule = hl;
@@ -2224,32 +2224,32 @@ get_hilite(
                         perc_or_abs = TRUE;
                     }
                 } else { /* ANY_LONG */
-                    if (hl->rel == EQ_VALUE
+                    if (hl->relationships == EQ_VALUE
                         && hl->value.a_long == value->a_long) {
                         rule = hl;
                         min_lval = max_lval = hl->value.a_long;
                         exactmatch = perc_or_abs = TRUE;
                     } else if (exactmatch) {
                         ; /* already found best fit, skip lt,ge,&c */
-                    } else if (hl->rel == LT_VALUE
+                    } else if (hl->relationships == LT_VALUE
                                && (value->a_long < hl->value.a_long)
                                && (hl->value.a_long <= min_lval)) {
                         rule = hl;
                         min_lval = hl->value.a_long;
                         perc_or_abs = TRUE;
-                    } else if (hl->rel == LE_VALUE
+                    } else if (hl->relationships == LE_VALUE
                                && (value->a_long <= hl->value.a_long)
                                && (hl->value.a_long <= min_lval)) {
                         rule = hl;
                         min_lval = hl->value.a_long;
                         perc_or_abs = TRUE;
-                    } else if (hl->rel == GT_VALUE
+                    } else if (hl->relationships == GT_VALUE
                                && (value->a_long > hl->value.a_long)
                                && (hl->value.a_long >= max_lval)) {
                         rule = hl;
                         max_lval = hl->value.a_long;
                         perc_or_abs = TRUE;
-                    } else if (hl->rel == GE_VALUE
+                    } else if (hl->relationships == GE_VALUE
                                && (value->a_long >= hl->value.a_long)
                                && (hl->value.a_long >= max_lval)) {
                         rule = hl;
@@ -2258,12 +2258,12 @@ get_hilite(
                     }
                 }
                 break;
-            case BL_TH_TEXTMATCH: /* ANY_STR */
+            case BL_THRESHOLD_TEXTMATCH: /* ANY_STR */
                 txtstr = gb.blstats[idx][fldidx].val;
                 if (fldidx == BL_TITLE)
                     /* "<name> the <rank-title>", skip past "<name> the " */
                     txtstr += (strlen(gp.plname) + sizeof " the " - sizeof "");
-                if (hl->rel == TXT_VALUE && hl->textmatch[0]) {
+                if (hl->relationships == TXT_VALUE && hl->textmatch[0]) {
                     if (fuzzymatch(hl->textmatch, txtstr, "\" -_", TRUE)) {
                         rule = hl;
                         exactmatch = TRUE;
@@ -2275,24 +2275,24 @@ get_hilite(
                     }
                 }
                 break;
-            case BL_TH_ALWAYS_HILITE:
+            case BL_THRESHOLD_ALWAYS_HILITE:
                 rule = hl;
                 break;
-            case BL_TH_CRITICALHP:
+            case BL_THRESHOLD_CRITICALHP:
                 if (fldidx == BL_HP && critically_low_hp(FALSE)) {
                     rule = hl;
                     crit_hp = TRUE;
                     updown = changed = perc_or_abs = FALSE;
                 }
                 break;
-            case BL_TH_NONE:
+            case BL_THRESHOLD_NONE:
                 break;
             default:
                 break;
             }
         }
     }
-    *colorptr = rule ? rule->coloridx : NO_COLOR;
+    *colorptr = rule ? rule->coloridx : COLOR_CODE_NONE;
     return rule;
 }
 
@@ -2482,7 +2482,7 @@ query_arrayvalue(
     anything any;
     menu_item *picks = (menu_item *) 0;
     int adj = (arrmin > 0) ? 1 : arrmax;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -2701,19 +2701,19 @@ parse_status_hl2(char (*s)[QBUFSZ], boolean from_configfile)
 
         /* relationships {LT_VALUE, LE_VALUE, EQ_VALUE, GE_VALUE, GT_VALUE} */
         if (grt || up)
-            hilite.rel = GT_VALUE;
+            hilite.relationships = GT_VALUE;
         else if (lt || down)
-            hilite.rel = LT_VALUE;
+            hilite.relationships = LT_VALUE;
         else if (gte)
-            hilite.rel = GE_VALUE;
+            hilite.relationships = GE_VALUE;
         else if (le)
-            hilite.rel = LE_VALUE;
+            hilite.relationships = LE_VALUE;
         else if (eq  || percent || numeric || changed)
-            hilite.rel = EQ_VALUE;
+            hilite.relationships = EQ_VALUE;
         else if (txtval)
-            hilite.rel = TXT_VALUE;
+            hilite.relationships = TXT_VALUE;
         else
-            hilite.rel = LT_VALUE;
+            hilite.relationships = LT_VALUE;
 
         if (initblstats[fld].anytype == ANY_STR && (percent || numeric)) {
             config_error_add("Field '%s' does not support numeric values",
@@ -2730,18 +2730,18 @@ parse_status_hl2(char (*s)[QBUFSZ], boolean from_configfile)
                        || (hilite.value.a_int == -1
                            && hilite.value.a_int != GT_VALUE)
                        || (hilite.value.a_int == 0
-                           && hilite.rel == LT_VALUE)
+                           && hilite.relationships == LT_VALUE)
                        || (hilite.value.a_int == 100
-                           && hilite.rel == GT_VALUE)
+                           && hilite.relationships == GT_VALUE)
                        || (hilite.value.a_int == 101
                            && hilite.value.a_int != LT_VALUE)
                        || (hilite.value.a_int > 101)) {
                 config_error_add(
                            "hilite_status: invalid percentage value '%s%d%%'",
-                                 (hilite.rel == LT_VALUE) ? "<"
-                                   : (hilite.rel == LE_VALUE) ? "<="
-                                     : (hilite.rel == GT_VALUE) ? ">"
-                                       : (hilite.rel == GE_VALUE) ? ">="
+                                 (hilite.relationships == LT_VALUE) ? "<"
+                                   : (hilite.relationships == LE_VALUE) ? "<="
+                                     : (hilite.relationships == GT_VALUE) ? ">"
+                                       : (hilite.relationships == GE_VALUE) ? ">="
                                          : "=",
                                  hilite.value.a_int);
                 return FALSE;
@@ -2784,7 +2784,7 @@ parse_status_hl2(char (*s)[QBUFSZ], boolean from_configfile)
             else {
                 int c = match_str2clr(subfields[i], FALSE);
 
-                if (c >= CLR_MAX || coloridx != -1) {
+                if (c >= COLOR_CODE_MAX || coloridx != -1) {
                     config_error_add("bad color '%d %d'", c, coloridx);
                     return FALSE;
                 }
@@ -2792,31 +2792,31 @@ parse_status_hl2(char (*s)[QBUFSZ], boolean from_configfile)
             }
         }
         if (coloridx == -1)
-            coloridx = NO_COLOR;
+            coloridx = COLOR_CODE_NONE;
 
         /* Assign the values */
         hilite.coloridx = coloridx | (disp_attrib << 8);
 
         if (always)
-            hilite.behavior = BL_TH_ALWAYS_HILITE;
+            hilite.behavior = BL_THRESHOLD_ALWAYS_HILITE;
         else if (percent)
-            hilite.behavior = BL_TH_VAL_PERCENTAGE;
+            hilite.behavior = BL_THRESHOLD_VALUE_PERCENTAGE;
         else if (changed)
-            hilite.behavior = BL_TH_UPDOWN;
+            hilite.behavior = BL_THRESHOLD_UPDOWN;
         else if (numeric)
-            hilite.behavior = BL_TH_VAL_ABSOLUTE;
+            hilite.behavior = BL_THRESHOLD_VALUE_ABSOLUTE;
         else if (txtval)
-            hilite.behavior = BL_TH_TEXTMATCH;
+            hilite.behavior = BL_THRESHOLD_TEXTMATCH;
         else if (hilite.value.a_void)
-            hilite.behavior = BL_TH_VAL_ABSOLUTE;
+            hilite.behavior = BL_THRESHOLD_VALUE_ABSOLUTE;
         else if (criticalhp)
-            hilite.behavior = BL_TH_CRITICALHP;
+            hilite.behavior = BL_THRESHOLD_CRITICALHP;
         else
-            hilite.behavior = BL_TH_NONE;
+            hilite.behavior = BL_THRESHOLD_NONE;
 
         hilite.anytype = dt;
 
-        if (hilite.behavior == BL_TH_TEXTMATCH && txt) {
+        if (hilite.behavior == BL_THRESHOLD_TEXTMATCH && txt) {
             (void) strncpy(hilite.textmatch, txt, sizeof hilite.textmatch);
             hilite.textmatch[sizeof hilite.textmatch - 1] = '\0';
             (void) trimspaces(hilite.textmatch);
@@ -2839,7 +2839,7 @@ query_conditions(void)
     winid tmpwin;
     anything any;
     menu_item *picks = (menu_item *) 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -2959,7 +2959,7 @@ staticfn boolean
 parse_condition(char (*s)[QBUFSZ], int sidx)
 {
     int i;
-    int coloridx = NO_COLOR;
+    int coloridx = COLOR_CODE_NONE;
     char *tmp, *how;
     unsigned long conditions_bitmask = 0UL;
     boolean result = FALSE;
@@ -3056,7 +3056,7 @@ parse_condition(char (*s)[QBUFSZ], int sidx)
             } else {
                 int k = match_str2clr(subfields[i], FALSE);
 
-                if (k >= CLR_MAX) {
+                if (k >= COLOR_CODE_MAX) {
                     config_error_add("bad color %d", k);
                     return FALSE;
                 }
@@ -3223,11 +3223,11 @@ status_hilite_linestr_gather_conditions(void)
                   SIZE(conditions) * sizeof (struct _cond_map));
 
     for (i = 0; i < SIZE(conditions); i++) {
-        int clr = NO_COLOR;
+        int clr = COLOR_CODE_NONE;
         int atr = HL_NONE;
         int j;
 
-        for (j = 0; j < CLR_MAX; j++)
+        for (j = 0; j < COLOR_CODE_MAX; j++)
             if (gc.cond_hilites[j] & conditions[i].mask) {
                 clr = j;
                 break;
@@ -3247,7 +3247,7 @@ status_hilite_linestr_gather_conditions(void)
         if (atr != HL_NONE)
             atr &= ~HL_NONE;
 
-        if (clr != NO_COLOR || atr != HL_NONE) {
+        if (clr != COLOR_CODE_NONE || atr != HL_NONE) {
             unsigned int ca = clr | (atr << 8);
             boolean added_condmap = FALSE;
 
@@ -3270,10 +3270,10 @@ status_hilite_linestr_gather_conditions(void)
 
     for (i = 0; i < SIZE(conditions); i++)
         if (cond_maps[i].bm) {
-            int clr = NO_COLOR, atr = HL_NONE;
+            int clr = COLOR_CODE_NONE, atr = HL_NONE;
 
             split_clridx(cond_maps[i].clratr, &clr, &atr);
-            if (clr != NO_COLOR || atr != HL_NONE) {
+            if (clr != COLOR_CODE_NONE || atr != HL_NONE) {
                 char clrbuf[BUFSZ];
                 char attrbuf[BUFSZ];
                 char condbuf[BUFSZ];
@@ -3316,7 +3316,7 @@ staticfn char *
 status_hilite2str(struct hilite_s *hl)
 {
     static char buf[BUFSZ];
-    int clr = NO_COLOR, attr = ATR_NONE;
+    int clr = COLOR_CODE_NONE, attr = ATR_NONE;
     char behavebuf[BUFSZ];
     char clrbuf[BUFSZ];
     char attrbuf[BUFSZ];
@@ -3328,55 +3328,55 @@ status_hilite2str(struct hilite_s *hl)
 
     behavebuf[0] = '\0';
     clrbuf[0] = '\0';
-    op = (hl->rel == LT_VALUE) ? "<"
-           : (hl->rel == LE_VALUE) ? "<="
-             : (hl->rel == GT_VALUE) ? ">"
-               : (hl->rel == GE_VALUE) ? ">="
-                 : (hl->rel == EQ_VALUE) ? "="
+    op = (hl->relationships == LT_VALUE) ? "<"
+           : (hl->relationships == LE_VALUE) ? "<="
+             : (hl->relationships == GT_VALUE) ? ">"
+               : (hl->relationships == GE_VALUE) ? ">="
+                 : (hl->relationships == EQ_VALUE) ? "="
                    : 0;
 
     switch (hl->behavior) {
-    case BL_TH_VAL_PERCENTAGE:
+    case BL_THRESHOLD_VALUE_PERCENTAGE:
         if (op)
             Sprintf(behavebuf, "%s%d%%", op, hl->value.a_int);
         else
             impossible("hl->behavior=percentage, rel error");
         break;
-    case BL_TH_UPDOWN:
-        if (hl->rel == LT_VALUE)
+    case BL_THRESHOLD_UPDOWN:
+        if (hl->relationships == LT_VALUE)
             Sprintf(behavebuf, "down");
-        else if (hl->rel == GT_VALUE)
+        else if (hl->relationships == GT_VALUE)
             Sprintf(behavebuf, "up");
-        else if (hl->rel == EQ_VALUE)
+        else if (hl->relationships == EQ_VALUE)
             Sprintf(behavebuf, "changed");
         else
             impossible("hl->behavior=updown, rel error");
         break;
-    case BL_TH_VAL_ABSOLUTE:
+    case BL_THRESHOLD_VALUE_ABSOLUTE:
         if (op)
             Sprintf(behavebuf, "%s%d", op, hl->value.a_int);
         else
             impossible("hl->behavior=absolute, rel error");
         break;
-    case BL_TH_TEXTMATCH:
-        if (hl->rel == TXT_VALUE && hl->textmatch[0])
+    case BL_THRESHOLD_TEXTMATCH:
+        if (hl->relationships == TXT_VALUE && hl->textmatch[0])
             Sprintf(behavebuf, "%s", hl->textmatch);
         else
             impossible("hl->behavior=textmatch, rel or textmatch error");
         break;
-    case BL_TH_CONDITION:
-        if (hl->rel == EQ_VALUE)
+    case BL_THRESHOLD_CONDITION:
+        if (hl->relationships == EQ_VALUE)
             Sprintf(behavebuf, "%s", conditionbitmask2str(hl->value.a_ulong));
         else
             impossible("hl->behavior=condition, rel error");
         break;
-    case BL_TH_ALWAYS_HILITE:
+    case BL_THRESHOLD_ALWAYS_HILITE:
         Sprintf(behavebuf, "always");
         break;
-    case BL_TH_CRITICALHP:
+    case BL_THRESHOLD_CRITICALHP:
         Sprintf(behavebuf, "criticalhp");
         break;
-    case BL_TH_NONE:
+    case BL_THRESHOLD_NONE:
         break;
     default:
         break;
@@ -3401,7 +3401,7 @@ status_hilite_menu_choose_field(void)
     int i, res, fld = BL_FLUSH;
     anything any;
     menu_item *picks = (menu_item *) 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -3433,16 +3433,16 @@ staticfn int
 status_hilite_menu_choose_behavior(int fld)
 {
     winid tmpwin;
-    int res = 0, beh = BL_TH_NONE-1;
+    int res = 0, beh = BL_THRESHOLD_NONE-1;
     anything any;
     menu_item *picks = (menu_item *) 0;
     char buf[BUFSZ];
     int at;
-    int onlybeh = BL_TH_NONE, nopts = 0;
-    int clr = NO_COLOR;
+    int onlybeh = BL_THRESHOLD_NONE, nopts = 0;
+    int clr = COLOR_CODE_NONE;
 
     if (fld < 0 || fld >= MAXBLSTATS)
-        return BL_TH_NONE;
+        return BL_THRESHOLD_NONE;
 
     at = initblstats[fld].anytype;
 
@@ -3451,7 +3451,7 @@ status_hilite_menu_choose_behavior(int fld)
 
     if (fld != BL_CONDITION) {
         any = cg.zeroany;
-        any.a_int = onlybeh = BL_TH_ALWAYS_HILITE;
+        any.a_int = onlybeh = BL_THRESHOLD_ALWAYS_HILITE;
         Sprintf(buf, "Always highlight %s", initblstats[fld].fldname);
         add_menu(tmpwin, &nul_glyphinfo, &any, 'a', 0, ATR_NONE,
                  clr, buf, MENU_ITEMFLAGS_NONE);
@@ -3460,7 +3460,7 @@ status_hilite_menu_choose_behavior(int fld)
 
     if (fld == BL_CONDITION) {
         any = cg.zeroany;
-        any.a_int = onlybeh = BL_TH_CONDITION;
+        any.a_int = onlybeh = BL_THRESHOLD_CONDITION;
         add_menu(tmpwin, &nul_glyphinfo, &any, 'b', 0, ATR_NONE,
                  clr, "Bitmask of conditions", MENU_ITEMFLAGS_NONE);
         nopts++;
@@ -3468,7 +3468,7 @@ status_hilite_menu_choose_behavior(int fld)
 
     if (fld != BL_CONDITION && fld != BL_VERS) {
         any = cg.zeroany;
-        any.a_int = onlybeh = BL_TH_UPDOWN;
+        any.a_int = onlybeh = BL_THRESHOLD_UPDOWN;
         Sprintf(buf, "%s value changes", initblstats[fld].fldname);
         add_menu(tmpwin, &nul_glyphinfo, &any, 'c', 0, ATR_NONE,
                  clr, buf, MENU_ITEMFLAGS_NONE);
@@ -3478,7 +3478,7 @@ status_hilite_menu_choose_behavior(int fld)
     if (fld != BL_CAP && fld != BL_HUNGER
         && (at == ANY_INT || at == ANY_LONG)) {
         any = cg.zeroany;
-        any.a_int = onlybeh = BL_TH_VAL_ABSOLUTE;
+        any.a_int = onlybeh = BL_THRESHOLD_VALUE_ABSOLUTE;
         add_menu(tmpwin, &nul_glyphinfo, &any, 'n', 0, ATR_NONE,
                  clr, "Number threshold", MENU_ITEMFLAGS_NONE);
         nopts++;
@@ -3486,7 +3486,7 @@ status_hilite_menu_choose_behavior(int fld)
 
     if (initblstats[fld].idxmax >= 0) {
         any = cg.zeroany;
-        any.a_int = onlybeh = BL_TH_VAL_PERCENTAGE;
+        any.a_int = onlybeh = BL_THRESHOLD_VALUE_PERCENTAGE;
         add_menu(tmpwin, &nul_glyphinfo, &any, 'p', 0, ATR_NONE,
                  clr, "Percentage threshold", MENU_ITEMFLAGS_NONE);
         nopts++;
@@ -3494,7 +3494,7 @@ status_hilite_menu_choose_behavior(int fld)
 
     if (fld == BL_HP) {
         any = cg.zeroany;
-        any.a_int = onlybeh = BL_TH_CRITICALHP;
+        any.a_int = onlybeh = BL_THRESHOLD_CRITICALHP;
         Sprintf(buf,  "Highlight critically low %s", initblstats[fld].fldname);
         add_menu(tmpwin, &nul_glyphinfo, &any, 'C', 0, ATR_NONE,
                  clr, buf, MENU_ITEMFLAGS_NONE);
@@ -3504,7 +3504,7 @@ status_hilite_menu_choose_behavior(int fld)
     if (initblstats[fld].anytype == ANY_STR
         || fld == BL_CAP || fld == BL_HUNGER) {
         any = cg.zeroany;
-        any.a_int = onlybeh = BL_TH_TEXTMATCH;
+        any.a_int = onlybeh = BL_THRESHOLD_TEXTMATCH;
         Sprintf(buf, "%s text match", initblstats[fld].fldname);
         add_menu(tmpwin, &nul_glyphinfo, &any, 't', 0, ATR_NONE,
                  clr, buf, MENU_ITEMFLAGS_NONE);
@@ -3518,10 +3518,10 @@ status_hilite_menu_choose_behavior(int fld)
     if (nopts > 1) {
         res = select_menu(tmpwin, PICK_ONE, &picks);
         if (res == 0) /* none chosen*/
-            beh = BL_TH_NONE;
+            beh = BL_THRESHOLD_NONE;
         else if (res == -1) /* menu cancelled */
-            beh = (BL_TH_NONE - 1);
-    } else if (onlybeh != BL_TH_NONE) {
+            beh = (BL_THRESHOLD_NONE - 1);
+    } else if (onlybeh != BL_THRESHOLD_NONE) {
         beh = onlybeh;
     }
     destroy_nhwindow(tmpwin);
@@ -3543,7 +3543,7 @@ status_hilite_menu_choose_updownboth(
     char buf[BUFSZ];
     anything any;
     menu_item *picks = (menu_item *) 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -3617,7 +3617,7 @@ status_hilite_menu_add(int origfld)
     int fld;
     int behavior;
     int lt_gt_eq;
-    int clr = NO_COLOR, atr = HL_UNDEF;
+    int clr = COLOR_CODE_NONE, atr = HL_UNDEF;
     struct hilite_s hilite;
     unsigned long cond = 0UL;
     char colorqry[BUFSZ];
@@ -3646,9 +3646,9 @@ status_hilite_menu_add(int origfld)
  choose_behavior:
     behavior = status_hilite_menu_choose_behavior(fld);
 
-    if (behavior == (BL_TH_NONE - 1)) {
+    if (behavior == (BL_THRESHOLD_NONE - 1)) {
         return FALSE;
-    } else if (behavior == BL_TH_NONE) {
+    } else if (behavior == BL_THRESHOLD_NONE) {
         if (origfld == BL_FLUSH)
             goto choose_field;
         return FALSE;
@@ -3657,12 +3657,12 @@ status_hilite_menu_add(int origfld)
     hilite.behavior = behavior;
 
  choose_value:
-    if (behavior == BL_TH_VAL_PERCENTAGE
-        || behavior == BL_TH_VAL_ABSOLUTE) {
+    if (behavior == BL_THRESHOLD_VALUE_PERCENTAGE
+        || behavior == BL_THRESHOLD_VALUE_ABSOLUTE) {
         char inbuf[BUFSZ], buf[BUFSZ];
         anything aval;
         int val, dt;
-        boolean gotnum = FALSE, percent = (behavior == BL_TH_VAL_PERCENTAGE);
+        boolean gotnum = FALSE, percent = (behavior == BL_THRESHOLD_VALUE_PERCENTAGE);
         char *inp, *numstart;
         const char *op;
 
@@ -3733,7 +3733,7 @@ status_hilite_menu_add(int origfld)
             if (initblstats[fld].idxmax == -1) {
                 pline("Field '%s' does not support percentage values.",
                       initblstats[fld].fldname);
-                behavior = BL_TH_VAL_ABSOLUTE;
+                behavior = BL_THRESHOLD_VALUE_ABSOLUTE;
                 goto choose_value;
             }
             /* if player only specified a number then lt_gt_eq isn't set
@@ -3799,9 +3799,9 @@ status_hilite_menu_add(int origfld)
                   : (lt_gt_eq == GE_VALUE) ? " or more"
                     : "");
 
-        hilite.rel = lt_gt_eq;
+        hilite.relationships = lt_gt_eq;
         hilite.value = aval;
-    } else if (behavior == BL_TH_UPDOWN) {
+    } else if (behavior == BL_THRESHOLD_UPDOWN) {
         if (initblstats[fld].anytype != ANY_STR) {
             boolean ltok = (fld != BL_TIME), gtok = TRUE;
 
@@ -3828,8 +3828,8 @@ status_hilite_menu_add(int origfld)
                 (lt_gt_eq == EQ_VALUE) ? "changes"
                   : (lt_gt_eq == LT_VALUE) ? "decreases"
                     : "increases");
-        hilite.rel = lt_gt_eq;
-    } else if (behavior == BL_TH_CONDITION) {
+        hilite.relationships = lt_gt_eq;
+    } else if (behavior == BL_THRESHOLD_CONDITION) {
         cond = query_conditions();
         if (!cond) {
             if (origfld == BL_FLUSH)
@@ -3842,7 +3842,7 @@ status_hilite_menu_add(int origfld)
         Snprintf(attrqry, sizeof(attrqry),
                 "Choose attribute for conditions %s:",
                 conditionbitmask2str(cond));
-    } else if (behavior == BL_TH_TEXTMATCH) {
+    } else if (behavior == BL_THRESHOLD_TEXTMATCH) {
         char qry_buf[BUFSZ];
 
         Sprintf(qry_buf, "%s %s text value to match:",
@@ -3859,7 +3859,7 @@ status_hilite_menu_add(int origfld)
             if (rv < SLIGHTLY_ENCUMBERED)
                 goto choose_behavior;
 
-            hilite.rel = TXT_VALUE;
+            hilite.relationships = TXT_VALUE;
             Strcpy(hilite.textmatch, enc_stat[rv]);
         } else if (fld == BL_ALIGN) {
             static const char *const aligntxt[] = {
@@ -3871,7 +3871,7 @@ status_hilite_menu_add(int origfld)
             if (rv < 0)
                 goto choose_behavior;
 
-            hilite.rel = TXT_VALUE;
+            hilite.relationships = TXT_VALUE;
             Strcpy(hilite.textmatch, aligntxt[rv]);
         } else if (fld == BL_HUNGER) {
             static const char *const hutxt[] = {
@@ -3883,7 +3883,7 @@ status_hilite_menu_add(int origfld)
             if (rv < SATIATED)
                 goto choose_behavior;
 
-            hilite.rel = TXT_VALUE;
+            hilite.relationships = TXT_VALUE;
             Strcpy(hilite.textmatch, hutxt[rv]);
         } else if (fld == BL_TITLE) {
             const char *rolelist[3 * 9 + 1];
@@ -3918,7 +3918,7 @@ status_hilite_menu_add(int origfld)
 
             rv = query_arrayvalue(qry_buf, rolelist, 0, j);
             if (rv >= 0) {
-                hilite.rel = TXT_VALUE;
+                hilite.relationships = TXT_VALUE;
                 Strcpy(hilite.textmatch, rolelist[rv]);
             }
             for (i = 0; i < j; i++)
@@ -3933,7 +3933,7 @@ status_hilite_menu_add(int origfld)
             if (inbuf[0] == '\0' || inbuf[0] == '\033')
                 goto choose_behavior;
 
-            hilite.rel = TXT_VALUE;
+            hilite.relationships = TXT_VALUE;
             if (strlen(inbuf) < sizeof hilite.textmatch)
                 Strcpy(hilite.textmatch, inbuf);
             else
@@ -3943,7 +3943,7 @@ status_hilite_menu_add(int origfld)
                 initblstats[fld].fldname, hilite.textmatch);
         Sprintf(attrqry, "Choose attribute for when %s is '%s':",
                 initblstats[fld].fldname, hilite.textmatch);
-    } else if (behavior == BL_TH_ALWAYS_HILITE) {
+    } else if (behavior == BL_THRESHOLD_ALWAYS_HILITE) {
         Sprintf(colorqry, "Choose a color to always hilite %s:",
                 initblstats[fld].fldname);
         Sprintf(attrqry, "Choose attribute to always hilite %s:",
@@ -3951,9 +3951,9 @@ status_hilite_menu_add(int origfld)
     }
 
  choose_color:
-    clr = query_color(colorqry, NO_COLOR);
+    clr = query_color(colorqry, COLOR_CODE_NONE);
     if (clr == -1) {
-        if (behavior != BL_TH_ALWAYS_HILITE)
+        if (behavior != BL_THRESHOLD_ALWAYS_HILITE)
             goto choose_value;
         else
             goto choose_behavior;
@@ -3962,7 +3962,7 @@ status_hilite_menu_add(int origfld)
     if (atr == -1)
         goto choose_color;
 
-    if (behavior == BL_TH_CONDITION) {
+    if (behavior == BL_THRESHOLD_CONDITION) {
         char clrbuf[BUFSZ];
         char attrbuf[BUFSZ];
         char *tmpattr;
@@ -4036,7 +4036,7 @@ status_hilite_remove(int id)
     if (hlstr->fld == BL_CONDITION) {
         int i;
 
-        for (i = 0; i < CLR_MAX; i++)
+        for (i = 0; i < COLOR_CODE_MAX; i++)
             gc.cond_hilites[i] &= ~hlstr->mask;
         gc.cond_hilites[HL_ATTCLR_BOLD] &= ~hlstr->mask;
         gc.cond_hilites[HL_ATTCLR_DIM] &= ~hlstr->mask;
@@ -4084,7 +4084,7 @@ status_hilite_menu_fld(int fld)
     struct _status_hilite_line_str *hlstr;
     char buf[BUFSZ];
     boolean acted;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     if (!count) {
         if (status_hilite_menu_add(fld)) {
@@ -4223,7 +4223,7 @@ status_hilite_menu(void)
     anything any;
     boolean redo;
     int countall;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
  shlmenu_redo:
     redo = FALSE;

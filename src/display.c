@@ -1568,10 +1568,10 @@ see_traps(void)
 }
 
 /*  glyph, ttychar, framecolor,
-    { glyphflags, { NO_COLOR, sym.symidx }, customcolor, color256idx, tileidx, u } */
+    { glyphflags, { COLOR_CODE_NONE, sym.symidx }, customcolor, color256idx, tileidx, u } */
 static glyph_info no_ginfo = {
-    NO_GLYPH, ' ', NO_COLOR,
-    { MG_BADXY, { NO_COLOR, 0 },
+    NO_GLYPH, ' ', COLOR_CODE_NONE,
+    { MG_BADXY, { COLOR_CODE_NONE, 0 },
     0,
     0U, 0U
 #ifdef ENHANCED_SYMBOLS
@@ -1599,10 +1599,10 @@ extern const glyph_info nul_glyphinfo; /* tile.c */
 /* glyph, ttychar, framecolor, { glyphflags, { sym.symidx }, nhcolor,
                      tileidx, 0} */
 const glyph_info nul_glyphinfo = {
-    NO_GLYPH, ' ', NO_COLOR,
+    NO_GLYPH, ' ', COLOR_CODE_NONE,
         {  /* glyph_map */
             MG_UNEXPL,
-            { NO_COLOR, SYM_UNEXPLORED + SYM_OFF_X },
+            { COLOR_CODE_NONE, SYM_UNEXPLORED + SYM_OFF_X },
               0,
               0U, 0U
 #ifdef ENHANCED_SYMBOLS
@@ -1616,7 +1616,7 @@ const glyph_info nul_glyphinfo = {
 extern glyph_map glyphmap[MAX_GLYPH]; /* from tile.c */
 #else
 glyph_map glyphmap[MAX_GLYPH] = {
-    { 0U, { NO_COLOR, 0 },
+    { 0U, { COLOR_CODE_NONE, 0 },
       0,
       0U, 0U
 #ifdef ENHANCED_SYMBOLS
@@ -2026,10 +2026,10 @@ show_glyph(coordxy x, coordxy y, int glyph)
 
 static gbuf_entry nul_gbuf = {
     0,                                 /* gnew */
-    { GLYPH_UNEXPLORED, (unsigned) ' ', NO_COLOR,
+    { GLYPH_UNEXPLORED, (unsigned) ' ', COLOR_CODE_NONE,
        /* glyphinfo.glyph, glyphinfo.ttychar */
         /* glyphinfo.gm */
-        { MG_UNEXPL, { NO_COLOR, 0 },
+        { MG_UNEXPL, { COLOR_CODE_NONE, 0 },
           0,
           0U, 0U
 #ifdef ENHANCED_SYMBOLS
@@ -2064,7 +2064,7 @@ clear_glyph_buffer(void)
                      || giptr->gm.tileidx != nul_gbuf.glyphinfo.gm.tileidx)
 #else
     nul_gbuf.gnew = (giptr->ttychar != ' '
-                     || giptr->gm.sym.color != NO_COLOR
+                     || giptr->gm.sym.color != COLOR_CODE_NONE
                      || giptr->gm.customcolor != 0
                      || (giptr->gm.glyphflags & ~MG_UNEXPL) != 0)
 #endif
@@ -2105,7 +2105,7 @@ row_refresh(coordxy start, coordxy stop, coordxy y)
                  || giptr->gm.tileidx != nul_gbuf.glyphinfo.gm.tileidx)
 #else
     force = (giptr->ttychar != ' '
-                 || giptr->gm.sym.color != NO_COLOR
+                 || giptr->gm.sym.color != COLOR_CODE_NONE
                  || giptr->gm.gm.customcolor != 0
                  || (giptr->gm.glyphflags & ~MG_UNEXPL) != 0)
 #endif
@@ -2116,7 +2116,7 @@ row_refresh(coordxy start, coordxy stop, coordxy y)
         get_bkglyph_and_framecolor(x, y, &bkglyphinfo.glyph,
                                    &bkglyphinfo.framecolor);
         if (force || glyph != GLYPH_UNEXPLORED
-            || bkglyphinfo.framecolor != NO_COLOR) {
+            || bkglyphinfo.framecolor != COLOR_CODE_NONE) {
             print_glyph(WIN_MAP, x, y,
                         Glyphinfo_at(x, y, glyph), &bkglyphinfo);
         }
@@ -2183,8 +2183,8 @@ flush_screen(int cursor_on_u)
             get_bkglyph_and_framecolor(x, y, &bkglyph,
                                        &bkglyphinfo.framecolor);
             if (gptr->gnew
-                || (gw.wsettings.map_frame_color != NO_COLOR
-                    && bkglyphinfo.framecolor != NO_COLOR)) {
+                || (gw.wsettings.map_frame_color != COLOR_CODE_NONE
+                    && bkglyphinfo.framecolor != COLOR_CODE_NONE)) {
                 map_glyphinfo(x, y, bkglyph, 0, &bkglyphinfo); /* won't touch framecolor */
                 print_glyph(WIN_MAP, x, y,
                             Glyphinfo_at(x, y, gptr->glyphinfo.glyph), &bkglyphinfo);
@@ -2502,10 +2502,10 @@ get_bkglyph_and_framecolor(
     }
 #endif
     if (iflags.bgcolors
-        && gw.wsettings.map_frame_color != NO_COLOR && mapxy_valid(x, y))
+        && gw.wsettings.map_frame_color != COLOR_CODE_NONE && mapxy_valid(x, y))
         *framecolor = gw.wsettings.map_frame_color;
     else
-        *framecolor = NO_COLOR;
+        *framecolor = COLOR_CODE_NONE;
 }
 
 #if defined(TILES_IN_GLYPHMAP) && defined(MSDOS)
@@ -2554,7 +2554,7 @@ map_glyphinfo(
         } else if (HAS_ROGUE_IBM_GRAPHICS
                    && gs.symset[gc.currentgraphics].nocolor == 0) {
             /* actually player should be yellow-on-gray if in corridor */
-            glyphinfo->gm.sym.color = CLR_YELLOW;
+            glyphinfo->gm.sym.color = COLOR_CODE_YELLOW;
         } else if (flags.showrace) {
             /* for showrace, non-human hero is displayed by the symbol of
                corresponding type of monster rather than by '@' (handled
@@ -2606,22 +2606,22 @@ const int explodecolors[7] = {
 /* main_walls, mines_walls, gehennom_walls, knox_walls, sokoban_walls */
 int wallcolors[sokoban_walls + 1] = {
     /* default init value is to match defsym[S_vwall + n].color (CLR_GRAY) */
-    CLR_GRAY, CLR_GRAY, CLR_GRAY, CLR_GRAY, CLR_GRAY,
+    COLOR_CODE_GRAY, COLOR_CODE_GRAY, COLOR_CODE_GRAY, COLOR_CODE_GRAY, COLOR_CODE_GRAY,
     /* CLR_GRAY, CLR_BROWN, CLR_RED, CLR_GRAY, CLR_BRIGHT_BLUE, */
 };
 
-#define zap_color(n) color = iflags.use_color ? zapcolors[n] : NO_COLOR
-#define cmap_color(n) color = iflags.use_color ? defsyms[n].color : NO_COLOR
-#define obj_color(n) color = iflags.use_color ? objects[n].oc_color : NO_COLOR
-#define mon_color(n) color = iflags.use_color ? mons[n].mcolor : NO_COLOR
-#define invis_color(n) color = NO_COLOR
-#define pet_color(n) color = iflags.use_color ? mons[n].mcolor : NO_COLOR
+#define zap_color(n) color = iflags.use_color ? zapcolors[n] : COLOR_CODE_NONE
+#define cmap_color(n) color = iflags.use_color ? defsyms[n].color : COLOR_CODE_NONE
+#define obj_color(n) color = iflags.use_color ? objects[n].oc_color : COLOR_CODE_NONE
+#define mon_color(n) color = iflags.use_color ? mons[n].mcolor : COLOR_CODE_NONE
+#define invis_color(n) color = COLOR_CODE_NONE
+#define pet_color(n) color = iflags.use_color ? mons[n].mcolor : COLOR_CODE_NONE
 #define warn_color(n) \
-    color = iflags.use_color ? def_warnsyms[n].color : NO_COLOR
+    color = iflags.use_color ? def_warnsyms[n].color : COLOR_CODE_NONE
 #define explode_color(n) \
-    color = iflags.use_color ? explodecolors[n] : NO_COLOR
-#define wall_color(n) color = iflags.use_color ? wallcolors[n] : NO_COLOR
-#define altar_color(n) color = iflags.use_color ? altarcolors[n] : NO_COLOR
+    color = iflags.use_color ? explodecolors[n] : COLOR_CODE_NONE
+#define wall_color(n) color = iflags.use_color ? wallcolors[n] : COLOR_CODE_NONE
+#define altar_color(n) color = iflags.use_color ? altarcolors[n] : COLOR_CODE_NONE
 
 #if 0
 #define is_objpile(x, y)                          \
@@ -2634,22 +2634,22 @@ staticfn int cmap_to_roguecolor(int);
 staticfn int
 cmap_to_roguecolor(int cmap)
 {
-    int color = NO_COLOR;
+    int color = COLOR_CODE_NONE;
 
     if (gs.symset[gc.currentgraphics].nocolor)
-        return NO_COLOR;
+        return COLOR_CODE_NONE;
 
     if (cmap >= S_vwall && cmap <= S_hcdoor)
-        color = CLR_BROWN;
+        color = COLOR_CODE_BROWN;
     else if (cmap >= S_arrow_trap && cmap <= S_polymorph_trap)
-        color = CLR_MAGENTA;
+        color = COLOR_CODE_MAGENTA;
     else if (cmap == S_corr || cmap == S_litcorr)
-        color = CLR_GRAY;
+        color = COLOR_CODE_GRAY;
     else if (cmap >= S_room && cmap <= S_water
                 && cmap != S_darkroom)
-        color = CLR_GREEN;
+        color = COLOR_CODE_GREEN;
     else
-        color = NO_COLOR;
+        color = COLOR_CODE_NONE;
 
     return color;
 }
@@ -2676,7 +2676,7 @@ reset_glyphmap(enum glyphmap_change_triggers trigger)
 {
     int glyph;
     int offset;
-    int color = NO_COLOR;
+    int color = COLOR_CODE_NONE;
 
     /* condense multiple tests in macro version down to single */
     boolean has_rogue_ibm_graphics = HAS_ROGUE_IBM_GRAPHICS,
@@ -2709,30 +2709,30 @@ reset_glyphmap(enum glyphmap_change_triggers trigger)
          */
         if ((offset = (glyph - GLYPH_NOTHING_OFF)) >= 0) {
             gmap->sym.symidx = SYM_NOTHING + SYM_OFF_X;
-            color = NO_COLOR;
+            color = COLOR_CODE_NONE;
             gmap->glyphflags |= MG_NOTHING;
         } else if ((offset = (glyph - GLYPH_UNEXPLORED_OFF)) >= 0) {
             gmap->sym.symidx = SYM_UNEXPLORED + SYM_OFF_X;
-            color = NO_COLOR;
+            color = COLOR_CODE_NONE;
             gmap->glyphflags |= MG_UNEXPL;
         } else if ((offset = (glyph - GLYPH_STATUE_FEM_PILETOP_OFF)) >= 0) {
             gmap->sym.symidx = mons[offset].mlet + SYM_OFF_M;
             if (has_rogue_color)
-                color = CLR_RED;
+                color = COLOR_CODE_RED;
             else
                 obj_color(STATUE);
             gmap->glyphflags |= (MG_STATUE | MG_FEMALE | MG_OBJPILE);
         } else if ((offset = (glyph - GLYPH_STATUE_MALE_PILETOP_OFF)) >= 0) {
             gmap->sym.symidx = mons[offset].mlet + SYM_OFF_M;
             if (has_rogue_color)
-                color = CLR_RED;
+                color = COLOR_CODE_RED;
             else
                 obj_color(STATUE);
             gmap->glyphflags |= (MG_STATUE | MG_MALE | MG_OBJPILE);
         } else if ((offset = (glyph - GLYPH_BODY_PILETOP_OFF)) >= 0) {
             gmap->sym.symidx = objects[CORPSE].oc_class + SYM_OFF_O;
             if (has_rogue_color)
-                color = CLR_RED;
+                color = COLOR_CODE_RED;
             else
                 mon_color(offset);
             gmap->glyphflags |= (MG_CORPSE | MG_OBJPILE);
@@ -2743,13 +2743,13 @@ reset_glyphmap(enum glyphmap_change_triggers trigger)
             if (has_rogue_color) {
                 switch (objects[offset].oc_class) {
                 case COIN_CLASS:
-                    color = CLR_YELLOW;
+                    color = COLOR_CODE_YELLOW;
                     break;
                 case FOOD_CLASS:
-                    color = CLR_RED;
+                    color = COLOR_CODE_RED;
                     break;
                 default:
-                    color = CLR_BRIGHT_BLUE;
+                    color = COLOR_CODE_BRIGHT_BLUE;
                     break;
                 }
             } else
@@ -2758,14 +2758,14 @@ reset_glyphmap(enum glyphmap_change_triggers trigger)
         } else if ((offset = (glyph - GLYPH_STATUE_FEM_OFF)) >= 0) {
             gmap->sym.symidx = mons[offset].mlet + SYM_OFF_M;
             if (has_rogue_color)
-                color = CLR_RED;
+                color = COLOR_CODE_RED;
             else
                 obj_color(STATUE);
             gmap->glyphflags |= (MG_STATUE | MG_FEMALE);
         } else if ((offset = (glyph - GLYPH_STATUE_MALE_OFF)) >= 0) {
             gmap->sym.symidx = mons[offset].mlet + SYM_OFF_M;
             if (has_rogue_color)
-                color = CLR_RED;
+                color = COLOR_CODE_RED;
             else
                 obj_color(STATUE);
             gmap->glyphflags |= (MG_STATUE | MG_MALE);
@@ -2773,7 +2773,7 @@ reset_glyphmap(enum glyphmap_change_triggers trigger)
                    >= 0) { /* warn flash */
             gmap->sym.symidx = offset + SYM_OFF_W;
             if (has_rogue_color)
-                color = NO_COLOR;
+                color = COLOR_CODE_NONE;
             else
                 warn_color(offset);
         } else if ((offset = (glyph - GLYPH_EXPLODE_FROSTY_OFF)) >= 0) {
@@ -2801,7 +2801,7 @@ reset_glyphmap(enum glyphmap_change_triggers trigger)
             /* see swallow_to_glyph() in display.c */
             gmap->sym.symidx = (S_sw_tl + (offset & 0x7)) + SYM_OFF_P;
             if (has_rogue_color)
-                color = NO_COLOR;
+                color = COLOR_CODE_NONE;
             else
                 mon_color(offset >> 3);
         } else if ((offset = (glyph - GLYPH_CMAP_C_OFF)) >= 0) {
@@ -2814,7 +2814,7 @@ reset_glyphmap(enum glyphmap_change_triggers trigger)
             /* see zapdir_to_glyph() in display.c */
             gmap->sym.symidx = (S_vbeam + (offset & 0x3)) + SYM_OFF_P;
             if (has_rogue_color)
-                color = NO_COLOR;
+                color = COLOR_CODE_NONE;
             else
                 zap_color((offset >> 2));
         } else if ((offset = (glyph - GLYPH_CMAP_B_OFF)) >= 0) {
@@ -2873,7 +2873,7 @@ reset_glyphmap(enum glyphmap_change_triggers trigger)
                use the same symbol */
             } else if (cmap == S_litcorr
                        && sym == gs.showsyms[S_corr + SYM_OFF_P]) {
-                color = CLR_WHITE;
+                color = COLOR_CODE_WHITE;
             /* likewise for corridor and engraving-in-corridor */
             } else if (cmap == S_engrcorr
                        && (sym == gs.showsyms[S_corr + SYM_OFF_P]
@@ -2908,13 +2908,13 @@ reset_glyphmap(enum glyphmap_change_triggers trigger)
             if (has_rogue_color) {
                 switch (objects[offset].oc_class) {
                 case COIN_CLASS:
-                    color = CLR_YELLOW;
+                    color = COLOR_CODE_YELLOW;
                     break;
                 case FOOD_CLASS:
-                    color = CLR_RED;
+                    color = COLOR_CODE_RED;
                     break;
                 default:
-                    color = CLR_BRIGHT_BLUE;
+                    color = COLOR_CODE_BRIGHT_BLUE;
                     break;
                 }
             } else
@@ -2926,28 +2926,28 @@ reset_glyphmap(enum glyphmap_change_triggers trigger)
                 /* don't ride (yet...).  Should we set it to yellow like in */
                 /* the monster case below?  There is no equivalent in rogue.
                  */
-                color = NO_COLOR;
+                color = COLOR_CODE_NONE;
             else
                 mon_color(offset);
             gmap->glyphflags |= (MG_RIDDEN | MG_FEMALE);
         } else if ((offset = (glyph - GLYPH_RIDDEN_MALE_OFF)) >= 0) {
             gmap->sym.symidx = mons[offset].mlet + SYM_OFF_M;
             if (has_rogue_color)
-                color = NO_COLOR;
+                color = COLOR_CODE_NONE;
             else
                 mon_color(offset);
             gmap->glyphflags |= (MG_RIDDEN | MG_MALE);
         } else if ((offset = (glyph - GLYPH_BODY_OFF)) >= 0) {
             gmap->sym.symidx = objects[CORPSE].oc_class + SYM_OFF_O;
             if (has_rogue_color)
-                color = CLR_RED;
+                color = COLOR_CODE_RED;
             else
                 mon_color(offset);
             gmap->glyphflags |= MG_CORPSE;
         } else if ((offset = (glyph - GLYPH_DETECT_FEM_OFF)) >= 0) {
             gmap->sym.symidx = mons[offset].mlet + SYM_OFF_M;
             if (has_rogue_color)
-                color = NO_COLOR;
+                color = COLOR_CODE_NONE;
             else
                 mon_color(offset);
             /* Disabled for now; anyone want to get reverse video to work? */
@@ -2956,7 +2956,7 @@ reset_glyphmap(enum glyphmap_change_triggers trigger)
         } else if ((offset = (glyph - GLYPH_DETECT_MALE_OFF)) >= 0) {
             gmap->sym.symidx = mons[offset].mlet + SYM_OFF_M;
             if (has_rogue_color)
-                color = NO_COLOR;
+                color = COLOR_CODE_NONE;
             else
                 mon_color(offset);
             /* Disabled for now; anyone want to get reverse video to work? */
@@ -2965,28 +2965,28 @@ reset_glyphmap(enum glyphmap_change_triggers trigger)
         } else if ((offset = (glyph - GLYPH_INVIS_OFF)) >= 0) {
             gmap->sym.symidx = SYM_INVISIBLE + SYM_OFF_X;
             if (has_rogue_color)
-                color = NO_COLOR;
+                color = COLOR_CODE_NONE;
             else
                 invis_color(offset);
             gmap->glyphflags |= MG_INVIS;
         } else if ((offset = (glyph - GLYPH_PET_FEM_OFF)) >= 0) {
             gmap->sym.symidx = mons[offset].mlet + SYM_OFF_M;
             if (has_rogue_color)
-                color = NO_COLOR;
+                color = COLOR_CODE_NONE;
             else
                 pet_color(offset);
             gmap->glyphflags |= (MG_PET | MG_FEMALE);
         } else if ((offset = (glyph - GLYPH_PET_MALE_OFF)) >= 0) {
             gmap->sym.symidx = mons[offset].mlet + SYM_OFF_M;
             if (has_rogue_color)
-                color = NO_COLOR;
+                color = COLOR_CODE_NONE;
             else
                 pet_color(offset);
             gmap->glyphflags |= (MG_PET | MG_MALE);
         } else if ((offset = (glyph - GLYPH_MON_FEM_OFF)) >= 0) {
             gmap->sym.symidx = mons[offset].mlet + SYM_OFF_M;
             if (has_rogue_color) {
-                color = NO_COLOR;
+                color = COLOR_CODE_NONE;
             } else {
                 mon_color(offset);
             }
@@ -2994,7 +2994,7 @@ reset_glyphmap(enum glyphmap_change_triggers trigger)
         } else if ((offset = (glyph - GLYPH_MON_MALE_OFF)) >= 0) {
             gmap->sym.symidx = mons[offset].mlet + SYM_OFF_M;
             if (has_rogue_color) {
-                color = CLR_YELLOW;
+                color = COLOR_CODE_YELLOW;
             } else {
                 mon_color(offset);
             }
@@ -3015,7 +3015,7 @@ reset_glyphmap(enum glyphmap_change_triggers trigger)
         if ((!has_color(color)
              || ((gg.glyphmap_perlevel_flags & GMAP_ROGUELEVEL)
                  && !has_rogue_color)) || !iflags.use_color)
-            color = NO_COLOR;
+            color = COLOR_CODE_NONE;
         gmap->sym.color = color;
     }
     gg.glyph_reset_timestamp = gm.moves;

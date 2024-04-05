@@ -52,12 +52,12 @@ curses_status_init(void)
     int i;
 
     for (i = 0; i < MAXBLSTATS; ++i) {
-        curses_status_colors[i] = NO_COLOR; /* no color and no attributes */
+        curses_status_colors[i] = COLOR_CODE_NONE; /* no color and no attributes */
         status_vals_long[i] = (char *) alloc(STATVAL_WIDTH);
         *status_vals_long[i] = '\0';
     }
     curses_condition_bits = 0L;
-    hpbar_percent = 0, hpbar_color = NO_COLOR;
+    hpbar_percent = 0, hpbar_color = COLOR_CODE_NONE;
     vert_status_dirty = 1;
 
     /* let genl_status_init do most of the initialization */
@@ -304,7 +304,7 @@ draw_horizontal(boolean border)
         height, width, w, xtra, clen, x, y, t, ex, ey,
         condstart = 0, conddummy = 0, versstart = 0;
 #ifdef STATUS_HILITES
-    int coloridx = NO_COLOR, attrmask = 0;
+    int coloridx = COLOR_CODE_NONE, attrmask = 0;
 #endif /* STATUS_HILITES */
     boolean asis = FALSE;
     WINDOW *win = curses_get_nhwin(STATUS_WIN);
@@ -586,7 +586,7 @@ draw_horizontal(boolean border)
                 }
 #ifdef STATUS_HILITES
                 coloridx = curses_status_colors[fld]; /* includes attribute */
-                if (iflags.hilite_delta && coloridx != NO_COLOR) {
+                if (iflags.hilite_delta && coloridx != COLOR_CODE_NONE) {
                     /* expect 1 leading space; don't highlight it */
                     while (*text == ' ') {
                         waddch(win, ' ');
@@ -598,7 +598,7 @@ draw_horizontal(boolean border)
                         wattron(win, attrmask);
                     }
                     coloridx &= 0x00FF;
-                    if (coloridx != NO_COLOR && coloridx != CLR_MAX)
+                    if (coloridx != COLOR_CODE_NONE && coloridx != COLOR_CODE_MAX)
                         curses_toggle_color_attr(win, coloridx, NONE, ON);
                 }
 #endif /* STATUS_HILITES */
@@ -607,7 +607,7 @@ draw_horizontal(boolean border)
 
 #ifdef STATUS_HILITES
                 if (iflags.hilite_delta) {
-                    if (coloridx != NO_COLOR)
+                    if (coloridx != COLOR_CODE_NONE)
                         curses_toggle_color_attr(win, coloridx, NONE, OFF);
                     if (attrmask)
                         wattroff(win, attrmask);
@@ -715,7 +715,7 @@ draw_vertical(boolean border)
     char *text;
 #ifdef STATUS_HILITES
     char *p = 0, savedch = '\0';
-    int coloridx = NO_COLOR, attrmask = 0;
+    int coloridx = COLOR_CODE_NONE, attrmask = 0;
 #endif /* STATUS_HILITES */
     int height_needed, height, width, x = 0, y = 0;
     WINDOW *win = curses_get_nhwin(STATUS_WIN);
@@ -883,7 +883,7 @@ draw_vertical(boolean border)
                 ++text;
 #ifdef STATUS_HILITES
             coloridx = curses_status_colors[fld]; /* includes attributes */
-            if (iflags.hilite_delta && coloridx != NO_COLOR) {
+            if (iflags.hilite_delta && coloridx != COLOR_CODE_NONE) {
                 /* most status_vals_long[] are "long-text : value" and
                    unlike horizontal status's abbreviated "ab:value",
                    we highlight just the value portion */
@@ -914,7 +914,7 @@ draw_vertical(boolean border)
                     wattron(win, attrmask);
                 }
                 coloridx &= 0x00FF;
-                if (coloridx != NO_COLOR && coloridx != CLR_MAX)
+                if (coloridx != COLOR_CODE_NONE && coloridx != COLOR_CODE_MAX)
                     curses_toggle_color_attr(win, coloridx, NONE, ON);
             } /* highlighting active */
 #endif /* STATUS_HILITES */
@@ -923,7 +923,7 @@ draw_vertical(boolean border)
 
 #ifdef STATUS_HILITES
             if (iflags.hilite_delta) {
-                if (coloridx != NO_COLOR)
+                if (coloridx != COLOR_CODE_NONE)
                     curses_toggle_color_attr(win, coloridx, NONE, OFF);
                 if (attrmask)
                     wattroff(win, attrmask);
@@ -986,7 +986,7 @@ curs_HPbar(char *text, /* pre-padded with trailing spaces if short */
 #ifdef STATUS_HILITES
         if (iflags.hilite_delta) {
             coloridx = hpbar_color & 0x00FF;
-            if (coloridx != NO_COLOR)
+            if (coloridx != COLOR_CODE_NONE)
                 curses_toggle_color_attr(win, coloridx, NONE, ON);
         }
 #endif /* STATUS_HILITES */
@@ -996,7 +996,7 @@ curs_HPbar(char *text, /* pre-padded with trailing spaces if short */
 
 #ifdef STATUS_HILITES
         if (iflags.hilite_delta) {
-            if (coloridx != NO_COLOR)
+            if (coloridx != COLOR_CODE_NONE)
                 curses_toggle_color_attr(win, coloridx, NONE, OFF);
         }
 #endif /* STATUS_HILITES */
@@ -1047,7 +1047,7 @@ curs_stat_conds(
                 Strcat(strcat(condbuf, " "), upstart(condnam));
 #ifdef STATUS_HILITES
                 if (nohilite && *nohilite
-                    && (condcolor(bitmsk, curses_colormasks) != NO_COLOR
+                    && (condcolor(bitmsk, curses_colormasks) != COLOR_CODE_NONE
                         || condattr(bitmsk, curses_colormasks) != 0))
                     *nohilite = FALSE;
 #endif /* STATUS_HILITES */
@@ -1058,7 +1058,7 @@ curs_stat_conds(
         const char *vert_fmt = 0;
         int height = 0, width, cx, cy, cy0, cndlen;
 #ifdef STATUS_HILITES
-        int attrmask = 0, color = NO_COLOR;
+        int attrmask = 0, color = COLOR_CODE_NONE;
 #endif /* STATUS_HILITES */
         boolean border, do_vert = (vert_cond != 0);
         WINDOW *win = curses_get_nhwin(STATUS_WIN);
@@ -1104,7 +1104,7 @@ curs_stat_conds(
                         wattron(win, attrmask);
                     }
                     if ((color = condcolor(bitmsk, curses_colormasks))
-                        != NO_COLOR)
+                        != COLOR_CODE_NONE)
                         curses_toggle_color_attr(win, color, NONE, ON);
                 }
 #endif /* STATUS_HILITES */
@@ -1114,7 +1114,7 @@ curs_stat_conds(
 
 #ifdef STATUS_HILITES
                 if (iflags.hilite_delta) {
-                    if (color != NO_COLOR)
+                    if (color != COLOR_CODE_NONE)
                         curses_toggle_color_attr(win, color, NONE, OFF);
                     if (attrmask)
                         wattroff(win, attrmask);
@@ -1304,11 +1304,11 @@ condcolor(long bm, unsigned long *bmarray)
     int i;
 
     if (bm && bmarray)
-        for (i = 0; i < CLR_MAX; ++i) {
+        for (i = 0; i < COLOR_CODE_MAX; ++i) {
             if ((bmarray[i] & bm) != 0)
                 return i;
         }
-    return NO_COLOR;
+    return COLOR_CODE_NONE;
 }
 
 static int
@@ -1456,7 +1456,7 @@ static const struct statcolor default_colors[] = {
     {"Ill", CLR_BRIGHT_MAGENTA},
     {"FoodPois", CLR_BRIGHT_MAGENTA},
     {"Slime", CLR_BRIGHT_MAGENTA},
-    {NULL, NULL, NO_COLOR},
+    {NULL, NULL, COLOR_CODE_NONE},
 };
 
 static attr_t
@@ -1474,10 +1474,10 @@ get_trouble_color(const char *stat)
             struct color_option stat_color;
 
             stat_color = text_color_of(clr->txt, text_colors);
-            if (stat_color.color == NO_COLOR && !stat_color.attr_bits)
+            if (stat_color.color == COLOR_CODE_NONE && !stat_color.attr_bits)
                 return curses_color_attr(CLR_GRAY, 0);
 
-            if (stat_color.color != NO_COLOR)
+            if (stat_color.color != COLOR_CODE_NONE)
                 res = curses_color_attr(stat_color.color, 0);
 
             res = curses_color_attr(stat_color.color, 0);
@@ -1682,7 +1682,7 @@ hpen_color_attr(boolean is_hp, int cur, int max)
 
     stat_color = percentage_color_of(cur, max, is_hp ? hp_colors : pw_colors);
 
-    if (stat_color.color != NO_COLOR)
+    if (stat_color.color != COLOR_CODE_NONE)
         attr |= curses_color_attr(stat_color.color, 0);
 
     for (count = 0; (1 << count) <= stat_color.attr_bits; count++) {
@@ -1708,7 +1708,7 @@ hpen_color(boolean is_hp, int cur, int max)
         stat_color = percentage_color_of(cur, max,
                                          is_hp ? hp_colors : pw_colors);
 
-        if (stat_color.color == NO_COLOR)
+        if (stat_color.color == COLOR_CODE_NONE)
             return CLR_GRAY;
         else
             return stat_color.color;

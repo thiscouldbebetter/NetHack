@@ -1731,7 +1731,7 @@ curse(struct obj *otmp)
     otmp->cursed = 1;
     /* welded two-handed weapon interferes with some armor removal */
     if (otmp == uwep && bimanual(uwep))
-        reset_remarm();
+        reset_remove_all_armor();
     /* rules at top of wield.c state that twoweapon cannot be done
        with cursed alternate weapon */
     if (otmp == uswapwep && u.using_two_weapons)

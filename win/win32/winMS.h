@@ -105,7 +105,7 @@ typedef struct mswin_nhwindow_app {
         regNetHackMode; /* NetHack mode means no Windows keys in some places
                            */
 
-    COLORREF regMapColors[CLR_MAX];
+    COLORREF regMapColors[COLOR_CODE_MAX];
 
     LONG regMainMinX;
     LONG regMainMinY;

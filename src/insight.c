@@ -2666,7 +2666,7 @@ set_vanq_order(boolean for_vanq)
     char buf[BUFSZ];
     const char *desc;
     int i, n, choice,
-        clr = NO_COLOR;
+        clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);

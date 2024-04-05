@@ -371,7 +371,7 @@ dowield(void)
     } else if (welded(uwep)) {
         weldmsg(uwep);
         /* previously interrupted armor removal mustn't be resumed */
-        reset_remarm();
+        reset_remove_all_armor();
         /* if player chose a partial stack but can't wield it, undo split */
         if (wep->o_id && wep->o_id == gc.context.objsplit.child_oid)
             unsplitobj(wep);
@@ -566,7 +566,7 @@ doquiver_core(const char *verb) /* "ready" or "fire" */
 
         if (welded(uwep)) {
             weldmsg(uwep);
-            reset_remarm(); /* same as dowield() */
+            reset_remove_all_armor(); /* same as dowield() */
             return weld_res ? ECMD_TIME : ECMD_OK;
         }
         /* offer to split stack if wielding more than 1 */

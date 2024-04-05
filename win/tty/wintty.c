@@ -258,7 +258,7 @@ void g_pututf8(uint8 *utf8str);
 static boolean calling_from_update_inventory = FALSE;
 #ifdef TTY_PERM_INVENT
 static struct tty_perminvent_cell emptyttycell = {
-    0, 0, 0, { 0 }, NO_COLOR + 1
+    0, 0, 0, { 0 }, COLOR_CODE_NONE + 1
 };
 static glyph_info zerogi = { 0 };
 static struct to_core zero_tocore = { 0 };
@@ -553,7 +553,7 @@ tty_init_nhwindows(int *argcp UNUSED, char **argv UNUSED)
     ttyDisplay->curx = ttyDisplay->cury = 0;
     ttyDisplay->inmore = ttyDisplay->inread = ttyDisplay->intr = 0;
     ttyDisplay->dismiss_more = 0;
-    ttyDisplay->color = NO_COLOR;
+    ttyDisplay->color = COLOR_CODE_NONE;
     ttyDisplay->attrs = 0;
     ttyDisplay->topl_utf8 = 0;
     ttyDisplay->mixed = 0;
@@ -1186,11 +1186,11 @@ set_item_state(
     HUPSKIP();
     tty_curs(window, 4, lineno);
     term_start_attr(item->attr);
-    if (item->color != NO_COLOR)
+    if (item->color != COLOR_CODE_NONE)
         term_start_color(item->color);
     (void) putchar(ch);
     ttyDisplay->curx++;
-    if (item->color != NO_COLOR)
+    if (item->color != COLOR_CODE_NONE)
         term_end_color();
     term_end_attr(item->attr);
 }
@@ -1318,10 +1318,10 @@ toggle_menu_attr(boolean on, int color, int attr)
 {
     if (on) {
         term_start_attr(attr);
-        if (color != NO_COLOR)
+        if (color != COLOR_CODE_NONE)
             term_start_color(color);
     } else {
-        if (color != NO_COLOR)
+        if (color != COLOR_CODE_NONE)
             term_end_color();
         term_end_attr(attr);
     }
@@ -1411,7 +1411,7 @@ process_menu_window(winid window, struct WinDesc *cw)
                 page_end = cw->plist[curr_page + 1];
                 for (page_lines = 0, curr = page_start; curr != page_end;
                      page_lines++, curr = curr->next) {
-                    int attr, color = NO_COLOR;
+                    int attr, color = COLOR_CODE_NONE;
 
                     if (curr->selector)
                         *rp++ = curr->selector;
@@ -1454,7 +1454,7 @@ process_menu_window(winid window, struct WinDesc *cw)
                          ttyDisplay->curx++,
 #endif
                          cp++, n++) {
-                        if (n == attr_n && (color != NO_COLOR
+                        if (n == attr_n && (color != COLOR_CODE_NONE
                                             || attr != ATR_NONE))
                             toggle_menu_attr(TRUE, color, attr);
                         if (n == 2
@@ -1467,7 +1467,7 @@ process_menu_window(winid window, struct WinDesc *cw)
                         } else
                             (void) putchar(*cp);
                     } /* for *cp */
-                    if (n > attr_n && (color != NO_COLOR || attr != ATR_NONE))
+                    if (n > attr_n && (color != COLOR_CODE_NONE || attr != ATR_NONE))
                         toggle_menu_attr(FALSE, color, attr);
                 } /* if npages > 0 */
             } else {
@@ -2605,7 +2605,7 @@ reverse(tty_menu_item *curr)
     return head;
 }
 
-static color_attr tty_menu_promptstyle = { NO_COLOR, ATR_NONE };
+static color_attr tty_menu_promptstyle = { COLOR_CODE_NONE, ATR_NONE };
 
 /*
  * End a menu in this window, window must a type NHW_MENU.  This routine
@@ -2623,7 +2623,7 @@ tty_end_menu(
     short len;
     int lmax, n;
     char menu_ch;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     if (window == WIN_ERR || (cw = wins[window]) == (struct WinDesc *) 0
         || cw->type != NHW_MENU) {
@@ -3225,7 +3225,7 @@ static void
 ttyinv_render(winid window, struct WinDesc *cw)
 {
     int row, col, slot, side, filled_count = 0, slot_limit;
-    uint32 current_row_color = NO_COLOR;
+    uint32 current_row_color = COLOR_CODE_NONE;
     struct tty_perminvent_cell *cell;
     char invbuf[BUFSZ];
     boolean force_redraw = gp.program_state.in_docrt ? TRUE : FALSE,
@@ -3267,7 +3267,7 @@ ttyinv_render(winid window, struct WinDesc *cw)
         row = (slot % rows_per_side) + 1; /* +1: top border */
         /* side: left side panel or right side panel, not a window column */
         side = slot / rows_per_side;
-        ttyinv_populate_slot(cw, row, side, invbuf, NO_COLOR, 0);
+        ttyinv_populate_slot(cw, row, side, invbuf, COLOR_CODE_NONE, 0);
     }
 
     /* inuse_only might switch from one panel to two or vice versa */
@@ -3301,7 +3301,7 @@ ttyinv_render(winid window, struct WinDesc *cw)
                 if (cell->color && (current_row_color != cell->color - 1)) {
                     current_row_color = cell->color - 1;
 #if 0
-                    if (current_row_color == NO_COLOR)
+                    if (current_row_color == COLOR_CODE_NONE)
                         term_end_color();
                     else
 #endif
@@ -3321,7 +3321,7 @@ ttyinv_render(winid window, struct WinDesc *cw)
                 cell->refresh = 0;
             }
         }
-        if (current_row_color != NO_COLOR)
+        if (current_row_color != COLOR_CODE_NONE)
             term_end_color();
     }
     tty_curs(window, 1, 0);
@@ -3379,7 +3379,7 @@ ttyinv_populate_slot(
             if (ccnt >= (col + clroffset))
                 cell->color = color + 1; 
             else
-                cell->color = NO_COLOR + 1;
+                cell->color = COLOR_CODE_NONE + 1;
             cell->refresh = 1;
         }
         cell->text = 1; /* cell->content.ttychar is current */
@@ -3430,16 +3430,16 @@ tty_refresh_inventory(int start, int stop, int y)
     }
     if (printing_glyphs)
         end_glyphout();
-    if (ttyDisplay->color != NO_COLOR) {
+    if (ttyDisplay->color != COLOR_CODE_NONE) {
         term_end_color();
-        ttyDisplay->color = NO_COLOR;
+        ttyDisplay->color = COLOR_CODE_NONE;
     }
 }
 
 static void
 tty_invent_box_glyph_init(struct WinDesc *cw)
 {
-    int row, col, glyph, bordercolor = NO_COLOR;
+    int row, col, glyph, bordercolor = COLOR_CODE_NONE;
     uchar sym;
     struct tty_perminvent_cell *cell;
     boolean inuse_only = (ttyinvmode & InvInUse) != 0,
@@ -3682,9 +3682,9 @@ end_glyphout(void)
         graph_off();
     }
 #endif
-    if (ttyDisplay->color != NO_COLOR) {
+    if (ttyDisplay->color != COLOR_CODE_NONE) {
         term_end_color();
-        ttyDisplay->color = NO_COLOR;
+        ttyDisplay->color = COLOR_CODE_NONE;
     }
 }
 
@@ -3842,7 +3842,7 @@ tty_print_glyph(
     if (iflags.use_color) {
         ttyDisplay->colorflags = NH_BASIC_COLOR;
         if (color != ttyDisplay->color) {
-            if (ttyDisplay->color != NO_COLOR)
+            if (ttyDisplay->color != COLOR_CODE_NONE)
                 term_end_color();
         }
         /* we don't link with termcap.o if NO_TERMS is defined */
@@ -3861,7 +3861,7 @@ tty_print_glyph(
         }
         if (!colordone) {
             ttyDisplay->color = color;
-            if (color != NO_COLOR)
+            if (color != COLOR_CODE_NONE)
                 term_start_color(color);
         }
     }   /* iflags.use_color aka iflags.wc_color */
@@ -3871,7 +3871,7 @@ tty_print_glyph(
        (tried bold for ice but it didn't look very good; inverse is easier
        to see although the Valkyrie quest ends up being hard on the eyes) */
     if (iflags.use_color
-        && bkglyphinfo && bkglyphinfo->framecolor != NO_COLOR) {
+        && bkglyphinfo && bkglyphinfo->framecolor != COLOR_CODE_NONE) {
         ttyDisplay->framecolor = bkglyphinfo->framecolor;
         term_start_bgcolor(bkglyphinfo->framecolor);
     } else if ((special & MG_PET) != 0 && iflags.hilite_pet) {
@@ -3912,10 +3912,10 @@ tty_print_glyph(
         /* turn off color as well, turning off ATR_INVERSE may have done
           this already and if so, we won't know the current state unless
           we do it explicitly */
-        if (ttyDisplay->color != NO_COLOR
-            || ttyDisplay->framecolor != NO_COLOR) {
+        if (ttyDisplay->color != COLOR_CODE_NONE
+            || ttyDisplay->framecolor != COLOR_CODE_NONE) {
             term_end_color();
-            ttyDisplay->color = ttyDisplay->framecolor = NO_COLOR;
+            ttyDisplay->color = ttyDisplay->framecolor = COLOR_CODE_NONE;
         }
         if (ttyDisplay->colorflags != NH_BASIC_COLOR)
             term_end_extracolor();
@@ -4278,7 +4278,7 @@ tty_status_init(void)
 
     for (i = 0; i < MAXBLSTATS; ++i) {
         tty_status[NOW][i].idx = BL_FLUSH;
-        tty_status[NOW][i].color = NO_COLOR; /* no color */
+        tty_status[NOW][i].color = COLOR_CODE_NONE; /* no color */
         tty_status[NOW][i].attr = ATR_NONE;
         tty_status[NOW][i].x = tty_status[NOW][i].y = 0;
         tty_status[NOW][i].valid  = FALSE;
@@ -4288,7 +4288,7 @@ tty_status_init(void)
         tty_status[BEFORE][i] = tty_status[NOW][i];
     }
     tty_condition_bits = 0L;
-    hpbar_percent = 0, hpbar_color = NO_COLOR;
+    hpbar_percent = 0, hpbar_color = COLOR_CODE_NONE;
 #endif /* STATUS_HILITES */
 
     /* let genl_status_init do most of the initialization */
@@ -4838,11 +4838,11 @@ condcolor(long bm, unsigned long *bmarray)
     int i;
 
     if (bm && bmarray)
-        for (i = 0; i < CLR_MAX; ++i) {
+        for (i = 0; i < COLOR_CODE_MAX; ++i) {
             if ((bm & bmarray[i]) != 0)
                 return i;
         }
-    return NO_COLOR;
+    return COLOR_CODE_NONE;
 }
 
 static int
@@ -5009,7 +5009,7 @@ render_status(void)
                                 attrmask = condattr(mask, tty_colormasks);
                                 Begin_Attr(attrmask);
                                 coloridx = condcolor(mask, tty_colormasks);
-                                if (coloridx != NO_COLOR)
+                                if (coloridx != COLOR_CODE_NONE)
                                     term_start_color(coloridx);
                             }
                             condtext = conditions[ci].text[cond_shrinklvl];
@@ -5023,7 +5023,7 @@ render_status(void)
                             tty_putstatusfield(condtext, x, y);
                             x += (int) strlen(condtext);
                             if (iflags.hilite_delta) {
-                                if (coloridx != NO_COLOR)
+                                if (coloridx != COLOR_CODE_NONE)
                                     term_end_color();
                                 End_Attr(attrmask);
                             }
@@ -5079,11 +5079,11 @@ render_status(void)
                     tty_putstatusfield("[", x++, y);
                     if (*bar) { /* always True, unless twoparts+dead (0 HP) */
                         term_start_attr(ATR_INVERSE);
-                        if (iflags.hilite_delta && hpbar_color != NO_COLOR)
+                        if (iflags.hilite_delta && hpbar_color != COLOR_CODE_NONE)
                             term_start_color(hpbar_color);
                         tty_putstatusfield(bar, x, y);
                         x += (int) strlen(bar);
-                        if (iflags.hilite_delta && hpbar_color != NO_COLOR)
+                        if (iflags.hilite_delta && hpbar_color != COLOR_CODE_NONE)
                             term_end_color();
                         term_end_attr(ATR_INVERSE);
                     }
@@ -5140,13 +5140,13 @@ render_status(void)
                         attrmask = tty_status[NOW][idx].attr;
                         Begin_Attr(attrmask);
                         coloridx = tty_status[NOW][idx].color;
-                        if (coloridx != NO_COLOR)
+                        if (coloridx != COLOR_CODE_NONE)
                             term_start_color(coloridx);
                     }
                     tty_putstatusfield(text, x, y);
                     x += (int) strlen(text);
                     if (iflags.hilite_delta) {
-                        if (coloridx != NO_COLOR)
+                        if (coloridx != COLOR_CODE_NONE)
                             term_end_color();
                         End_Attr(attrmask);
                     }

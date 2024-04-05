@@ -28,7 +28,7 @@ Astral Plane \GXXXXNNNN:123456 HP:1234(1234) Pw:1234(1234) AC:-127
 #endif
 
 struct condmap {
-    const char *id;
+    const char* id;
     unsigned long bitmask;
 };
 
@@ -126,14 +126,14 @@ struct conditions_t {
     int ranking;
     long mask;
     enum blconditions c;
-    const char *text[3];
+    const char* text[3];
 };
 extern const struct conditions_t conditions[CONDITION_COUNT];
 
 struct condtests_t {
     enum blconditions c;
-    const char *useroption;
-    enum optchoice opt;
+    const char* useroption;
+    enum opt_in_or_out opt;
     boolean enabled;
     boolean choice;
     boolean test;
@@ -214,23 +214,23 @@ extern int cond_idx[CONDITION_COUNT];
                                 /* or any CLR_ index (0 - 15) */
 #endif
 
-#define BL_TH_NONE 0
-#define BL_TH_VAL_PERCENTAGE 100 /* threshold is percentage */
-#define BL_TH_VAL_ABSOLUTE 101   /* threshold is particular value */
-#define BL_TH_UPDOWN 102         /* threshold is up or down change */
-#define BL_TH_CONDITION 103      /* threshold is bitmask of conditions */
-#define BL_TH_TEXTMATCH 104      /* threshold text value to match against */
-#define BL_TH_ALWAYS_HILITE 105  /* highlight regardless of value */
-#define BL_TH_CRITICALHP 106     /* highlight critically low HP */
+#define BL_THRESHOLD_NONE 0
+#define BL_THRESHOLD_VALUE_PERCENTAGE 100 /* threshold is percentage */
+#define BL_THRESHOLD_VALUE_ABSOLUTE 101   /* threshold is particular value */
+#define BL_THRESHOLD_UPDOWN 102         /* threshold is up or down change */
+#define BL_THRESHOLD_CONDITION 103      /* threshold is bitmask of conditions */
+#define BL_THRESHOLD_TEXTMATCH 104      /* threshold text value to match against */
+#define BL_THRESHOLD_ALWAYS_HILITE 105  /* highlight regardless of value */
+#define BL_THRESHOLD_CRITICALHP 106     /* highlight critically low HP */
 
-#define HL_ATTCLR_NONE    CLR_MAX + 1
-#define HL_ATTCLR_BOLD    CLR_MAX + 2
-#define HL_ATTCLR_DIM     CLR_MAX + 3
-#define HL_ATTCLR_ITALIC  CLR_MAX + 4
-#define HL_ATTCLR_ULINE   CLR_MAX + 5
-#define HL_ATTCLR_BLINK   CLR_MAX + 6
-#define HL_ATTCLR_INVERSE CLR_MAX + 7
-#define BL_ATTCLR_MAX     CLR_MAX + 8
+#define HL_ATTCLR_NONE    COLOR_CODE_MAX + 1
+#define HL_ATTCLR_BOLD    COLOR_CODE_MAX + 2
+#define HL_ATTCLR_DIM     COLOR_CODE_MAX + 3
+#define HL_ATTCLR_ITALIC  COLOR_CODE_MAX + 4
+#define HL_ATTCLR_ULINE   COLOR_CODE_MAX + 5
+#define HL_ATTCLR_BLINK   COLOR_CODE_MAX + 6
+#define HL_ATTCLR_INVERSE COLOR_CODE_MAX + 7
+#define BL_ATTCLR_MAX     COLOR_CODE_MAX + 8
 
 enum hlattribs {
     HL_UNDEF   = 0x00,
@@ -253,7 +253,7 @@ struct hilite_s {
     anything value;
     int behavior;
     char textmatch[MAXVALWIDTH];
-    enum relationships rel;
+    enum relationships relationships;
     int coloridx;
     struct hilite_s *next;
 };
@@ -273,17 +273,17 @@ struct istat_s {
     short percent_value;
     unsigned anytype;
     anything a, rawval;
-    char *val;
+    char* val;
     int valwidth;
     enum statusfields idxmax;
     enum statusfields fld;
 #ifdef STATUS_HILITES
-    struct hilite_s *hilite_rule; /* the entry, if any, in 'thresholds'
+    struct hilite_s* hilite_rule; /* the entry, if any, in 'thresholds'
                                    * list that currently applies        */
-    struct hilite_s *thresholds;
+    struct hilite_s* thresholds;
 #endif
 };
 
-extern const char *status_fieldnames[]; /* in botl.c */
+extern const char* status_fieldnames[]; /* in botl.c */
 
 #endif /* BOTL_H */

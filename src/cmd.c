@@ -151,10 +151,10 @@ static const char *readchar_queue = "";
 
 /* for rejecting attempts to use wizard mode commands
  * Also used in wizcmds.c  */
-const char unavailcmd[] = "Unavailable command '%s'.";
+const char unavailable_command[] = "Unavailable command '%s'.";
 
 /* for rejecting #if !SHELL, !SUSPEND */
-static const char cmdnotavail[] = "'%s' command not available.";
+static const char command_not_available[] = "'%s' command not available.";
 
 /* the #prevmsg command */
 staticfn int
@@ -191,16 +191,16 @@ timed_occupation(void)
 void
 reset_occupations(void)
 {
-    reset_remarm();
-    reset_pick();
-    reset_trapset();
+    reset_remove_all_armor();
+    reset_picking_lock_or_forcing_chest();
+    reset_setting_trap();
 }
 
 /* If a time is given, use it to timeout this function, otherwise the
  * function times out by its own means.
  */
 void
-set_occupation(int (*fn)(void), const char *txt, cmdcount_nht xtime)
+set_occupation(int (*fn)(void), const char* txt, cmdcount_nht xtime)
 {
     if (xtime) {
         go.occupation = timed_occupation;
@@ -462,7 +462,7 @@ can_do_extcmd(const struct ext_func_tab *extcmd)
     }
 
     if (!wizard && (ecflags & WIZMODECMD)) {
-        pline(unavailcmd, extcmd->ef_txt);
+        pline(unavailable_command, extcmd->ef_txt);
         return FALSE;
     } else if (u.uburied && !(ecflags & IFBURIED)) {
         You_cant("do that while you are buried!");
@@ -557,7 +557,7 @@ doextlist(void)
     boolean redisplay = TRUE, search = FALSE;
     static const char *const headings[] = { "Extended commands",
                                       "Debugging Extended Commands" };
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     searchbuf[0] = '\0';
     menuwin = create_nhwindow(NHW_MENU);
@@ -748,7 +748,7 @@ extcmd_via_menu(void)
     int accelerator, prevaccelerator;
     int matchlevel = 0;
     boolean wastoolong, one_per_line;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     ret = 0;
     cbuf[0] = '\0';
@@ -1080,7 +1080,7 @@ doterrain(void)
     anything any;
     int n;
     int which;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     /* this used to be done each time vision was recalculated, so would
        always be up to date (hopefully); now we do it on demand instead */
@@ -1840,7 +1840,7 @@ struct ext_func_tab extcmdlist[] = {
     { 'T',    "takeoff", "take off one piece of armor",
               dotakeoff, 0, NULL },
     { 'A',    "takeoffall", "remove all armor",
-              doddoremarm, 0, NULL },
+              doddo_remove_armor, 0, NULL },
     { C('t'), "teleport", "teleport around the level",
               dotelecmd, IFBURIED | CMD_M_PREFIX, NULL },
     /* \177 == <del> aka <delete> aka <rubout>; some terminals have an
@@ -2007,7 +2007,7 @@ struct ext_func_tab extcmdlist[] = {
     { '\0', "mouseaction", NULL, domouseaction, INTERNALCMD | MOUSECMD, NULL },
     { '\0', "altdip", NULL, dip_into, INTERNALCMD, NULL },
     { '\0', "altadjust", NULL, adjust_split, INTERNALCMD, NULL },
-    { '\0', "altunwield", NULL, remarm_swapwep, INTERNALCMD, NULL },
+    { '\0', "altunwield", NULL, remover_armor_swap_weapon, INTERNALCMD, NULL },
     { '\0', (char *) 0, (char *) 0, donull, 0, (char *) 0 } /* sentinel */
 };
 
@@ -2106,7 +2106,7 @@ handler_rebind_keys_add(boolean keyfirst)
     char buf[BUFSZ];
     char buf2[QBUFSZ];
     uchar key = '\0';
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     if (keyfirst) {
         pline("Bind which key? ");
@@ -2203,7 +2203,7 @@ handler_rebind_keys(void)
     anything any;
     int i, npick;
     menu_item *picks = (menu_item *) 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
 redo_rebind:
 
@@ -4013,7 +4013,7 @@ staticfn void
 mcmd_addmenu(winid win, int act, const char *txt)
 {
     anything any;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     /* TODO: fixed letters for the menu entries? */
     any = cg.zeroany;
@@ -4980,7 +4980,7 @@ yn_func_menu_opt(winid win, char key, const char *text, char def)
     any = cg.zeroany;
     any.a_char = key;
     add_menu(win, &nul_glyphinfo, &any, key, 0,
-             ATR_NONE, NO_COLOR, text,
+             ATR_NONE, COLOR_CODE_NONE, text,
              (def == key) ? MENU_ITEMFLAGS_SELECTED
                           : MENU_ITEMFLAGS_NONE);
 
@@ -5195,7 +5195,7 @@ dosuspend_core(void)
         urealtime.start_timing = getnow(); /* resume keeping track of time */
     } else
 #endif
-        Norep(cmdnotavail, "#suspend");
+        Norep(command_not_available, "#suspend");
     return ECMD_OK;
 }
 
@@ -5212,7 +5212,7 @@ dosh_core(void)
     dosh();
     urealtime.start_timing = getnow();
 #else
-    Norep(cmdnotavail, "#shell");
+    Norep(command_not_available, "#shell");
 #endif
     return ECMD_OK;
 }

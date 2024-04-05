@@ -3,6 +3,8 @@
 /* Copyright (c) Karl Garrison, 2010. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "curses.h"
 #include "hack.h"
 #include "wincurs.h"
@@ -74,7 +76,7 @@ curses_read_char(void)
 void
 curses_toggle_color_attr(WINDOW *win, int color, int attr, int onoff)
 {
-    if (color == NO_COLOR)
+    if (color == COLOR_CODE_NONE)
         color = NONE;
 
     int curses_color;
@@ -94,7 +96,7 @@ curses_toggle_color_attr(WINDOW *win, int color, int attr, int onoff)
         return;
     }
 
-    if (color == CLR_BLACK) {           /* make black fg visible */
+    if (color == COLOR_CODE_BLACK) { /* make black fg visible */
 # ifdef USE_DARKGRAY
         if (iflags.wc2_darkgray) {
             if (COLORS > 16) {
@@ -104,7 +106,7 @@ curses_toggle_color_attr(WINDOW *win, int color, int attr, int onoff)
             }
         } else
 # endif/* USE_DARKGRAY */
-            color = CLR_BLUE;
+            color = COLOR_CODE_BLUE;
     }
 
     if (COLORS < 16) {
@@ -663,7 +665,7 @@ curses_view_file(const char *filename, boolean must_exist)
     char buf[BUFSZ];
     menu_item *selected = NULL;
     dlb *fp = dlb_fopen(filename, "r");
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     if (fp == NULL) {
         if (must_exist)

@@ -992,14 +992,14 @@ paintGlyph(PNHMapWindow data, int i, int j, RECT * rect)
                                                   | MG_BW_ICE | MG_BW_SINK
                                                   | MG_BW_ENGR)) != 0)) {
             back_brush =
-                CreateSolidBrush(nhcolor_to_RGB(CLR_GRAY));
+                CreateSolidBrush(nhcolor_to_RGB(COLOR_CODE_GRAY));
             FillRect(data->backBufferDC, rect, back_brush);
             DeleteObject(back_brush);
             switch (color) {
-            case CLR_GRAY:
-            case CLR_WHITE:
+            case COLOR_CODE_GRAY:
+            case COLOR_CODE_WHITE:
                 OldFg = SetTextColor(
-                    data->backBufferDC, nhcolor_to_RGB(CLR_BLACK));
+                    data->backBufferDC, nhcolor_to_RGB(COLOR_CODE_BLACK));
                 break;
             default:
                 OldFg =
@@ -1278,14 +1278,14 @@ nhglyph2charcolor(short g, uchar *ch, int *color)
 {
     int offset;
 
-#define zap_color(n) *color = iflags.use_color ? zapcolors[n] : NO_COLOR
-#define cmap_color(n) *color = iflags.use_color ? defsyms[n].color : NO_COLOR
+#define zap_color(n) *color = iflags.use_color ? zapcolors[n] : COLOR_CODE_NONE
+#define cmap_color(n) *color = iflags.use_color ? defsyms[n].color : COLOR_CODE_NONE
 #define obj_color(n) \
-    *color = iflags.use_color ? objects[n].oc_color : NO_COLOR
-#define mon_color(n) *color = iflags.use_color ? mons[n].mcolor : NO_COLOR
-#define pet_color(n) *color = iflags.use_color ? mons[n].mcolor : NO_COLOR
+    *color = iflags.use_color ? objects[n].oc_color : COLOR_CODE_NONE
+#define mon_color(n) *color = iflags.use_color ? mons[n].mcolor : COLOR_CODE_NONE
+#define pet_color(n) *color = iflags.use_color ? mons[n].mcolor : COLOR_CODE_NONE
 #define warn_color(n) \
-    *color = iflags.use_color ? def_warnsyms[n].color : NO_COLOR
+    *color = iflags.use_color ? def_warnsyms[n].color : COLOR_CODE_NONE
 
     if ((offset = (g - GLYPH_WARNING_OFF)) >= 0) { /* a warning flash */
         *ch = showsyms[offset + SYM_OFF_W];
@@ -1322,7 +1322,7 @@ nhglyph2charcolor(short g, uchar *ch, int *color)
 COLORREF
 nhcolor_to_RGB(int c)
 {
-    if (c >= 0 && c < CLR_MAX)
+    if (c >= 0 && c < COLOR_CODE_MAX)
         return GetNHApp()->regMapColors[c];
     return RGB(0x00, 0x00, 0x00);
 }

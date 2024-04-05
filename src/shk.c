@@ -1394,7 +1394,7 @@ menu_pick_pay_items(struct monster *shkp)
     winid win;
     anything any;
     menu_item *pick_list = (menu_item *) 0;
-    int i, j, n, clr = NO_COLOR;
+    int i, j, n, clr = COLOR_CODE_NONE;
     char buf[BUFSZ];
 
     any = cg.zeroany;

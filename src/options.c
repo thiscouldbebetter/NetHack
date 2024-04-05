@@ -423,11 +423,11 @@ ask_do_tutorial(void)
             any = cg.zeroany;
             any.a_char = 'y';
             add_menu(win, &nul_glyphinfo, &any, any.a_char, 0,
-                     ATR_NONE, NO_COLOR,
+                     ATR_NONE, COLOR_CODE_NONE,
                      "Yes, do a tutorial", MENU_ITEMFLAGS_NONE);
             any.a_char = 'n';
             add_menu(win, &nul_glyphinfo, &any, any.a_char, 0,
-                     ATR_NONE, NO_COLOR,
+                     ATR_NONE, COLOR_CODE_NONE,
                      "No, just start play", MENU_ITEMFLAGS_NONE);
 
             add_menu_str(win, "");
@@ -2145,7 +2145,7 @@ optfn_menu_headings(
             /* OPTIONS=menu_headings w/o value => no-color&inverse;
                OPTIONS=!menu_headings => no-color&none */
             iflags.menu_headings.attr = negated ? ATR_NONE : ATR_INVERSE;
-            iflags.menu_headings.color = NO_COLOR;
+            iflags.menu_headings.color = COLOR_CODE_NONE;
             return optn_ok;
         } else if (negated) { /* 'op != empty_optstr' to get here */
             bad_negation(allopt[optidx].name, TRUE);
@@ -5355,7 +5355,7 @@ handler_menustyle(void)
     int i, n, old_menu_style = flags.menu_style;
     char buf[BUFSZ], sep = iflags.menu_tab_sep ? '\t' : ' ';
     menu_item *style_pick = (menu_item *) 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -5395,7 +5395,7 @@ handler_align_misc(int optidx)
     anything any;
     menu_item *window_pick = (menu_item *) 0;
     char abuf[BUFSZ];
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -5437,7 +5437,7 @@ handler_autounlock(int optidx)
     char buf[BUFSZ], sep = iflags.menu_tab_sep ? '\t' : ' ';
     menu_item *window_pick = (menu_item *) 0;
     int i, n, presel, res = optn_ok;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -5494,7 +5494,7 @@ handler_disclose(void)
     int pick_cnt, pick_idx, opt_idx;
     char c;
     menu_item *disclosure_pick = (menu_item *) 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -5604,7 +5604,7 @@ handler_msg_window(void)
     winid tmpwin;
     anything any;
     boolean is_tty = WINDOWPORT(tty), is_curses = WINDOWPORT(curses);
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     if (is_tty || is_curses) {
         /* by Christian W. Cooper */
@@ -5669,7 +5669,7 @@ handler_number_pad(void)
         "-1 (off, 'z' to move upper-left, 'y' to zap wands)"
     };
     menu_item *mode_pick = (menu_item *) 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -5725,7 +5725,7 @@ handler_paranoid_confirmation(void)
     char mkey, mbuf[QBUFSZ], ebuf[BUFSZ], cbuf[QBUFSZ];
     const char *explain, *cmdnm;
     menu_item *paranoia_picks = (menu_item *) 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -5808,7 +5808,7 @@ handler_perminv_mode(void)
         let = ((i & (int) InvSparse) != 0) ? highc(pi1[0]) : pi0[0];
         any.a_int = i + 1;
         add_menu(tmpwin, &nul_glyphinfo, &any, let, '0' + i,
-                 ATR_NONE, NO_COLOR,
+                 ATR_NONE, COLOR_CODE_NONE,
                  buf, (i == old_pi) ? MENU_ITEMFLAGS_SELECTED
                                     : MENU_ITEMFLAGS_NONE);
     }
@@ -5857,7 +5857,7 @@ handler_pickup_burden(void)
     int i;
     const char *burden_name, *burden_letters = "ubsntl";
     menu_item *burden_pick = (menu_item *) 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -5895,7 +5895,7 @@ handler_runmode(void)
     int i;
     const char *mode_name;
     menu_item *mode_pick = (menu_item *) 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -5937,7 +5937,7 @@ handler_sortloot(void)
     int i, n;
     const char *sortl_name;
     menu_item *sortl_pick = (menu_item *) 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -5977,7 +5977,7 @@ handler_whatis_coord(void)
     menu_item *window_pick = (menu_item *) 0;
     int pick_cnt;
     char gpc = iflags.getpos_coords;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -6049,7 +6049,7 @@ handler_whatis_filter(void)
     menu_item *window_pick = (menu_item *) 0;
     int pick_cnt;
     char gfilt = iflags.getloc_filter;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -6102,7 +6102,7 @@ handler_autopickup_exception(void)
     int opt_idx, numapes = 0;
     char apebuf[2 + BUFSZ]; /* so &apebuf[1] is BUFSZ long for getlin() */
     struct autopickup_exception *ape;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
  ape_again:
     numapes = count_apes();
@@ -6177,7 +6177,7 @@ handler_menu_colors(void)
     char buf[BUFSZ];
     int opt_idx, nmc, mcclr, mcattr;
     char mcbuf[BUFSZ];
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
  menucolors_again:
     nmc = count_menucolors();
@@ -6202,7 +6202,7 @@ handler_menu_colors(void)
             goto menucolors_done;
         if (*mcbuf
             && test_regex_pattern(mcbuf, "MENUCOLORS regex")
-            && (mcclr = query_color((char *) 0, NO_COLOR)) != -1
+            && (mcclr = query_color((char *) 0, COLOR_CODE_NONE)) != -1
                 && (mcattr = query_attr((char *) 0, ATR_NONE)) != -1
             && !add_menu_coloring_parsed(mcbuf, mcclr, mcattr)) {
             pline("Error adding the menu color.");
@@ -6297,7 +6297,7 @@ handler_msgtype(void)
         const char *mtype;
         menu_item *pick_list = (menu_item *) 0;
         struct plinemsg_type *tmp = gp.plinemsg_types;
-        int clr = NO_COLOR;
+        int clr = COLOR_CODE_NONE;
 
         tmpwin = create_nhwindow(NHW_MENU);
         start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -6350,15 +6350,15 @@ handler_versinfo(void)
     any = cg.zeroany;
 
     any.a_int = n = VI_NUMBER; /* 1 */
-    add_menu(tmpwin, &nul_glyphinfo, &any, 'n', n + '0', ATR_NONE, NO_COLOR,
+    add_menu(tmpwin, &nul_glyphinfo, &any, 'n', n + '0', ATR_NONE, COLOR_CODE_NONE,
              "version number",
              (vi & n) ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     any.a_int = n = VI_NAME; /* 2 */
-    add_menu(tmpwin, &nul_glyphinfo, &any, 'g', n + '0', ATR_NONE, NO_COLOR,
+    add_menu(tmpwin, &nul_glyphinfo, &any, 'g', n + '0', ATR_NONE, COLOR_CODE_NONE,
              "game name",
              (vi & n) ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     any.a_int = n = VI_BRANCH; /* 4 */
-    add_menu(tmpwin, &nul_glyphinfo, &any, 'b', n + '0', ATR_NONE, NO_COLOR,
+    add_menu(tmpwin, &nul_glyphinfo, &any, 'b', n + '0', ATR_NONE, COLOR_CODE_NONE,
              (have_branch ? "development branch"
 #if (NH_DEVEL_STATUS == NH_STATUS_RELEASED)
                           : "(not applicable)"
@@ -6391,7 +6391,7 @@ handler_windowborders(void)
     int i;
     const char *mode_name;
     menu_item *mode_pick = (menu_item *) 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
     static const char *const windowborders_text[] = {
         "Off, never show borders",
         "On, always show borders",
@@ -6962,7 +6962,7 @@ initoptions_init(void)
 #endif
 
     iflags.menu_headings.attr = ATR_INVERSE;
-    iflags.menu_headings.color = NO_COLOR;
+    iflags.menu_headings.color = COLOR_CODE_NONE;
     iflags.getpos_coords = GPCOORDS_NONE;
 
     /* hero's role, race, &c haven't been chosen yet */
@@ -7483,7 +7483,7 @@ query_msgtype(void)
     anything any;
     int i, pick_cnt;
     menu_item *picks = (menu_item *) 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -8331,7 +8331,7 @@ doset_simple_menu(void)
     }
     any = cg.zeroany;
     any.a_int = -2 + 1;
-    add_menu(tmpwin, &nul_glyphinfo, &any, '?', 0, ATR_NONE, NO_COLOR,
+    add_menu(tmpwin, &nul_glyphinfo, &any, '?', 0, ATR_NONE, COLOR_CODE_NONE,
              gs.simple_options_help ? "hide help" : "show help",
              MENU_ITEMFLAGS_NONE);
 
@@ -8388,7 +8388,7 @@ doset_simple_menu(void)
                 || allopt[i].idx == opt_dropped_nopick)
                 Strcat(buf, "  (for autopickup)");
             add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                     ATR_NONE, NO_COLOR, buf, MENU_ITEMFLAGS_NONE);
+                     ATR_NONE, COLOR_CODE_NONE, buf, MENU_ITEMFLAGS_NONE);
             if (gs.simple_options_help && allopt[i].descr) {
                 Sprintf(buf, "    %s", allopt[i].descr);
                 add_menu_str(tmpwin, buf);
@@ -8547,7 +8547,7 @@ doset(void) /* changing options via menu by Per Liboriussen */
     int indexoffset, startpass, endpass;
     boolean setinitial = FALSE, fromfile = FALSE,
             gavehelp = FALSE, skiphelp = !iflags.cmdassist;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     if (iflags.menu_requested) {
         /* doset_simple() checks for 'm' and calls doset(); clear the
@@ -8791,7 +8791,7 @@ doset_add_menu(
 #ifdef PREFIXES_IN_USE
     int j;
 #endif
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     buf2[0] = '\0';  /* per opt functs may not guarantee this, so do it */
     any = cg.zeroany;
@@ -8980,7 +8980,7 @@ handle_add_list_remove(const char *optname, int numtotal)
         { 'r', "remove existing %s" }, /* [2] */
         { 'x', "exit this menu" },     /* [3] */
     };
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     opt_idx = 0;
     tmpwin = create_nhwindow(NHW_MENU);

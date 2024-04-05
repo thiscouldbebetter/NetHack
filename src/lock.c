@@ -245,13 +245,13 @@ forcelock(void)
        be cleared (delobj -> obfree -> maybe_reset_pick); but it might not,
        so explicitly clear that manually */
     breakchestlock(gx.xlock.box, (boolean) (!gx.xlock.picktyp && !random_integer_between_zero_and(3)));
-    reset_pick(); /* lock-picking context is no longer valid */
+    reset_picking_lock_or_forcing_chest(); /* lock-picking context is no longer valid */
 
     return 0;
 }
 
 void
-reset_pick(void)
+reset_picking_lock_or_forcing_chest(void)
 {
     gx.xlock.usedtime = gx.xlock.chance = gx.xlock.picktyp = 0;
     gx.xlock.magic_key = FALSE;
@@ -276,7 +276,7 @@ maybe_reset_pick(struct obj *container) /* passed from obfree() */
      */
     if (container ? (container == gx.xlock.box)
                   : (!gx.xlock.box || !carried(gx.xlock.box)))
-        reset_pick();
+        reset_picking_lock_or_forcing_chest();
 }
 
 /* pick a tool for autounlock */
@@ -381,11 +381,11 @@ pick_lock(
             if (picktyp == CREDIT_CARD)
                 what = "card";
             pline(no_longer, "hold the", what);
-            reset_pick();
+            reset_picking_lock_or_forcing_chest();
             return PICKLOCK_LEARNED_SOMETHING;
         } else if (u.uswallow || (gx.xlock.box && !can_reach_floor(TRUE))) {
             pline(no_longer, "reach the", "lock");
-            reset_pick();
+            reset_picking_lock_or_forcing_chest();
             return PICKLOCK_LEARNED_SOMETHING;
         } else {
             const char *action = lock_action();
@@ -1076,7 +1076,7 @@ boxlock(struct obj *obj, struct obj *otmp) /* obj *is* a box */
         /* maybe start unlocking chest, get interrupted, then zap it;
            we must avoid any attempt to resume unlocking it */
         if (gx.xlock.box == obj)
-            reset_pick();
+            reset_picking_lock_or_forcing_chest();
         break;
     }
     return res;
@@ -1252,7 +1252,7 @@ doorlock(struct obj *otmp, coordxy x, coordxy y)
     if (res && picking_at(x, y)) {
         /* maybe unseen monster zaps door you're unlocking */
         stop_occupation();
-        reset_pick();
+        reset_picking_lock_or_forcing_chest();
     }
     return res;
 }

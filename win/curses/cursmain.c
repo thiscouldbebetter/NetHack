@@ -3,6 +3,8 @@
 /* Copyright (c) Karl Garrison, 2010. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #include "curses.h"
 #include "hack.h"
 #include "color.h"
@@ -150,7 +152,7 @@ int orig_cursor;            /* Preserve initial cursor state */
 WINDOW *base_term;          /* underlying terminal window */
 boolean counting;           /* Count window is active */
 WINDOW *mapwin, *statuswin, *messagewin;    /* Main windows */
-color_attr curses_menu_promptstyle = { NO_COLOR, ATR_NONE };
+color_attr curses_menu_promptstyle = { COLOR_CODE_NONE, ATR_NONE };
 
 /* Track if we're performing an update to the permanent window.
    Needed since we aren't using the normal menu functions to handle
@@ -819,7 +821,7 @@ curses_ctrl_nhwindow(
         break;
     case set_menu_promptstyle:
 	curses_menu_promptstyle.color = wri->fromcore.menu_promptstyle.color;
-        if (curses_menu_promptstyle.color == NO_COLOR)
+        if (curses_menu_promptstyle.color == COLOR_CODE_NONE)
             curses_menu_promptstyle.color = NONE;
 	attr = wri->fromcore.menu_promptstyle.attr;
 	curses_menu_promptstyle.attr = curses_convert_attr(attr);;

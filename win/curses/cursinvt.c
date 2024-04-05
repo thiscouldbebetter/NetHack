@@ -291,7 +291,7 @@ curs_add_invt(
     int linenum,      /* line index; 1..n rather than 0..n-1 */
     char accelerator, /* selector letter for items, 0 for class headers */
     attr_t attr,      /* curses attribute for headers, 0 for items */
-    int clr,          /* NetHack color for headers, NO_COLOR for items */
+    int clr,          /* NetHack color for headers, COLOR_CODE_NONE for items */
     const char *str)  /* formatted inventory item, without invlet prefix,
                        * or class header text */
 {
@@ -377,7 +377,7 @@ curs_show_invt(WINDOW *win)
         accelerator = pi.array[lineno].letter;
         attr = pi.array[lineno].c_attr; /* already converted when stored */
         color = pi.array[lineno].color;
-        if (color == NO_COLOR)
+        if (color == COLOR_CODE_NONE)
             color = NONE;
 
         if (accelerator)

@@ -1386,9 +1386,9 @@ dump_redirect(boolean onoff_flag)
 
 #ifdef TTY_GRAPHICS
 #ifdef TOS
-extern const char *hilites[CLR_MAX];
+extern const char *hilites[COLOR_CODE_MAX];
 #else
-extern NEARDATA char *hilites[CLR_MAX];
+extern NEARDATA char *hilites[COLOR_CODE_MAX];
 #endif
 #endif
 
@@ -1653,7 +1653,7 @@ choose_classes_menu(const char *prompt,
     const char *text = 0;
     boolean selected;
     int ret, i, n, next_accelerator, accelerator;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     if (!class_list || !class_select)
         return 0;
@@ -1761,7 +1761,7 @@ choose_classes_menu(const char *prompt,
 /* enum and structs are defined in wintype.h */
 
 win_request_info zerowri = { { 0L, 0, 0, 0, 0, 0, 0, 0 },
-                             { 0, 0, { NO_COLOR, ATR_NONE }}};
+                             { 0, 0, { COLOR_CODE_NONE, ATR_NONE }}};
 
 void
 adjust_menu_promptstyle(winid window, color_attr *style)
@@ -1813,7 +1813,7 @@ add_menu_heading(winid tmpwin, const char *buf)
 
     /* suppress highlighting during end-of-game disclosure */
     if (gp.program_state.gameover)
-        attr = ATR_NONE, color = NO_COLOR;
+        attr = ATR_NONE, color = COLOR_CODE_NONE;
 
     add_menu(tmpwin, &nul_glyphinfo, &any, '\0', '\0', attr, color,
              buf, MENU_ITEMFLAGS_SKIPMENUCOLORS);
@@ -1825,7 +1825,7 @@ add_menu_str(winid tmpwin, const char *buf)
 {
     anything any = cg.zeroany;
 
-    add_menu(tmpwin, &nul_glyphinfo, &any, '\0', '\0', ATR_NONE, NO_COLOR,
+    add_menu(tmpwin, &nul_glyphinfo, &any, '\0', '\0', ATR_NONE, COLOR_CODE_NONE,
              buf, MENU_ITEMFLAGS_NONE);
 }
 

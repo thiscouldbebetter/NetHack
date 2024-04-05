@@ -90,14 +90,14 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(10, 10, MS_SILENT, MZ_TINY), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_CARNIVORE, M2_HOSTILE, 0,
-        4, CLR_BROWN, GIANT_ANT),
+        4, COLOR_CODE_BROWN, GIANT_ANT),
     MON(NAM("killer bee"), S_ANT,
         LVL(1, 18, -1, 0, 0), (G_GENO | G_LGROUP | 2),
         A(ATTK(AT_STNG, AD_DRST, 1, 3),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1, 5, MS_BUZZ, MZ_TINY), MR_POISON, MR_POISON,
         M1_ANIMAL | M1_FLY | M1_NOHANDS | M1_POIS, M2_HOSTILE | M2_FEMALE, 0,
-        5, CLR_YELLOW, KILLER_BEE),
+        5, COLOR_CODE_YELLOW, KILLER_BEE),
     MON(NAM("soldier ant"), S_ANT,
         LVL(3, 18, 3, 0, 0), (G_GENO | G_SGROUP | 2),
         A(ATTK(AT_BITE, AD_PHYS, 2, 4), ATTK(AT_STNG, AD_DRST, 3, 4),
@@ -105,7 +105,7 @@
         SIZ(20, 5, MS_SILENT, MZ_TINY), MR_POISON, MR_POISON,
         M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_POIS | M1_CARNIVORE,
         M2_HOSTILE, 0,
-        6, CLR_BLUE, SOLDIER_ANT),
+        6, COLOR_CODE_BLUE, SOLDIER_ANT),
     MON(NAM("fire ant"), S_ANT,
         LVL(3, 18, 3, 10, 0), (G_GENO | G_SGROUP | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 4), ATTK(AT_BITE, AD_FIRE, 2, 4),
@@ -113,14 +113,14 @@
         SIZ(30, 10, MS_SILENT, MZ_TINY), MR_FIRE, MR_FIRE,
         M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_CARNIVORE, M2_HOSTILE,
         M3_INFRAVISIBLE,
-        6, CLR_RED, FIRE_ANT),
+        6, COLOR_CODE_RED, FIRE_ANT),
     MON(NAM("giant beetle"), S_ANT,
         LVL(5, 6, 4, 0, 0), (G_GENO | 3),
         A(ATTK(AT_BITE, AD_PHYS, 3, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(200, 50, MS_SILENT, MZ_LARGE), MR_POISON, MR_POISON,
         M1_ANIMAL | M1_NOHANDS | M1_POIS | M1_CARNIVORE, M2_HOSTILE, 0,
-        6, CLR_BLACK, GIANT_BEETLE),
+        6, COLOR_CODE_BLACK, GIANT_BEETLE),
     MON(NAM("queen bee"), S_ANT,
         LVL(9, 24, -4, 0, 0), (G_GENO | G_NOGEN),
         A(ATTK(AT_STNG, AD_DRST, 1, 8),
@@ -141,7 +141,7 @@
         M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS | M1_ACID,
         M2_WANDER | M2_NEUTER, 0,
-        2, CLR_GREEN, ACID_BLOB),
+        2, COLOR_CODE_GREEN, ACID_BLOB),
     MON(NAM("quivering blob"), S_BLOB,
         LVL(5, 1, 8, 0, 0), (G_GENO | 2),
         A(ATTK(AT_TUCH, AD_PHYS, 1, 8),
@@ -149,7 +149,7 @@
         SIZ(200, 100, MS_SILENT, MZ_SMALL), MR_SLEEP | MR_POISON, MR_POISON,
         M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS,
         M2_WANDER | M2_HOSTILE | M2_NEUTER, 0,
-        6, CLR_WHITE, QUIVERING_BLOB),
+        6, COLOR_CODE_WHITE, QUIVERING_BLOB),
     MON(NAM("gelatinous cube"), S_BLOB,
         LVL(6, 6, 8, 0, 0), (G_GENO | 2),
         A(ATTK(AT_TUCH, AD_PLYS, 2, 4), ATTK(AT_NONE, AD_PLYS, 1, 4),
@@ -161,7 +161,7 @@
         M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS | M1_OMNIVORE
             | M1_ACID,
         M2_WANDER | M2_HOSTILE | M2_NEUTER, 0,
-        8, CLR_CYAN, GELATINOUS_CUBE),
+        8, COLOR_CODE_CYAN, GELATINOUS_CUBE),
     /*
      * cockatrice
      */
@@ -172,7 +172,7 @@
         SIZ(10, 10, MS_HISS, MZ_TINY), MR_POISON | MR_STONE,
         MR_POISON | MR_STONE, M1_ANIMAL | M1_NOHANDS | M1_OMNIVORE,
         M2_HOSTILE, M3_INFRAVISIBLE,
-        7, CLR_BROWN, CHICKATRICE),
+        7, COLOR_CODE_BROWN, CHICKATRICE),
     MON(NAM("cockatrice"), S_COCKATRICE,
         LVL(5, 6, 6, 30, 0), (G_GENO | 5),
         A(ATTK(AT_BITE, AD_PHYS, 1, 3), ATTK(AT_TUCH, AD_STON, 0, 0),
@@ -181,7 +181,7 @@
         MR_POISON | MR_STONE,
         M1_ANIMAL | M1_NOHANDS | M1_OMNIVORE | M1_OVIPAROUS, M2_HOSTILE,
         M3_INFRAVISIBLE,
-        8, CLR_YELLOW, COCKATRICE),
+        8, COLOR_CODE_YELLOW, COCKATRICE),
     MON(NAM("pyrolisk"), S_COCKATRICE,
         LVL(6, 6, 6, 30, 0), (G_GENO | 1),
         A(ATTK(AT_GAZE, AD_FIRE, 2, 6), ATTK(AT_BITE, AD_PHYS, 1, 6),
@@ -190,7 +190,7 @@
         MR_POISON | MR_FIRE,
         M1_ANIMAL | M1_NOHANDS | M1_OMNIVORE | M1_OVIPAROUS, M2_HOSTILE,
         M3_INFRAVISIBLE,
-        8, CLR_RED, PYROLISK),
+        8, COLOR_CODE_RED, PYROLISK),
     /*
      * dogs & other canines
      */
@@ -200,21 +200,21 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(300, 250, MS_BARK, MZ_SMALL), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, M3_INFRAVISIBLE,
-        1, CLR_BROWN, JACKAL),
+        1, COLOR_CODE_BROWN, JACKAL),
     MON(NAM("fox"), S_DOG,
         LVL(0, 15, 7, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 1, 3),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(300, 250, MS_BARK, MZ_SMALL), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, M3_INFRAVISIBLE,
-        1, CLR_RED, FOX),
+        1, COLOR_CODE_RED, FOX),
     MON(NAM("coyote"), S_DOG,
         LVL(1, 12, 7, 0, 0), (G_GENO | G_SGROUP | 1),
         A(ATTK(AT_BITE, AD_PHYS, 1, 4),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(300, 250, MS_BARK, MZ_SMALL), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, M3_INFRAVISIBLE,
-        2, CLR_BROWN, COYOTE),
+        2, COLOR_CODE_BROWN, COYOTE),
     MON(NAM("werejackal"),
         S_DOG, LVL(2, 12, 7, 10, -7), (G_NOGEN | G_NOCORPSE),
         A(ATTK(AT_BITE, AD_WERE, 1, 4),
@@ -222,7 +222,7 @@
         SIZ(300, 250, MS_BARK, MZ_SMALL), MR_POISON, 0,
         M1_NOHANDS | M1_POIS | M1_REGEN | M1_CARNIVORE,
         M2_NOPOLY | M2_WERE | M2_HOSTILE, M3_INFRAVISIBLE,
-        4, CLR_BROWN, WEREJACKAL),
+        4, COLOR_CODE_BROWN, WEREJACKAL),
     MON(NAM("little dog"), S_DOG,
         LVL(2, 18, 6, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 1, 6),
@@ -236,7 +236,7 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(400, 200, MS_BARK, MZ_MEDIUM), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, M3_INFRAVISIBLE,
-        5, CLR_YELLOW, DINGO),
+        5, COLOR_CODE_YELLOW, DINGO),
     MON(NAM("dog"), S_DOG,
         LVL(4, 16, 5, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 1, 6),
@@ -258,7 +258,7 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(500, 250, MS_BARK, MZ_MEDIUM), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, M3_INFRAVISIBLE,
-        6, CLR_GRAY, WOLF),
+        6, COLOR_CODE_GRAY, WOLF),
     /* werewolf in wolf form; one in human form uses a different monster
        type (in the S_HUMAN section below); switching back and forth is
        a shape-change that sets monst->data to the appropriate monster */
@@ -269,7 +269,7 @@
         SIZ(500, 250, MS_BARK, MZ_MEDIUM), MR_POISON, 0,
         M1_NOHANDS | M1_POIS | M1_REGEN | M1_CARNIVORE,
         M2_NOPOLY | M2_WERE | M2_HOSTILE, M3_INFRAVISIBLE,
-        7, CLR_GRAY, WEREWOLF),
+        7, COLOR_CODE_GRAY, WEREWOLF),
     MON(NAM("winter wolf cub"), S_DOG,
         LVL(5, 12, 4, 0, -5),
         (G_NOHELL | G_GENO | G_SGROUP | 2),
@@ -277,35 +277,35 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(250, 200, MS_BARK, MZ_SMALL), MR_COLD, MR_COLD,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, 0,
-        7, CLR_CYAN, WINTER_WOLF_CUB),
+        7, COLOR_CODE_CYAN, WINTER_WOLF_CUB),
     MON(NAM("warg"), S_DOG,
         LVL(7, 12, 4, 0, -5), (G_GENO | G_SGROUP | 2),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(850, 350, MS_BARK, MZ_MEDIUM), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, M3_INFRAVISIBLE,
-        8, CLR_BLACK, WARG),
+        8, COLOR_CODE_BLACK, WARG),
     MON(NAM("winter wolf"), S_DOG,
         LVL(7, 12, 4, 20, 0), (G_NOHELL | G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), ATTK(AT_BREA, AD_COLD, 2, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(700, 300, MS_BARK, MZ_LARGE), MR_COLD, MR_COLD,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE | M2_STRONG, 0,
-        9, CLR_CYAN, WINTER_WOLF),
+        9, COLOR_CODE_CYAN, WINTER_WOLF),
     MON(NAM("hell hound pup"), S_DOG,
         LVL(7, 12, 4, 20, -5), (G_HELL | G_GENO | G_SGROUP | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), ATTK(AT_BREA, AD_FIRE, 2, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(200, 200, MS_BARK, MZ_SMALL), MR_FIRE, MR_FIRE,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, M3_INFRAVISIBLE,
-        9, CLR_RED, HELL_HOUND_PUP),
+        9, COLOR_CODE_RED, HELL_HOUND_PUP),
     MON(NAM("hell hound"), S_DOG,
         LVL(12, 14, 2, 20, 0), (G_HELL | G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 3, 6), ATTK(AT_BREA, AD_FIRE, 3, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(600, 300, MS_BARK, MZ_MEDIUM), MR_FIRE, MR_FIRE,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE | M2_STRONG,
-        M3_INFRAVISIBLE, 14, CLR_RED, HELL_HOUND),
+        M3_INFRAVISIBLE, 14, COLOR_CODE_RED, HELL_HOUND),
 #ifdef CHARON
     MON(NAM("Cerberus"), S_DOG,
         LVL(12, 10, 2, 20, -7), (G_NOGEN | G_UNIQ | G_HELL),
@@ -327,7 +327,7 @@
         SIZ(10, 10, MS_SILENT, MZ_SMALL), 0, 0,
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS,
         M2_HOSTILE | M2_NEUTER, 0,
-        2, CLR_GRAY, GAS_SPORE),
+        2, COLOR_CODE_GRAY, GAS_SPORE),
     MON(NAM("floating eye"), S_EYE,
         LVL(2, 1, 9, 10, 0), (G_GENO | 5),
         A(ATTK(AT_NONE, AD_PLYS, 0, 70),
@@ -335,7 +335,7 @@
         SIZ(10, 10, MS_SILENT, MZ_SMALL), 0, 0,
         M1_FLY | M1_AMPHIBIOUS | M1_NOLIMBS | M1_NOHEAD | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE,
-        3, CLR_BLUE, FLOATING_EYE),
+        3, COLOR_CODE_BLUE, FLOATING_EYE),
     MON(NAM("freezing sphere"), S_EYE,
         LVL(6, 13, 4, 0, 0), (G_NOCORPSE | G_NOHELL | G_GENO | 2),
         A(ATTK(AT_EXPL, AD_COLD, 4, 6),
@@ -344,7 +344,7 @@
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE,
-        9, CLR_WHITE, FREEZING_SPHERE),
+        9, COLOR_CODE_WHITE, FREEZING_SPHERE),
     MON(NAM("flaming sphere"), S_EYE,
         LVL(6, 13, 4, 0, 0), (G_NOCORPSE | G_GENO | 2),
         A(ATTK(AT_EXPL, AD_FIRE, 4, 6),
@@ -352,7 +352,7 @@
         SIZ(10, 10, MS_SILENT, MZ_SMALL), MR_FIRE, MR_FIRE,
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_NOTAKE,
-        M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE, 9, CLR_RED, FLAMING_SPHERE),
+        M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE, 9, COLOR_CODE_RED, FLAMING_SPHERE),
     MON(NAM("shocking sphere"), S_EYE,
         LVL(6, 13, 4, 0, 0), (G_NOCORPSE | G_GENO | 2),
         A(ATTK(AT_EXPL, AD_ELEC, 4, 6),
@@ -399,7 +399,7 @@
         SIZ(600, 300, MS_GROWL, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        6, CLR_BROWN, JAGUAR),
+        6, COLOR_CODE_BROWN, JAGUAR),
     MON(NAM("lynx"), S_FELINE,
         LVL(5, 15, 6, 0, 0), (G_GENO | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4),
@@ -407,7 +407,7 @@
         SIZ(600, 300, MS_GROWL, MZ_SMALL), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        7, CLR_CYAN, LYNX),
+        7, COLOR_CODE_CYAN, LYNX),
     MON(NAM("panther"), S_FELINE,
         LVL(5, 15, 6, 0, 0), (G_GENO | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 6), ATTK(AT_CLAW, AD_PHYS, 1, 6),
@@ -415,7 +415,7 @@
         SIZ(600, 300, MS_GROWL, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        7, CLR_BLACK, PANTHER),
+        7, COLOR_CODE_BLACK, PANTHER),
     MON(NAM("large cat"), S_FELINE,
         LVL(6, 15, 4, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 4),
@@ -431,7 +431,7 @@
         SIZ(600, 300, MS_GROWL, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        8, CLR_YELLOW, TIGER),
+        8, COLOR_CODE_YELLOW, TIGER),
     MON(NAM("displacer beast"), S_FELINE,
         LVL(12, 12, -10, 0, -3), (G_GENO | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 4, 4), ATTK(AT_CLAW, AD_PHYS, 4, 4),
@@ -439,7 +439,7 @@
         SIZ(750, 400, MS_GROWL, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE | M2_NASTY,
         M3_INFRAVISIBLE | M3_INFRAVISION | M3_DISPLACES,
-        14, CLR_BLUE, DISPLACER_BEAST),
+        14, COLOR_CODE_BLUE, DISPLACER_BEAST),
     /*
      * gremlins and gargoyles
      */
@@ -450,7 +450,7 @@
           NO_ATTK, NO_ATTK),
         SIZ(100, 20, MS_LAUGH, MZ_SMALL), MR_POISON, MR_POISON,
         M1_SWIM | M1_HUMANOID | M1_POIS, M2_STALK, M3_INFRAVISIBLE,
-        8, CLR_GREEN, GREMLIN),
+        8, COLOR_CODE_GREEN, GREMLIN),
     /* gargoyle and winged gargoyle are inspired by a cheesy made-for-TV
        horror movie (starring Cornel Wilde and Jennifer Salt, 1972) */
     MON(NAM("gargoyle"), S_GREMLIN,
@@ -460,7 +460,7 @@
         SIZ(1000, 200, MS_GRUNT, MZ_HUMAN), MR_STONE, MR_STONE,
         M1_HUMANOID | M1_THICK_HIDE | M1_BREATHLESS,
         M2_HOSTILE | M2_STRONG, 0,
-        8, CLR_BROWN, GARGOYLE),
+        8, COLOR_CODE_BROWN, GARGOYLE),
     MON(NAM("winged gargoyle"), S_GREMLIN,
         LVL(9, 15, -2, 0, -12), (G_GENO | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 3, 6), ATTK(AT_CLAW, AD_PHYS, 3, 6),
@@ -478,7 +478,7 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(500, 200, MS_HUMANOID, MZ_SMALL), 0, 0, M1_HUMANOID | M1_OMNIVORE,
         M2_COLLECT, M3_INFRAVISIBLE | M3_INFRAVISION,
-        2, CLR_GREEN, HOBBIT),
+        2, COLOR_CODE_GREEN, HOBBIT),
     /* unlike plain human|elf|orc, plain "dwarf" is an ordinary monster */
     MON(NAM("dwarf"), S_HUMANOID,
         LVL(2, 6, 10, 10, 4), (G_GENO | 3),
@@ -488,7 +488,7 @@
         M1_TUNNEL | M1_NEEDPICK | M1_HUMANOID | M1_OMNIVORE,
         M2_DWARF | M2_STRONG | M2_GREEDY | M2_JEWELS | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        4, CLR_RED, DWARF),
+        4, COLOR_CODE_RED, DWARF),
     MON(NAM("bugbear"), S_HUMANOID,
         LVL(3, 9, 5, 0, -6), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4),
@@ -496,7 +496,7 @@
         SIZ(1250, 250, MS_GROWL, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_OMNIVORE, M2_STRONG | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        5, CLR_BROWN, BUGBEAR),
+        5, COLOR_CODE_BROWN, BUGBEAR),
     MON(NAMS("dwarf lord", "dwarf lady", "dwarf leader"), S_HUMANOID,
         LVL(4, 6, 10, 10, 5), (G_GENO | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4), ATTK(AT_WEAP, AD_PHYS, 2, 4),
@@ -505,7 +505,7 @@
         M1_TUNNEL | M1_NEEDPICK | M1_HUMANOID | M1_OMNIVORE,
         M2_DWARF | M2_STRONG | M2_LORD | M2_GREEDY | M2_JEWELS | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        6, CLR_BLUE, DWARF_LEADER),
+        6, COLOR_CODE_BLUE, DWARF_LEADER),
     MON(NAMS("dwarf king", "dwarf queen", "dwarf ruler"),
         S_HUMANOID, LVL(6, 6, 10, 20, 6), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 6), ATTK(AT_WEAP, AD_PHYS, 2, 6),
@@ -525,7 +525,7 @@
         M1_HUMANOID | M1_FLY | M1_SEE_INVIS | M1_OMNIVORE,
         M2_HOSTILE | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        13, CLR_BRIGHT_MAGENTA, MIND_FLAYER),
+        13, COLOR_CODE_BRIGHT_MAGENTA, MIND_FLAYER),
     MON(NAM("master mind flayer"), S_HUMANOID,
         LVL(13, 12, 0, 90, -8), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8), ATTK(AT_TENT, AD_DRIN, 2, 1),
@@ -535,7 +535,7 @@
         M1_HUMANOID | M1_FLY | M1_SEE_INVIS | M1_OMNIVORE,
         M2_HOSTILE | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        19, CLR_BRIGHT_MAGENTA, MASTER_MIND_FLAYER),
+        19, COLOR_CODE_BRIGHT_MAGENTA, MASTER_MIND_FLAYER),
     /*
      * imps & other minor demons/devils
      */
@@ -545,7 +545,7 @@
           ATTK(AT_BITE, AD_PHYS, 1, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(100, 100, MS_SILENT, MZ_SMALL), MR_SLEEP | MR_POISON, 0, M1_POIS,
         M2_HOSTILE | M2_STALK, M3_INFRAVISIBLE | M3_INFRAVISION,
-        3, CLR_RED, MANES),
+        3, COLOR_CODE_RED, MANES),
     MON(NAM("homunculus"), S_IMP,
         LVL(2, 12, 6, 10, -7), (G_GENO | 2),
         A(ATTK(AT_BITE, AD_SLEE, 1, 3),
@@ -553,14 +553,14 @@
         SIZ(60, 100, MS_SILENT, MZ_TINY), MR_SLEEP | MR_POISON,
         MR_SLEEP | MR_POISON, M1_FLY | M1_POIS, M2_STALK,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        3, CLR_GREEN, HOMUNCULUS),
+        3, COLOR_CODE_GREEN, HOMUNCULUS),
     MON(NAM("imp"), S_IMP,
         LVL(3, 12, 2, 20, -7), (G_GENO | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 4),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(20, 10, MS_CUSS, MZ_TINY), 0, 0, M1_REGEN, M2_WANDER | M2_STALK,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        4, CLR_RED, IMP),
+        4, COLOR_CODE_RED, IMP),
     MON(NAM("lemure"), S_IMP,
         LVL(3, 3, 7, 0, -7), (G_HELL | G_GENO | G_LGROUP | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 3),
@@ -568,21 +568,21 @@
         SIZ(150, 100, MS_SILENT, MZ_MEDIUM), MR_SLEEP | MR_POISON, MR_SLEEP,
         M1_POIS | M1_REGEN, M2_HOSTILE | M2_WANDER | M2_STALK | M2_NEUTER,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        5, CLR_BROWN, LEMURE),
+        5, COLOR_CODE_BROWN, LEMURE),
     MON(NAM("quasit"), S_IMP,
         LVL(3, 15, 2, 20, -7), (G_GENO | 2),
         A(ATTK(AT_CLAW, AD_DRDX, 1, 2), ATTK(AT_CLAW, AD_DRDX, 1, 2),
           ATTK(AT_BITE, AD_PHYS, 1, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(200, 200, MS_SILENT, MZ_SMALL), MR_POISON, MR_POISON, M1_REGEN,
         M2_STALK, M3_INFRAVISIBLE | M3_INFRAVISION,
-        7, CLR_BLUE, QUASIT),
+        7, COLOR_CODE_BLUE, QUASIT),
     MON(NAM("tengu"), S_IMP,
         LVL(6, 13, 5, 30, 7), (G_GENO | 3),
         A(ATTK(AT_BITE, AD_PHYS, 1, 7),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(300, 200, MS_SQAWK, MZ_SMALL), MR_POISON, MR_POISON,
         M1_TPORT | M1_TPORT_CNTRL, M2_STALK, M3_INFRAVISIBLE | M3_INFRAVISION,
-        7, CLR_CYAN, TENGU),
+        7, COLOR_CODE_CYAN, TENGU),
     /*
      * jellies
      */
@@ -595,7 +595,7 @@
         M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, 0,
-        5, CLR_BLUE, BLUE_JELLY),
+        5, COLOR_CODE_BLUE, BLUE_JELLY),
     MON(NAM("spotted jelly"), S_JELLY,
         LVL(5, 0, 8, 10, 0), (G_GENO | 1),
         A(ATTK(AT_NONE, AD_ACID, 0, 6),
@@ -605,7 +605,7 @@
         M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS | M1_ACID | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, 0,
-        6, CLR_GREEN, SPOTTED_JELLY),
+        6, COLOR_CODE_GREEN, SPOTTED_JELLY),
     MON(NAM("ochre jelly"), S_JELLY,
         LVL(6, 3, 8, 20, 0), (G_GENO | 2),
         A(ATTK(AT_ENGL, AD_ACID, 3, 6), ATTK(AT_NONE, AD_ACID, 3, 6),
@@ -615,7 +615,7 @@
         M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS | M1_ACID | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, 0,
-        8, CLR_BROWN, OCHRE_JELLY),
+        8, COLOR_CODE_BROWN, OCHRE_JELLY),
     /*
      * kobolds
      */
@@ -626,7 +626,7 @@
         SIZ(400, 100, MS_ORC, MZ_SMALL), MR_POISON, 0,
         M1_HUMANOID | M1_POIS | M1_OMNIVORE, M2_HOSTILE | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        1, CLR_BROWN, KOBOLD),
+        1, COLOR_CODE_BROWN, KOBOLD),
     MON(NAM("large kobold"), S_KOBOLD,
         LVL(1, 6, 10, 0, -3), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6),
@@ -634,7 +634,7 @@
         SIZ(450, 150, MS_ORC, MZ_SMALL), MR_POISON, 0,
         M1_HUMANOID | M1_POIS | M1_OMNIVORE, M2_HOSTILE | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        2, CLR_RED, LARGE_KOBOLD),
+        2, COLOR_CODE_RED, LARGE_KOBOLD),
     MON(NAMS("kobold lord", "kobold lady", "kobold leader"), S_KOBOLD,
         LVL(2, 6, 10, 0, -4), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4),
@@ -661,7 +661,7 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(60, 30, MS_LAUGH, MZ_TINY), 0, 0, M1_HUMANOID | M1_TPORT,
         M2_HOSTILE | M2_GREEDY, M3_INFRAVISIBLE,
-        4, CLR_GREEN, LEPRECHAUN),
+        4, COLOR_CODE_GREEN, LEPRECHAUN),
     /*
      * mimics
      */
@@ -673,7 +673,7 @@
         M1_BREATHLESS | M1_AMORPHOUS | M1_HIDE | M1_ANIMAL | M1_NOEYES
             | M1_NOHEAD | M1_NOLIMBS | M1_THICK_HIDE | M1_CARNIVORE,
         M2_HOSTILE, 0,
-        8, CLR_BROWN, SMALL_MIMIC),
+        8, COLOR_CODE_BROWN, SMALL_MIMIC),
     MON(NAM("large mimic"), S_MIMIC,
         LVL(8, 3, 7, 10, 0), (G_GENO | 1),
         A(ATTK(AT_CLAW, AD_STCK, 3, 4),
@@ -683,7 +683,7 @@
             | M1_NOEYES | M1_NOHEAD | M1_NOLIMBS | M1_THICK_HIDE
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG, 0,
-        9, CLR_RED, LARGE_MIMIC),
+        9, COLOR_CODE_RED, LARGE_MIMIC),
     MON(NAM("giant mimic"), S_MIMIC,
         LVL(9, 3, 7, 20, 0), (G_GENO | 1),
         A(ATTK(AT_CLAW, AD_STCK, 3, 6), ATTK(AT_CLAW, AD_STCK, 3, 6),
@@ -703,7 +703,7 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(600, 300, MS_SEDUCE, MZ_HUMAN), 0, 0, M1_HUMANOID | M1_TPORT,
         M2_HOSTILE | M2_FEMALE | M2_COLLECT, M3_INFRAVISIBLE,
-        5, CLR_GREEN, WOOD_NYMPH),
+        5, COLOR_CODE_GREEN, WOOD_NYMPH),
     MON(NAM("water nymph"), S_NYMPH,
         LVL(3, 12, 9, 20, 0), (G_GENO | 2),
         A(ATTK(AT_CLAW, AD_SITM, 0, 0), ATTK(AT_CLAW, AD_SEDU, 0, 0),
@@ -711,14 +711,14 @@
         SIZ(600, 300, MS_SEDUCE, MZ_HUMAN), 0, 0,
         M1_HUMANOID | M1_TPORT | M1_SWIM, M2_HOSTILE | M2_FEMALE | M2_COLLECT,
         M3_INFRAVISIBLE,
-        5, CLR_BLUE, WATER_NYMPH),
+        5, COLOR_CODE_BLUE, WATER_NYMPH),
     MON(NAM("mountain nymph"), S_NYMPH,
         LVL(3, 12, 9, 20, 0), (G_GENO | 2),
         A(ATTK(AT_CLAW, AD_SITM, 0, 0), ATTK(AT_CLAW, AD_SEDU, 0, 0),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(600, 300, MS_SEDUCE, MZ_HUMAN), 0, 0, M1_HUMANOID | M1_TPORT,
         M2_HOSTILE | M2_FEMALE | M2_COLLECT, M3_INFRAVISIBLE,
-        5, CLR_BROWN, MOUNTAIN_NYMPH),
+        5, COLOR_CODE_BROWN, MOUNTAIN_NYMPH),
     /*
      * orcs
      */
@@ -728,13 +728,13 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(400, 100, MS_ORC, MZ_SMALL), 0, 0, M1_HUMANOID | M1_OMNIVORE,
         M2_ORC | M2_COLLECT, M3_INFRAVISIBLE | M3_INFRAVISION,
-        1, CLR_GRAY, GOBLIN),
+        1, COLOR_CODE_GRAY, GOBLIN),
     MON(NAM("hobgoblin"), S_ORC, LVL(1, 9, 10, 0, -4), (G_GENO | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1000, 200, MS_ORC, MZ_HUMAN), 0, 0, M1_HUMANOID | M1_OMNIVORE,
         M2_ORC | M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE | M3_INFRAVISION,
-        3, CLR_BROWN, HOBGOBLIN),
+        3, COLOR_CODE_BROWN, HOBGOBLIN),
     /* Plain "orc" for zombie and mummy corpses only; not created at random.
      * Orcs (but not goblins and hobgoblins) are granted poison resistance;
      * however, their corpses don't confer it. */
@@ -746,7 +746,7 @@
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_ORC | M2_STRONG | M2_GREEDY | M2_JEWELS | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        3, CLR_RED, ORC),
+        3, COLOR_CODE_RED, ORC),
     MON(NAM("hill orc"), S_ORC,
         LVL(2, 9, 10, 0, -4), (G_GENO | G_LGROUP | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6),
@@ -755,7 +755,7 @@
         M1_HUMANOID | M1_OMNIVORE,
         M2_ORC | M2_STRONG | M2_GREEDY | M2_JEWELS | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        4, CLR_YELLOW, HILL_ORC),
+        4, COLOR_CODE_YELLOW, HILL_ORC),
     MON(NAM("Mordor orc"), S_ORC,
         LVL(3, 5, 10, 0, -5), (G_GENO | G_LGROUP | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6),
@@ -764,7 +764,7 @@
         M1_HUMANOID | M1_OMNIVORE,
         M2_ORC | M2_STRONG | M2_GREEDY | M2_JEWELS | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        5, CLR_BLUE, MORDOR_ORC),
+        5, COLOR_CODE_BLUE, MORDOR_ORC),
     MON(NAM("Uruk-hai"), S_ORC,
         LVL(3, 7, 10, 0, -4), (G_GENO | G_LGROUP | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8),
@@ -773,7 +773,7 @@
         M1_HUMANOID | M1_OMNIVORE,
         M2_ORC | M2_STRONG | M2_GREEDY | M2_JEWELS | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        5, CLR_BLACK, URUK_HAI),
+        5, COLOR_CODE_BLACK, URUK_HAI),
     MON(NAM("orc shaman"), S_ORC,
         LVL(3, 9, 5, 10, -5), (G_GENO | 1),
         A(ATTK(AT_MAGC, AD_SPEL, 0, 0),
@@ -803,7 +803,7 @@
         M1_CLING | M1_HIDE | M1_ANIMAL | M1_NOEYES | M1_NOLIMBS | M1_CARNIVORE
             | M1_NOTAKE,
         M2_HOSTILE, 0,
-        4, CLR_GRAY, ROCK_PIERCER),
+        4, COLOR_CODE_GRAY, ROCK_PIERCER),
     MON(NAM("iron piercer"), S_PIERCER,
         LVL(5, 1, 0, 0, 0), (G_GENO | 2),
         A(ATTK(AT_BITE, AD_PHYS, 3, 6),
@@ -812,7 +812,7 @@
         M1_CLING | M1_HIDE | M1_ANIMAL | M1_NOEYES | M1_NOLIMBS | M1_CARNIVORE
             | M1_NOTAKE,
         M2_HOSTILE, 0,
-        6, CLR_CYAN, IRON_PIERCER),
+        6, COLOR_CODE_CYAN, IRON_PIERCER),
     MON(NAM("glass piercer"), S_PIERCER,
         LVL(7, 1, 0, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 4, 6),
@@ -821,7 +821,7 @@
         M1_CLING | M1_HIDE | M1_ANIMAL | M1_NOEYES | M1_NOLIMBS | M1_CARNIVORE
             | M1_NOTAKE,
         M2_HOSTILE, 0,
-        9, CLR_WHITE, GLASS_PIERCER),
+        9, COLOR_CODE_WHITE, GLASS_PIERCER),
     /*
      * quadrupeds
      *  (note: horses are grouped with unicorns in another section below)
@@ -832,7 +832,7 @@
           ATTK(AT_BITE, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(400, 100, MS_MOO, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_OMNIVORE, M2_HOSTILE, M3_INFRAVISIBLE,
-        4, CLR_BROWN, ROTHE),
+        4, COLOR_CODE_BROWN, ROTHE),
     MON(NAM("mumak"), S_QUADRUPED,
         LVL(5, 9, 0, 0, -2), (G_GENO | 1),
         A(ATTK(AT_BUTT, AD_PHYS, 4, 12), ATTK(AT_BITE, AD_PHYS, 2, 6),
@@ -840,7 +840,7 @@
         SIZ(2500, 500, MS_TRUMPET, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_THICK_HIDE | M1_NOHANDS | M1_HERBIVORE,
         M2_HOSTILE | M2_STRONG, M3_INFRAVISIBLE,
-        7, CLR_GRAY, MUMAK),
+        7, COLOR_CODE_GRAY, MUMAK),
     MON(NAM("leocrotta"), S_QUADRUPED,
         LVL(6, 18, 4, 10, 0), (G_GENO | 2),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 6), ATTK(AT_BITE, AD_PHYS, 2, 6),
@@ -848,7 +848,7 @@
         SIZ(1200, 500, MS_IMITATE, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_OMNIVORE, M2_HOSTILE | M2_STRONG,
         M3_INFRAVISIBLE,
-        8, CLR_RED, LEOCROTTA),
+        8, COLOR_CODE_RED, LEOCROTTA),
     MON(NAM("wumpus"), S_QUADRUPED,
         LVL(8, 3, 2, 10, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 3, 6),
@@ -856,7 +856,7 @@
         SIZ(2500, 500, MS_BURBLE, MZ_LARGE), 0, 0,
         M1_CLING | M1_ANIMAL | M1_NOHANDS | M1_OMNIVORE,
         M2_HOSTILE | M2_STRONG, M3_INFRAVISIBLE,
-        9, CLR_CYAN, WUMPUS),
+        9, COLOR_CODE_CYAN, WUMPUS),
     MON(NAM("titanothere"), S_QUADRUPED,
         LVL(12, 12, 6, 0, 0), (G_GENO | 2),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 8),
@@ -864,7 +864,7 @@
         SIZ(2650, 650, MS_BELLOW, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_THICK_HIDE | M1_NOHANDS | M1_HERBIVORE,
         M2_HOSTILE | M2_STRONG, M3_INFRAVISIBLE,
-        13, CLR_GRAY, TITANOTHERE),
+        13, COLOR_CODE_GRAY, TITANOTHERE),
     MON(NAM("baluchitherium"), S_QUADRUPED,
         LVL(14, 12, 5, 0, 0), (G_GENO | 2),
         A(ATTK(AT_CLAW, AD_PHYS, 5, 4), ATTK(AT_CLAW, AD_PHYS, 5, 4),
@@ -872,7 +872,7 @@
         SIZ(3800, 800, MS_BELLOW, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_THICK_HIDE | M1_NOHANDS | M1_HERBIVORE,
         M2_HOSTILE | M2_STRONG, M3_INFRAVISIBLE,
-        15, CLR_GRAY, BALUCHITHERIUM),
+        15, COLOR_CODE_GRAY, BALUCHITHERIUM),
     MON(NAM("mastodon"), S_QUADRUPED,
         LVL(20, 12, 5, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BUTT, AD_PHYS, 4, 8), ATTK(AT_BUTT, AD_PHYS, 4, 8),
@@ -880,7 +880,7 @@
         SIZ(3800, 800, MS_TRUMPET, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_THICK_HIDE | M1_NOHANDS | M1_HERBIVORE,
         M2_HOSTILE | M2_STRONG, M3_INFRAVISIBLE,
-        22, CLR_BLACK, MASTODON),
+        22, COLOR_CODE_BLACK, MASTODON),
     /*
      * rodents
      */
@@ -890,14 +890,14 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(20, 12, MS_SQEEK, MZ_TINY), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, M3_INFRAVISIBLE,
-        1, CLR_BROWN, SEWER_RAT),
+        1, COLOR_CODE_BROWN, SEWER_RAT),
     MON(NAM("giant rat"), S_RODENT,
         LVL(1, 10, 7, 0, 0), (G_GENO | G_SGROUP | 2),
         A(ATTK(AT_BITE, AD_PHYS, 1, 3),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(30, 30, MS_SQEEK, MZ_TINY), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, M3_INFRAVISIBLE,
-        2, CLR_BROWN, GIANT_RAT),
+        2, COLOR_CODE_BROWN, GIANT_RAT),
     MON(NAM("rabid rat"), S_RODENT,
         LVL(2, 12, 6, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_DRCO, 2, 4),
@@ -905,7 +905,7 @@
         SIZ(30, 5, MS_SQEEK, MZ_TINY), MR_POISON, 0,
         M1_ANIMAL | M1_NOHANDS | M1_POIS | M1_CARNIVORE, M2_HOSTILE,
         M3_INFRAVISIBLE,
-        4, CLR_BROWN, RABID_RAT),
+        4, COLOR_CODE_BROWN, RABID_RAT),
     MON(NAM("wererat"), S_RODENT,
         LVL(2, 12, 6, 10, -7), (G_NOGEN | G_NOCORPSE),
         A(ATTK(AT_BITE, AD_WERE, 1, 4),
@@ -913,7 +913,7 @@
         SIZ(40, 30, MS_SQEEK, MZ_TINY), MR_POISON, 0,
         M1_NOHANDS | M1_POIS | M1_REGEN | M1_CARNIVORE,
         M2_NOPOLY | M2_WERE | M2_HOSTILE, M3_INFRAVISIBLE,
-        4, CLR_BROWN, WERERAT),
+        4, COLOR_CODE_BROWN, WERERAT),
     MON(NAM("rock mole"), S_RODENT,
         LVL(3, 3, 0, 20, 0), (G_GENO | 2),
         A(ATTK(AT_BITE, AD_PHYS, 1, 6),
@@ -921,7 +921,7 @@
         SIZ(30, 30, MS_SILENT, MZ_SMALL), 0, 0,
         M1_TUNNEL | M1_ANIMAL | M1_NOHANDS | M1_METALLIVORE,
         M2_HOSTILE | M2_GREEDY | M2_JEWELS | M2_COLLECT, M3_INFRAVISIBLE,
-        4, CLR_GRAY, ROCK_MOLE),
+        4, COLOR_CODE_GRAY, ROCK_MOLE),
     MON(NAM("woodchuck"), S_RODENT,
         LVL(3, 3, 0, 20, 0), (G_NOGEN | G_GENO),
         A(ATTK(AT_BITE, AD_PHYS, 1, 6),
@@ -931,7 +931,7 @@
             | M1_HERBIVORE,
         /* In reality, they tunnel instead of cutting lumber.  Oh, well. */
         M2_WANDER | M2_HOSTILE, M3_INFRAVISIBLE,
-        4, CLR_BROWN, WOODCHUCK),
+        4, COLOR_CODE_BROWN, WOODCHUCK),
     /*
      * spiders & scorpions (keep webmaker() in sync if new critters are added)
      */
@@ -942,7 +942,7 @@
         SIZ(50, 50, MS_SILENT, MZ_TINY), MR_POISON, MR_POISON,
         M1_CONCEAL | M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_CARNIVORE,
         M2_HOSTILE, 0,
-        3, CLR_GRAY, CAVE_SPIDER),
+        3, COLOR_CODE_GRAY, CAVE_SPIDER),
     MON(NAM("centipede"), S_SPIDER,
         LVL(2, 4, 3, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_DRST, 1, 3),
@@ -950,7 +950,7 @@
         SIZ(50, 50, MS_SILENT, MZ_TINY), MR_POISON, MR_POISON,
         M1_CONCEAL | M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_CARNIVORE,
         M2_HOSTILE, 0,
-        4, CLR_YELLOW, CENTIPEDE),
+        4, COLOR_CODE_YELLOW, CENTIPEDE),
     MON(NAM("giant spider"), S_SPIDER,
         LVL(5, 15, 4, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_DRST, 2, 4),
@@ -958,7 +958,7 @@
         SIZ(200, 100, MS_SILENT, MZ_LARGE), MR_POISON, MR_POISON,
         M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_POIS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG, 0,
-        7, CLR_MAGENTA, GIANT_SPIDER),
+        7, COLOR_CODE_MAGENTA, GIANT_SPIDER),
     MON(NAM("scorpion"), S_SPIDER,
         LVL(5, 15, 3, 0, 0), (G_GENO | 2),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 2), ATTK(AT_CLAW, AD_PHYS, 1, 2),
@@ -967,7 +967,7 @@
         M1_CONCEAL | M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_POIS
             | M1_CARNIVORE,
         M2_HOSTILE, 0,
-        8, CLR_RED, SCORPION),
+        8, COLOR_CODE_RED, SCORPION),
     /*
      * trappers, lurkers, &c
      * Note:  prior to 3.7, these were defined to do AD_DGST damage,
@@ -984,7 +984,7 @@
         M1_HIDE | M1_FLY | M1_ANIMAL | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STALK | M2_STRONG, 0,
-        12, CLR_GRAY, LURKER_ABOVE),
+        12, COLOR_CODE_GRAY, LURKER_ABOVE),
     MON(NAM("trapper"), S_TRAPPER,
         LVL(12, 3, 3, 0, 0), (G_GENO | 2),
         A(ATTK(AT_ENGL, AD_WRAP, 1, 8), ATTK(AT_ENGL, AD_PHYS, 2, 8),
@@ -993,7 +993,7 @@
         M1_HIDE | M1_ANIMAL | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STALK | M2_STRONG, 0,
-        14, CLR_GREEN, TRAPPER),
+        14, COLOR_CODE_GREEN, TRAPPER),
     /*
      * unicorns and horses
      */
@@ -1004,7 +1004,7 @@
         SIZ(1300, 250, MS_NEIGH, MZ_MEDIUM), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE,
         M2_WANDER | M2_STRONG | M2_DOMESTIC, M3_INFRAVISIBLE,
-        4, CLR_BROWN, PONY),
+        4, COLOR_CODE_BROWN, PONY),
     MON(NAM("white unicorn"), S_UNICORN,
         LVL(4, 24, 2, 70, 7), (G_GENO | 2),
         A(ATTK(AT_BUTT, AD_PHYS, 1, 12), ATTK(AT_KICK, AD_PHYS, 1, 6),
@@ -1012,7 +1012,7 @@
         SIZ(1300, 300, MS_NEIGH, MZ_LARGE), MR_POISON, MR_POISON,
         M1_NOHANDS | M1_HERBIVORE, M2_WANDER | M2_STRONG | M2_JEWELS,
         M3_INFRAVISIBLE,
-        6, CLR_WHITE, WHITE_UNICORN),
+        6, COLOR_CODE_WHITE, WHITE_UNICORN),
     MON(NAM("gray unicorn"), S_UNICORN,
         LVL(4, 24, 2, 70, 0), (G_GENO | 1),
         A(ATTK(AT_BUTT, AD_PHYS, 1, 12), ATTK(AT_KICK, AD_PHYS, 1, 6),
@@ -1020,7 +1020,7 @@
         SIZ(1300, 300, MS_NEIGH, MZ_LARGE), MR_POISON, MR_POISON,
         M1_NOHANDS | M1_HERBIVORE, M2_WANDER | M2_STRONG | M2_JEWELS,
         M3_INFRAVISIBLE,
-        6, CLR_GRAY, GRAY_UNICORN),
+        6, COLOR_CODE_GRAY, GRAY_UNICORN),
     MON(NAM("black unicorn"), S_UNICORN,
         LVL(4, 24, 2, 70, -7), (G_GENO | 1),
         A(ATTK(AT_BUTT, AD_PHYS, 1, 12), ATTK(AT_KICK, AD_PHYS, 1, 6),
@@ -1028,7 +1028,7 @@
         SIZ(1300, 300, MS_NEIGH, MZ_LARGE), MR_POISON, MR_POISON,
         M1_NOHANDS | M1_HERBIVORE, M2_WANDER | M2_STRONG | M2_JEWELS,
         M3_INFRAVISIBLE,
-        6, CLR_BLACK, BLACK_UNICORN),
+        6, COLOR_CODE_BLACK, BLACK_UNICORN),
     MON(NAM("horse"), S_UNICORN,
         LVL(5, 20, 5, 0, 0), (G_GENO | 2),
         A(ATTK(AT_KICK, AD_PHYS, 1, 8), ATTK(AT_BITE, AD_PHYS, 1, 3),
@@ -1036,7 +1036,7 @@
         SIZ(1500, 300, MS_NEIGH, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE,
         M2_WANDER | M2_STRONG | M2_DOMESTIC, M3_INFRAVISIBLE,
-        7, CLR_BROWN, HORSE),
+        7, COLOR_CODE_BROWN, HORSE),
     MON(NAM("warhorse"), S_UNICORN,
         LVL(7, 24, 4, 0, 0), (G_GENO | 2),
         A(ATTK(AT_KICK, AD_PHYS, 1, 10), ATTK(AT_BITE, AD_PHYS, 1, 4),
@@ -1044,7 +1044,7 @@
         SIZ(1800, 350, MS_NEIGH, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE,
         M2_WANDER | M2_STRONG | M2_DOMESTIC, M3_INFRAVISIBLE,
-        9, CLR_BROWN, WARHORSE),
+        9, COLOR_CODE_BROWN, WARHORSE),
     /*
      * vortices
      */
@@ -1056,7 +1056,7 @@
         M1_FLY | M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS | M1_AMORPHOUS | M1_UNSOLID,
         M2_HOSTILE | M2_NEUTER, 0,
-        4, CLR_GRAY, FOG_CLOUD),
+        4, COLOR_CODE_GRAY, FOG_CLOUD),
     MON(NAM("dust vortex"), S_VORTEX,
         LVL(4, 20, 2, 30, 0), (G_GENO | G_NOCORPSE | 2),
         A(ATTK(AT_ENGL, AD_BLND, 2, 8),
@@ -1065,7 +1065,7 @@
         M1_FLY | M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS,
         M2_HOSTILE | M2_NEUTER, 0,
-        6, CLR_BROWN, DUST_VORTEX),
+        6, COLOR_CODE_BROWN, DUST_VORTEX),
     MON(NAM("ice vortex"), S_VORTEX,
         LVL(5, 20, 2, 30, 0), (G_NOHELL | G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_ENGL, AD_COLD, 1, 6),
@@ -1075,7 +1075,7 @@
         M1_FLY | M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS,
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE,
-        7, CLR_CYAN, ICE_VORTEX),
+        7, COLOR_CODE_CYAN, ICE_VORTEX),
     MON(NAM("energy vortex"), S_VORTEX,
         LVL(6, 20, 2, 30, 0), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_ENGL, AD_ELEC, 1, 6), ATTK(AT_ENGL, AD_DREN, 2, 6),
@@ -1095,7 +1095,7 @@
         M1_FLY | M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS | M1_UNSOLID,
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE,
-        9, CLR_BLUE, STEAM_VORTEX),
+        9, COLOR_CODE_BLUE, STEAM_VORTEX),
     MON(NAM("fire vortex"), S_VORTEX,
         LVL(8, 22, 2, 30, 0), (G_HELL | G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_ENGL, AD_FIRE, 1, 10), ATTK(AT_NONE, AD_FIRE, 0, 4),
@@ -1105,7 +1105,7 @@
         M1_FLY | M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS | M1_UNSOLID,
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE,
-        10, CLR_YELLOW, FIRE_VORTEX),
+        10, COLOR_CODE_YELLOW, FIRE_VORTEX),
     /*
      * worms
      */
@@ -1116,14 +1116,14 @@
         SIZ(600, 250, MS_SILENT, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_SLITHY | M1_NOLIMBS | M1_CARNIVORE | M1_NOTAKE,
         M2_HOSTILE, 0,
-        6, CLR_BROWN, BABY_LONG_WORM),
+        6, COLOR_CODE_BROWN, BABY_LONG_WORM),
     MON(NAM("baby purple worm"), S_WORM,
         LVL(8, 3, 5, 0, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 1, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(600, 250, MS_SILENT, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_SLITHY | M1_NOLIMBS | M1_CARNIVORE, M2_HOSTILE, 0,
-        9, CLR_MAGENTA, BABY_PURPLE_WORM),
+        9, COLOR_CODE_MAGENTA, BABY_PURPLE_WORM),
     MON(NAM("long worm"), S_WORM,
         LVL(9, 3, 5, 10, 0), (G_GENO | 2),
         A(ATTK(AT_BITE, AD_PHYS, 2, 4),
@@ -1132,7 +1132,7 @@
         M1_ANIMAL | M1_SLITHY | M1_NOLIMBS | M1_OVIPAROUS | M1_CARNIVORE
             | M1_NOTAKE,
         M2_HOSTILE | M2_STRONG | M2_NASTY, 0,
-        10, CLR_BROWN, LONG_WORM),
+        10, COLOR_CODE_BROWN, LONG_WORM),
     MON(NAM("purple worm"), S_WORM,
         LVL(15, 9, 6, 20, 0), (G_GENO | 2),
         A(ATTK(AT_BITE, AD_PHYS, 2, 8), ATTK(AT_ENGL, AD_DGST, 1, 10),
@@ -1140,7 +1140,7 @@
         SIZ(2700, 700, MS_SILENT, MZ_GIGANTIC), 0, 0,
         M1_ANIMAL | M1_SLITHY | M1_NOLIMBS | M1_OVIPAROUS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY, 0,
-        17, CLR_MAGENTA, PURPLE_WORM),
+        17, COLOR_CODE_MAGENTA, PURPLE_WORM),
     /*
      * xan, &c
      */
@@ -1151,7 +1151,7 @@
         SIZ(15, 10, MS_BUZZ, MZ_TINY), MR_ELEC | MR_POISON, 0,
         M1_ANIMAL | M1_NOHANDS,
         M2_HOSTILE, M3_INFRAVISIBLE,
-        1, CLR_MAGENTA, GRID_BUG),
+        1, COLOR_CODE_MAGENTA, GRID_BUG),
     MON(NAM("xan"), S_XAN,
         LVL(7, 18, -4, 0, 0), (G_GENO | 3),
         A(ATTK(AT_STNG, AD_LEGS, 1, 4),
@@ -1159,7 +1159,7 @@
         SIZ(300, 300, MS_BUZZ, MZ_TINY), MR_POISON, MR_POISON,
         M1_FLY | M1_ANIMAL | M1_NOHANDS | M1_POIS, M2_HOSTILE,
         M3_INFRAVISIBLE,
-        9, CLR_RED, XAN),
+        9, COLOR_CODE_RED, XAN),
     /*
      * lights
      */
@@ -1174,7 +1174,7 @@
         M1_FLY | M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS
                | M1_NOHEAD | M1_MINDLESS | M1_UNSOLID | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE,
-        5, CLR_YELLOW, YELLOW_LIGHT),
+        5, COLOR_CODE_YELLOW, YELLOW_LIGHT),
     /* black light is invisible and causes hallucination */
     MON(NAM("black light"), S_LIGHT,
         LVL(5, 15, 0, 0, 0), (G_NOCORPSE | G_GENO | 2),
@@ -1186,7 +1186,7 @@
         M1_FLY | M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS
             | M1_NOHEAD | M1_MINDLESS | M1_UNSOLID | M1_SEE_INVIS | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, 0,
-        7, CLR_BLACK, BLACK_LIGHT),
+        7, COLOR_CODE_BLACK, BLACK_LIGHT),
     /*
      * zruty
      */
@@ -1197,7 +1197,7 @@
         SIZ(1200, 600, MS_SILENT, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_HUMANOID | M1_CARNIVORE, M2_HOSTILE | M2_STRONG,
         M3_INFRAVISIBLE,
-        11, CLR_BROWN, ZRUTY),
+        11, COLOR_CODE_BROWN, ZRUTY),
     /*
      * Angels and other lawful minions
      */
@@ -1209,7 +1209,7 @@
         M1_FLY | M1_NOHANDS | M1_SLITHY | M1_POIS,
         M2_MINION | M2_STALK | M2_STRONG | M2_NASTY,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        11, CLR_GREEN, COUATL),
+        11, COLOR_CODE_GREEN, COUATL),
     MON(NAM("Aleax"), S_ANGEL,
         LVL(10, 8, 0, 30, 7), (G_NOHELL | G_NOCORPSE | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_WEAP, AD_PHYS, 1, 6),
@@ -1219,7 +1219,7 @@
         M1_HUMANOID | M1_SEE_INVIS,
         M2_MINION | M2_STALK | M2_NASTY | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        12, CLR_YELLOW, ALEAX),
+        12, COLOR_CODE_YELLOW, ALEAX),
     /* Angels start with the emin extension attached, and usually have
        the isminion flag set; however, non-minion Angels can be tamed
        and will switch to edog (guardian Angel is handled specially and
@@ -1234,7 +1234,7 @@
         M1_FLY | M1_HUMANOID | M1_SEE_INVIS,
         M2_NOPOLY | M2_MINION | M2_STALK | M2_STRONG | M2_NASTY | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        19, CLR_WHITE, ANGEL),
+        19, COLOR_CODE_WHITE, ANGEL),
     /* the AD&D Monster Manual depicts ki-rin as very similar to unicorns
        except that they fly (without wings) and can cast spells; nethack's
        ki-rin doesn't leave its horn when killed, but it can use the horn
@@ -1270,7 +1270,7 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(20, 20, MS_SQEEK, MZ_TINY), 0, 0,
         M1_FLY | M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_WANDER,
-        M3_INFRAVISIBLE, 2, CLR_BROWN, BAT),
+        M3_INFRAVISIBLE, 2, COLOR_CODE_BROWN, BAT),
     MON(NAM("giant bat"), S_BAT,
         LVL(2, 22, 7, 0, 0), (G_GENO | 2),
         A(ATTK(AT_BITE, AD_PHYS, 1, 6),
@@ -1278,21 +1278,21 @@
         SIZ(30, 30, MS_SQEEK, MZ_SMALL), 0, 0,
         M1_FLY | M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE,
         M2_WANDER | M2_HOSTILE, M3_INFRAVISIBLE,
-        3, CLR_RED, GIANT_BAT),
+        3, COLOR_CODE_RED, GIANT_BAT),
     MON(NAM("raven"), S_BAT,
         LVL(4, 20, 6, 0, 0), (G_GENO | 2),
         A(ATTK(AT_BITE, AD_PHYS, 1, 6), ATTK(AT_CLAW, AD_BLND, 1, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(40, 20, MS_SQAWK, MZ_SMALL), 0, 0,
         M1_FLY | M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_CARNIVORE,
-        M2_WANDER | M2_HOSTILE, M3_INFRAVISIBLE, 6, CLR_BLACK, RAVEN),
+        M2_WANDER | M2_HOSTILE, M3_INFRAVISIBLE, 6, COLOR_CODE_BLACK, RAVEN),
     MON(NAM("vampire bat"), S_BAT, LVL(5, 20, 6, 0, 0), (G_GENO | 2),
         A(ATTK(AT_BITE, AD_PHYS, 1, 6), ATTK(AT_BITE, AD_DRST, 0, 0),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(30, 20, MS_SQEEK, MZ_SMALL), MR_SLEEP | MR_POISON, 0,
         M1_FLY | M1_ANIMAL | M1_NOHANDS | M1_POIS | M1_REGEN | M1_OMNIVORE,
         M2_HOSTILE, M3_INFRAVISIBLE,
-        7, CLR_BLACK, VAMPIRE_BAT),
+        7, COLOR_CODE_BLACK, VAMPIRE_BAT),
     /*
      * Centaurs
      */
@@ -1302,7 +1302,7 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(2500, 500, MS_HUMANOID, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_OMNIVORE, M2_STRONG | M2_GREEDY | M2_COLLECT,
-        M3_INFRAVISIBLE, 6, CLR_BROWN, PLAINS_CENTAUR),
+        M3_INFRAVISIBLE, 6, COLOR_CODE_BROWN, PLAINS_CENTAUR),
     MON(NAM("forest centaur"), S_CENTAUR,
         LVL(5, 18, 3, 10, -1), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8), ATTK(AT_KICK, AD_PHYS, 1, 6),
@@ -1310,7 +1310,7 @@
         SIZ(2550, 600, MS_HUMANOID, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_OMNIVORE, M2_STRONG | M2_GREEDY | M2_COLLECT,
         M3_INFRAVISIBLE,
-        8, CLR_GREEN, FOREST_CENTAUR),
+        8, COLOR_CODE_GREEN, FOREST_CENTAUR),
     MON(NAM("mountain centaur"), S_CENTAUR,
         LVL(6, 20, 2, 10, -3), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 10), ATTK(AT_KICK, AD_PHYS, 1, 6),
@@ -1318,7 +1318,7 @@
         SIZ(2550, 500, MS_HUMANOID, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_OMNIVORE, M2_STRONG | M2_GREEDY | M2_COLLECT,
         M3_INFRAVISIBLE,
-        9, CLR_CYAN, MOUNTAIN_CENTAUR),
+        9, COLOR_CODE_CYAN, MOUNTAIN_CENTAUR),
     /*
      * Dragons
      */
@@ -1343,7 +1343,7 @@
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), 0, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0,
-        13, CLR_GRAY, BABY_GRAY_DRAGON),
+        13, COLOR_CODE_GRAY, BABY_GRAY_DRAGON),
     MON(NAM("baby gold dragon"), S_DRAGON,
         LVL(12, 9, 2, 10, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 2, 6),
@@ -1378,7 +1378,7 @@
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_FIRE, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, M3_INFRAVISIBLE,
-        13, CLR_RED, BABY_RED_DRAGON),
+        13, COLOR_CODE_RED, BABY_RED_DRAGON),
     MON(NAM("baby white dragon"), S_DRAGON,
         LVL(12, 9, 2, 10, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 2, 6),
@@ -1386,7 +1386,7 @@
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_COLD, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0,
-        13, CLR_WHITE, BABY_WHITE_DRAGON),
+        13, COLOR_CODE_WHITE, BABY_WHITE_DRAGON),
     MON(NAM("baby orange dragon"), S_DRAGON,
         LVL(12, 9, 2, 10, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 2, 6),
@@ -1394,7 +1394,7 @@
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_SLEEP, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0,
-        13, CLR_ORANGE, BABY_ORANGE_DRAGON),
+        13, COLOR_CODE_ORANGE, BABY_ORANGE_DRAGON),
     MON(NAM("baby black dragon"), S_DRAGON,
         LVL(12, 9, 2, 10, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 2, 6),
@@ -1402,7 +1402,7 @@
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_DISINT, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0,
-        13, CLR_BLACK, BABY_BLACK_DRAGON),
+        13, COLOR_CODE_BLACK, BABY_BLACK_DRAGON),
     MON(NAM("baby blue dragon"), S_DRAGON,
         LVL(12, 9, 2, 10, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 2, 6),
@@ -1410,7 +1410,7 @@
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_ELEC, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0,
-        13, CLR_BLUE, BABY_BLUE_DRAGON),
+        13, COLOR_CODE_BLUE, BABY_BLUE_DRAGON),
     MON(NAM("baby green dragon"), S_DRAGON,
         LVL(12, 9, 2, 10, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 2, 6),
@@ -1418,7 +1418,7 @@
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_POISON, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE | M1_POIS,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0,
-        13, CLR_GREEN, BABY_GREEN_DRAGON),
+        13, COLOR_CODE_GREEN, BABY_GREEN_DRAGON),
     MON(NAM("baby yellow dragon"), S_DRAGON,
         LVL(12, 9, 2, 10, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 2, 6),
@@ -1426,7 +1426,7 @@
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_ACID | MR_STONE, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE | M1_ACID,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0,
-        13, CLR_YELLOW, BABY_YELLOW_DRAGON),
+        13, COLOR_CODE_YELLOW, BABY_YELLOW_DRAGON),
     MON(NAM("gray dragon"), S_DRAGON,
         LVL(15, 9, -1, 20, 4), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_MAGM, 4, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
@@ -1437,7 +1437,7 @@
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         0,
-        20, CLR_GRAY, GRAY_DRAGON),
+        20, COLOR_CODE_GRAY, GRAY_DRAGON),
     /* gold dragon can be seen via infravision but doesn't have infravision */
     MON(NAM("gold dragon"), S_DRAGON,
         LVL(15, 9, -1, 20, 4), (G_GENO | 1),
@@ -1489,7 +1489,7 @@
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         M3_INFRAVISION | M3_INFRAVISIBLE,
-        20, CLR_RED, RED_DRAGON),
+        20, COLOR_CODE_RED, RED_DRAGON),
     MON(NAM("white dragon"), S_DRAGON,
         LVL(15, 9, -1, 20, -5), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_COLD, 4, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
@@ -1500,7 +1500,7 @@
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         0,
-        20, CLR_WHITE, WHITE_DRAGON),
+        20, COLOR_CODE_WHITE, WHITE_DRAGON),
     MON(NAM("orange dragon"), S_DRAGON,
         LVL(15, 9, -1, 20, 5), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_SLEE, 4, 25), ATTK(AT_BITE, AD_PHYS, 3, 8),
@@ -1511,7 +1511,7 @@
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         0,
-        20, CLR_ORANGE, ORANGE_DRAGON),
+        20, COLOR_CODE_ORANGE, ORANGE_DRAGON),
     /* disintegration breath is actually all or nothing, not 1d255 */
     MON(NAM("black dragon"), S_DRAGON,
         LVL(15, 9, -1, 20, -6), (G_GENO | 1),
@@ -1523,7 +1523,7 @@
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         0,
-        20, CLR_BLACK, BLACK_DRAGON),
+        20, COLOR_CODE_BLACK, BLACK_DRAGON),
     MON(NAM("blue dragon"), S_DRAGON,
         LVL(15, 9, -1, 20, -7), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_ELEC, 4, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
@@ -1534,7 +1534,7 @@
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         0,
-        20, CLR_BLUE, BLUE_DRAGON),
+        20, COLOR_CODE_BLUE, BLUE_DRAGON),
     MON(NAM("green dragon"), S_DRAGON,
         LVL(15, 9, -1, 20, 6), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_DRST, 4, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
@@ -1545,7 +1545,7 @@
             | M1_CARNIVORE | M1_POIS,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         0,
-        20, CLR_GREEN, GREEN_DRAGON),
+        20, COLOR_CODE_GREEN, GREEN_DRAGON),
     MON(NAM("yellow dragon"), S_DRAGON,
         LVL(15, 9, -1, 20, 7), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_ACID, 4, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
@@ -1557,7 +1557,7 @@
             | M1_OVIPAROUS | M1_CARNIVORE | M1_ACID,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         0,
-        20, CLR_YELLOW, YELLOW_DRAGON),
+        20, COLOR_CODE_YELLOW, YELLOW_DRAGON),
     /*
      * Elementals
      */
@@ -1568,7 +1568,7 @@
         SIZ(900, 400, MS_SILENT, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_FLY | M1_SEE_INVIS,
         M2_WANDER | M2_STALK | M2_HOSTILE | M2_STRONG, M3_INFRAVISION,
-        9, CLR_WHITE, STALKER),
+        9, COLOR_CODE_WHITE, STALKER),
     MON(NAM("air elemental"), S_ELEMENTAL,
         LVL(8, 36, 2, 30, 0), (G_NOCORPSE | 1),
         A(ATTK(AT_ENGL, AD_PHYS, 1, 10),
@@ -1577,7 +1577,7 @@
         M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS | M1_BREATHLESS
             | M1_UNSOLID | M1_FLY,
         M2_STRONG | M2_NEUTER, 0,
-        10, CLR_CYAN, AIR_ELEMENTAL),
+        10, COLOR_CODE_CYAN, AIR_ELEMENTAL),
     MON(NAM("fire elemental"), S_ELEMENTAL,
         LVL(8, 12, 2, 30, 0), (G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_FIRE, 3, 6), ATTK(AT_NONE, AD_FIRE, 0, 4),
@@ -1586,7 +1586,7 @@
         M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS | M1_BREATHLESS
             | M1_UNSOLID | M1_FLY | M1_NOTAKE,
         M2_STRONG | M2_NEUTER, M3_INFRAVISIBLE,
-        10, CLR_YELLOW, FIRE_ELEMENTAL),
+        10, COLOR_CODE_YELLOW, FIRE_ELEMENTAL),
     MON(NAM("earth elemental"), S_ELEMENTAL,
         LVL(8, 6, 2, 30, 0), (G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 4, 6),
@@ -1596,7 +1596,7 @@
         M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS | M1_BREATHLESS
             | M1_WALLWALK | M1_THICK_HIDE,
         M2_STRONG | M2_NEUTER, 0,
-        10, CLR_BROWN, EARTH_ELEMENTAL),
+        10, COLOR_CODE_BROWN, EARTH_ELEMENTAL),
     MON(NAM("water elemental"), S_ELEMENTAL,
         LVL(8, 6, 2, 30, 0), (G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 5, 6),
@@ -1605,7 +1605,7 @@
         M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS | M1_BREATHLESS
             | M1_UNSOLID | M1_AMPHIBIOUS | M1_SWIM,
         M2_STRONG | M2_NEUTER, 0,
-        10, CLR_BLUE, WATER_ELEMENTAL),
+        10, COLOR_CODE_BLUE, WATER_ELEMENTAL),
     /*
      * Fungi
      */
@@ -1617,7 +1617,7 @@
         M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, 0,
-        1, CLR_BRIGHT_GREEN, LICHEN),
+        1, COLOR_CODE_BRIGHT_GREEN, LICHEN),
     MON(NAM("brown mold"), S_FUNGUS,
         LVL(1, 0, 9, 0, 0), (G_GENO | 1),
         A(ATTK(AT_NONE, AD_COLD, 0, 6),
@@ -1626,7 +1626,7 @@
         MR_COLD | MR_POISON, M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS
                                  | M1_NOHEAD | M1_MINDLESS | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, 0,
-        2, CLR_BROWN, BROWN_MOLD),
+        2, COLOR_CODE_BROWN, BROWN_MOLD),
     MON(NAM("yellow mold"), S_FUNGUS,
         LVL(1, 0, 9, 0, 0), (G_GENO | 2),
         A(ATTK(AT_NONE, AD_STUN, 0, 4),
@@ -1635,7 +1635,7 @@
         M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_POIS | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, 0,
-        2, CLR_YELLOW, YELLOW_MOLD),
+        2, COLOR_CODE_YELLOW, YELLOW_MOLD),
     MON(NAM("green mold"), S_FUNGUS,
         LVL(1, 0, 9, 0, 0), (G_GENO | 1),
         A(ATTK(AT_NONE, AD_ACID, 0, 4),
@@ -1645,7 +1645,7 @@
         M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_ACID | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, 0,
-        2, CLR_GREEN, GREEN_MOLD),
+        2, COLOR_CODE_GREEN, GREEN_MOLD),
     MON(NAM("red mold"), S_FUNGUS,
         LVL(1, 0, 9, 0, 0), (G_GENO | 1),
         A(ATTK(AT_NONE, AD_FIRE, 0, 4),
@@ -1654,7 +1654,7 @@
         MR_FIRE | MR_POISON, M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS
                                  | M1_NOHEAD | M1_MINDLESS | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE,
-        2, CLR_RED, RED_MOLD),
+        2, COLOR_CODE_RED, RED_MOLD),
     MON(NAM("shrieker"), S_FUNGUS,
         LVL(3, 1, 7, 0, 0), (G_GENO | 1),
         A(NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
@@ -1662,7 +1662,7 @@
         M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, 0,
-        2, CLR_MAGENTA, SHRIEKER),
+        2, COLOR_CODE_MAGENTA, SHRIEKER),
     MON(NAM("violet fungus"), S_FUNGUS,
         LVL(3, 1, 7, 0, 0), (G_GENO | 2),
         A(ATTK(AT_TUCH, AD_PHYS, 1, 4), ATTK(AT_TUCH, AD_STCK, 0, 0),
@@ -1671,7 +1671,7 @@
         M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, 0,
-        5, CLR_MAGENTA, VIOLET_FUNGUS),
+        5, COLOR_CODE_MAGENTA, VIOLET_FUNGUS),
     /*
      * Gnomes
      *  Unlike plain human|elf|orc, plain "gnome" is an ordinary monster.
@@ -1682,14 +1682,14 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(650, 100, MS_ORC, MZ_SMALL), 0, 0, M1_HUMANOID | M1_OMNIVORE,
         M2_GNOME | M2_COLLECT, M3_INFRAVISIBLE | M3_INFRAVISION,
-        3, CLR_BROWN, GNOME),
+        3, COLOR_CODE_BROWN, GNOME),
     MON(NAMS("gnome lord", "gnome lady", "gnome leader"),
         S_GNOME, LVL(3, 8, 10, 4, 0), (G_GENO | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(700, 120, MS_ORC, MZ_SMALL), 0, 0, M1_HUMANOID | M1_OMNIVORE,
         M2_GNOME | M2_LORD | M2_COLLECT,
-        M3_INFRAVISIBLE | M3_INFRAVISION, 4, CLR_BLUE, GNOME_LEADER),
+        M3_INFRAVISIBLE | M3_INFRAVISION, 4, COLOR_CODE_BLUE, GNOME_LEADER),
     MON(NAM("gnomish wizard"), S_GNOME,
         LVL(3, 10, 4, 10, 0), (G_GENO | 1),
         A(ATTK(AT_MAGC, AD_SPEL, 0, 0),
@@ -1716,7 +1716,7 @@
         SIZ(2250, 750, MS_BOAST, MZ_HUGE), 0, 0, M1_HUMANOID | M1_CARNIVORE,
         M2_GIANT | M2_STRONG | M2_ROCKTHROW | M2_NASTY | M2_COLLECT
             | M2_JEWELS,
-        M3_INFRAVISIBLE | M3_INFRAVISION, 8, CLR_RED, GIANT),
+        M3_INFRAVISIBLE | M3_INFRAVISION, 8, COLOR_CODE_RED, GIANT),
     MON(NAM("stone giant"), S_GIANT,
         LVL(6, 6, 0, 0, 2), (G_GENO | G_SGROUP | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 10),
@@ -1725,7 +1725,7 @@
         M2_GIANT | M2_STRONG | M2_ROCKTHROW | M2_NASTY | M2_COLLECT
             | M2_JEWELS,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        8, CLR_GRAY, STONE_GIANT),
+        8, COLOR_CODE_GRAY, STONE_GIANT),
     MON(NAM("hill giant"), S_GIANT,
         LVL(8, 10, 6, 0, -2), (G_GENO | G_SGROUP | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 8),
@@ -1734,7 +1734,7 @@
         M2_GIANT | M2_STRONG | M2_ROCKTHROW | M2_NASTY | M2_COLLECT
             | M2_JEWELS,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        10, CLR_CYAN, HILL_GIANT),
+        10, COLOR_CODE_CYAN, HILL_GIANT),
     MON(NAM("fire giant"), S_GIANT,
         LVL(9, 12, 4, 5, 2), (G_GENO | G_SGROUP | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 10),
@@ -1743,7 +1743,7 @@
         M1_HUMANOID | M1_CARNIVORE, M2_GIANT | M2_STRONG | M2_ROCKTHROW
                                         | M2_NASTY | M2_COLLECT | M2_JEWELS,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        11, CLR_YELLOW, FIRE_GIANT),
+        11, COLOR_CODE_YELLOW, FIRE_GIANT),
     MON(NAM("frost giant"), S_GIANT,
         LVL(10, 12, 3, 10, -3), (G_NOHELL | G_GENO | G_SGROUP | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 12),
@@ -1752,7 +1752,7 @@
         M1_HUMANOID | M1_CARNIVORE, M2_GIANT | M2_STRONG | M2_ROCKTHROW
                                         | M2_NASTY | M2_COLLECT | M2_JEWELS,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        13, CLR_WHITE, FROST_GIANT),
+        13, COLOR_CODE_WHITE, FROST_GIANT),
     /* ettin is a two-headed giant but its corpse doesn't confer strength */
     MON(NAM("ettin"), S_GIANT,
         LVL(10, 12, 3, 0, 0), (G_GENO | 1),
@@ -1762,7 +1762,7 @@
         M1_ANIMAL | M1_HUMANOID | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        13, CLR_BROWN, ETTIN),
+        13, COLOR_CODE_BROWN, ETTIN),
     MON(NAM("storm giant"), S_GIANT,
         LVL(16, 12, 3, 10, -3), (G_GENO | G_SGROUP | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 12),
@@ -1771,7 +1771,7 @@
         M1_HUMANOID | M1_CARNIVORE, M2_GIANT | M2_STRONG | M2_ROCKTHROW
                                         | M2_NASTY | M2_COLLECT | M2_JEWELS,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        19, CLR_BLUE, STORM_GIANT),
+        19, COLOR_CODE_BLUE, STORM_GIANT),
     MON(NAM("titan"), S_GIANT,
         LVL(16, 18, -3, 70, 9), (1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 8), ATTK(AT_MAGC, AD_SPEL, 0, 0),
@@ -1780,7 +1780,7 @@
         M1_FLY | M1_HUMANOID | M1_OMNIVORE,
         M2_STRONG | M2_ROCKTHROW | M2_NASTY | M2_COLLECT | M2_MAGIC,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        20, CLR_MAGENTA, TITAN),
+        20, COLOR_CODE_MAGENTA, TITAN),
     MON(NAM("minotaur"), S_GIANT,
         LVL(15, 15, 6, 0, 0), (G_GENO | G_NOGEN),
         A(ATTK(AT_CLAW, AD_PHYS, 3, 10), ATTK(AT_CLAW, AD_PHYS, 3, 10),
@@ -1788,7 +1788,7 @@
         SIZ(1500, 700, MS_MOO, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_HUMANOID | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY, M3_INFRAVISIBLE | M3_INFRAVISION,
-        17, CLR_BROWN, MINOTAUR),
+        17, COLOR_CODE_BROWN, MINOTAUR),
     /*
      * Invisible
      * S_invisible=='I' is a visual marker for all invisible monsters
@@ -1809,7 +1809,7 @@
         SIZ(1300, 600, MS_BURBLE, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_FLY | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_COLLECT, M3_INFRAVISIBLE,
-        18, CLR_ORANGE, JABBERWOCK),
+        18, COLOR_CODE_ORANGE, JABBERWOCK),
 #if 0 /* DEFERRED */
     MON(NAM("vorpal jabberwock"), S_JABBERWOCK,
         LVL(20, 12, -2, 50, 0), (G_GENO | 1),
@@ -1831,7 +1831,7 @@
         SIZ(WT_HUMAN, 200, MS_ARREST, MZ_HUMAN), 0, 0, M1_HUMANOID,
         M2_HUMAN | M2_WANDER | M2_HOSTILE | M2_MALE | M2_COLLECT,
         M3_INFRAVISIBLE,
-        3, CLR_BLUE, KEYSTONE_KOP),
+        3, COLOR_CODE_BLUE, KEYSTONE_KOP),
     MON(NAM("Kop Sergeant"), S_KOP,
         LVL(2, 8, 10, 10, 10), (G_GENO | G_SGROUP | G_NOGEN),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6),
@@ -1839,7 +1839,7 @@
         SIZ(WT_HUMAN, 200, MS_ARREST, MZ_HUMAN), 0, 0, M1_HUMANOID,
         M2_HUMAN | M2_WANDER | M2_HOSTILE | M2_STRONG | M2_MALE | M2_COLLECT,
         M3_INFRAVISIBLE,
-        4, CLR_BLUE, KOP_SERGEANT),
+        4, COLOR_CODE_BLUE, KOP_SERGEANT),
     MON(NAM("Kop Lieutenant"), S_KOP,
         LVL(3, 10, 10, 20, 11), (G_GENO | G_NOGEN),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8),
@@ -1847,7 +1847,7 @@
         SIZ(WT_HUMAN, 200, MS_ARREST, MZ_HUMAN), 0, 0, M1_HUMANOID,
         M2_HUMAN | M2_WANDER | M2_HOSTILE | M2_STRONG | M2_MALE | M2_COLLECT,
         M3_INFRAVISIBLE,
-        5, CLR_CYAN, KOP_LIEUTENANT),
+        5, COLOR_CODE_CYAN, KOP_LIEUTENANT),
     MON(NAM("Kop Kaptain"), S_KOP,
         LVL(4, 12, 10, 20, 12), (G_GENO | G_NOGEN),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 6),
@@ -1866,7 +1866,7 @@
         SIZ(1200, 100, MS_MUMBLE, MZ_HUMAN), MR_COLD | MR_SLEEP | MR_POISON,
         MR_COLD, M1_BREATHLESS | M1_HUMANOID | M1_POIS | M1_REGEN,
         M2_UNDEAD | M2_HOSTILE | M2_MAGIC, M3_INFRAVISION,
-        14, CLR_BROWN, LICH),
+        14, COLOR_CODE_BROWN, LICH),
     MON(NAM("demilich"), S_LICH,
         LVL(14, 9, -2, 60, -12), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_TUCH, AD_COLD, 3, 4), ATTK(AT_MAGC, AD_SPEL, 0, 0),
@@ -1874,7 +1874,7 @@
         SIZ(1200, 100, MS_MUMBLE, MZ_HUMAN), MR_COLD | MR_SLEEP | MR_POISON,
         MR_COLD, M1_BREATHLESS | M1_HUMANOID | M1_POIS | M1_REGEN,
         M2_UNDEAD | M2_HOSTILE | M2_MAGIC, M3_INFRAVISION,
-        18, CLR_RED, DEMILICH),
+        18, COLOR_CODE_RED, DEMILICH),
     MON(NAM("master lich"), S_LICH,
         LVL(17, 9, -4, 90, -15), (G_HELL | G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_TUCH, AD_COLD, 3, 6), ATTK(AT_MAGC, AD_SPEL, 0, 0),
@@ -1903,7 +1903,7 @@
         SIZ(400, 50, MS_SILENT, MZ_SMALL), MR_COLD | MR_SLEEP | MR_POISON, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_POIS,
         M2_UNDEAD | M2_HOSTILE, M3_INFRAVISION,
-        4, CLR_BROWN, KOBOLD_MUMMY),
+        4, COLOR_CODE_BROWN, KOBOLD_MUMMY),
     MON(NAM("gnome mummy"), S_MUMMY,
         LVL(4, 10, 6, 20, -3), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 6),
@@ -1911,7 +1911,7 @@
         SIZ(650, 50, MS_SILENT, MZ_SMALL), MR_COLD | MR_SLEEP | MR_POISON, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_POIS,
         M2_UNDEAD | M2_HOSTILE | M2_GNOME, M3_INFRAVISION,
-        5, CLR_RED, GNOME_MUMMY),
+        5, COLOR_CODE_RED, GNOME_MUMMY),
     MON(NAM("orc mummy"), S_MUMMY,
         LVL(5, 10, 5, 20, -4), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 6),
@@ -1920,7 +1920,7 @@
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_POIS,
         M2_UNDEAD | M2_HOSTILE | M2_STRONG | M2_ORC | M2_GREEDY | M2_JEWELS,
         M3_INFRAVISION,
-        6, CLR_GRAY, ORC_MUMMY),
+        6, COLOR_CODE_GRAY, ORC_MUMMY),
     MON(NAM("dwarf mummy"), S_MUMMY,
         LVL(5, 10, 5, 20, -4), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 6),
@@ -1929,7 +1929,7 @@
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_POIS,
         M2_UNDEAD | M2_HOSTILE | M2_DWARF | M2_GREEDY | M2_JEWELS,
         M3_INFRAVISION,
-        6, CLR_RED, DWARF_MUMMY),
+        6, COLOR_CODE_RED, DWARF_MUMMY),
     MON(NAM("elf mummy"), S_MUMMY,
         LVL(6, 12, 4, 30, -5), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 4),
@@ -1937,7 +1937,7 @@
         SIZ(WT_ELF, 175, MS_SILENT, MZ_HUMAN), MR_COLD | MR_SLEEP | MR_POISON,
         0, M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_POIS,
         M2_UNDEAD | M2_HOSTILE | M2_ELF, M3_INFRAVISION,
-        7, CLR_GREEN, ELF_MUMMY),
+        7, COLOR_CODE_GREEN, ELF_MUMMY),
     MON(NAM("human mummy"), S_MUMMY,
         LVL(6, 12, 4, 30, -5), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_CLAW, AD_PHYS, 2, 4),
@@ -1946,7 +1946,7 @@
         MR_COLD | MR_SLEEP | MR_POISON, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_POIS,
         M2_UNDEAD | M2_HOSTILE, M3_INFRAVISION,
-        7, CLR_GRAY, HUMAN_MUMMY),
+        7, COLOR_CODE_GRAY, HUMAN_MUMMY),
     MON(NAM("ettin mummy"), S_MUMMY,
         LVL(7, 12, 4, 30, -6), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 6), ATTK(AT_CLAW, AD_PHYS, 2, 6),
@@ -1954,7 +1954,7 @@
         SIZ(1700, 250, MS_SILENT, MZ_HUGE), MR_COLD | MR_SLEEP | MR_POISON, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_POIS,
         M2_UNDEAD | M2_HOSTILE | M2_STRONG, M3_INFRAVISION,
-        8, CLR_BLUE, ETTIN_MUMMY),
+        8, COLOR_CODE_BLUE, ETTIN_MUMMY),
     MON(NAM("giant mummy"), S_MUMMY,
         LVL(8, 14, 3, 30, -7), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 3, 4), ATTK(AT_CLAW, AD_PHYS, 3, 4),
@@ -1963,7 +1963,7 @@
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_POIS,
         M2_UNDEAD | M2_HOSTILE | M2_GIANT | M2_STRONG | M2_JEWELS,
         M3_INFRAVISION,
-        10, CLR_CYAN, GIANT_MUMMY),
+        10, COLOR_CODE_CYAN, GIANT_MUMMY),
     /*
      * Nagas
      */
@@ -1974,7 +1974,7 @@
         SIZ(500, 100, MS_MUMBLE, MZ_LARGE), MR_FIRE | MR_POISON, MR_POISON,
         M1_NOLIMBS | M1_SLITHY | M1_THICK_HIDE | M1_NOTAKE | M1_OMNIVORE,
         M2_STRONG, M3_INFRAVISIBLE,
-        4, CLR_RED, RED_NAGA_HATCHLING),
+        4, COLOR_CODE_RED, RED_NAGA_HATCHLING),
     MON(NAM("black naga hatchling"), S_NAGA,
         LVL(3, 10, 6, 0, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 1, 4),
@@ -1984,7 +1984,7 @@
         M1_NOLIMBS | M1_SLITHY | M1_THICK_HIDE | M1_ACID | M1_NOTAKE
             | M1_CARNIVORE,
         M2_STRONG, 0,
-        4, CLR_BLACK, BLACK_NAGA_HATCHLING),
+        4, COLOR_CODE_BLACK, BLACK_NAGA_HATCHLING),
     MON(NAM("golden naga hatchling"), S_NAGA,
         LVL(3, 10, 6, 0, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 1, 4),
@@ -2000,7 +2000,7 @@
         SIZ(500, 100, MS_MUMBLE, MZ_LARGE), MR_POISON, MR_POISON,
         M1_NOLIMBS | M1_SLITHY | M1_THICK_HIDE | M1_NOTAKE | M1_OMNIVORE,
         M2_STRONG, 0,
-        4, CLR_GREEN, GUARDIAN_NAGA_HATCHLING),
+        4, COLOR_CODE_GREEN, GUARDIAN_NAGA_HATCHLING),
     MON(NAM("red naga"), S_NAGA,
         LVL(6, 12, 4, 0, -4), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 4), ATTK(AT_BREA, AD_FIRE, 2, 6),
@@ -2009,7 +2009,7 @@
         MR_FIRE | MR_POISON, M1_NOLIMBS | M1_SLITHY | M1_THICK_HIDE
                                  | M1_OVIPAROUS | M1_NOTAKE | M1_OMNIVORE,
         M2_STRONG, M3_INFRAVISIBLE,
-        8, CLR_RED, RED_NAGA),
+        8, COLOR_CODE_RED, RED_NAGA),
     MON(NAM("black naga"), S_NAGA,
         LVL(8, 14, 2, 10, 4), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), ATTK(AT_SPIT, AD_ACID, 0, 0),
@@ -2019,7 +2019,7 @@
         M1_NOLIMBS | M1_SLITHY | M1_THICK_HIDE | M1_OVIPAROUS | M1_ACID
             | M1_NOTAKE | M1_CARNIVORE,
         M2_STRONG, 0,
-        10, CLR_BLACK, BLACK_NAGA),
+        10, COLOR_CODE_BLACK, BLACK_NAGA),
     MON(NAM("golden naga"), S_NAGA,
         LVL(10, 14, 2, 70, 5), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), ATTK(AT_MAGC, AD_SPEL, 4, 6),
@@ -2043,7 +2043,7 @@
         M1_NOLIMBS | M1_SLITHY | M1_THICK_HIDE | M1_OVIPAROUS | M1_POIS
             | M1_NOTAKE | M1_OMNIVORE,
         M2_STRONG, 0,
-        17, CLR_GREEN, GUARDIAN_NAGA),
+        17, COLOR_CODE_GREEN, GUARDIAN_NAGA),
     /*
      * Ogres
      */
@@ -2054,7 +2054,7 @@
         SIZ(1600, 500, MS_GRUNT, MZ_LARGE), 0, 0, M1_HUMANOID | M1_CARNIVORE,
         M2_STRONG | M2_GREEDY | M2_JEWELS | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        7, CLR_BROWN, OGRE),
+        7, COLOR_CODE_BROWN, OGRE),
     MON(NAMS("ogre lord", "ogre lady", "ogre leader"), S_OGRE,
         LVL(7, 12, 3, 30, -5), (G_GENO | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 6),
@@ -2062,7 +2062,7 @@
         SIZ(1700, 700, MS_GRUNT, MZ_LARGE), 0, 0, M1_HUMANOID | M1_CARNIVORE,
         M2_STRONG | M2_LORD | M2_GREEDY | M2_JEWELS | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        9, CLR_RED, OGRE_LEADER),
+        9, COLOR_CODE_RED, OGRE_LEADER),
     MON(NAMS("ogre king", "ogre queen", "ogre tyrant"), S_OGRE,
         LVL(9, 14, 4, 60, -7), (G_GENO | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 3, 5),
@@ -2086,7 +2086,7 @@
         M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS | M1_OMNIVORE | M1_ACID,
         M2_HOSTILE | M2_NEUTER, 0,
-        4, CLR_GRAY, GRAY_OOZE),
+        4, COLOR_CODE_GRAY, GRAY_OOZE),
     MON(NAM("brown pudding"), S_PUDDING,
         LVL(5, 3, 8, 0, 0), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_BITE, AD_DCAY, 0, 0),
@@ -2097,7 +2097,7 @@
         M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS | M1_OMNIVORE | M1_ACID,
         M2_HOSTILE | M2_NEUTER, 0,
-        6, CLR_BROWN, BROWN_PUDDING),
+        6, COLOR_CODE_BROWN, BROWN_PUDDING),
     MON(NAM("green slime"), S_PUDDING,
         LVL(6, 6, 6, 0, 0), (G_HELL | G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_TUCH, AD_SLIM, 1, 4), ATTK(AT_NONE, AD_SLIM, 0, 0),
@@ -2107,7 +2107,7 @@
         M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS | M1_OMNIVORE | M1_ACID | M1_POIS,
         M2_HOSTILE | M2_NEUTER, 0,
-        8, CLR_GREEN, GREEN_SLIME),
+        8, COLOR_CODE_GREEN, GREEN_SLIME),
     MON(NAM("black pudding"), S_PUDDING,
         LVL(10, 6, 6, 0, 0), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_BITE, AD_CORR, 3, 8), ATTK(AT_NONE, AD_CORR, 0, 0),
@@ -2118,7 +2118,7 @@
         M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS | M1_OMNIVORE | M1_ACID,
         M2_HOSTILE | M2_NEUTER, 0,
-        12, CLR_BLACK, BLACK_PUDDING),
+        12, COLOR_CODE_BLACK, BLACK_PUDDING),
     /*
      * Quantum mechanics
      */
@@ -2129,7 +2129,7 @@
         SIZ(WT_HUMAN, 20, MS_HUMANOID, MZ_HUMAN), MR_POISON, 0,
         M1_HUMANOID | M1_OMNIVORE | M1_POIS | M1_TPORT, M2_HOSTILE,
         M3_INFRAVISIBLE,
-        9, CLR_CYAN, QUANTUM_MECHANIC),
+        9, COLOR_CODE_CYAN, QUANTUM_MECHANIC),
     /* 3.7: from slash'em, to expand Q class; hit polymorphs target */
     MON(NAM("genetic engineer"), S_QUANTMECH,
         LVL(12, 12, 3, 10, 0), (G_GENO | 1),
@@ -2138,7 +2138,7 @@
         SIZ(WT_HUMAN, 20, MS_HUMANOID, MZ_HUMAN), MR_POISON, 0,
         M1_HUMANOID | M1_OMNIVORE | M1_POIS | M1_TPORT, M2_HOSTILE | M2_NASTY,
         M3_INFRAVISIBLE,
-        14, CLR_GREEN, GENETIC_ENGINEER),
+        14, COLOR_CODE_GREEN, GENETIC_ENGINEER),
     /*
      * Rust monster or disenchanter
      */
@@ -2149,14 +2149,14 @@
         SIZ(1000, 250, MS_SILENT, MZ_MEDIUM), 0, 0,
         M1_SWIM | M1_ANIMAL | M1_NOHANDS | M1_METALLIVORE, M2_HOSTILE,
         M3_INFRAVISIBLE,
-        8, CLR_BROWN, RUST_MONSTER),
+        8, COLOR_CODE_BROWN, RUST_MONSTER),
     MON(NAM("disenchanter"), S_RUSTMONST,
         LVL(12, 12, -10, 0, -3), (G_HELL | G_GENO | 2),
         A(ATTK(AT_CLAW, AD_ENCH, 4, 4), ATTK(AT_NONE, AD_ENCH, 0, 0),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(750, 200, MS_GROWL, MZ_LARGE), 0, 0, M1_ANIMAL | M1_CARNIVORE,
         M2_HOSTILE, M3_INFRAVISIBLE,
-        14, CLR_BLUE, DISENCHANTER),
+        14, COLOR_CODE_BLUE, DISENCHANTER),
     /*
      * Snakes
      *  Note: in the real world, most snakes are oviparous but some aren't;
@@ -2170,7 +2170,7 @@
         M1_SWIM | M1_CONCEAL | M1_NOLIMBS | M1_ANIMAL | M1_SLITHY
             | M1_OVIPAROUS | M1_CARNIVORE | M1_NOTAKE,
         0, 0,
-        3, CLR_GREEN, GARTER_SNAKE),
+        3, COLOR_CODE_GREEN, GARTER_SNAKE),
     MON(NAM("snake"), S_SNAKE,
         LVL(4, 15, 3, 0, 0), (G_GENO | 2),
         A(ATTK(AT_BITE, AD_DRST, 1, 6),
@@ -2179,7 +2179,7 @@
         M1_SWIM | M1_CONCEAL | M1_NOLIMBS | M1_ANIMAL | M1_SLITHY | M1_POIS
             | M1_OVIPAROUS | M1_CARNIVORE | M1_NOTAKE,
         M2_HOSTILE, 0,
-        6, CLR_BROWN, SNAKE),
+        6, COLOR_CODE_BROWN, SNAKE),
     MON(NAM("water moccasin"), S_SNAKE,
         LVL(4, 15, 3, 0, 0), (G_GENO | G_NOGEN | G_LGROUP),
         A(ATTK(AT_BITE, AD_DRST, 1, 6),
@@ -2188,7 +2188,7 @@
         M1_SWIM | M1_CONCEAL | M1_NOLIMBS | M1_ANIMAL | M1_SLITHY | M1_POIS
             | M1_CARNIVORE | M1_OVIPAROUS | M1_NOTAKE,
         M2_HOSTILE, 0,
-        7, CLR_RED, WATER_MOCCASIN),
+        7, COLOR_CODE_RED, WATER_MOCCASIN),
     MON(NAM("python"), S_SNAKE,
         LVL(6, 3, 5, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 1, 4), ATTK(AT_TUCH, AD_PHYS, 0, 0),
@@ -2198,7 +2198,7 @@
         M1_SWIM | M1_NOLIMBS | M1_ANIMAL | M1_SLITHY | M1_CARNIVORE
             | M1_OVIPAROUS | M1_NOTAKE,
         M2_HOSTILE | M2_STRONG, M3_INFRAVISION,
-        8, CLR_MAGENTA, PYTHON),
+        8, COLOR_CODE_MAGENTA, PYTHON),
     MON(NAM("pit viper"), S_SNAKE,
         LVL(6, 15, 2, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_DRST, 1, 4), ATTK(AT_BITE, AD_DRST, 1, 4),
@@ -2207,7 +2207,7 @@
         M1_SWIM | M1_CONCEAL | M1_NOLIMBS | M1_ANIMAL | M1_SLITHY | M1_POIS
             | M1_CARNIVORE | M1_OVIPAROUS | M1_NOTAKE,
         M2_HOSTILE, M3_INFRAVISION,
-        9, CLR_BLUE, PIT_VIPER),
+        9, COLOR_CODE_BLUE, PIT_VIPER),
     MON(NAM("cobra"), S_SNAKE,
         LVL(6, 18, 2, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_DRST, 2, 4), ATTK(AT_SPIT, AD_BLND, 0, 0),
@@ -2216,7 +2216,7 @@
         M1_SWIM | M1_CONCEAL | M1_NOLIMBS | M1_ANIMAL | M1_SLITHY | M1_POIS
             | M1_CARNIVORE | M1_OVIPAROUS | M1_NOTAKE,
         M2_HOSTILE, 0,
-        10, CLR_BLUE, COBRA),
+        10, COLOR_CODE_BLUE, COBRA),
     /*
      * Trolls
      */
@@ -2227,7 +2227,7 @@
         SIZ(800, 350, MS_GRUNT, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_REGEN | M1_CARNIVORE,
         M2_STRONG | M2_STALK | M2_HOSTILE, M3_INFRAVISIBLE | M3_INFRAVISION,
-        9, CLR_BROWN, TROLL),
+        9, COLOR_CODE_BROWN, TROLL),
     MON(NAM("ice troll"), S_TROLL,
         LVL(9, 10, 2, 20, -3), (G_NOHELL | G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 6), ATTK(AT_CLAW, AD_COLD, 2, 6),
@@ -2235,7 +2235,7 @@
         SIZ(1000, 300, MS_GRUNT, MZ_LARGE), MR_COLD, MR_COLD,
         M1_HUMANOID | M1_REGEN | M1_CARNIVORE,
         M2_STRONG | M2_STALK | M2_HOSTILE, M3_INFRAVISIBLE | M3_INFRAVISION,
-        12, CLR_WHITE, ICE_TROLL),
+        12, COLOR_CODE_WHITE, ICE_TROLL),
     MON(NAM("rock troll"), S_TROLL,
         LVL(9, 12, 0, 0, -3), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 3, 6), ATTK(AT_CLAW, AD_PHYS, 2, 8),
@@ -2244,7 +2244,7 @@
         M1_HUMANOID | M1_REGEN | M1_CARNIVORE,
         M2_STRONG | M2_STALK | M2_HOSTILE | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        12, CLR_CYAN, ROCK_TROLL),
+        12, COLOR_CODE_CYAN, ROCK_TROLL),
     MON(NAM("water troll"), S_TROLL,
         LVL(11, 14, 4, 40, -3), (G_NOGEN | G_GENO),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 8), ATTK(AT_CLAW, AD_PHYS, 2, 8),
@@ -2252,7 +2252,7 @@
         SIZ(1200, 350, MS_GRUNT, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_REGEN | M1_CARNIVORE | M1_SWIM,
         M2_STRONG | M2_STALK | M2_HOSTILE, M3_INFRAVISIBLE | M3_INFRAVISION,
-        13, CLR_BLUE, WATER_TROLL),
+        13, COLOR_CODE_BLUE, WATER_TROLL),
     MON(NAM("Olog-hai"), S_TROLL,
         LVL(13, 12, -4, 0, -7), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 3, 6), ATTK(AT_CLAW, AD_PHYS, 2, 8),
@@ -2272,7 +2272,7 @@
           NO_ATTK, NO_ATTK),
         SIZ(1200, 500, MS_SILENT, MZ_LARGE), 0, 0, M1_TUNNEL | M1_CARNIVORE,
         M2_STRONG, M3_INFRAVISIBLE,
-        12, CLR_BROWN, UMBER_HULK),
+        12, COLOR_CODE_BROWN, UMBER_HULK),
     /*
      * Vampires
      */
@@ -2285,7 +2285,7 @@
         M2_UNDEAD | M2_STALK | M2_HOSTILE | M2_STRONG | M2_NASTY
             | M2_SHAPESHIFTER,
         M3_INFRAVISIBLE,
-        12, CLR_RED, VAMPIRE),
+        12, COLOR_CODE_RED, VAMPIRE),
     MON(NAMS("vampire lord", "vampire lady", "vampire leader"), S_VAMPIRE,
         LVL(12, 14, 0, 50, -9), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 8), ATTK(AT_BITE, AD_DRLI, 1, 8),
@@ -2295,7 +2295,7 @@
         M2_UNDEAD | M2_STALK | M2_HOSTILE | M2_STRONG | M2_NASTY | M2_LORD
             | M2_SHAPESHIFTER,
         M3_INFRAVISIBLE,
-        14, CLR_BLUE, VAMPIRE_LEADER),
+        14, COLOR_CODE_BLUE, VAMPIRE_LEADER),
 #if 0 /* DEFERRED */
     MON(NAM("vampire mage"), S_VAMPIRE,
         LVL(20, 14, -4, 50, -9), (G_GENO | G_NOCORPSE | 1),
@@ -2329,7 +2329,7 @@
         SIZ(1200, 0, MS_SPELL, MZ_HUMAN), MR_COLD | MR_SLEEP | MR_POISON, 0,
         M1_BREATHLESS | M1_HUMANOID,
         M2_UNDEAD | M2_STALK | M2_HOSTILE | M2_COLLECT, 0,
-        8, CLR_GRAY, BARROW_WIGHT),
+        8, COLOR_CODE_GRAY, BARROW_WIGHT),
     /* wraiths weigh 0 but can leave corpses */
     MON(NAM("wraith"), S_WRAITH,
         LVL(6, 12, 4, 15, -6), (G_GENO | 2),
@@ -2339,7 +2339,7 @@
         MR_COLD | MR_SLEEP | MR_POISON | MR_STONE, 0,
         M1_BREATHLESS | M1_FLY | M1_HUMANOID | M1_UNSOLID,
         M2_UNDEAD | M2_STALK | M2_HOSTILE, 0,
-        8, CLR_BLACK, WRAITH),
+        8, COLOR_CODE_BLACK, WRAITH),
     MON(NAM("Nazgul"), S_WRAITH,
         LVL(13, 12, 0, 25, -17), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_WEAP, AD_DRLI, 1, 4), ATTK(AT_BREA, AD_SLEE, 2, 25),
@@ -2361,7 +2361,7 @@
         MR_STONE,
         M1_BREATHLESS | M1_WALLWALK | M1_THICK_HIDE | M1_METALLIVORE,
         M2_HOSTILE | M2_STRONG, 0,
-        11, CLR_BROWN, XORN),
+        11, COLOR_CODE_BROWN, XORN),
     /*
      * Apelike beasts
      */
@@ -2373,14 +2373,14 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(100, 50, MS_GROWL, MZ_SMALL), 0, 0,
         M1_ANIMAL | M1_HUMANOID | M1_OMNIVORE, 0, M3_INFRAVISIBLE,
-        4, CLR_GRAY, MONKEY),
+        4, COLOR_CODE_GRAY, MONKEY),
     MON(NAM("ape"), S_YETI,
         LVL(4, 12, 6, 0, 0), (G_GENO | G_SGROUP | 2),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 3), ATTK(AT_CLAW, AD_PHYS, 1, 3),
           ATTK(AT_BITE, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1100, 500, MS_GROWL, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_HUMANOID | M1_OMNIVORE, M2_STRONG, M3_INFRAVISIBLE,
-        6, CLR_BROWN, APE),
+        6, COLOR_CODE_BROWN, APE),
     MON(NAM("owlbear"), S_YETI,
         LVL(5, 12, 5, 0, 0), (G_GENO | 3),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 6), ATTK(AT_CLAW, AD_PHYS, 1, 6),
@@ -2388,7 +2388,7 @@
         SIZ(1700, 700, MS_ROAR, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_HUMANOID | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY, M3_INFRAVISIBLE,
-        7, CLR_BROWN, OWLBEAR),
+        7, COLOR_CODE_BROWN, OWLBEAR),
     MON(NAM("yeti"), S_YETI,
         LVL(5, 15, 6, 0, 0), (G_GENO | 2),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 6), ATTK(AT_CLAW, AD_PHYS, 1, 6),
@@ -2396,7 +2396,7 @@
         SIZ(1600, 700, MS_GROWL, MZ_LARGE), MR_COLD, MR_COLD,
         M1_ANIMAL | M1_HUMANOID | M1_CARNIVORE, M2_HOSTILE | M2_STRONG,
         M3_INFRAVISIBLE,
-        7, CLR_WHITE, YETI),
+        7, COLOR_CODE_WHITE, YETI),
     MON(NAM("carnivorous ape"), S_YETI,
         LVL(6, 12, 6, 0, 0), (G_GENO | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4),
@@ -2404,7 +2404,7 @@
         SIZ(1250, 550, MS_GROWL, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_HUMANOID | M1_CARNIVORE, M2_HOSTILE | M2_STRONG,
         M3_INFRAVISIBLE,
-        8, CLR_BLACK, CARNIVOROUS_APE),
+        8, COLOR_CODE_BLACK, CARNIVOROUS_APE),
     MON(NAM("sasquatch"), S_YETI,
         LVL(7, 15, 6, 0, 2), (G_GENO | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 6), ATTK(AT_CLAW, AD_PHYS, 1, 6),
@@ -2412,7 +2412,7 @@
         SIZ(1550, 750, MS_GROWL, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_HUMANOID | M1_SEE_INVIS | M1_OMNIVORE, M2_STRONG,
         M3_INFRAVISIBLE,
-        9, CLR_GRAY, SASQUATCH),
+        9, COLOR_CODE_GRAY, SASQUATCH),
     /*
      * Zombies
      */
@@ -2423,7 +2423,7 @@
         SIZ(400, 50, MS_GROAN, MZ_SMALL), MR_COLD | MR_SLEEP | MR_POISON, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_POIS,
         M2_UNDEAD | M2_STALK | M2_HOSTILE, M3_INFRAVISION,
-        1, CLR_BROWN, KOBOLD_ZOMBIE),
+        1, COLOR_CODE_BROWN, KOBOLD_ZOMBIE),
     MON(NAM("gnome zombie"), S_ZOMBIE,
         LVL(1, 6, 10, 0, -2), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 5),
@@ -2431,7 +2431,7 @@
         SIZ(650, 50, MS_GROAN, MZ_SMALL), MR_COLD | MR_SLEEP | MR_POISON, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_POIS,
         M2_UNDEAD | M2_STALK | M2_HOSTILE | M2_GNOME, M3_INFRAVISION,
-        2, CLR_BROWN, GNOME_ZOMBIE),
+        2, COLOR_CODE_BROWN, GNOME_ZOMBIE),
     MON(NAM("orc zombie"), S_ZOMBIE,
         LVL(2, 6, 9, 0, -3), (G_GENO | G_SGROUP | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 6),
@@ -2439,7 +2439,7 @@
         SIZ(850, 75, MS_GROAN, MZ_HUMAN), MR_COLD | MR_SLEEP | MR_POISON, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_POIS,
         M2_UNDEAD | M2_STALK | M2_HOSTILE | M2_ORC, M3_INFRAVISION,
-        3, CLR_GRAY, ORC_ZOMBIE),
+        3, COLOR_CODE_GRAY, ORC_ZOMBIE),
     MON(NAM("dwarf zombie"), S_ZOMBIE,
         LVL(2, 6, 9, 0, -3), (G_GENO | G_SGROUP | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 6),
@@ -2447,7 +2447,7 @@
         SIZ(900, 150, MS_GROAN, MZ_HUMAN), MR_COLD | MR_SLEEP | MR_POISON, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_POIS,
         M2_UNDEAD | M2_STALK | M2_HOSTILE | M2_DWARF, M3_INFRAVISION,
-        3, CLR_RED, DWARF_ZOMBIE),
+        3, COLOR_CODE_RED, DWARF_ZOMBIE),
     MON(NAM("elf zombie"), S_ZOMBIE,
         LVL(3, 6, 9, 0, -3), (G_GENO | G_SGROUP | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 7),
@@ -2455,7 +2455,7 @@
         SIZ(WT_ELF, 175, MS_GROAN, MZ_HUMAN), MR_COLD | MR_SLEEP | MR_POISON,
         0, M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID,
         M2_UNDEAD | M2_STALK | M2_HOSTILE | M2_ELF, M3_INFRAVISION,
-        4, CLR_GREEN, ELF_ZOMBIE),
+        4, COLOR_CODE_GREEN, ELF_ZOMBIE),
     MON(NAM("human zombie"), S_ZOMBIE,
         LVL(4, 6, 8, 0, -3), (G_GENO | G_SGROUP | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 8),
@@ -2472,7 +2472,7 @@
         SIZ(1700, 250, MS_GROAN, MZ_HUGE), MR_COLD | MR_SLEEP | MR_POISON, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID,
         M2_UNDEAD | M2_STALK | M2_HOSTILE | M2_STRONG, M3_INFRAVISION,
-        7, CLR_BLUE, ETTIN_ZOMBIE),
+        7, COLOR_CODE_BLUE, ETTIN_ZOMBIE),
     MON(NAM("ghoul"), S_ZOMBIE,
         LVL(3, 6, 10, 0, -2), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PLYS, 1, 2), ATTK(AT_CLAW, AD_PHYS, 1, 3),
@@ -2480,7 +2480,7 @@
         SIZ(400, 50, MS_SILENT, MZ_SMALL), MR_COLD | MR_SLEEP | MR_POISON, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_POIS | M1_OMNIVORE,
         M2_UNDEAD | M2_WANDER | M2_HOSTILE, M3_INFRAVISION,
-        5, CLR_BLACK, GHOUL),
+        5, COLOR_CODE_BLACK, GHOUL),
     MON(NAM("giant zombie"), S_ZOMBIE,
         LVL(8, 8, 6, 0, -4), (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 8), ATTK(AT_CLAW, AD_PHYS, 2, 8),
@@ -2489,7 +2489,7 @@
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID,
         M2_UNDEAD | M2_STALK | M2_HOSTILE | M2_GIANT | M2_STRONG,
         M3_INFRAVISION,
-        9, CLR_CYAN, GIANT_ZOMBIE),
+        9, COLOR_CODE_CYAN, GIANT_ZOMBIE),
     MON(NAM("skeleton"), S_ZOMBIE,
         LVL(12, 8, 4, 0, 0), (G_NOCORPSE | G_NOGEN),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 6), ATTK(AT_TUCH, AD_SLOW, 1, 6),
@@ -2500,7 +2500,7 @@
         M2_UNDEAD | M2_WANDER | M2_HOSTILE | M2_STRONG | M2_COLLECT
             | M2_NASTY,
         M3_INFRAVISION,
-        14, CLR_WHITE, SKELETON),
+        14, COLOR_CODE_WHITE, SKELETON),
     /*
      * golems
      */
@@ -2510,7 +2510,7 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(400, 0, MS_SILENT, MZ_LARGE), MR_COLD | MR_SLEEP | MR_POISON, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID, M2_HOSTILE | M2_NEUTER, 0,
-        4, CLR_YELLOW, STRAW_GOLEM),
+        4, COLOR_CODE_YELLOW, STRAW_GOLEM),
     MON(NAM("paper golem"), S_GOLEM,
         LVL(3, 12, 10, 0, 0), (G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 3),
@@ -2524,7 +2524,7 @@
           ATTK(AT_HUGS, AD_PHYS, 6, 1), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(450, 0, MS_SILENT, MZ_LARGE), MR_SLEEP | MR_POISON, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID, M2_HOSTILE | M2_NEUTER, 0,
-        6, CLR_BROWN, ROPE_GOLEM),
+        6, COLOR_CODE_BROWN, ROPE_GOLEM),
     MON(NAM("gold golem"), S_GOLEM,
         LVL(5, 9, 6, 0, 0), (G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 3), ATTK(AT_CLAW, AD_PHYS, 2, 3),
@@ -2556,7 +2556,7 @@
         MR_FIRE | MR_COLD | MR_ELEC | MR_SLEEP | MR_POISON,
         MR_FIRE | MR_COLD | MR_ELEC | MR_SLEEP | MR_POISON,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID, M2_HOSTILE | M2_STRONG, 0,
-        10, CLR_RED, FLESH_GOLEM),
+        10, COLOR_CODE_RED, FLESH_GOLEM),
     MON(NAM("clay golem"), S_GOLEM,
         LVL(11, 7, 7, 40, 0), (G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 3, 10),
@@ -2564,7 +2564,7 @@
         SIZ(1550, 0, MS_SILENT, MZ_LARGE), MR_SLEEP | MR_POISON, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_THICK_HIDE,
         M2_HOSTILE | M2_STRONG, 0,
-        12, CLR_BROWN, CLAY_GOLEM),
+        12, COLOR_CODE_BROWN, CLAY_GOLEM),
     MON(NAM("stone golem"), S_GOLEM,
         LVL(14, 6, 5, 50, 0), (G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 3, 8),
@@ -2572,7 +2572,7 @@
         SIZ(1900, 0, MS_SILENT, MZ_LARGE), MR_SLEEP | MR_POISON | MR_STONE, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_THICK_HIDE,
         M2_HOSTILE | M2_STRONG, 0,
-        15, CLR_GRAY, STONE_GOLEM),
+        15, COLOR_CODE_GRAY, STONE_GOLEM),
     MON(NAM("glass golem"), S_GOLEM,
         LVL(16, 6, 1, 50, 0), (G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 8), ATTK(AT_CLAW, AD_PHYS, 2, 8),
@@ -2580,7 +2580,7 @@
         SIZ(1800, 0, MS_SILENT, MZ_LARGE), MR_SLEEP | MR_POISON | MR_ACID, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_THICK_HIDE,
         M2_HOSTILE | M2_STRONG, 0,
-        18, CLR_CYAN, GLASS_GOLEM),
+        18, COLOR_CODE_CYAN, GLASS_GOLEM),
     MON(NAM("iron golem"), S_GOLEM,
         LVL(18, 6, 3, 60, 0), (G_NOCORPSE | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 4, 10), ATTK(AT_BREA, AD_DRST, 4, 6),
@@ -2612,7 +2612,7 @@
         M1_HUMANOID | M1_POIS | M1_REGEN | M1_OMNIVORE,
         M2_NOPOLY | M2_WERE | M2_HOSTILE | M2_HUMAN | M2_COLLECT,
         M3_INFRAVISIBLE,
-        3, CLR_BROWN, HUMAN_WERERAT),
+        3, COLOR_CODE_BROWN, HUMAN_WERERAT),
     MON(NAM("werejackal"), S_HUMAN,
         LVL(2, 12, 10, 10, -7), (1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4),
@@ -2621,7 +2621,7 @@
         M1_HUMANOID | M1_POIS | M1_REGEN | M1_OMNIVORE,
         M2_NOPOLY | M2_WERE | M2_HOSTILE | M2_HUMAN | M2_COLLECT,
         M3_INFRAVISIBLE,
-        3, CLR_RED, HUMAN_WEREJACKAL),
+        3, COLOR_CODE_RED, HUMAN_WEREJACKAL),
     MON(NAM("werewolf"), S_HUMAN,
         LVL(5, 12, 10, 20, -7), (1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4),
@@ -2630,7 +2630,7 @@
         M1_HUMANOID | M1_POIS | M1_REGEN | M1_OMNIVORE,
         M2_NOPOLY | M2_WERE | M2_HOSTILE | M2_HUMAN | M2_COLLECT,
         M3_INFRAVISIBLE,
-        6, CLR_ORANGE, HUMAN_WEREWOLF),
+        6, COLOR_CODE_ORANGE, HUMAN_WEREWOLF),
     /* plain "elf" is a placeholder, not a normal monster */
     MON(NAM("elf"), S_HUMAN, /* for corpses */
         LVL(0, 12, 10, 2, -3), G_NOGEN,
@@ -2648,7 +2648,7 @@
         SIZ(WT_ELF, 350, MS_HUMANOID, MZ_HUMAN), MR_SLEEP, MR_SLEEP,
         M1_HUMANOID | M1_OMNIVORE | M1_SEE_INVIS, M2_ELF | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        6, CLR_GREEN, WOODLAND_ELF),
+        6, COLOR_CODE_GREEN, WOODLAND_ELF),
     MON(NAM("Green-elf"), S_HUMAN,
         LVL(5, 12, 10, 10, -6), (G_GENO | G_SGROUP | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4),
@@ -2656,7 +2656,7 @@
         SIZ(WT_ELF, 350, MS_HUMANOID, MZ_HUMAN), MR_SLEEP, MR_SLEEP,
         M1_HUMANOID | M1_OMNIVORE | M1_SEE_INVIS, M2_ELF | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        7, CLR_BRIGHT_GREEN, GREEN_ELF),
+        7, COLOR_CODE_BRIGHT_GREEN, GREEN_ELF),
     MON(NAM("Grey-elf"), S_HUMAN,
         LVL(6, 12, 10, 10, -7), (G_GENO | G_SGROUP | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4),
@@ -2664,7 +2664,7 @@
         SIZ(WT_ELF, 350, MS_HUMANOID, MZ_HUMAN), MR_SLEEP, MR_SLEEP,
         M1_HUMANOID | M1_OMNIVORE | M1_SEE_INVIS, M2_ELF | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        8, CLR_GRAY, GREY_ELF),
+        8, COLOR_CODE_GRAY, GREY_ELF),
     MON(NAMS("elf-lord", "elf-lady", "elf-noble"), S_HUMAN,
         LVL(8, 12, 10, 20, -9), (G_GENO | G_SGROUP | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4), ATTK(AT_WEAP, AD_PHYS, 2, 4),
@@ -2673,7 +2673,7 @@
         M1_HUMANOID | M1_OMNIVORE | M1_SEE_INVIS,
         M2_ELF | M2_STRONG | M2_LORD | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        11, CLR_BRIGHT_BLUE, ELF_NOBLE),
+        11, COLOR_CODE_BRIGHT_BLUE, ELF_NOBLE),
     MON(NAMS("Elvenking", "Elvenqueen", "elven monarch"), S_HUMAN,
         LVL(9, 12, 10, 25, -10), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4), ATTK(AT_WEAP, AD_PHYS, 2, 4),
@@ -2712,7 +2712,7 @@
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_HUMAN | M2_MERC | M2_PEACEFUL | M2_STRONG | M2_COLLECT,
         M3_INFRAVISIBLE,
-        14, CLR_BLUE, GUARD),
+        14, COLOR_CODE_BLUE, GUARD),
     /* prisoner is used on some special levels */
     MON(NAM("prisoner"), S_HUMAN,
         LVL(12, 12, 10, 0, 0), G_NOGEN,
@@ -2743,7 +2743,7 @@
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_HUMAN | M2_LORD | M2_PEACEFUL | M2_COLLECT,
         M3_INFRAVISIBLE,
-        15, CLR_WHITE, ALIGNED_CLERIC),
+        15, COLOR_CODE_WHITE, ALIGNED_CLERIC),
     /* high priests always have epri and always have ispriest set;
        they are flagged as unique even through they aren't */
     MON(NAMS("high priest", "high priestess", "high cleric"), S_HUMAN,
@@ -2757,7 +2757,7 @@
         M2_NOPOLY | M2_HUMAN | M2_MINION | M2_PRINCE | M2_NASTY | M2_COLLECT
             | M2_MAGIC,
         M3_INFRAVISIBLE,
-        30, CLR_WHITE, HIGH_CLERIC),
+        30, COLOR_CODE_WHITE, HIGH_CLERIC),
     MON(NAM("soldier"), S_HUMAN,
         LVL(6, 10, 10, 0, -2), (G_SGROUP | G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8),
@@ -2766,7 +2766,7 @@
         M1_HUMANOID | M1_OMNIVORE, M2_NOPOLY | M2_HUMAN | M2_MERC | M2_STALK
                                        | M2_HOSTILE | M2_STRONG | M2_COLLECT,
         M3_INFRAVISIBLE,
-        8, CLR_GRAY, SOLDIER),
+        8, COLOR_CODE_GRAY, SOLDIER),
     MON(NAM("sergeant"), S_HUMAN,
         LVL(8, 10, 10, 5, -3), (G_SGROUP | G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 6),
@@ -2775,7 +2775,7 @@
         M1_HUMANOID | M1_OMNIVORE, M2_NOPOLY | M2_HUMAN | M2_MERC | M2_STALK
                                        | M2_HOSTILE | M2_STRONG | M2_COLLECT,
         M3_INFRAVISIBLE,
-        10, CLR_RED, SERGEANT),
+        10, COLOR_CODE_RED, SERGEANT),
     MON(NAM("nurse"), S_HUMAN,
         LVL(11, 6, 0, 0, 0), (G_GENO | 3),
         A(ATTK(AT_CLAW, AD_HEAL, 2, 6),
@@ -2792,7 +2792,7 @@
         M1_HUMANOID | M1_OMNIVORE, M2_NOPOLY | M2_HUMAN | M2_MERC | M2_STALK
                                        | M2_HOSTILE | M2_STRONG | M2_COLLECT,
         M3_INFRAVISIBLE,
-        12, CLR_GREEN, LIEUTENANT),
+        12, COLOR_CODE_GREEN, LIEUTENANT),
     MON(NAM("captain"), S_HUMAN,
         LVL(12, 10, 10, 15, -5), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 4, 4), ATTK(AT_WEAP, AD_PHYS, 4, 4),
@@ -2801,7 +2801,7 @@
         M1_HUMANOID | M1_OMNIVORE, M2_NOPOLY | M2_HUMAN | M2_MERC | M2_STALK
                                        | M2_HOSTILE | M2_STRONG | M2_COLLECT,
         M3_INFRAVISIBLE,
-        14, CLR_BLUE, CAPTAIN),
+        14, COLOR_CODE_BLUE, CAPTAIN),
     MON(NAM("watchman"), S_HUMAN,
         LVL(6, 10, 10, 0, -2), (G_SGROUP | G_NOGEN | G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8),
@@ -2810,7 +2810,7 @@
         M1_HUMANOID | M1_OMNIVORE, M2_NOPOLY | M2_HUMAN | M2_MERC | M2_STALK
                                        | M2_PEACEFUL | M2_STRONG | M2_COLLECT,
         M3_INFRAVISIBLE,
-        8, CLR_GRAY, WATCHMAN),
+        8, COLOR_CODE_GRAY, WATCHMAN),
     MON(NAM("watch captain"), S_HUMAN,
         LVL(10, 10, 10, 15, -4), (G_NOGEN | G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 3, 4), ATTK(AT_WEAP, AD_PHYS, 3, 4),
@@ -2819,7 +2819,7 @@
         M1_HUMANOID | M1_OMNIVORE, M2_NOPOLY | M2_HUMAN | M2_MERC | M2_STALK
                                        | M2_PEACEFUL | M2_STRONG | M2_COLLECT,
         M3_INFRAVISIBLE,
-        12, CLR_GREEN, WATCH_CAPTAIN),
+        12, COLOR_CODE_GREEN, WATCH_CAPTAIN),
     /* Unique humans not tied to quests.
      */
     MON(NAM("Medusa"), S_HUMAN,
@@ -2832,7 +2832,7 @@
         M1_FLY | M1_SWIM | M1_AMPHIBIOUS | M1_HUMANOID | M1_POIS | M1_OMNIVORE,
         M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_PNAME | M2_FEMALE,
         M3_WAITFORU | M3_INFRAVISIBLE,
-        25, CLR_BRIGHT_GREEN, MEDUSA),
+        25, COLOR_CODE_BRIGHT_GREEN, MEDUSA),
     MON(NAM("Wizard of Yendor"), S_HUMAN,
         LVL(30, 12, -8, 100, A_NONE), (G_NOGEN | G_UNIQ),
         A(ATTK(AT_CLAW, AD_SAMU, 2, 12), ATTK(AT_MAGC, AD_SPEL, 0, 0),
@@ -2882,7 +2882,7 @@
         MR_COLD | MR_DISINT | MR_SLEEP | MR_POISON | MR_STONE, 0,
         M1_FLY | M1_BREATHLESS | M1_WALLWALK | M1_HUMANOID | M1_UNSOLID,
         M2_NOPOLY | M2_UNDEAD | M2_STALK | M2_HOSTILE, M3_INFRAVISION,
-        12, CLR_GRAY, GHOST),
+        12, COLOR_CODE_GRAY, GHOST),
     MON(NAM("shade"), S_GHOST,
         LVL(12, 10, 10, 0, 0), (G_NOCORPSE | G_NOGEN),
         A(ATTK(AT_TUCH, AD_PLYS, 2, 6), ATTK(AT_TUCH, AD_SLOW, 1, 6),
@@ -2893,7 +2893,7 @@
             | M1_SEE_INVIS,
         M2_NOPOLY | M2_UNDEAD | M2_WANDER | M2_STALK | M2_HOSTILE | M2_NASTY,
         M3_INFRAVISION,
-        14, CLR_BLACK, SHADE),
+        14, COLOR_CODE_BLACK, SHADE),
     /*
      * (major) demons
      */
@@ -2905,7 +2905,7 @@
         M1_HUMANOID | M1_POIS | M1_SWIM,
         M2_NOPOLY | M2_DEMON | M2_STALK | M2_HOSTILE | M2_NASTY | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        11, CLR_BLUE, WATER_DEMON),
+        11, COLOR_CODE_BLUE, WATER_DEMON),
     /* standard demons & devils
      */
 #define SEDUCTION_ATTACKS_YES \
@@ -2924,7 +2924,7 @@
         MR_FIRE | MR_POISON, 0, M1_HUMANOID | M1_FLY | M1_POIS,
         M2_DEMON | M2_STALK | M2_HOSTILE | M2_NASTY,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        8, CLR_GRAY, AMOROUS_DEMON),
+        8, COLOR_CODE_GRAY, AMOROUS_DEMON),
     MON(NAM("horned devil"), S_DEMON,
         LVL(6, 9, -5, 50, 11), (G_HELL | G_NOCORPSE | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4),
@@ -2933,7 +2933,7 @@
         SIZ(WT_HUMAN, 400, MS_SILENT, MZ_HUMAN), MR_FIRE | MR_POISON, 0,
         M1_POIS | M1_THICK_HIDE, M2_DEMON | M2_STALK | M2_HOSTILE | M2_NASTY,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        9, CLR_BROWN, HORNED_DEVIL),
+        9, COLOR_CODE_BROWN, HORNED_DEVIL),
     /* Used by AD&D for a type of demon, originally one of the Furies
        and spelled this way; plural is erinyes */
     MON(NAM("erinys"), S_DEMON,
@@ -2947,7 +2947,7 @@
         M2_NOPOLY | M2_DEMON | M2_STALK | M2_STRONG | M2_NASTY | M2_FEMALE
             | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        10, CLR_RED, ERINYS),
+        10, COLOR_CODE_RED, ERINYS),
     MON(NAM("barbed devil"), S_DEMON,
         LVL(8, 12, 0, 35, 8), (G_HELL | G_NOCORPSE | G_SGROUP | 2),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_CLAW, AD_STCK, 2, 4),
@@ -2955,7 +2955,7 @@
         SIZ(WT_HUMAN, 400, MS_SILENT, MZ_HUMAN), MR_FIRE | MR_POISON, 0,
         M1_POIS | M1_THICK_HIDE, M2_DEMON | M2_STALK | M2_HOSTILE | M2_NASTY,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        10, CLR_RED, BARBED_DEVIL),
+        10, COLOR_CODE_RED, BARBED_DEVIL),
     MON(NAM("marilith"), S_DEMON,
         LVL(7, 12, -6, 80, -12), (G_HELL | G_NOCORPSE | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4), ATTK(AT_WEAP, AD_PHYS, 2, 4),
@@ -2965,7 +2965,7 @@
         M1_HUMANOID | M1_SLITHY | M1_SEE_INVIS | M1_POIS,
         M2_DEMON | M2_STALK | M2_HOSTILE | M2_NASTY | M2_FEMALE | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        11, CLR_RED, MARILITH),
+        11, COLOR_CODE_RED, MARILITH),
     MON(NAM("vrock"), S_DEMON,
         LVL(8, 12, 0, 50, -9), (G_HELL | G_NOCORPSE | G_SGROUP | 2),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4),
@@ -2974,7 +2974,7 @@
         SIZ(WT_HUMAN, 400, MS_SILENT, MZ_LARGE), MR_FIRE | MR_POISON, 0,
         M1_POIS, M2_DEMON | M2_STALK | M2_HOSTILE | M2_NASTY,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        11, CLR_GREEN, VROCK),
+        11, COLOR_CODE_GREEN, VROCK),
     MON(NAM("hezrou"), S_DEMON,
         LVL(9, 6, -2, 55, -10), (G_HELL | G_NOCORPSE | G_SGROUP | 2),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 3), ATTK(AT_CLAW, AD_PHYS, 1, 3),
@@ -2982,7 +2982,7 @@
         SIZ(WT_HUMAN, 400, MS_SILENT, MZ_LARGE), MR_FIRE | MR_POISON, 0,
         M1_HUMANOID | M1_POIS, M2_DEMON | M2_STALK | M2_HOSTILE | M2_NASTY,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        12, CLR_GREEN, HEZROU),
+        12, COLOR_CODE_GREEN, HEZROU),
     MON(NAM("bone devil"), S_DEMON,
         LVL(9, 15, -1, 40, -9), (G_HELL | G_NOCORPSE | G_SGROUP | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 3, 4), ATTK(AT_STNG, AD_DRST, 2, 4),
@@ -2990,7 +2990,7 @@
         SIZ(WT_HUMAN, 400, MS_SILENT, MZ_LARGE), MR_FIRE | MR_POISON, 0,
         M1_POIS, M2_DEMON | M2_STALK | M2_HOSTILE | M2_NASTY | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        13, CLR_GRAY, BONE_DEVIL),
+        13, COLOR_CODE_GRAY, BONE_DEVIL),
     MON(NAM("ice devil"), S_DEMON,
         LVL(11, 6, -4, 55, -12), (G_HELL | G_NOCORPSE | 2),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4),
@@ -3000,7 +3000,7 @@
         MR_FIRE | MR_COLD | MR_POISON, 0, M1_SEE_INVIS | M1_POIS,
         M2_DEMON | M2_STALK | M2_HOSTILE | M2_NASTY,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        14, CLR_WHITE, ICE_DEVIL),
+        14, COLOR_CODE_WHITE, ICE_DEVIL),
     MON(NAM("nalfeshnee"), S_DEMON,
         LVL(11, 9, -1, 65, -11), (G_HELL | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4),
@@ -3009,7 +3009,7 @@
         SIZ(WT_HUMAN, 400, MS_SPELL, MZ_LARGE), MR_FIRE | MR_POISON, 0,
         M1_HUMANOID | M1_POIS, M2_DEMON | M2_STALK | M2_HOSTILE | M2_NASTY,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        15, CLR_RED, NALFESHNEE),
+        15, COLOR_CODE_RED, NALFESHNEE),
     MON(NAM("pit fiend"), S_DEMON,
         LVL(13, 6, -3, 65, -13), (G_HELL | G_NOCORPSE | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 4, 2), ATTK(AT_WEAP, AD_PHYS, 4, 2),
@@ -3018,7 +3018,7 @@
         M1_SEE_INVIS | M1_POIS,
         M2_DEMON | M2_STALK | M2_HOSTILE | M2_NASTY | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        16, CLR_RED, PIT_FIEND),
+        16, COLOR_CODE_RED, PIT_FIEND),
     /* from Jack Vance's _Rhialto_the_Marvellous_, one of the sequels
        to _The_Dying_Earth_ */
     MON(NAM("sandestin"), S_DEMON,
@@ -3028,7 +3028,7 @@
         SIZ(1500, 400, MS_CUSS, MZ_HUMAN), MR_STONE, 0, M1_HUMANOID,
         M2_NOPOLY | M2_STALK | M2_STRONG | M2_COLLECT | M2_SHAPESHIFTER,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        15, CLR_GRAY, SANDESTIN),
+        15, COLOR_CODE_GRAY, SANDESTIN),
     MON(NAM("balrog"), S_DEMON,
         LVL(16, 5, -2, 75, -14), (G_HELL | G_NOCORPSE | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 8, 4), ATTK(AT_WEAP, AD_PHYS, 4, 6),
@@ -3037,7 +3037,7 @@
         M1_FLY | M1_SEE_INVIS | M1_POIS,
         M2_DEMON | M2_STALK | M2_HOSTILE | M2_STRONG | M2_NASTY | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
-        20, CLR_RED, BALROG),
+        20, COLOR_CODE_RED, BALROG),
     /* Named demon lords & princes plus Arch-Devils.
      * (their order matters; see minion.c)
      */
@@ -3052,7 +3052,7 @@
         M2_NOPOLY | M2_DEMON | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
             | M2_LORD | M2_MALE,
         M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISION,
-        26, CLR_BRIGHT_GREEN, JUIBLEX),
+        26, COLOR_CODE_BRIGHT_GREEN, JUIBLEX),
     MON(NAM("Yeenoghu"), S_DEMON,
         LVL(56, 18, -5, 80, -15), (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 3, 6), ATTK(AT_WEAP, AD_CONF, 2, 8),
@@ -3171,7 +3171,7 @@
         M1_FLY | M1_SWIM | M1_BREATHLESS | M1_SEE_INVIS | M1_HUMANOID
             | M1_POIS,
         M2_NOPOLY | M2_STALK | M2_PEACEFUL, M3_INFRAVISIBLE | M3_INFRAVISION,
-        26, CLR_BRIGHT_BLUE, MAIL_DAEMON),
+        26, COLOR_CODE_BRIGHT_BLUE, MAIL_DAEMON),
 #endif
     /* djinni is singular; plural is djinn */
     MON(NAM("djinni"), S_DEMON,
@@ -3180,7 +3180,7 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 400, MS_DJINNI, MZ_HUMAN), MR_POISON | MR_STONE, 0,
         M1_HUMANOID | M1_FLY | M1_POIS, M2_NOPOLY | M2_STALK | M2_COLLECT,
-        M3_INFRAVISIBLE, 8, CLR_YELLOW, DJINNI),
+        M3_INFRAVISIBLE, 8, COLOR_CODE_YELLOW, DJINNI),
     /*
      * sea monsters
      *
@@ -3198,7 +3198,7 @@
         SIZ(80, 20, MS_SILENT, MZ_SMALL), MR_POISON, MR_POISON,
         M1_SWIM | M1_AMPHIBIOUS | M1_NOLIMBS | M1_NOHEAD
             | M1_NOTAKE | M1_POIS, M2_HOSTILE, 0,
-        5, CLR_BLUE, JELLYFISH),
+        5, COLOR_CODE_BLUE, JELLYFISH),
     MON(NAM("piranha"), S_EEL,
         LVL(5, 18, 4, 0, 0), (G_GENO | G_NOGEN | G_SGROUP),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), ATTK(AT_BITE, AD_PHYS, 2, 6),
@@ -3206,7 +3206,7 @@
         SIZ(60, 30, MS_SILENT, MZ_SMALL), 0, 0,
         M1_SWIM | M1_AMPHIBIOUS | M1_ANIMAL | M1_NOLIMBS
             | M1_CARNIVORE | M1_OVIPAROUS | M1_NOTAKE, M2_HOSTILE, 0,
-        7, CLR_RED, PIRANHA),
+        7, COLOR_CODE_RED, PIRANHA),
     MON(NAM("shark"), S_EEL,
         LVL(7, 12, 2, 0, 0), (G_GENO | G_NOGEN),
         A(ATTK(AT_BITE, AD_PHYS, 5, 6),
@@ -3215,7 +3215,7 @@
         M1_SWIM | M1_AMPHIBIOUS | M1_ANIMAL | M1_NOLIMBS
             | M1_CARNIVORE | M1_OVIPAROUS | M1_THICK_HIDE | M1_NOTAKE,
         M2_HOSTILE, 0,
-        9, CLR_GRAY, SHARK),
+        9, COLOR_CODE_GRAY, SHARK),
     MON(NAM("giant eel"), S_EEL,
         LVL(5, 9, -1, 0, 0), (G_GENO | G_NOGEN),
         A(ATTK(AT_BITE, AD_PHYS, 3, 6), ATTK(AT_TUCH, AD_WRAP, 0, 0),
@@ -3224,7 +3224,7 @@
         M1_SWIM | M1_AMPHIBIOUS | M1_ANIMAL | M1_SLITHY | M1_NOLIMBS
             | M1_CARNIVORE | M1_OVIPAROUS | M1_NOTAKE,
         M2_HOSTILE, M3_INFRAVISIBLE,
-        7, CLR_CYAN, GIANT_EEL),
+        7, COLOR_CODE_CYAN, GIANT_EEL),
     MON(NAM("electric eel"), S_EEL,
         LVL(7, 10, -3, 0, 0), (G_GENO | G_NOGEN),
         A(ATTK(AT_BITE, AD_ELEC, 4, 6), ATTK(AT_TUCH, AD_WRAP, 0, 0),
@@ -3233,7 +3233,7 @@
         M1_SWIM | M1_AMPHIBIOUS | M1_ANIMAL | M1_SLITHY | M1_NOLIMBS
             | M1_CARNIVORE | M1_OVIPAROUS | M1_NOTAKE,
         M2_HOSTILE, M3_INFRAVISIBLE,
-        10, CLR_BRIGHT_BLUE, ELECTRIC_EEL),
+        10, COLOR_CODE_BRIGHT_BLUE, ELECTRIC_EEL),
     MON(NAM("kraken"), S_EEL,
         LVL(20, 3, 6, 0, -3), (G_GENO | G_NOGEN),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_CLAW, AD_PHYS, 2, 4),
@@ -3242,7 +3242,7 @@
         SIZ(1800, 1000, MS_SILENT, MZ_HUGE), 0, 0,
         M1_SWIM | M1_AMPHIBIOUS | M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE,
         M2_NOPOLY | M2_HOSTILE | M2_STRONG, M3_INFRAVISIBLE,
-        22, CLR_RED, KRAKEN),
+        22, COLOR_CODE_RED, KRAKEN),
     /*
      * lizards, &c
      */
@@ -3253,21 +3253,21 @@
         SIZ(10, 20, MS_SILENT, MZ_TINY), 0, 0,
         M1_SWIM | M1_AMPHIBIOUS | M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE, 0,
-        1, CLR_YELLOW, NEWT),
+        1, COLOR_CODE_YELLOW, NEWT),
     MON(NAM("gecko"), S_LIZARD,
         LVL(1, 6, 8, 0, 0), (G_GENO | 5),
         A(ATTK(AT_BITE, AD_PHYS, 1, 3),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(10, 20, MS_SQEEK, MZ_TINY), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, 0,
-        2, CLR_GREEN, GECKO),
+        2, COLOR_CODE_GREEN, GECKO),
     MON(NAM("iguana"), S_LIZARD,
         LVL(2, 6, 7, 0, 0), (G_GENO | 5),
         A(ATTK(AT_BITE, AD_PHYS, 1, 4),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(30, 30, MS_SILENT, MZ_TINY), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, 0,
-        3, CLR_BROWN, IGUANA),
+        3, COLOR_CODE_BROWN, IGUANA),
     MON(NAM("baby crocodile"), S_LIZARD,
         LVL(3, 6, 7, 0, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 1, 4),
@@ -3275,7 +3275,7 @@
         SIZ(200, 200, MS_CHIRP, MZ_MEDIUM), 0, 0,
         M1_SWIM | M1_AMPHIBIOUS | M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE, 0,
-        4, CLR_BROWN, BABY_CROCODILE),
+        4, COLOR_CODE_BROWN, BABY_CROCODILE),
     /* trivia:  before monster corpses were implemented, "lizard corpse"
        was a specific type of item */
     MON(NAM("lizard"), S_LIZARD,
@@ -3284,7 +3284,7 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(10, 40, MS_SILENT, MZ_TINY), MR_STONE, MR_STONE,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, 0,
-        6, CLR_GREEN, LIZARD),
+        6, COLOR_CODE_GREEN, LIZARD),
     MON(NAM("chameleon"), S_LIZARD,
         LVL(6, 5, 6, 10, 0), (G_GENO | 2),
         A(ATTK(AT_BITE, AD_PHYS, 4, 2),
@@ -3292,7 +3292,7 @@
         SIZ(100, 100, MS_SILENT, MZ_TINY), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE,
         M2_NOPOLY | M2_HOSTILE | M2_SHAPESHIFTER, 0,
-        7, CLR_BROWN, CHAMELEON),
+        7, COLOR_CODE_BROWN, CHAMELEON),
     MON(NAM("crocodile"), S_LIZARD,
         LVL(6, 9, 5, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 4, 2), ATTK(AT_CLAW, AD_PHYS, 1, 12),
@@ -3301,7 +3301,7 @@
         M1_SWIM | M1_AMPHIBIOUS | M1_ANIMAL | M1_THICK_HIDE | M1_NOHANDS
             | M1_OVIPAROUS | M1_CARNIVORE,
         M2_STRONG | M2_HOSTILE, 0,
-        7, CLR_BROWN, CROCODILE),
+        7, COLOR_CODE_BROWN, CROCODILE),
     MON(NAM("salamander"), S_LIZARD,
         LVL(8, 12, -1, 0, -9), (G_HELL | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 8), ATTK(AT_TUCH, AD_FIRE, 1, 6),
@@ -3310,7 +3310,7 @@
         SIZ(1500, 400, MS_MUMBLE, MZ_HUMAN), MR_SLEEP | MR_FIRE, MR_FIRE,
         M1_HUMANOID | M1_SLITHY | M1_THICK_HIDE | M1_POIS,
         M2_STALK | M2_HOSTILE | M2_COLLECT | M2_MAGIC, M3_INFRAVISIBLE,
-        12, CLR_ORANGE, SALAMANDER),
+        12, COLOR_CODE_ORANGE, SALAMANDER),
 
     /*
      * dummy monster needed for visual interface
@@ -3320,7 +3320,7 @@
         LVL(0, 0, 0, 0, 0), (G_NOGEN | G_NOCORPSE | G_UNIQ),
         A(NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(0, 0, 0, 0), 0, 0, 0L, M2_NOPOLY, 0,
-        1, CLR_BROWN, LONG_WORM_TAIL),
+        1, COLOR_CODE_BROWN, LONG_WORM_TAIL),
     /* Note:
      * Worm tail must be between the normal monsters and the special
      * quest & pseudo-character ones because an optimization in the
@@ -3529,7 +3529,7 @@
         M1_HUMANOID | M1_SEE_INVIS | M1_HERBIVORE,
         M2_NOPOLY | M2_HUMAN | M2_PEACEFUL | M2_STRONG | M2_MALE | M2_NASTY
             | M2_MAGIC, M3_CLOSE | M3_INFRAVISIBLE,
-        30, CLR_BLACK, GRAND_MASTER),
+        30, COLOR_CODE_BLACK, GRAND_MASTER),
     MON(NAM("Arch Priest"), S_HUMAN,
         LVL(25, 15, 7, 90, 0), (G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 4, 10), ATTK(AT_KICK, AD_PHYS, 2, 8),
@@ -3540,7 +3540,7 @@
         M1_HUMANOID | M1_SEE_INVIS | M1_OMNIVORE,
         M2_NOPOLY | M2_HUMAN | M2_PEACEFUL | M2_STRONG | M2_MALE | M2_COLLECT
             | M2_MAGIC, M3_CLOSE | M3_INFRAVISIBLE,
-        30, CLR_WHITE, ARCH_PRIEST),
+        30, COLOR_CODE_WHITE, ARCH_PRIEST),
     MON(NAM("Orion"), S_HUMAN, LVL(20, 15, 0, 90, 0), (G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 4, 10), ATTK(AT_MAGC, AD_SPEL, 4, 8),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
@@ -3598,7 +3598,7 @@
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_HUMAN | M2_FEMALE | M2_PNAME | M2_PEACEFUL | M2_STRONG
             | M2_COLLECT | M2_MAGIC, M3_CLOSE | M3_INFRAVISIBLE,
-        25, CLR_GREEN, NEFERET_THE_GREEN),
+        25, COLOR_CODE_GREEN, NEFERET_THE_GREEN),
     /*
      * quest nemeses
      */
@@ -3612,7 +3612,7 @@
         M2_NOPOLY | M2_DEMON | M2_STALK | M2_HOSTILE | M2_STRONG | M2_NASTY
             | M2_COLLECT,
         M3_WANTSARTI | M3_WAITFORU | M3_INFRAVISION | M3_INFRAVISIBLE,
-        23, CLR_RED, MINION_OF_HUHETOTL),
+        23, COLOR_CODE_RED, MINION_OF_HUHETOTL),
     MON(NAM("Thoth Amon"), S_HUMAN,
         LVL(16, 12, 0, 10, -14), (G_NOGEN | G_UNIQ | G_NOCORPSE),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_MAGC, AD_SPEL, 0, 0),
@@ -3664,7 +3664,7 @@
         M2_NOPOLY | M2_GIANT | M2_STRONG | M2_ROCKTHROW | M2_STALK
             | M2_HOSTILE | M2_NASTY | M2_MALE | M2_JEWELS | M2_COLLECT,
         M3_WANTSARTI | M3_WAITFORU | M3_INFRAVISION | M3_INFRAVISIBLE,
-        23, CLR_GRAY, CYCLOPS),
+        23, COLOR_CODE_GRAY, CYCLOPS),
     MON(NAM("Ixoth"), S_DRAGON,
         LVL(15, 12, -1, 20, -14), (G_NOGEN | G_UNIQ),
         A(ATTK(AT_BREA, AD_FIRE, 8, 6), ATTK(AT_BITE, AD_PHYS, 4, 8),
@@ -3676,7 +3676,7 @@
         M2_NOPOLY | M2_MALE | M2_PNAME | M2_HOSTILE | M2_STRONG | M2_NASTY
             | M2_STALK | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         M3_WANTSARTI | M3_WAITFORU | M3_INFRAVISIBLE,
-        22, CLR_RED, IXOTH),
+        22, COLOR_CODE_RED, IXOTH),
     MON(NAM("Master Kaen"), S_HUMAN,
         LVL(25, 12, -10, 10, -20), (G_NOGEN | G_UNIQ),
         A(ATTK(AT_CLAW, AD_PHYS, 16, 2), ATTK(AT_CLAW, AD_PHYS, 16, 2),
@@ -3698,7 +3698,7 @@
         M2_NOPOLY | M2_DEMON | M2_MALE | M2_PNAME | M2_HOSTILE | M2_STRONG
             | M2_STALK | M2_NASTY | M2_COLLECT,
         M3_WANTSARTI | M3_WAITFORU | M3_INFRAVISION | M3_INFRAVISIBLE,
-        23, CLR_RED, NALZOK),
+        23, COLOR_CODE_RED, NALZOK),
     MON(NAM("Scorpius"), S_SPIDER,
         LVL(15, 12, 10, 0, -15), (G_NOGEN | G_UNIQ),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 6), ATTK(AT_CLAW, AD_SAMU, 2, 6),
@@ -3755,7 +3755,7 @@
         M2_NOPOLY | M2_HUMAN | M2_STRONG | M2_HOSTILE | M2_STALK | M2_NASTY
             | M2_COLLECT | M2_MAGIC,
         M3_WANTSARTI | M3_WAITFORU | M3_INFRAVISIBLE,
-        20, CLR_BLACK, DARK_ONE),
+        20, COLOR_CODE_BLACK, DARK_ONE),
     /*
      * quest "guardians"
      */

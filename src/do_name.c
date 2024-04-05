@@ -507,7 +507,7 @@ docallcmd(void)
     char ch = 0;
     /* if player wants a,b,c instead of i,o when looting, do that here too */
     boolean abc = flags.lootabc;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     if ((cmdq = cmdq_pop()) != 0) {
         cq = *cmdq;
@@ -1429,10 +1429,10 @@ hcolor(const char *colorpref)
 const char *
 rndcolor(void)
 {
-    int k = random_integer_between_zero_and(CLR_MAX);
+    int k = random_integer_between_zero_and(COLOR_CODE_MAX);
 
     return Hallucination ? hcolor((char *) 0)
-                         : (k == NO_COLOR) ? "colorless"
+                         : (k == COLOR_CODE_NONE) ? "colorless"
                                            : c_obj_colors[k];
 }
 

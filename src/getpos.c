@@ -54,7 +54,7 @@ getpos_sethilite(
     getpos_getvalid = gp_getvalidf;
     getpos_getvalids_selection(sel, getpos_getvalid);
     gw.wsettings.map_frame_color = (getpos_hilite_state == HiliteBackground)
-                                   ? HI_ZAP : NO_COLOR;
+                                   ? HI_ZAP : COLOR_CODE_NONE;
 
     if (getpos_getvalid != old_getvalid
         || gw.wsettings.map_frame_color != old_map_frame_color)
@@ -652,7 +652,7 @@ getpos_menu(coord *ccp, int gloc)
     int i, pick_cnt;
     menu_item *picks = (menu_item *) 0;
     char tmpbuf[BUFSZ];
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     gather_locs(&garr, &gcount, gloc);
 

@@ -782,7 +782,7 @@ dowizcast(void)
         if (n >= SPE_BLANK_PAPER)
             break;
         any.a_int = n;
-        add_menu(win, &nul_glyphinfo, &any, 0, 0, ATR_NONE, NO_COLOR,
+        add_menu(win, &nul_glyphinfo, &any, 0, 0, ATR_NONE, COLOR_CODE_NONE,
                  OBJ_NAME(objects[n]), MENU_ITEMFLAGS_NONE);
     }
     end_menu(win, "Cast which spell?");
@@ -1921,7 +1921,7 @@ spellsortmenu(void)
     anything any;
     char let;
     int i, n, choice;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
@@ -2010,7 +2010,7 @@ dospellmenu(
     const char *fmt;
     menu_item *selected;
     anything any;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);

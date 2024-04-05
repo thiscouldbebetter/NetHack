@@ -352,7 +352,7 @@ curses_init_nhcolors(void)
 
     use_default_colors();
 
-    for (nhclr = CLR_BLACK; nhclr < maxc; nhclr++) {
+    for (nhclr = COLOR_CODE_BLACK; nhclr < maxc; nhclr++) {
         for (bg = 0; bg < 8; bg++) {
             init_pair((maxc * bg) + nhclr + 1, fg_clr[nhclr], bg_clr[bg]);
         }
@@ -361,7 +361,7 @@ curses_init_nhcolors(void)
 #ifdef USE_DARKGRAY
     if (COLORS >= 16) {
         if (iflags.wc2_darkgray) {
-            init_pair(CLR_BLACK + 1, COLOR_BLACK + 8, -1);
+            init_pair(COLOR_CODE_BLACK + 1, COLOR_BLACK + 8, -1);
         }
     }
 #endif
@@ -693,7 +693,7 @@ curses_character_dialog(const char **choices, const char *prompt)
     anything identifier;
     menu_item *selected = NULL;
     winid wid = curses_get_wid(NHW_MENU);
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     identifier.a_void = 0;
     curses_start_menu(wid, MENU_BEHAVE_STANDARD);
@@ -814,7 +814,7 @@ curses_display_splash_window(void)
 
     if (iflags.wc_splash_screen) {
          if (iflags.wc2_guicolor)
-              curses_toggle_color_attr(stdscr, CLR_WHITE, A_NORMAL, ON);
+              curses_toggle_color_attr(stdscr, COLOR_CODE_WHITE, A_NORMAL, ON);
         mvaddstr(y_start, x_start, NETHACK_SPLASH_A);
         mvaddstr(y_start + 1, x_start, NETHACK_SPLASH_B);
         mvaddstr(y_start + 2, x_start, NETHACK_SPLASH_C);
@@ -824,7 +824,7 @@ curses_display_splash_window(void)
         y_start += 7;
     }
     if (iflags.wc2_guicolor)
-         curses_toggle_color_attr(stdscr, CLR_WHITE, A_NORMAL, OFF);
+         curses_toggle_color_attr(stdscr, COLOR_CODE_WHITE, A_NORMAL, OFF);
 
     for (i = 1; i <= 4; ++i) {
          mvaddstr(y_start, x_start, copyright_banner_line(i));

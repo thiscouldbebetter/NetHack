@@ -1820,7 +1820,7 @@ role_menu_extra(int which, winid where, boolean preselect)
     char buf[BUFSZ];
     const char *what = 0, *constrainer = 0, *forcedvalue = 0;
     int f = 0, r, c, gend, a, i, allowmask;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     r = flags.initrole;
     c = flags.initrace;
@@ -2202,7 +2202,7 @@ genl_player_setup(int screenheight)
     boolean getconfirmation, picksomething;
     winid win = WIN_ERR;
     menu_item *selected = 0;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
     char pick4u = 'n';
     int result = 0; /* assume failure (player chooses to 'quit') */
 
@@ -2847,7 +2847,7 @@ setup_rolemenu(
     int i;
     boolean role_ok;
     char thisch, lastch = '\0', rolenamebuf[50];
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     any = cg.zeroany; /* zero out all bits */
     for (i = 0; roles[i].name.m; i++) {
@@ -2897,7 +2897,7 @@ setup_racemenu(
     boolean race_ok;
     int i;
     char this_ch;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     any = cg.zeroany;
     for (i = 0; races[i].noun; i++) {
@@ -2935,7 +2935,7 @@ setup_gendmenu(
     boolean gend_ok;
     int i;
     char this_ch;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     any = cg.zeroany;
     for (i = 0; i < ROLE_GENDERS; i++) {
@@ -2971,7 +2971,7 @@ setup_algnmenu(
     boolean algn_ok;
     int i;
     char this_ch;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
 
     any = cg.zeroany;
     for (i = 0; i < ROLE_ALIGNS; i++) {

@@ -34,7 +34,7 @@ static struct glyphid_cache_t *glyphid_cache;
 static unsigned glyphid_cache_lsize;
 static size_t glyphid_cache_size;
 static struct find_struct glyphcache_find, to_custom_symbol_find;
-static const long nonzero_black = CLR_BLACK | NH_BASIC_COLOR;
+static const long nonzero_black = COLOR_CODE_BLACK | NH_BASIC_COLOR;
 
 staticfn void init_glyph_cache(void);
 staticfn void add_glyph_to_cache(int glyphnum, const char *id);

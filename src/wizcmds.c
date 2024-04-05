@@ -7,7 +7,7 @@
 #include "hack.h"
 #include "func_tab.h"
 
-extern const char unavailcmd[];                  /* cmd.c [27] */
+extern const char unavailable_command[];                  /* cmd.c [27] */
 extern const char *levltyp[MAX_TYPE + 2];          /* cmd.c */
 
 staticfn int size_monst(struct monster *, boolean);
@@ -40,7 +40,7 @@ wiz_wish(void) /* Unlimited wishes for debug mode by Paul Polderman */
         flags.verbose = save_verbose;
         (void) encumbered_message();
     } else
-        pline(unavailcmd, ecname_from_fn(wiz_wish));
+        pline(unavailable_command, ecname_from_fn(wiz_wish));
     return ECMD_OK;
 }
 
@@ -62,7 +62,7 @@ wiz_identify(void)
         (void) display_inventory((char *) 0, FALSE);
         iflags.override_ID = 0;
     } else
-        pline(unavailcmd, ecname_from_fn(wiz_identify));
+        pline(unavailable_command, ecname_from_fn(wiz_identify));
     return ECMD_OK;
 }
 
@@ -166,7 +166,7 @@ wiz_makemap(void)
         mklev();
         makemap_prepost(FALSE, was_in_W_tower);
     } else {
-        pline(unavailcmd, ecname_from_fn(wiz_makemap));
+        pline(unavailable_command, ecname_from_fn(wiz_makemap));
     }
     return ECMD_OK;
 }
@@ -195,7 +195,7 @@ wiz_map(void)
         HConfusion = save_Hconf;
         HHallucination = save_Hhallu;
     } else
-        pline(unavailcmd, ecname_from_fn(wiz_map));
+        pline(unavailable_command, ecname_from_fn(wiz_map));
     return ECMD_OK;
 }
 
@@ -210,7 +210,7 @@ wiz_genesis(void)
         (void) create_particular();
         iflags.debug_mongen = mongen_saved;
     } else
-        pline(unavailcmd, ecname_from_fn(wiz_genesis));
+        pline(unavailable_command, ecname_from_fn(wiz_genesis));
     return ECMD_OK;
 }
 
@@ -221,7 +221,7 @@ wiz_where(void)
     if (wizard)
         (void) print_dungeon(FALSE, (schar *) 0, (xint16 *) 0);
     else
-        pline(unavailcmd, ecname_from_fn(wiz_where));
+        pline(unavailable_command, ecname_from_fn(wiz_where));
     return ECMD_OK;
 }
 
@@ -232,7 +232,7 @@ wiz_detect(void)
     if (wizard)
         (void) findit();
     else
-        pline(unavailcmd, ecname_from_fn(wiz_detect));
+        pline(unavailable_command, ecname_from_fn(wiz_detect));
     return ECMD_OK;
 }
 
@@ -368,7 +368,7 @@ wiz_load_lua(void)
             strcat(buf, ".lua");
         (void) load_lua(buf, &sbi);
     } else
-        pline(unavailcmd, ecname_from_fn(wiz_load_lua));
+        pline(unavailable_command, ecname_from_fn(wiz_load_lua));
     return ECMD_OK;
 }
 
@@ -391,7 +391,7 @@ wiz_load_splua(void)
         lspo_finalize_level(NULL);
 
     } else
-        pline(unavailcmd, ecname_from_fn(wiz_load_splua));
+        pline(unavailable_command, ecname_from_fn(wiz_load_splua));
     return ECMD_OK;
 }
 
@@ -402,7 +402,7 @@ wiz_level_tele(void)
     if (wizard)
         level_tele();
     else
-        pline(unavailcmd, ecname_from_fn(wiz_level_tele));
+        pline(unavailable_command, ecname_from_fn(wiz_level_tele));
     return ECMD_OK;
 }
 
@@ -951,7 +951,7 @@ wiz_intrinsic(void)
         long oldtimeout, newtimeout;
         const char *propname;
         menu_item *pick_list = (menu_item *) 0;
-        int clr = NO_COLOR;
+        int clr = COLOR_CODE_NONE;
 
         any = cg.zeroany;
         win = create_nhwindow(NHW_MENU);
@@ -1079,7 +1079,7 @@ wiz_intrinsic(void)
             free((genericptr_t) pick_list);
         docrt();
     } else
-        pline(unavailcmd, ecname_from_fn(wiz_intrinsic));
+        pline(unavailable_command, ecname_from_fn(wiz_intrinsic));
     return ECMD_OK;
 }
 
@@ -1870,7 +1870,7 @@ wiz_custom(void)
             free_glyphid_cache();
         docrt();
     } else
-        pline(unavailcmd, ecname_from_fn(wiz_custom));
+        pline(unavailable_command, ecname_from_fn(wiz_custom));
     return ECMD_OK;
 }
 
@@ -1879,7 +1879,7 @@ wizcustom_callback(winid win, int glyphnum, char *id)
 {
     extern glyph_map glyphmap[MAX_GLYPH];
     glyph_map *cgm;
-    int clr = NO_COLOR;
+    int clr = COLOR_CODE_NONE;
     char buf[BUFSZ], bufa[BUFSZ], bufb[BUFSZ], bufc[BUFSZ], bufd[BUFSZ],
         bufu[BUFSZ];
     anything any;

@@ -40,7 +40,7 @@
 
 struct artifact {
     short otyp;
-    const char *name;
+    const char* name;
     unsigned long spfx;  /* special effect from wielding/wearing */
     unsigned long cspfx; /* special effect just from carrying obj */
     unsigned long mtype; /* monster type, symbol, or flag */
