@@ -13,7 +13,7 @@
 #include "permonst.h"
 #include "objclass.h"
 #include "sym.h"
-#include "artilist.h"
+#include "ArtifactList.h"
 #include "dungeon.h"
 #include "obj.h"
 #include "monst.h"

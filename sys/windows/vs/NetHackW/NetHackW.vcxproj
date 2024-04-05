@@ -73,6 +73,8 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\Attributes.c" />
+    <ClCompile Include="..\..\..\..\src\BallAndChain.c" />
     <ClCompile Include="..\..\guitty.c" />
     <ClCompile Include="@(Lua)">
       <DisableSpecificWarnings>4701;4702;4244;4310;4774</DisableSpecificWarnings>
@@ -83,13 +85,11 @@
     <ClCompile Include="$(SrcDir)allmain.c" />
     <ClCompile Include="$(SrcDir)alloc.c" />
     <ClCompile Include="$(SrcDir)apply.c" />
-    <ClCompile Include="$(SrcDir)artifact.c" />
-    <ClCompile Include="$(SrcDir)attrib.c" />
-    <ClCompile Include="$(SrcDir)ball.c" />
+    <ClCompile Include="..\..\..\..\src\Artifact.c" />
     <ClCompile Include="$(SrcDir)bones.c" />
     <ClCompile Include="$(SrcDir)botl.c" />
     <ClCompile Include="$(SrcDir)calendar.c" />
-    <ClCompile Include="$(SrcDir)cmd.c" />
+    <ClCompile Include="..\..\..\..\src\Command.c" />
     <ClCompile Include="$(SrcDir)coloratt.c" />
     <ClCompile Include="$(SrcDir)date.c" />
     <ClCompile Include="$(SrcDir)dbridge.c" />
@@ -269,8 +269,7 @@
     <ClInclude Include="$(WinWin32Dir)mhtext.h" />
     <ClInclude Include="$(WinWin32Dir)winMS.h" />
     <ClInclude Include="$(IncDir)align.h" />
-    <ClInclude Include="$(IncDir)artifact.h" />
-    <ClInclude Include="$(IncDir)artilist.h" />
+    <ClInclude Include="..\..\..\..\include\Artifact.h" />
     <ClInclude Include="$(IncDir)attrib.h" />
     <ClInclude Include="$(IncDir)botl.h" />
     <ClInclude Include="$(IncDir)color.h" />
@@ -349,6 +348,7 @@
     <ClInclude Include="$(IncDir)xwindowp.h" />
     <ClInclude Include="$(IncDir)you.h" />
     <ClInclude Include="$(IncDir)youprop.h" />
+    <ClInclude Include="..\..\..\..\include\ArtifactList.h" />
     <ClInclude Include="..\resource.h" />
   </ItemGroup>
   <ItemGroup>

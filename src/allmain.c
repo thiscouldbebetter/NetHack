@@ -1169,7 +1169,7 @@ static struct enum_dump objclass_syms_dump[] = {
 
 #define DUMP_ARTI_ENUM
 static struct enum_dump arti_enum_dump[] = {
-#include "artilist.h"
+#include "ArtifactList.h"
     { AFTER_LAST_ARTIFACT, "AFTER_LAST_ARTIFACT" }
 };
 #undef DUMP_ARTI_ENUM

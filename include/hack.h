@@ -104,7 +104,7 @@ typedef union str_or_len {
 
 enum artifacts_nums {
 #define ARTI_ENUM
-#include "artilist.h"
+#include "ArtifactList.h"
 #undef ARTI_ENUM
     AFTER_LAST_ARTIFACT
 };
