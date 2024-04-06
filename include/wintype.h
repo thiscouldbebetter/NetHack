@@ -107,7 +107,7 @@ typedef struct gi {
 #define GLYPH_INFO_P struct gi
 
 /* select_menu() "how" argument types */
-/* [MINV_PICKMASK in monst.h assumes these have values of 0, 1, 2] */
+/* [MINV_PICKMASK in monster.h assumes these have values of 0, 1, 2] */
 #define PICK_NONE 0 /* user picks nothing (display only) */
 #define PICK_ONE 1  /* only pick one */
 #define PICK_ANY 2  /* can pick any amount */

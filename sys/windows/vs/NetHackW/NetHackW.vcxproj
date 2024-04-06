@@ -138,7 +138,7 @@
     <ClCompile Include="$(SrcDir)mon.c" />
     <ClCompile Include="$(SrcDir)mondata.c" />
     <ClCompile Include="$(SrcDir)monmove.c" />
-    <ClCompile Include="$(SrcDir)monst.c" />
+    <ClCompile Include="$(SrcDir)monster.c" />
     <ClCompile Include="$(SrcDir)mplayer.c" />
     <ClCompile Include="$(SrcDir)mthrowu.c" />
     <ClCompile Include="$(SrcDir)muse.c" />
@@ -305,7 +305,7 @@
     <ClInclude Include="$(IncDir)monattk.h" />
     <ClInclude Include="$(IncDir)mondata.h" />
     <ClInclude Include="$(IncDir)monflag.h" />
-    <ClInclude Include="$(IncDir)monst.h" />
+    <ClInclude Include="$(IncDir)monster.h" />
     <ClInclude Include="$(IncDir)monsters.h" />
     <ClInclude Include="$(IncDir)nhlua.h" />
     <ClInclude Include="$(IncDir)windconf.h" />
@@ -315,7 +315,7 @@
     <ClInclude Include="$(IncDir)optlist.h" />
     <ClInclude Include="$(IncDir)patchlevel.h" />
     <ClInclude Include="$(IncDir)pcconf.h" />
-    <ClInclude Include="$(IncDir)permonst.h" />
+    <ClInclude Include="$(IncDir)permonster.h" />
     <ClInclude Include="$(IncDir)prop.h" />
     <ClInclude Include="$(IncDir)quest.h" />
     <ClInclude Include="$(IncDir)rect.h" />

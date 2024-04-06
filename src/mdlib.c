@@ -16,7 +16,7 @@
 #ifndef MAKEDEFS_C
 #define MDLIB_C
 #include "config.h"
-#include "permonst.h"
+#include "permonster.h"
 #include "objclass.h"
 #include "wintype.h"
 #include "sym.h"
@@ -24,7 +24,7 @@
 #include "dungeon.h"
 #include "sndprocs.h"
 #include "obj.h"
-#include "monst.h"
+#include "monster.h"
 #include "you.h"
 #include "context.h"
 #include "flag.h"

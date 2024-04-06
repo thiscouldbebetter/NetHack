@@ -4,8 +4,9 @@
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Modified by This Could Be Better, 2024. */
+
 #include "config.h"
-#include "permonst.h"
+#include "permonster.h"
 #include "wintype.h"
 #include "sym.h"
 

@@ -16,7 +16,7 @@
 #endif
 
 /*
- *      Entry Format:   (from permonst.h)
+ *      Entry Format:   (from permonster.h)
  *
  *      name, symbol (S_* defines),
  *      base monster level, move rate, armor class, magic resistance,

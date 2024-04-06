@@ -8,7 +8,7 @@
 #define YOUPROP_H
 
 #include "prop.h"
-#include "permonst.h"
+#include "permonster.h"
 #include "mondata.h"
 
 /* KMH, intrinsics patch.

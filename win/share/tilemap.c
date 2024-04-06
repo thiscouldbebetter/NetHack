@@ -11,7 +11,7 @@
 #if 0
 #include "config.h"
 /* #include "onames.h" */
-#include "permonst.h"
+#include "permonster.h"
 #include "objclass.h"
 /* #include "pm.h" */
 #include "sym.h"

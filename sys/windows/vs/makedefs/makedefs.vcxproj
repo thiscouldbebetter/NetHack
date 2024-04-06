@@ -40,7 +40,7 @@
   <ItemGroup>
     <ClCompile Include="$(RootDir)util\makedefs.c" />
     <ClCompile Include="$(RootDir)src\date.c" />
-    <ClCompile Include="$(RootDir)src\monst.c" />
+    <ClCompile Include="$(RootDir)src\monster.c" />
     <ClCompile Include="$(RootDir)src\objects.c" />
     <ClCompile Include="$(RootDir)src\alloc.c" />
   </ItemGroup>
