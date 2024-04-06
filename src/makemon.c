@@ -1103,7 +1103,7 @@ makemon_rnd_goodpos(
                 /* all map positions are visible (or not good),
                    try to pick something logical */
                 while (stway) {
-                    if (stway->tolev.dnum == u.uz.dnum && !random_integer_between_zero_and(2)) {
+                    if (stway->tolev.dungeon_number == u.uz.dungeon_number && !random_integer_between_zero_and(2)) {
                         nx = stway->sx;
                         ny = stway->sy;
                         break;
@@ -1590,14 +1590,14 @@ staticfn int
 align_shift(struct permonst *ptr)
 {
     static NEARDATA long oldmoves = 0L; /* != 1, starting value of moves */
-    static NEARDATA s_level *lev;
+    static NEARDATA special_dungeon_level *lev;
     int alshift;
 
     if (oldmoves != gm.moves) {
         lev = Is_special(&u.uz);
         oldmoves = gm.moves;
     }
-    switch ((lev) ? lev->flags.align : gd.dungeons[u.uz.dnum].flags.align) {
+    switch ((lev) ? lev->flags.align : gd.dungeons[u.uz.dungeon_number].flags.align) {
     default: /* just in case */
     case AM_NONE:
         alshift = 0;
@@ -1642,7 +1642,7 @@ rndmonst_adj(int minadj, int maxadj)
     int weight, totalweight, selected_mndx, zlevel, minmlev, maxmlev;
     boolean elemlevel, upper;
 
-    if (u.uz.dnum == quest_dnum && random_integer_between_zero_and(7) && (ptr = qt_montype()) != 0)
+    if (u.uz.dungeon_number == quest_dnum && random_integer_between_zero_and(7) && (ptr = qt_montype()) != 0)
         return ptr;
 
     zlevel = level_difficulty();

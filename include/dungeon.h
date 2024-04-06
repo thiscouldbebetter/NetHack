@@ -6,30 +6,30 @@
 #ifndef DUNGEON_H
 #define DUNGEON_H
 
-typedef struct d_level { /* basic dungeon level element */
-    xint16 dnum;          /* dungeon number */
-    xint16 dlevel;        /* level number */
-} d_level;
+typedef struct dungeon_and_level_numbers { /* basic dungeon level element */
+    xint16 dungeon_number;
+    xint16 level_number;
+} dungeon_and_level_numbers;
 
 #if !defined(MAKEDEFS_C) && !defined(MDLIB_C)
 
-typedef struct d_flags {     /* dungeon/level type flags */
+typedef struct dungeon_and_level_type_flags {     /* dungeon/level type flags */
     Bitfield(town, 1);       /* is this a town? (levels only) */
     Bitfield(hellish, 1);    /* is this part of hell? */
     Bitfield(maze_like, 1);  /* is this a maze? */
     Bitfield(rogue_like, 1); /* is this an old-fashioned presentation? */
     Bitfield(align, 3);      /* dungeon alignment. */
     Bitfield(unconnected, 1); /* dungeon not connected to any branch */
-} d_flags;
+} dungeon_and_level_type_flags;
 
-typedef struct s_level { /* special dungeon level element */
-    struct s_level *next;
-    d_level dlevel; /* dungeon & level numbers */
-    char proto[15]; /* name of prototype file (eg. "tower") */
+typedef struct special_dungeon_level { /* special dungeon level element */
+    struct special_dungeon_level *next;
+    dungeon_and_level_numbers level_number; /* dungeon & level numbers */
+    char prototype_file_name[15]; /* (eg. "tower") */
     char boneid;    /* character to id level in bones files */
-    uchar rndlevs;  /* no. of randomly available similar levels */
-    d_flags flags;  /* type flags */
-} s_level;
+    uchar randomly_available_similar_level_count;
+    dungeon_and_level_type_flags flags;  /* type flags */
+} special_dungeon_level;
 
 /* level region types */
 enum level_region_types {
@@ -58,15 +58,15 @@ typedef struct exclusion_zone {
 } exclusion_zone;
 
 typedef struct dungeon {   /* basic dungeon identifier */
-    char dname[24];        /* name of the dungeon (eg. "Hell") */
-    char proto[15];        /* name of prototype file (eg. "tower") */
-    char fill_lvl[15];     /* name of "fill" level protype file */
-    char themerms[15];     /* lua file name containing themed rooms */
+    char dungeon_name[24];        /* name of the dungeon (eg. "Hell") */
+    char prototype_file_name[15]; /* (eg. "tower") */
+    char prototype_file_name_for_filler_levels[15];
+    char themed_rooms_lua_file_name[15]; 
     char boneid;           /* character to id dungeon in bones files */
-    d_flags flags;         /* dungeon flags */
-    xint16 entry_lev;       /* entry level */
-    xint16 num_dunlevs;     /* number of levels in this dungeon */
-    xint16 dunlev_ureached; /* how deep you have been in this dungeon */
+    dungeon_and_level_type_flags flags;         /* dungeon flags */
+    xint16 entry_level;
+    xint16 level_count;
+    xint16 depth_reached_by_player;
     int ledger_start,      /* the starting depth in "real" terms */
         depth_start;       /* the starting depth in "logical" terms */
 } dungeon;
@@ -81,18 +81,18 @@ typedef struct branch {
     struct branch *next; /* next in the branch chain */
     int id;              /* branch identifier */
     int type;            /* type of branch */
-    d_level end1;        /* "primary" end point */
-    d_level end2;        /* other end point */
+    dungeon_and_level_numbers end1;        /* "primary" end point */
+    dungeon_and_level_numbers end2;        /* other end point */
     boolean end1_up;     /* does end1 go up? */
 } branch;
 
 /* branch types */
-#define BR_STAIR 0   /* "Regular" connection, 2 staircases. */
-#define BR_NO_END1 1 /* "Regular" connection.  However, no stair from
+#define BRANCH_STAIR 0   /* "Regular" connection, 2 staircases. */
+#define BRANCH_NO_END1 1 /* "Regular" connection.  However, no stair from
                         end1 to end2.  There is a stair from end2 to end1. */
-#define BR_NO_END2 2 /* "Regular" connection.  However, no stair from
+#define BRANCH_NO_END2 2 /* "Regular" connection.  However, no stair from
                         end2 to end1.  There is a stair from end1 to end2. */
-#define BR_PORTAL 3  /* Connection by magic portals (traps) */
+#define BRANCH_PORTAL 3  /* Connection by magic portals (traps) */
 
 /* A particular dungeon contains num_dunlevs d_levels with dlevel 1..
  * num_dunlevs.  Ledger_start and depth_start are bases that are added
@@ -106,7 +106,7 @@ typedef struct branch {
  */
 
 /* These both can't be zero, or dungeon_topology isn't init'd / restored */
-#define Lassigned(y) ((y)->dlevel || (y)->dnum)
+#define Lassigned(y) ((y)->level_number || (y)->dungeon_number)
 #define Lcheck(x,z) (Lassigned(z) && on_level(x, z))
 
 #define Is_astralevel(x)    (Lcheck(x, &astral_level))
@@ -135,31 +135,31 @@ typedef struct branch {
 #define Is_mineend_level(x) (Lcheck(x, &mineend_level))
 #define Is_sokoend_level(x) (Lcheck(x, &sokoend_level))
 
-#define In_sokoban(x) ((x)->dnum == sokoban_dnum)
+#define In_sokoban(x) ((x)->dungeon_number == sokoban_dnum)
 #define Inhell In_hell(&u.uz) /* now gehennom */
-#define In_endgame(x) ((x)->dnum == astral_level.dnum)
-#define In_tutorial(x) ((x)->dnum == tutorial_dnum)
+#define In_endgame(x) ((x)->dungeon_number == astral_level.dungeon_number)
+#define In_tutorial(x) ((x)->dungeon_number == tutorial_dnum)
 
 #define within_bounded_area(X, Y, LX, LY, HX, HY) \
     ((X) >= (LX) && (X) <= (HX) && (Y) >= (LY) && (Y) <= (HY))
 
 /* monster and object migration codes */
 
-#define MIGR_NOWHERE (-1) /* failure flag for down_gate() */
-#define MIGR_RANDOM 0
-#define MIGR_APPROX_XY 1 /* approximate coordinates */
-#define MIGR_EXACT_XY 2  /* specific coordinates */
-#define MIGR_STAIRS_UP 3
-#define MIGR_STAIRS_DOWN 4
-#define MIGR_LADDER_UP 5
-#define MIGR_LADDER_DOWN 6
-#define MIGR_SSTAIRS 7      /* dungeon branch */
-#define MIGR_PORTAL 8       /* magic portal */
-#define MIGR_WITH_HERO 9    /* mon: followers; obj: trap door */
-#define MIGR_NOBREAK 1024   /* bitmask: don't break on delivery */
-#define MIGR_NOSCATTER 2048 /* don't scatter on delivery */
-#define MIGR_TO_SPECIES 4096 /* migrating to species as they are made */
-#define MIGR_LEFTOVERS 8192  /* grab remaining MIGR_TO_SPECIES objects */
+#define MIGRATE_NOWHERE (-1) /* failure flag for down_gate() */
+#define MIGRATE_RANDOM 0
+#define MIGRATE_APPROX_XY 1 /* approximate coordinates */
+#define MIGRATE_EXACT_XY 2  /* specific coordinates */
+#define MIGRATE_STAIRS_UP 3
+#define MIGRATE_STAIRS_DOWN 4
+#define MIGRATE_LADDER_UP 5
+#define MIGRATE_LADDER_DOWN 6
+#define MIGRATE_SSTAIRS 7      /* dungeon branch */
+#define MIGRATE_PORTAL 8       /* magic portal */
+#define MIGRATE_WITH_HERO 9    /* mon: followers; obj: trap door */
+#define MIGRATE_NOBREAK 1024   /* bitmask: don't break on delivery */
+#define MIGRATE_NOSCATTER 2048 /* don't scatter on delivery */
+#define MIGRATE_TO_SPECIES 4096 /* migrating to species as they are made */
+#define MIGRATE_LEFTOVERS 8192  /* grab remaining MIGR_TO_SPECIES objects */
 /* level information (saved via ledger number) */
 
 struct linfo {
@@ -190,7 +190,7 @@ struct linfo {
 typedef struct mapseen {
     struct mapseen *next; /* next map in the chain */
     branch *br;           /* knows about branch via taking it in goto_level */
-    d_level lev;          /* corresponding dungeon level */
+    dungeon_and_level_numbers lev;          /* corresponding dungeon level */
     struct mapseen_feat {
         /* feature knowledge that must be calculated from levl array */
         Bitfield(nfount, 2);

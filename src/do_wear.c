@@ -2113,7 +2113,7 @@ accessory_or_armor_on(struct obj *obj)
             return ECMD_OK;
 
         if (obj->otyp == HELM_OF_OPPOSITE_ALIGNMENT
-            && qstart_level.dnum == u.uz.dnum) { /* in quest */
+            && qstart_level.dungeon_number == u.uz.dungeon_number) { /* in quest */
             if (u.ualignbase[A_CURRENT] == u.ualignbase[A_ORIGINAL])
                 You("narrowly avoid losing all chance at your goal.");
             else /* converted */

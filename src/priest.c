@@ -219,7 +219,7 @@ pri_move(struct monster *priest)
 /* exclusively for mktemple() */
 void
 priestini(
-    d_level *lvl,
+    dungeon_and_level_numbers *lvl,
     struct mkroom *sroom,
     int sx, int sy,
     boolean sanctum) /* is it the seat of the high priest? */
@@ -897,7 +897,7 @@ clearpriests(void)
 void
 restpriest(struct monster *mtmp, boolean ghostly)
 {
-    if (u.uz.dlevel) {
+    if (u.uz.level_number) {
         if (ghostly)
             assign_level(&(EPRI(mtmp)->shrlevel), &u.uz);
     }

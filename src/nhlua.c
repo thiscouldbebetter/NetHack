@@ -1091,10 +1091,10 @@ nhl_dnum_name(lua_State *L)
     int argc = lua_gettop(L);
 
     if (argc == 1) {
-        lua_Integer dnum = luaL_checkinteger(L, 1);
+        lua_Integer dungeon_number = luaL_checkinteger(L, 1);
 
-        if (dnum >= 0 && dnum < gn.n_dgns)
-            lua_pushstring(L, gd.dungeons[dnum].dname);
+        if (dungeon_number >= 0 && dungeon_number < gn.n_dgns)
+            lua_pushstring(L, gd.dungeons[dungeon_number].dungeon_name);
         else
             lua_pushstring(L, "");
     } else
@@ -1259,8 +1259,8 @@ nhl_stairways(lua_State *L)
         nhl_add_table_entry_bool(L, "ladder", tmp->isladder);
         nhl_add_table_entry_int(L, "x", tmp->sx);
         nhl_add_table_entry_int(L, "y", tmp->sy);
-        nhl_add_table_entry_int(L, "dnum", tmp->tolev.dnum);
-        nhl_add_table_entry_int(L, "dlevel", tmp->tolev.dlevel);
+        nhl_add_table_entry_int(L, "dnum", tmp->tolev.dungeon_number);
+        nhl_add_table_entry_int(L, "dlevel", tmp->tolev.level_number);
 
         lua_settable(L, -3);
 
@@ -1579,11 +1579,11 @@ nhl_gamestate(lua_State *L)
     int argc = lua_gettop(L);
     boolean reststate = (argc > 0) ? lua_toboolean(L, -1) : FALSE;
 
-    debugpline4("gamestate: %d:%d (%c vs %c)", u.uz.dnum, u.uz.dlevel,
+    debugpline4("gamestate: %d:%d (%c vs %c)", u.uz.dungeon_number, u.uz.level_number,
                 reststate ? 'T' : 'F', gg.gmst_stored ? 't' : 'f');
 
     if (reststate && gg.gmst_stored) {
-        d_level cur_uz = u.uz, cur_uz0 = u.uz0;
+        dungeon_and_level_numbers cur_uz = u.uz, cur_uz0 = u.uz0;
 
         /* restore game state */
         gm.moves = gg.gmst_moves;
@@ -1818,8 +1818,8 @@ nhl_meta_u_index(lua_State *L)
         { "mh", &(u.mh), ANY_INT },
         { "mhmax", &(u.mhmax), ANY_INT },
         { "mtimedone", &(u.mtimedone), ANY_INT },
-        { "dlevel", &(u.uz.dlevel), ANY_SCHAR }, /* actually coordxy */
-        { "dnum", &(u.uz.dnum), ANY_SCHAR },     /* actually coordxy */
+        { "dlevel", &(u.uz.level_number), ANY_SCHAR }, /* actually coordxy */
+        { "dnum", &(u.uz.dungeon_number), ANY_SCHAR },     /* actually coordxy */
         { "uluck", &(u.uluck), ANY_SCHAR },
         { "uhp", &(u.hit_points), ANY_INT },
         { "uhpmax", &(u.hit_points_max), ANY_INT },

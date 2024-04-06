@@ -21,7 +21,7 @@ struct tmpdungeon {
     char *name, *protoname;
     struct couple lev;
     int flags, chance, levels, branches,
-        entry_lev; /* entry level for this dungeon */
+        entry_level; /* entry level for this dungeon */
     char boneschar;
     int align;
 };
@@ -30,7 +30,7 @@ struct tmplevel {
     char *name;
     char *chainlvl;
     struct couple lev;
-    int chance, rndlevs, chain, flags;
+    int chance, randomly_available_similar_level_count, chain, flags;
     char boneschar;
 };
 

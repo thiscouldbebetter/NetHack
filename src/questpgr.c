@@ -314,7 +314,7 @@ convert_arg(char c)
         str = Blind ? "sense" : "see";
         break;
     case 'Z':
-        str = gd.dungeons[0].dname;
+        str = gd.dungeons[0].dungeon_name;
         break;
     case '%':
         str = "%";

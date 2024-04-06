@@ -101,7 +101,7 @@ find_lev_obj(void)
 
         /* fixup(s) performed when restoring the level that the hero
            is on, rather than just an arbitrary one */
-        if (u.uz.dlevel) { /* 0 during full restore until current level */
+        if (u.uz.level_number) { /* 0 during full restore until current level */
             /* handle uchain and uball when they're on the floor */
             if (otmp->owornmask & (W_BALL | W_CHAIN))
                 setworn(otmp, otmp->owornmask);
@@ -131,14 +131,14 @@ staticfn void
 restlevchn(NHFILE *nhfp)
 {
     int cnt = 0;
-    s_level *tmplev, *x;
+    special_dungeon_level *tmplev, *x;
 
-    gs.sp_levchn = (s_level *) 0;
+    gs.sp_levchn = (special_dungeon_level *) 0;
     if (nhfp->structlevel)
         Mread(nhfp->fd, &cnt, sizeof cnt);
 
     for (; cnt > 0; cnt--) {
-        tmplev = (s_level *) alloc(sizeof(s_level));
+        tmplev = (special_dungeon_level *) alloc(sizeof(special_dungeon_level));
         if (nhfp->structlevel)
             Mread(nhfp->fd, tmplev, sizeof *tmplev);
 
@@ -149,7 +149,7 @@ restlevchn(NHFILE *nhfp)
                 ;
             x->next = tmplev;
         }
-        tmplev->next = (s_level *) 0;
+        tmplev->next = (special_dungeon_level *) 0;
     }
 }
 
@@ -608,9 +608,9 @@ restgamestate(NHFILE *nhfp)
         /* wiz1_level.dlevel is used by mklev.c to see if lots of stuff is
          * uninitialized, so we only have to set it and not the other stuff.
          */
-        wiz1_level.dlevel = 0;
-        u.uz.dnum = 0;
-        u.uz.dlevel = 1;
+        wiz1_level.level_number = 0;
+        u.uz.dungeon_number = 0;
+        u.uz.level_number = 1;
         /* revert to pre-restore option settings */
         iflags.deferred_X = FALSE;
         iflags.perm_invent = defer_perm_invent;
@@ -790,7 +790,7 @@ dorecover(NHFILE *nhfp)
 #endif
     clear_nhwindow(WIN_MESSAGE);
     You("return to level %d in %s%s.", depth(&u.uz),
-        gd.dungeons[u.uz.dnum].dname,
+        gd.dungeons[u.uz.dungeon_number].dungeon_name,
         flags.debug ? " while in debug mode"
                     : flags.explore ? " while in explore mode" : "");
     curs(WIN_MAP, 1, 1);
@@ -903,9 +903,9 @@ rest_stairs(NHFILE *nhfp)
             Mread(nhfp->fd, &stway, sizeof stway);
         }
         if (gp.program_state.restoring != REST_GSTATE
-            && stway.tolev.dnum == u.uz.dnum) {
+            && stway.tolev.dungeon_number == u.uz.dungeon_number) {
             /* stairway dlevel is relative, make it absolute */
-            stway.tolev.dlevel += u.uz.dlevel;
+            stway.tolev.level_number += u.uz.level_number;
         }
         stairway_add(stway.sx, stway.sy, stway.up, stway.isladder,
                      &(stway.tolev));
@@ -1090,9 +1090,9 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
             Mread(nhfp->fd, trap, sizeof *trap);
         if (trap->tx != 0) {
             if (gp.program_state.restoring != REST_GSTATE
-                && trap->dst.dnum == u.uz.dnum) {
+                && trap->dst.dungeon_number == u.uz.dungeon_number) {
                 /* convert relative destination to absolute */
-                trap->dst.dlevel += u.uz.dlevel;
+                trap->dst.level_number += u.uz.level_number;
             }
             trap->ntrap = gf.ftrap;
             gf.ftrap = trap;
@@ -1133,7 +1133,7 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
         }
 
         /* regenerate monsters while on another level */
-        if (!u.uz.dlevel)
+        if (!u.uz.level_number)
             continue;
         if (ghostly) {
             /* reset peaceful/malign relative to new character;
@@ -1164,7 +1164,7 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
         stairway *stway = gs.stairs;
         while (stway) {
             if (!stway->isladder && !stway->up
-                && stway->tolev.dnum == u.uz.dnum)
+                && stway->tolev.dungeon_number == u.uz.dungeon_number)
                 break;
             stway = stway->next;
         }
@@ -1175,10 +1175,10 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
         if (lev > ledger_no(&medusa_level)
             && lev < ledger_no(&stronghold_level) && !stway) {
             coord cc;
-            d_level dest;
+            dungeon_and_level_numbers dest;
 
-            dest.dnum = u.uz.dnum;
-            dest.dlevel = u.uz.dlevel + 1;
+            dest.dungeon_number = u.uz.dungeon_number;
+            dest.level_number = u.uz.level_number + 1;
 
             mazexy(&cc);
             stairway_add(cc.x, cc.y, FALSE, FALSE, &dest);
@@ -1186,8 +1186,8 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
         }
 
         br = Is_branchlev(&u.uz);
-        if (br && u.uz.dlevel == 1) {
-            d_level ltmp;
+        if (br && u.uz.level_number == 1) {
+            dungeon_and_level_numbers ltmp;
 
             if (on_level(&u.uz, &br->end1))
                 assign_level(&ltmp, &br->end2);
@@ -1195,19 +1195,19 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
                 assign_level(&ltmp, &br->end1);
 
             switch (br->type) {
-            case BR_STAIR:
-            case BR_NO_END1:
-            case BR_NO_END2:
+            case BRANCH_STAIR:
+            case BRANCH_NO_END1:
+            case BRANCH_NO_END2:
                 stway = gs.stairs;
                 while (stway) {
-                    if (stway->tolev.dnum != u.uz.dnum)
+                    if (stway->tolev.dungeon_number != u.uz.dungeon_number)
                         break;
                     stway = stway->next;
                 }
                 if (stway)
                     assign_level(&(stway->tolev), &ltmp);
                 break;
-            case BR_PORTAL: /* max of 1 portal per level */
+            case BRANCH_PORTAL: /* max of 1 portal per level */
                 for (trap = gf.ftrap; trap; trap = trap->ntrap)
                     if (trap->ttyp == MAGIC_PORTAL)
                         break;

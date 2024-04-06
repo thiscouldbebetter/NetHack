@@ -888,12 +888,12 @@ u_init(void)
     u.uevent.udemigod = 0;              /* not a demi-god yet... */
     u.udg_cnt = 0;
     u.mh = u.mhmax = u.mtimedone = 0;
-    u.uz.dnum = u.uz0.dnum = 0;
+    u.uz.dungeon_number = u.uz0.dungeon_number = 0;
     u.utotype = UTOTYPE_NONE;
 #endif /* 0 */
 
-    u.uz.dlevel = 1;
-    u.uz0.dlevel = 0;
+    u.uz.level_number = 1;
+    u.uz0.level_number = 0;
     u.utolev = u.uz;
 
     u.umoved = FALSE;

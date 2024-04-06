@@ -7,7 +7,7 @@
 
 typedef struct stairway { /* basic stairway identifier */
     coordxy sx, sy;         /* x / y location of the stair */
-    d_level tolev;        /* where does it go */
+    dungeon_and_level_numbers tolev;        /* where does it go */
     boolean up;           /* up or down? */
     boolean isladder;     /* ladder or stairway? */
     boolean u_traversed;  /* hero has traversed this stair */

@@ -242,7 +242,7 @@ replshk(struct monster *mtmp, struct monster *mtmp2)
 void
 restshk(struct monster *shkp, boolean ghostly)
 {
-    if (u.uz.dlevel) {
+    if (u.uz.level_number) {
         struct eshk *eshkp = ESHK(shkp);
 
         if (eshkp->bill_p != (struct bill_x *) -1000)
@@ -1301,7 +1301,7 @@ make_happy_shk(struct monster *shkp, boolean silentkops)
             mdrop_special_objs(shkp);
             /* arrive near shop's door */
             migrate_to_level(shkp, ledger_no(&eshkp->shoplevel),
-                             MIGR_APPROX_XY, &eshkp->shd);
+                             MIGRATE_APPROX_XY, &eshkp->shd);
             /* dismiss kops on that level when shk arrives */
             eshkp->dismiss_kops = TRUE;
         }

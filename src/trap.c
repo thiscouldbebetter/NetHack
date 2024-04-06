@@ -8,8 +8,8 @@
 extern const char *const destroy_strings[][3]; /* from zap.c */
 
 staticfn void mk_trap_statue(coordxy, coordxy);
-staticfn int dng_bottom(d_level *lev);
-staticfn void hole_destination(d_level *);
+staticfn int dng_bottom(dungeon_and_level_numbers *lev);
+staticfn void hole_destination(dungeon_and_level_numbers *);
 staticfn boolean keep_saddle_with_steedcorpse(unsigned, struct obj *,
                                             struct obj *);
 staticfn boolean mu_maybe_destroy_web(struct monster *, boolean, struct trap *);
@@ -413,14 +413,14 @@ mk_trap_statue(coordxy x, coordxy y)
 
 /* find "bottom" level of specified dungeon, stopping at quest locate */
 staticfn int
-dng_bottom(d_level *lev)
+dng_bottom(dungeon_and_level_numbers *lev)
 {
     int bottom = dunlevs_in_dungeon(lev);
 
     /* when in the upper half of the quest, don't fall past the
        middle "quest locate" level if hero hasn't been there yet */
     if (In_quest(lev)) {
-        int qlocate_depth = qlocate_level.dlevel;
+        int qlocate_depth = qlocate_level.level_number;
 
         /* deepest reached < qlocate implies current < qlocate */
         if (dunlev_reached(lev) < qlocate_depth)
@@ -437,14 +437,14 @@ dng_bottom(d_level *lev)
 
 /* destination dlevel for holes or trapdoors */
 staticfn void
-hole_destination(d_level *dst)
+hole_destination(dungeon_and_level_numbers *dst)
 {
     int bottom = dng_bottom(&u.uz);
 
-    dst->dnum = u.uz.dnum;
-    dst->dlevel = dunlev(&u.uz);
-    while (dst->dlevel < bottom) {
-        dst->dlevel++;
+    dst->dungeon_number = u.uz.dungeon_number;
+    dst->level_number = dunlev(&u.uz);
+    while (dst->level_number < bottom) {
+        dst->level_number++;
         if (random_integer_between_zero_and(4))
             break;
     }
@@ -493,7 +493,7 @@ maketrap(coordxy x, coordxy y, int typ)
     /* [re-]initialize all fields except ntrap (handled below) and <tx,ty> */
     ttmp->vl = zero_vl;
     ttmp->launch.x = ttmp->launch.y = -1; /* force error if used before set */
-    ttmp->dst.dnum = ttmp->dst.dlevel = -1;
+    ttmp->dst.dungeon_number = ttmp->dst.level_number = -1;
     ttmp->madeby_u = 0;
     ttmp->once = 0;
     ttmp->tseen = unhideable_trap(typ);
@@ -557,12 +557,12 @@ maketrap(coordxy x, coordxy y, int typ)
 
 /* limit the destination of a hole or trapdoor to the furthest level you
    should be able to fall to */
-d_level *
-clamp_hole_destination(d_level *dlev)
+dungeon_and_level_numbers *
+clamp_hole_destination(dungeon_and_level_numbers *dlev)
 {
     int bottom = dng_bottom(dlev);
 
-    dlev->dlevel = min(dlev->dlevel, bottom);
+    dlev->level_number = min(dlev->level_number, bottom);
     return dlev;
 }
 
@@ -571,7 +571,7 @@ fall_through(
     boolean td, /* td == TRUE : trap door or hole */
     unsigned ftflags)
 {
-    d_level dtmp;
+    dungeon_and_level_numbers dtmp;
     char msgbuf[BUFSZ];
     const char *dont_fall = 0;
     int newlevel;
@@ -641,8 +641,8 @@ fall_through(
                file with different dungeon size  */
             (void) clamp_hole_destination(&dtmp);
         } else {
-            dtmp.dnum = u.uz.dnum;
-            dtmp.dlevel = newlevel;
+            dtmp.dungeon_number = u.uz.dungeon_number;
+            dtmp.level_number = newlevel;
         }
         dist = depth(&dtmp) - depth(&u.uz);
         if (dist > 1)
@@ -3261,7 +3261,7 @@ launch_obj(
             if ((t = t_at(x, y)) != 0
                 && otyp == BOULDER) {
                 int newlev = 0;
-                d_level dest;
+                dungeon_and_level_numbers dest;
 
                 switch (t->ttyp) {
                 case LANDMINE:
@@ -3304,9 +3304,9 @@ launch_obj(
                     } else {
                         add_to_migration(singleobj);
                         get_level(&dest, newlev);
-                        singleobj->ox = dest.dnum;
-                        singleobj->oy = dest.dlevel;
-                        singleobj->owornmask = (long) MIGR_RANDOM;
+                        singleobj->ox = dest.dungeon_number;
+                        singleobj->oy = dest.level_number;
+                        singleobj->owornmask = (long) MIGRATE_RANDOM;
                     }
                     seetrap(t);
                     used_up = TRUE;
@@ -3829,7 +3829,7 @@ float_down(
     long emask) /* might cancel timeout */
 {
     struct trap *trap = (struct trap *) 0;
-    d_level current_dungeon_level;
+    dungeon_and_level_numbers current_dungeon_level;
     boolean no_msg = FALSE;
 
     HLevitation &= ~hmask;
@@ -6787,7 +6787,7 @@ maybe_finish_sokoban(void)
         if (!t) {
             /* for livelog to report the sokoban depth in the way that
                players tend to think about it: 1 for entry level, 4 for top */
-            int sokonum = gd.dungeons[u.uz.dnum].entry_lev - u.uz.dlevel + 1;
+            int sokonum = gd.dungeons[u.uz.dungeon_number].entry_level - u.uz.level_number + 1;
 
             /* we've passed the last trap without finding a pit or hole;
                clear the sokoban_rules flag so that luck penalties for

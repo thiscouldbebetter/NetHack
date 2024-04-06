@@ -308,7 +308,7 @@ moverock(void)
 
             if (ttmp) {
                 int newlev = 0; /* lint suppression */
-                d_level dest;
+                dungeon_and_level_numbers dest;
 
                 /* if a trap operates on the boulder, don't attempt
                    to move any others at this location; return -1
@@ -404,9 +404,9 @@ moverock(void)
                         obj_extract_self(otmp);
                         add_to_migration(otmp);
                         get_level(&dest, newlev);
-                        otmp->ox = dest.dnum;
-                        otmp->oy = dest.dlevel;
-                        otmp->owornmask = (long) MIGR_RANDOM;
+                        otmp->ox = dest.dungeon_number;
+                        otmp->oy = dest.level_number;
+                        otmp->owornmask = (long) MIGRATE_RANDOM;
                     }
                     seetrap(ttmp);
                     res = sobj_at(BOULDER, sx, sy) ? -1 : 0;

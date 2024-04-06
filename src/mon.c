@@ -3504,7 +3504,7 @@ vamp_stone(struct monster *mtmp)
 void
 m_into_limbo(struct monster *mtmp)
 {
-    xint16 target_lev = ledger_no(&u.uz), xyloc = MIGR_APPROX_XY;
+    xint16 target_lev = ledger_no(&u.uz), xyloc = MIGRATE_APPROX_XY;
 
     mtmp->mstate |= MON_LIMBO;
     migrate_mon(mtmp, target_lev, xyloc);
@@ -3608,14 +3608,14 @@ elemental_clog(struct monster *mon)
 
         /* last resort - migrate mon to the next plane */
         } else if (!Is_astralevel(&u.uz)) {
-            d_level dest;
+            dungeon_and_level_numbers dest;
             coordxy target_lev;
 
             dest = u.uz;
-            dest.dlevel--;
+            dest.level_number--;
             target_lev = ledger_no(&dest);
             mon->mstate |= MON_ENDGAME_MIGR;
-            migrate_mon(mon, target_lev, MIGR_RANDOM);
+            migrate_mon(mon, target_lev, MIGRATE_RANDOM);
         }
     }
 }

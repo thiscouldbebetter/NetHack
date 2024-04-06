@@ -548,23 +548,23 @@ find_defensive(struct monster *mtmp, boolean tryescape)
         ; /* fleeing by stairs or traps is not possible */
     } else if (levl[x][y].typ == STAIRS) {
         stway = stairway_at(x,y);
-        if (stway && !stway->up && stway->tolev.dnum == u.uz.dnum) {
+        if (stway && !stway->up && stway->tolev.dungeon_number == u.uz.dungeon_number) {
             if (!is_floater(mtmp->data))
                 gm.m.has_defense = MUSE_DOWNSTAIRS;
-        } else if (stway && stway->up && stway->tolev.dnum == u.uz.dnum) {
+        } else if (stway && stway->up && stway->tolev.dungeon_number == u.uz.dungeon_number) {
             gm.m.has_defense = MUSE_UPSTAIRS;
-        } else if (stway &&  stway->tolev.dnum != u.uz.dnum) {
+        } else if (stway &&  stway->tolev.dungeon_number != u.uz.dungeon_number) {
             if (stway->up || !is_floater(mtmp->data))
                 gm.m.has_defense = MUSE_SSTAIRS;
         }
     } else if (levl[x][y].typ == LADDER) {
         stway = stairway_at(x,y);
-        if (stway && stway->up && stway->tolev.dnum == u.uz.dnum) {
+        if (stway && stway->up && stway->tolev.dungeon_number == u.uz.dungeon_number) {
             gm.m.has_defense = MUSE_UP_LADDER;
-        } else if (stway && !stway->up && stway->tolev.dnum == u.uz.dnum) {
+        } else if (stway && !stway->up && stway->tolev.dungeon_number == u.uz.dungeon_number) {
             if (!is_floater(mtmp->data))
                 gm.m.has_defense = MUSE_DN_LADDER;
-        } else if (stway && stway->tolev.dnum != u.uz.dnum) {
+        } else if (stway && stway->tolev.dungeon_number != u.uz.dungeon_number) {
             if (stway->up || !is_floater(mtmp->data))
                 gm.m.has_defense = MUSE_SSTAIRS;
         }
@@ -844,7 +844,7 @@ use_defensive(struct monster *mtmp)
         mreadmsg(mtmp, otmp); /* sets otmp->dknown if !Blind or !Deaf */
         if (obj_is_cursed || mtmp->mconf) {
             int nlev;
-            d_level flev;
+            dungeon_and_level_numbers flev;
 
             nlev = random_teleport_level();
             if (mon_has_amulet(mtmp) || In_endgame(&u.uz)) {
@@ -856,7 +856,7 @@ use_defensive(struct monster *mtmp)
                     pline("%s shudders for a moment.", Monnam(mtmp));
             } else {
                 get_level(&flev, nlev);
-                migrate_to_level(mtmp, ledger_no(&flev), MIGR_RANDOM,
+                migrate_to_level(mtmp, ledger_no(&flev), MIGRATE_RANDOM,
                                  (coord *) 0);
             }
         } else {
@@ -916,7 +916,7 @@ use_defensive(struct monster *mtmp)
                      surface(mtmp->mx, mtmp->my));
         }
         /* we made sure that there is a level for mtmp to go to */
-        migrate_to_level(mtmp, ledger_no(&u.uz) + 1, MIGR_RANDOM,
+        migrate_to_level(mtmp, ledger_no(&u.uz) + 1, MIGRATE_RANDOM,
                          (coord *) 0);
         return 2;
     case MUSE_WAN_UNDEAD_TURNING:
@@ -1003,7 +1003,7 @@ use_defensive(struct monster *mtmp)
             worm_move(mtmp);
         newsym(gt.trapx, gt.trapy);
 
-        migrate_to_level(mtmp, ledger_no(&u.uz) + 1, MIGR_RANDOM,
+        migrate_to_level(mtmp, ledger_no(&u.uz) + 1, MIGRATE_RANDOM,
                          (coord *) 0);
         return 2;
     case MUSE_UPSTAIRS:
@@ -1023,13 +1023,13 @@ use_defensive(struct monster *mtmp)
                the Wizard and he'll immediately go right to the
                upstairs, so there's not much point in having any
                chance for a random position on the current level */
-            migrate_to_level(mtmp, ledger_no(&u.uz) + 1, MIGR_RANDOM,
+            migrate_to_level(mtmp, ledger_no(&u.uz) + 1, MIGRATE_RANDOM,
                              (coord *) 0);
         } else {
             if (vismon)
                 pline("%s escapes upstairs!", Monnam(mtmp));
             migrate_to_level(mtmp, ledger_no(&(stway->tolev)),
-                             MIGR_STAIRS_DOWN, (coord *) 0);
+                             MIGRATE_STAIRS_DOWN, (coord *) 0);
         }
         return 2;
     case MUSE_DOWNSTAIRS:
@@ -1039,7 +1039,7 @@ use_defensive(struct monster *mtmp)
             return 0;
         if (vismon)
             pline("%s escapes downstairs!", Monnam(mtmp));
-        migrate_to_level(mtmp, ledger_no(&(stway->tolev)), MIGR_STAIRS_UP,
+        migrate_to_level(mtmp, ledger_no(&(stway->tolev)), MIGRATE_STAIRS_UP,
                          (coord *) 0);
         return 2;
     case MUSE_UP_LADDER:
@@ -1049,7 +1049,7 @@ use_defensive(struct monster *mtmp)
             return 0;
         if (vismon)
             pline("%s escapes up the ladder!", Monnam(mtmp));
-        migrate_to_level(mtmp, ledger_no(&(stway->tolev)), MIGR_LADDER_DOWN,
+        migrate_to_level(mtmp, ledger_no(&(stway->tolev)), MIGRATE_LADDER_DOWN,
                          (coord *) 0);
         return 2;
     case MUSE_DN_LADDER:
@@ -1059,7 +1059,7 @@ use_defensive(struct monster *mtmp)
             return 0;
         if (vismon)
             pline("%s escapes down the ladder!", Monnam(mtmp));
-        migrate_to_level(mtmp, ledger_no(&(stway->tolev)), MIGR_LADDER_UP,
+        migrate_to_level(mtmp, ledger_no(&(stway->tolev)), MIGRATE_LADDER_UP,
                          (coord *) 0);
         return 2;
     case MUSE_SSTAIRS:
@@ -1094,7 +1094,7 @@ use_defensive(struct monster *mtmp)
            to target, but having gs.sstairs.<sx,sy> == <0,0> will work the
            same as specifying MIGR_RANDOM when mon_arrive() eventually
            places the monster, so we can use MIGR_SSTAIRS unconditionally */
-        migrate_to_level(mtmp, ledger_no(&(stway->tolev)), MIGR_SSTAIRS,
+        migrate_to_level(mtmp, ledger_no(&(stway->tolev)), MIGRATE_SSTAIRS,
                          (coord *) 0);
         return 2;
     case MUSE_TELEPORT_TRAP:
@@ -2305,7 +2305,7 @@ use_misc(struct monster *mtmp)
         if (otmp->cursed) {
             if (Can_rise_up(mtmp->mx, mtmp->my, &u.uz)) {
                 int tolev = depth(&u.uz) - 1;
-                d_level tolevel;
+                dungeon_and_level_numbers tolevel;
 
                 get_level(&tolevel, tolev);
                 /* insurance against future changes... */
@@ -2317,7 +2317,7 @@ use_misc(struct monster *mtmp)
                     trycall(otmp);
                 }
                 m_useup(mtmp, otmp);
-                migrate_to_level(mtmp, ledger_no(&tolevel), MIGR_RANDOM,
+                migrate_to_level(mtmp, ledger_no(&tolevel), MIGRATE_RANDOM,
                                  (coord *) 0);
                 return 2;
             } else {

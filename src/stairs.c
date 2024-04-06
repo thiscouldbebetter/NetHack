@@ -10,7 +10,7 @@ void
 stairway_add(
     coordxy x, coordxy y,
     boolean up, boolean isladder,
-    d_level *dest)
+    dungeon_and_level_numbers *dest)
 {
     stairway *tmp = (stairway *) alloc(sizeof (stairway));
 
@@ -49,13 +49,13 @@ stairway_at(coordxy x, coordxy y)
 }
 
 stairway *
-stairway_find(d_level *fromdlev)
+stairway_find(dungeon_and_level_numbers *fromdlev)
 {
     stairway *tmp = gs.stairs;
 
     while (tmp) {
-        if (tmp->tolev.dnum == fromdlev->dnum
-            && tmp->tolev.dlevel == fromdlev->dlevel)
+        if (tmp->tolev.dungeon_number == fromdlev->dungeon_number
+            && tmp->tolev.level_number == fromdlev->level_number)
             break; /* return */
         tmp = tmp->next;
     }
@@ -63,13 +63,13 @@ stairway_find(d_level *fromdlev)
 }
 
 stairway *
-stairway_find_from(d_level *fromdlev, boolean isladder)
+stairway_find_from(dungeon_and_level_numbers *fromdlev, boolean isladder)
 {
     stairway *tmp = gs.stairs;
 
     while (tmp) {
-        if (tmp->tolev.dnum == fromdlev->dnum
-            && tmp->tolev.dlevel == fromdlev->dlevel
+        if (tmp->tolev.dungeon_number == fromdlev->dungeon_number
+            && tmp->tolev.level_number == fromdlev->level_number
             && tmp->isladder == isladder)
             break; /* return */
         tmp = tmp->next;
@@ -103,7 +103,7 @@ stairway_find_special_dir(boolean up)
     stairway *tmp = gs.stairs;
 
     while (tmp) {
-        if (tmp->tolev.dnum != u.uz.dnum && tmp->up != up)
+        if (tmp->tolev.dungeon_number != u.uz.dungeon_number && tmp->up != up)
             return tmp;
         tmp = tmp->next;
     }
@@ -181,7 +181,7 @@ On_stairs_dn(coordxy x, coordxy y)
 boolean
 known_branch_stairs(stairway *sway)
 {
-    return (sway && sway->tolev.dnum != u.uz.dnum && sway->u_traversed);
+    return (sway && sway->tolev.dungeon_number != u.uz.dungeon_number && sway->u_traversed);
 }
 
 /* describe staircase 'sway' based on whether hero knows the destination */
@@ -193,7 +193,7 @@ stairs_description(
                      * False: "stairs" or "ladder"; caller needs to deal
                      * with singular vs plural when forming a sentence */
 {
-    d_level tolev;
+    dungeon_and_level_numbers tolev;
     const char *stairs, *updown;
 
     tolev = sway->tolev;
@@ -204,13 +204,13 @@ stairs_description(
         /* ordinary stairs or branch stairs to not-yet-visited branch */
         Sprintf(outbuf, "%s %s", stairs, updown);
         if (sway->u_traversed) {
-            boolean specialdepth = (tolev.dnum == quest_dnum
+            boolean specialdepth = (tolev.dungeon_number == quest_dnum
                                     || single_level_branch(&tolev)); /* knox */
             int to_dlev = specialdepth ? dunlev(&tolev) : depth(&tolev);
 
             Sprintf(eos(outbuf), " to level %d", to_dlev);
         }
-    } else if (u.uz.dnum == 0 && u.uz.dlevel == 1 && sway->up) {
+    } else if (u.uz.dungeon_number == 0 && u.uz.level_number == 1 && sway->up) {
         /* stairs up from level one are a special case; they are marked
            as having been traversed because the hero obviously started
            the game by coming down them, but the remote side varies
@@ -229,7 +229,7 @@ stairs_description(
     } else {
         /* known branch stairs; tacking on destination level is too verbose */
         Sprintf(outbuf, "branch %s %s to %s",
-                stairs, updown, gd.dungeons[tolev.dnum].dname);
+                stairs, updown, gd.dungeons[tolev.dungeon_number].dungeon_name);
         /* dungeons[].dname is capitalized; undo that for "The <Branch>" */
         (void) strsubst(outbuf, "The ", "the ");
     }

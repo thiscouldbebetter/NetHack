@@ -3170,7 +3170,7 @@ zap_updown(struct obj *obj) /* wand or spell, nonnull */
     case SPE_KNOCK:
         while (stway) {
             if (!stway->isladder && !stway->up
-                && stway->tolev.dnum == u.uz.dnum)
+                && stway->tolev.dungeon_number == u.uz.dungeon_number)
                 break;
             stway = stway->next;
         }

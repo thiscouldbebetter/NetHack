@@ -170,7 +170,7 @@ md_start(coord *startp)
      * hero.
      */
     while (stway) {
-        if (stway->tolev.dnum == u.uz.dnum && couldsee(stway->sx, stway->sy)) {
+        if (stway->tolev.dungeon_number == u.uz.dungeon_number && couldsee(stway->sx, stway->sy)) {
             startp->x = stway->sx;
             startp->y = stway->sy;
             return TRUE;

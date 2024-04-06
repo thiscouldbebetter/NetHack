@@ -16,7 +16,7 @@ staticfn void wall_cleanup(coordxy, coordxy, coordxy, coordxy);
 staticfn boolean okay(coordxy, coordxy, coordxy);
 staticfn void maze0xy(coord *);
 staticfn boolean put_lregion_here(coordxy, coordxy, coordxy, coordxy, coordxy,
-                                coordxy, xint16, boolean, d_level *);
+                                coordxy, xint16, boolean, dungeon_and_level_numbers *);
 staticfn void baalz_fixup(void);
 staticfn void setup_waterlevel(void);
 staticfn void unsetup_waterlevel(void);
@@ -343,7 +343,7 @@ place_lregion(
     coordxy lx, coordxy ly, coordxy hx, coordxy hy,
     coordxy nlx, coordxy nly, coordxy nhx, coordxy nhy,
     xint16 rtype,
-    d_level *lev)
+    dungeon_and_level_numbers *lev)
 {
     int trycnt;
     boolean oneshot;
@@ -391,7 +391,7 @@ put_lregion_here(
     coordxy nlx, coordxy nly, coordxy nhx, coordxy nhy,
     xint16 rtype,
     boolean oneshot,
-    d_level *lev)
+    dungeon_and_level_numbers *lev)
 {
     struct monster *mtmp;
 
@@ -429,7 +429,7 @@ put_lregion_here(
         u_on_newpos(x, y);
         break;
     case LR_PORTAL:
-        mkportal(x, y, lev->dnum, lev->dlevel);
+        mkportal(x, y, lev->dungeon_number, lev->level_number);
         break;
     case LR_DOWNSTAIR:
     case LR_UPSTAIR:
@@ -544,8 +544,8 @@ void
 fixup_special(void)
 {
     lev_region *r = gl.lregions;
-    s_level *sp;
-    struct d_level lev;
+    special_dungeon_level *sp;
+    struct dungeon_and_level_numbers lev;
     int x, y;
     struct mkroom *croom;
     boolean added_branch = FALSE;
@@ -566,10 +566,10 @@ fixup_special(void)
             if (*r->rname.str >= '0' && *r->rname.str <= '9') {
                 /* "chutes and ladders" */
                 lev = u.uz;
-                lev.dlevel = atoi(r->rname.str);
+                lev.level_number = atoi(r->rname.str);
             } else {
                 sp = find_level(r->rname.str);
-                lev = sp->dlevel;
+                lev = sp->level_number;
             }
             /*FALLTHRU*/
 
@@ -615,7 +615,7 @@ fixup_special(void)
 
     /* place dungeon branch if not placed above */
     if (!added_branch && Is_branchlev(&u.uz)) {
-        place_lregion(0, 0, 0, 0, 0, 0, 0, 0, LR_BRANCH, (d_level *) 0);
+        place_lregion(0, 0, 0, 0, 0, 0, 0, 0, LR_BRANCH, (dungeon_and_level_numbers *) 0);
     }
 
     /* Still need to add some stuff to level file */
@@ -664,7 +664,7 @@ fixup_special(void)
     } else if (on_level(&u.uz, &baalzebub_level)) {
         /* custom wallify the "beetle" potion of the level */
         baalz_fixup();
-    } else if (u.uz.dnum == mines_dnum && gr.ransacked) {
+    } else if (u.uz.dungeon_number == mines_dnum && gr.ransacked) {
        stolen_booty();
     }
 
@@ -680,7 +680,7 @@ staticfn void
 check_ransacked(const char *s)
 {
     /* this kludge only works as long as orctown is minetn-1 */
-    gr.ransacked = (u.uz.dnum == mines_dnum && !strcmp(s, "minetn-1"));
+    gr.ransacked = (u.uz.dungeon_number == mines_dnum && !strcmp(s, "minetn-1"));
 }
 
 #define ORC_LEADER 1
@@ -690,11 +690,11 @@ staticfn void
 migrate_orc(struct monster *mtmp, unsigned long mflags)
 {
     int nlev, max_depth, cur_depth;
-    d_level dest;
+    dungeon_and_level_numbers dest;
 
     cur_depth = (int) depth(&u.uz);
     max_depth = dunlevs_in_dungeon(&u.uz)
-                + (gd.dungeons[u.uz.dnum].depth_start - 1);
+                + (gd.dungeons[u.uz.dungeon_number].depth_start - 1);
     if (mflags == ORC_LEADER) {
         /* Note that the orc leader will take possession of any
          * remaining stuff not already delivered to other
@@ -704,17 +704,17 @@ migrate_orc(struct monster *mtmp, unsigned long mflags)
         /* once in a blue moon, he won't be at the very bottom */
         if (!random_integer_between_zero_and(40))
             nlev--;
-        mtmp->migflags |= MIGR_LEFTOVERS;
+        mtmp->migflags |= MIGRATE_LEFTOVERS;
     } else {
         nlev = random_integer_between_zero_and((max_depth - cur_depth) + 1) + cur_depth;
         if (nlev == cur_depth)
             nlev++;
         if (nlev > max_depth)
             nlev = max_depth;
-        mtmp->migflags = (mtmp->migflags & ~MIGR_LEFTOVERS);
+        mtmp->migflags = (mtmp->migflags & ~MIGRATE_LEFTOVERS);
     }
     get_level(&dest, nlev);
-    migrate_to_level(mtmp, ledger_no(&dest), MIGR_RANDOM, (coord *) 0);
+    migrate_to_level(mtmp, ledger_no(&dest), MIGRATE_RANDOM, (coord *) 0);
 }
 
 staticfn void
@@ -1100,37 +1100,37 @@ void
 makemaz(const char *s)
 {
     char protofile[20];
-    s_level *sp = Is_special(&u.uz);
+    special_dungeon_level *sp = Is_special(&u.uz);
     coord mm;
 
     if (*s) {
-        if (sp && sp->rndlevs)
+        if (sp && sp->randomly_available_similar_level_count)
             Snprintf(protofile, sizeof protofile,
-                     "%s-%d", s, random((int) sp->rndlevs));
+                     "%s-%d", s, random((int) sp->randomly_available_similar_level_count));
         else
             Strcpy(protofile, s);
-    } else if (*(gd.dungeons[u.uz.dnum].proto)) {
+    } else if (*(gd.dungeons[u.uz.dungeon_number].prototype_file_name)) {
         if (dunlevs_in_dungeon(&u.uz) > 1) {
-            if (sp && sp->rndlevs)
+            if (sp && sp->randomly_available_similar_level_count)
                 Snprintf(protofile, sizeof protofile,
-                         "%s%d-%d", gd.dungeons[u.uz.dnum].proto,
-                         dunlev(&u.uz), random((int) sp->rndlevs));
+                         "%s%d-%d", gd.dungeons[u.uz.dungeon_number].prototype_file_name,
+                         dunlev(&u.uz), random((int) sp->randomly_available_similar_level_count));
             else
                 Snprintf(protofile, sizeof protofile,
-                         "%s%d", gd.dungeons[u.uz.dnum].proto,
+                         "%s%d", gd.dungeons[u.uz.dungeon_number].prototype_file_name,
                          dunlev(&u.uz));
-        } else if (sp && sp->rndlevs) {
+        } else if (sp && sp->randomly_available_similar_level_count) {
             Snprintf(protofile, sizeof protofile,
-                     "%s-%d", gd.dungeons[u.uz.dnum].proto,
-                     random((int) sp->rndlevs));
+                     "%s-%d", gd.dungeons[u.uz.dungeon_number].prototype_file_name,
+                     random((int) sp->randomly_available_similar_level_count));
         } else
-            Strcpy(protofile, gd.dungeons[u.uz.dnum].proto);
+            Strcpy(protofile, gd.dungeons[u.uz.dungeon_number].prototype_file_name);
 
     } else
         Strcpy(protofile, "");
 
     /* SPLEVTYPE format is "level-choice,level-choice"... */
-    if (wizard && *protofile && sp && sp->rndlevs) {
+    if (wizard && *protofile && sp && sp->randomly_available_similar_level_count) {
         char *ep = getenv("SPLEVTYPE"); /* not nh_getenv */
 
         if (ep) {
@@ -1142,7 +1142,7 @@ makemaz(const char *s)
                     int pick = atoi(ep + len);
 
                     /* use choice only if valid */
-                    if (pick > 0 && pick <= (int) sp->rndlevs)
+                    if (pick > 0 && pick <= (int) sp->randomly_available_similar_level_count)
                         Sprintf(protofile + len, "%d", pick);
                     break;
                 } else {
@@ -1438,9 +1438,9 @@ mkportal(coordxy x, coordxy y, xint16 todnum, xint16 todlevel)
         return;
     }
     debugpline4("mkportal: at <%d,%d>, to %s, level %d", x, y,
-                gd.dungeons[todnum].dname, todlevel);
-    ttmp->dst.dnum = todnum;
-    ttmp->dst.dlevel = todlevel;
+                gd.dungeons[todnum].dungeon_name, todlevel);
+    ttmp->dst.dungeon_number = todnum;
+    ttmp->dst.level_number = todlevel;
     return;
 }
 
@@ -1768,7 +1768,7 @@ setup_waterlevel(void)
 
     if (!Is_waterlevel(&u.uz) && !Is_airlevel(&u.uz))
         panic("setup_waterlevel(): [%d:%d] neither 'Water' nor 'Air'",
-              (int) u.uz.dnum, (int) u.uz.dlevel);
+              (int) u.uz.dungeon_number, (int) u.uz.level_number);
 
     /* ouch, hardcoded... (file scope statics and used in bxmin,bymax,&c) */
     gx.xmin = 3;

@@ -99,7 +99,7 @@ moveloop_preamble(boolean resuming)
         see_monsters();
     }
 
-    u.uz0.dlevel = u.uz.dlevel;
+    u.uz0.level_number = u.uz.level_number;
     gc.context.move = 0;
 
     gp.program_state.in_moveloop = 1;
@@ -527,7 +527,7 @@ moveloop_core(void)
 staticfn void
 maybe_do_tutorial(void)
 {
-    s_level *sp = find_level("tut-1");
+    special_dungeon_level *sp = find_level("tut-1");
 
     if (!sp)
         return;
@@ -535,7 +535,7 @@ maybe_do_tutorial(void)
     if (ask_do_tutorial()) {
         assign_level(&u.ucamefrom, &u.uz);
         iflags.nofollowers = TRUE;
-        schedule_goto(&sp->dlevel, UTOTYPE_NONE,
+        schedule_goto(&sp->level_number, UTOTYPE_NONE,
                       "Entering the tutorial.", (char *) 0);
         deferred_goto();
         vision_recalc(0);

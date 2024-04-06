@@ -180,7 +180,7 @@ topten_print_bold(const char *x)
 }
 
 int
-observable_depth(d_level *lev)
+observable_depth(dungeon_and_level_numbers *lev)
 {
 #if 0
     /* if we ever randomize the order of the elemental planes, we
@@ -668,7 +668,7 @@ topten(int how, time_t when)
     t0->ver_minor = VERSION_MINOR;
     t0->patchlevel = PATCHLEVEL;
     t0->points = u.urexp;
-    t0->deathdnum = u.uz.dnum;
+    t0->deathdnum = u.uz.dungeon_number;
     /* deepest_lev_reached() is in terms of depth(), and reporting the
      * deepest level reached in the dungeon death occurred in doesn't
      * seem right, so we have to report the death level in depth() terms
@@ -971,7 +971,7 @@ outentry(int rank, struct toptenentry *t1, boolean so)
                 t1->maxlvl);
         /* fixup for closing paren in "escaped... with...Amulet)[max..." */
         if ((bp = strchr(linebuf, ')')) != 0)
-            *bp = (t1->deathdnum == astral_level.dnum) ? '\0' : ' ';
+            *bp = (t1->deathdnum == astral_level.dungeon_number) ? '\0' : ' ';
         second_line = FALSE;
     } else if (!strncmp("ascended", t1->death, 8)) {
         Sprintf(eos(linebuf), "ascended to demigod%s-hood",
@@ -996,7 +996,7 @@ outentry(int rank, struct toptenentry *t1, boolean so)
         } else
             Strcat(linebuf, "died");
 
-        if (t1->deathdnum == astral_level.dnum) {
+        if (t1->deathdnum == astral_level.dungeon_number) {
             const char *arg, *fmt = " on the Plane of %s";
 
             switch (t1->deathlev) {
@@ -1022,8 +1022,8 @@ outentry(int rank, struct toptenentry *t1, boolean so)
             }
             Sprintf(eos(linebuf), fmt, arg);
         } else {
-            Sprintf(eos(linebuf), " in %s", gd.dungeons[t1->deathdnum].dname);
-            if (t1->deathdnum != knox_level.dnum)
+            Sprintf(eos(linebuf), " in %s", gd.dungeons[t1->deathdnum].dungeon_name);
+            if (t1->deathdnum != knox_level.dungeon_number)
                 Sprintf(eos(linebuf), " on level %d", t1->deathlev);
             if (t1->deathlev != t1->maxlvl)
                 Sprintf(eos(linebuf), " [max %d]", t1->maxlvl);
@@ -1224,7 +1224,7 @@ prscore(int argc, char **argv)
 
     /* If the score list isn't after a game, we never went through
      * initialization. */
-    if (wiz1_level.dlevel == 0) {
+    if (wiz1_level.level_number == 0) {
         dlb_init();
         init_dungeons();
         init_done = TRUE;

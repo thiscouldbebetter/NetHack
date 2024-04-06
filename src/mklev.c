@@ -257,7 +257,7 @@ free_luathemes(enum lua_theme_group theme_group)
      */
     for (i = 0; i < gn.n_dgns; ++i) {
         if ((theme_group == tut_themes && i != tutorial_dnum)
-            || (theme_group == most_themes && i == astral_level.dnum))
+            || (theme_group == most_themes && i == astral_level.dungeon_number))
             continue;
         if (gl.luathemes[i]) {
             nhl_done((lua_State *) gl.luathemes[i]);
@@ -273,9 +273,9 @@ makerooms(void)
     int themeroom_tries = 0;
     char *fname;
     nhl_sandbox_info sbi = {NHIGHLIGHT_SB_SAFE, 1*1024*1024, 0, 1*1024*1024};
-    lua_State *themes = (lua_State *) gl.luathemes[u.uz.dnum];
+    lua_State *themes = (lua_State *) gl.luathemes[u.uz.dungeon_number];
 
-    if (!themes && *(fname = gd.dungeons[u.uz.dnum].themerms)) {
+    if (!themes && *(fname = gd.dungeons[u.uz.dungeon_number].themed_rooms_lua_file_name)) {
         if ((themes = nhl_init(&sbi)) != 0) {
             if (!nhl_loadlua(themes, fname)) {
                 /* loading lua failed, don't use themed rooms */
@@ -283,7 +283,7 @@ makerooms(void)
                 themes = (lua_State *) 0;
             } else {
                 /* success; save state for this dungeon branch */
-                gl.luathemes[u.uz.dnum] = (genericptr_t) themes;
+                gl.luathemes[u.uz.dungeon_number] = (genericptr_t) themes;
                 /* keep themes context, so not 'nhl_done(themes);' */
                 iflags.in_lua = FALSE; /* can affect error messages */
             }
@@ -934,15 +934,15 @@ fill_ordinary_room(
     if (bonus_items && somexyspace(croom, &pos)) {
         branch *uz_branch = Is_branchlev(&u.uz);
 
-        if (uz_branch && u.uz.dnum != mines_dnum
-            && (uz_branch->end1.dnum == mines_dnum
-                || uz_branch->end2.dnum == mines_dnum)) {
+        if (uz_branch && u.uz.dungeon_number != mines_dnum
+            && (uz_branch->end1.dungeon_number == mines_dnum
+                || uz_branch->end2.dungeon_number == mines_dnum)) {
             (void) mksobj_at((random_integer_between_zero_and(5) < 3) ? FOOD_RATION
                              : random_integer_between_zero_and(2) ? CRAM_RATION
                                : LEMBAS_WAFER,
                              pos.x, pos.y, TRUE, FALSE);
-        } else if (u.uz.dnum == oracle_level.dnum
-                   && u.uz.dlevel < oracle_level.dlevel && random_integer_between_zero_and(3)) {
+        } else if (u.uz.dungeon_number == oracle_level.dungeon_number
+                   && u.uz.level_number < oracle_level.level_number && random_integer_between_zero_and(3)) {
             struct obj *otmp;
             int otyp, tryct = 0;
             boolean cursed;
@@ -1085,34 +1085,34 @@ makelevel(void)
     branch *branchp;
     stairway *prevstairs;
     int room_threshold;
-    s_level *slev = Is_special(&u.uz);
+    special_dungeon_level *slev = Is_special(&u.uz);
     int i;
 
-    if (wiz1_level.dlevel == 0)
+    if (wiz1_level.level_number == 0)
         init_dungeons();
     oinit(); /* assign level dependent obj probabilities */
     clear_level_structures();
 
     /* check for special levels */
     if (slev && !Is_rogue_level(&u.uz)) {
-        makemaz(slev->proto);
-    } else if (gd.dungeons[u.uz.dnum].proto[0]) {
+        makemaz(slev->prototype_file_name);
+    } else if (gd.dungeons[u.uz.dungeon_number].prototype_file_name[0]) {
         makemaz("");
-    } else if (gd.dungeons[u.uz.dnum].fill_lvl[0]) {
-        makemaz(gd.dungeons[u.uz.dnum].fill_lvl);
+    } else if (gd.dungeons[u.uz.dungeon_number].prototype_file_name_for_filler_levels[0]) {
+        makemaz(gd.dungeons[u.uz.dungeon_number].prototype_file_name_for_filler_levels);
     } else if (In_quest(&u.uz)) {
         char fillname[9];
-        s_level *loc_lev;
+        special_dungeon_level *loc_lev;
 
         Sprintf(fillname, "%s-loca", gu.urole.filecode);
         loc_lev = find_level(fillname);
 
         Sprintf(fillname, "%s-fil", gu.urole.filecode);
         Strcat(fillname,
-                (u.uz.dlevel < loc_lev->dlevel.dlevel) ? "a" : "b");
+                (u.uz.level_number < loc_lev->level_number.level_number) ? "a" : "b");
         makemaz(fillname);
     } else if (In_hell(&u.uz)
-                || (random_integer_between_zero_and(5) && u.uz.dnum == medusa_level.dnum
+                || (random_integer_between_zero_and(5) && u.uz.dungeon_number == medusa_level.dungeon_number
                     && depth(&u.uz) > depth(&medusa_level))) {
         makemaz("");
     } else {
@@ -1209,7 +1209,7 @@ makelevel(void)
            are branch stairs; treat them as if hero had just come down
            them by marking them as having been traversed; most recently
            created stairway is held in 'gs.stairs' */
-        if (u.uz.dnum == 0 && u.uz.dlevel == 1 && gs.stairs != prevstairs)
+        if (u.uz.dungeon_number == 0 && u.uz.level_number == 1 && gs.stairs != prevstairs)
             gs.stairs->u_traversed = TRUE;
 
         /* some levels have specially generated items in ordinary
@@ -1261,7 +1261,7 @@ void
 mineralize(int kelp_pool, int kelp_moat, int goldprob, int gemprob,
            boolean skip_lvl_checks)
 {
-    s_level *sp;
+    special_dungeon_level *sp;
     struct obj *otmp;
     coordxy x, y;
     int cnt;
@@ -1506,7 +1506,7 @@ place_branch(
     coordxy x, coordxy y) /* location */
 {
     coord m = {0};
-    d_level *dest;
+    dungeon_and_level_numbers *dest;
     boolean make_stairs;
     struct mkroom *br_room;
 
@@ -1531,19 +1531,19 @@ place_branch(
 
     if (on_level(&br->end1, &u.uz)) {
         /* we're on end1 */
-        make_stairs = br->type != BR_NO_END1;
+        make_stairs = br->type != BRANCH_NO_END1;
         dest = &br->end2;
     } else {
         /* we're on end2 */
-        make_stairs = br->type != BR_NO_END2;
+        make_stairs = br->type != BRANCH_NO_END2;
         dest = &br->end1;
     }
 
-    if (br->type == BR_PORTAL) {
-        if (iflags.debug_fuzzer && (u.ucamefrom.dnum || u.ucamefrom.dlevel))
-            mkportal(x, y, u.ucamefrom.dnum, u.ucamefrom.dlevel);
+    if (br->type == BRANCH_PORTAL) {
+        if (iflags.debug_fuzzer && (u.ucamefrom.dungeon_number || u.ucamefrom.level_number))
+            mkportal(x, y, u.ucamefrom.dungeon_number, u.ucamefrom.level_number);
         else
-            mkportal(x, y, dest->dnum, dest->dlevel);
+            mkportal(x, y, dest->dungeon_number, dest->level_number);
     } else if (make_stairs) {
         boolean goes_up = on_level(&br->end1, &u.uz) ? br->end1_up
                                                      : !br->end1_up;
@@ -1917,7 +1917,7 @@ mktrap(
         (void) makemon(&mons[PM_GIANT_SPIDER], m.x, m.y, NO_MM_FLAGS);
     if (t && (mktrapflags & MKTRAP_SEEN))
         t->tseen = TRUE;
-    if (kind == MAGIC_PORTAL && (u.ucamefrom.dnum || u.ucamefrom.dlevel)) {
+    if (kind == MAGIC_PORTAL && (u.ucamefrom.dungeon_number || u.ucamefrom.level_number)) {
         assign_level(&t->dst, &u.ucamefrom);
     }
 
@@ -1967,7 +1967,7 @@ mkstairs(
     boolean force)
 {
     int ltyp;
-    d_level dest;
+    dungeon_and_level_numbers dest;
 
     if (!x || !isok(x, y)) {
         impossible("mkstairs:  bogus stair attempt at <%d,%d>", x, y);
@@ -1992,8 +1992,8 @@ mkstairs(
     if (dunlev(&u.uz) == (up ? 1 : dunlevs_in_dungeon(&u.uz)))
         return;
 
-    dest.dnum = u.uz.dnum;
-    dest.dlevel = u.uz.dlevel + (up ? -1 : 1);
+    dest.dungeon_number = u.uz.dungeon_number;
+    dest.level_number = u.uz.level_number + (up ? -1 : 1);
     stairway_add(x, y, up ? TRUE : FALSE, FALSE, &dest);
 
     (void) set_levltyp(x, y, STAIRS);
@@ -2071,7 +2071,7 @@ generate_stairs(void)
         mkstairs(pos.x, pos.y, 0, croom, FALSE); /* down */
     }
 
-    if (u.uz.dlevel != 1) {
+    if (u.uz.level_number != 1) {
         /* if there is only 1 room and we found it above, this will find
            it again */
         if ((croom = generate_stairs_find_room()) == NULL)
@@ -2427,7 +2427,7 @@ mkinvk_check_wall(coordxy x, coordxy y)
 staticfn void
 mk_knox_portal(coordxy x, coordxy y)
 {
-    d_level *source;
+    dungeon_and_level_numbers *source;
     branch *br;
     schar u_depth;
 
@@ -2445,10 +2445,10 @@ mk_knox_portal(coordxy x, coordxy y)
     }
 
     /* Already set or 2/3 chance of deferring until a later level. */
-    if (source->dnum < gn.n_dgns || (random_integer_between_zero_and(3) && !wizard))
+    if (source->dungeon_number < gn.n_dgns || (random_integer_between_zero_and(3) && !wizard))
         return;
 
-    if (!(u.uz.dnum == oracle_level.dnum      /* in main dungeon */
+    if (!(u.uz.dungeon_number == oracle_level.dungeon_number      /* in main dungeon */
           && !at_dgn_entrance("The Quest")    /* but not Quest's entry */
           && (u_depth = depth(&u.uz)) > 10    /* beneath 10 */
           && u_depth < depth(&medusa_level))) /* and above Medusa */

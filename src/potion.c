@@ -1071,7 +1071,7 @@ peffect_gain_level(struct obj *otmp)
         /* they went up a level */
         if (on_lvl_1 ? u.player_carrying_special_objects.amulet : Can_rise_up(u.ux, u.uy, &u.uz)) {
             int newlev;
-            d_level newlevel;
+            dungeon_and_level_numbers newlevel;
 
             if (on_lvl_1) {
                 assign_level(&newlevel, &earth_level);

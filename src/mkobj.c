@@ -260,7 +260,7 @@ mksobj_migr_to_species(
 
     otmp = mksobj(otyp, init, artif);
     add_to_migration(otmp);
-    otmp->owornmask = (long) MIGR_TO_SPECIES;
+    otmp->owornmask = (long) MIGRATE_TO_SPECIES;
     otmp->migr_species = mflags2;
     return otmp;
 }
@@ -2631,8 +2631,8 @@ add_to_migration(struct obj *obj)
 
     obj->where = OBJ_MIGRATING;
     obj->nobj = gm.migrating_objs;
-    obj->omigr_from_dnum = u.uz.dnum;
-    obj->omigr_from_dlevel = u.uz.dlevel;
+    obj->omigr_from_dnum = u.uz.dungeon_number;
+    obj->omigr_from_dlevel = u.uz.level_number;
     gm.migrating_objs = obj;
 }
 

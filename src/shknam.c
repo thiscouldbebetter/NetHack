@@ -489,7 +489,7 @@ nameshk(struct monster *shk, const char *const *nlp)
     const char *shname = 0;
     struct monster *mtmp;
     int name_wanted = shk->m_id;
-    s_level *sptr;
+    special_dungeon_level *sptr;
 
     if (nlp == shklight && In_mines(&u.uz)
         && (sptr = Is_special(&u.uz)) != 0 && sptr->flags.town) {

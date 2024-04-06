@@ -1105,10 +1105,10 @@ furniture_detect(void)
    were expected to level teleport deep into Hell and hunt for him while
    working your way up; this isn't of much use anymore */
 const char *
-level_distance(d_level *where)
+level_distance(dungeon_and_level_numbers *where)
 {
     schar ll = depth(&u.uz) - depth(where);
-    boolean indun = (u.uz.dnum == where->dnum);
+    boolean indun = (u.uz.dungeon_number == where->dungeon_number);
     const char *res = ""; /* always replaced by some other non-Null value */
 
     if (ll < 0) {
@@ -1160,7 +1160,7 @@ level_distance(d_level *where)
      */
 static const struct crystalballlevels {
     const char *what;
-    d_level *where;
+    dungeon_and_level_numbers *where;
 } level_detects[] = {
     { "Delphi", &oracle_level },
     { "Medusa's lair", &medusa_level },

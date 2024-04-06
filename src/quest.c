@@ -30,7 +30,7 @@ on_start(void)
     if (!Qstat(first_start)) {
         qt_pager("firsttime");
         Qstat(first_start) = TRUE;
-    } else if ((u.uz0.dnum != u.uz.dnum) || (u.uz0.dlevel < u.uz.dlevel)) {
+    } else if ((u.uz0.dungeon_number != u.uz.dungeon_number) || (u.uz0.level_number < u.uz.level_number)) {
         if (Qstat(not_ready) <= 2)
             qt_pager("nexttime");
         else
@@ -43,7 +43,7 @@ on_locate(void)
 {
     /* the locate messages are phrased in a manner such that they only
        make sense when arriving on the level from above */
-    boolean from_above = (u.uz0.dlevel < u.uz.dlevel);
+    boolean from_above = (u.uz0.level_number < u.uz.level_number);
 
     if (Qstat(killed_nemesis)) {
         return;
@@ -188,12 +188,12 @@ staticfn void
 expulsion(boolean seal)
 {
     branch *br;
-    d_level *dest;
+    dungeon_and_level_numbers *dest;
     struct trap *t;
     int portal_flag = u.player_event_history.qexpelled ? UTOTYPE_NONE : UTOTYPE_PORTAL;
 
     br = dungeon_branch("The Quest");
-    dest = (br->end1.dnum == u.uz.dnum) ? &br->end2 : &br->end1;
+    dest = (br->end1.dungeon_number == u.uz.dungeon_number) ? &br->end2 : &br->end1;
     if (seal)
         portal_flag |= UTOTYPE_RMPORTAL;
     nomul(0); /* stop running */

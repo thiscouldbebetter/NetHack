@@ -450,7 +450,7 @@ describe_level(
     int ret = 1;
 
     if (Is_knox(&u.uz)) {
-        Sprintf(buf, "%s", gd.dungeons[u.uz.dnum].dname);
+        Sprintf(buf, "%s", gd.dungeons[u.uz.dungeon_number].dungeon_name);
         addbranch = FALSE;
     } else if (In_quest(&u.uz)) {
         Sprintf(buf, "Home %d", dunlev(&u.uz));
@@ -470,7 +470,7 @@ describe_level(
         ret = 0;
     }
     if (addbranch) {
-        Sprintf(eos(buf), ", %s", gd.dungeons[u.uz.dnum].dname);
+        Sprintf(eos(buf), ", %s", gd.dungeons[u.uz.dungeon_number].dungeon_name);
         (void) strsubst(buf, "The ", "the ");
     }
     if (addspace)

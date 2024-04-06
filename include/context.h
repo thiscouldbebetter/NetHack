@@ -30,7 +30,7 @@ enum nh_tips {
 
 struct dig_info { /* apply.c, hack.c */
     int effort;
-    d_level level;
+    dungeon_and_level_numbers level;
     coord pos;
     long lastdigtime;
     boolean down, chew, warned, quiet;

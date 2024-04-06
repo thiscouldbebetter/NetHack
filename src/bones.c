@@ -7,7 +7,7 @@
 
 #include "hack.h"
 
-staticfn boolean no_bones_level(d_level *);
+staticfn boolean no_bones_level(dungeon_and_level_numbers *);
 staticfn void goodfruit(int);
 staticfn void resetobjs(struct obj *, boolean);
 staticfn void give_to_nearby_mon(struct obj *, coordxy, coordxy) NONNULLARG1;
@@ -16,22 +16,22 @@ staticfn void remove_mon_from_bones(struct monster *) NONNULLARG1;
 staticfn void set_ghostly_objlist(struct obj *objchain);
 
 staticfn boolean
-no_bones_level(d_level *lev)
+no_bones_level(dungeon_and_level_numbers* lev)
 {
-    s_level *sptr;
+    special_dungeon_level *sptr;
 
     if (ledger_no(&gs.save_dlevel))
         assign_level(lev, &gs.save_dlevel);
 
     return (boolean) (((sptr = Is_special(lev)) != 0 && !sptr->boneid)
-                      || !gd.dungeons[lev->dnum].boneid
+                      || !gd.dungeons[lev->dungeon_number].boneid
                       /* no bones on the last or multiway branch levels
                          in any dungeon (level 1 isn't multiway) */
                       || Is_botlevel(lev)
-                      || (Is_branchlev(lev) && lev->dlevel > 1)
+                      || (Is_branchlev(lev) && lev->level_number > 1)
                       /* no bones in the invocation level */
                       || (In_hell(lev)
-                          && lev->dlevel == dunlevs_in_dungeon(lev) - 1));
+                          && lev->level_number == dunlevs_in_dungeon(lev) - 1));
 }
 
 /* Call this function for each fruit object saved in the bones level: it marks

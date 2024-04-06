@@ -335,34 +335,34 @@ enum dismount_types {
 };
 
 struct dgn_topology { /* special dungeon levels for speed */
-    d_level d_oracle_level;
-    d_level d_bigroom_level; /* unused */
-    d_level d_rogue_level;
-    d_level d_medusa_level;
-    d_level d_stronghold_level;
-    d_level d_valley_level;
-    d_level d_wiz1_level;
-    d_level d_wiz2_level;
-    d_level d_wiz3_level;
-    d_level d_juiblex_level;
-    d_level d_orcus_level;
-    d_level d_baalzebub_level; /* unused */
-    d_level d_asmodeus_level;  /* unused */
-    d_level d_portal_level;    /* only in goto_level() [do.c] */
-    d_level d_sanctum_level;
-    d_level d_earth_level;
-    d_level d_water_level;
-    d_level d_fire_level;
-    d_level d_air_level;
-    d_level d_astral_level;
+    dungeon_and_level_numbers d_oracle_level;
+    dungeon_and_level_numbers d_bigroom_level; /* unused */
+    dungeon_and_level_numbers d_rogue_level;
+    dungeon_and_level_numbers d_medusa_level;
+    dungeon_and_level_numbers d_stronghold_level;
+    dungeon_and_level_numbers d_valley_level;
+    dungeon_and_level_numbers d_wiz1_level;
+    dungeon_and_level_numbers d_wiz2_level;
+    dungeon_and_level_numbers d_wiz3_level;
+    dungeon_and_level_numbers d_juiblex_level;
+    dungeon_and_level_numbers d_orcus_level;
+    dungeon_and_level_numbers d_baalzebub_level; /* unused */
+    dungeon_and_level_numbers d_asmodeus_level;  /* unused */
+    dungeon_and_level_numbers d_portal_level;    /* only in goto_level() [do.c] */
+    dungeon_and_level_numbers d_sanctum_level;
+    dungeon_and_level_numbers d_earth_level;
+    dungeon_and_level_numbers d_water_level;
+    dungeon_and_level_numbers d_fire_level;
+    dungeon_and_level_numbers d_air_level;
+    dungeon_and_level_numbers d_astral_level;
     xint16 d_tower_dnum;
     xint16 d_sokoban_dnum;
     xint16 d_mines_dnum, d_quest_dnum;
     xint16 d_tutorial_dnum;
-    d_level d_qstart_level, d_qlocate_level, d_nemesis_level;
-    d_level d_knox_level;
-    d_level d_mineend_level;
-    d_level d_sokoend_level;
+    dungeon_and_level_numbers d_qstart_level, d_qlocate_level, d_nemesis_level;
+    dungeon_and_level_numbers d_knox_level;
+    dungeon_and_level_numbers d_mineend_level;
+    dungeon_and_level_numbers d_sokoend_level;
 };
 
 /* macros for accessing the dungeon levels by their old names */
@@ -400,7 +400,7 @@ struct dgn_topology { /* special dungeon levels for speed */
 #define sokoend_level           (gd.dungeon_topology.d_sokoend_level)
 /* clang-format on */
 
-#define dunlev_reached(x) (gd.dungeons[(x)->dnum].dunlev_ureached)
+#define dunlev_reached(x) (gd.dungeons[(x)->dungeon_number].depth_reached_by_player)
 #define MAXLINFO (MAXDUNGEON * MAXLEVEL)
 
 enum lua_theme_group {

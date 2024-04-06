@@ -381,8 +381,8 @@ dig(void)
 
         /* make pit at <u.ux,u.uy> */
         if (dighole(TRUE, FALSE, (coord *) 0)) {
-            gc.context.digging.level.dnum = 0;
-            gc.context.digging.level.dlevel = -1;
+            gc.context.digging.level.dungeon_number = 0;
+            gc.context.digging.level.level_number = -1;
         }
         return 0;
     }
@@ -493,8 +493,8 @@ dig(void)
  cleanup:
         gc.context.digging.lastdigtime = gm.moves;
         gc.context.digging.quiet = FALSE;
-        gc.context.digging.level.dnum = 0;
-        gc.context.digging.level.dlevel = -1;
+        gc.context.digging.level.dungeon_number = 0;
+        gc.context.digging.level.level_number = -1;
         return 0;
     } else { /* not enough effort has been spent yet */
         static const char *const d_target[6] = { "",        "rock", "statue",
@@ -725,7 +725,7 @@ digactualhole(coordxy x, coordxy y, struct monster *madeby, int ttyp)
                 if (shopdoor && heros_fault)
                     pay_for_damage("ruin", FALSE);
             } else {
-                d_level newlevel;
+                dungeon_and_level_numbers newlevel;
 
                 if (*u.ushops && heros_fault)
                     shopdig(1); /* shk might snatch pack */
@@ -735,8 +735,8 @@ digactualhole(coordxy x, coordxy y, struct monster *madeby, int ttyp)
                 /* Earlier checks must ensure that the destination
                  * level exists and is in the present dungeon.
                  */
-                newlevel.dnum = u.uz.dnum;
-                newlevel.dlevel = u.uz.dlevel + 1;
+                newlevel.dungeon_number = u.uz.dungeon_number;
+                newlevel.level_number = u.uz.level_number + 1;
                 goto_level(&newlevel, FALSE, TRUE, FALSE);
                 /* messages for arriving in special rooms */
                 spoteffects(FALSE);
@@ -756,7 +756,7 @@ digactualhole(coordxy x, coordxy y, struct monster *madeby, int ttyp)
                     return;           /* temporary? kludge */
 
                 if (teleport_pet(mtmp, FALSE)) {
-                    d_level tolevel;
+                    dungeon_and_level_numbers tolevel;
 
                     if (Is_stronghold(&u.uz)) {
                         assign_level(&tolevel, &valley_level);
@@ -770,7 +770,7 @@ digactualhole(coordxy x, coordxy y, struct monster *madeby, int ttyp)
                     if (mtmp->isshk)
                         make_angry_shk(mtmp, 0, 0);
                     migrate_to_level(mtmp, ledger_no(&tolevel),
-                                     MIGR_RANDOM, (coord *) 0);
+                                     MIGRATE_RANDOM, (coord *) 0);
                 }
             }
         }

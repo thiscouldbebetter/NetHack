@@ -164,7 +164,7 @@ mswin_map_layout(HWND hWnd, LPSIZE map_size)
     data->monitorScale = win10_monitor_scale(hWnd);
 
     boolean bText = data->bAsciiMode ||
-                    (u.uz.dlevel != 0 && Is_rogue_level(&u.uz));
+                    (u.uz.level_number != 0 && Is_rogue_level(&u.uz));
 
     if (bText && !data->bFitToScreenMode)
         data->backScale = data->monitorScale;

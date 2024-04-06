@@ -79,7 +79,7 @@ struct egd {
     int vroom;            /* room number of the vault */
     coordxy gdx, gdy;     /* goal of guard's walk */
     coordxy ogx, ogy;     /* guard's last position */
-    d_level gdlevel;      /* level (& dungeon) guard was created in */
+    dungeon_and_level_numbers gdlevel;      /* level (& dungeon) guard was created in */
     xint8 warncnt;        /* number of warnings to follow */
     xint8 dropgoldcnt;    /* number of demands to drop gold */
     Bitfield(gddone, 1);  /* true iff guard has released player */
@@ -95,7 +95,7 @@ struct epri {
     aligntyp shralign; /* alignment of priest's shrine */
     schar shroom;      /* index in rooms */
     coord shrpos;      /* position of shrine */
-    d_level shrlevel;  /* level (& dungeon) of shrine */
+    dungeon_and_level_numbers shrlevel;  /* level (& dungeon) of shrine */
     long intone_time,  /* used to limit verbosity  +*/
         enter_time,    /*+ of temple entry messages */
         hostile_time,  /* forbidding feeling */
@@ -131,7 +131,7 @@ struct eshk {
     boolean dismiss_kops; /* pacified shk sends kops away */
     coord shk;            /* usual position shopkeeper */
     coord shd;            /* position shop door */
-    d_level shoplevel;    /* level (& dungeon) of his shop */
+    dungeon_and_level_numbers shoplevel;    /* level (& dungeon) of his shop */
     int billct;           /* no. of entries of bill[] in use */
     struct bill_x bill[BILLSZ];
     struct bill_x *bill_p;  /* &(ESHK(shkp)->bill[0]) */

@@ -127,7 +127,7 @@ staticfn void free_nhfile(NHFILE *);
 #ifdef SELECTSAVED
 staticfn int QSORTCALLBACK strcmp_wrap(const void *, const void *);
 #endif
-staticfn char *set_bonesfile_name(char *, d_level *);
+staticfn char *set_bonesfile_name(char *, dungeon_and_level_numbers *);
 staticfn char *set_bonestemp_name(void);
 #ifdef COMPRESS
 staticfn void redirect(const char *, const char *, FILE *, boolean);
@@ -752,9 +752,9 @@ nhclose(int fd)
  * bonesid to be read/written in the bones file.
  */
 staticfn char *
-set_bonesfile_name(char *file, d_level *lev)
+set_bonesfile_name(char *file, dungeon_and_level_numbers *lev)
 {
-    s_level *sptr;
+    special_dungeon_level *sptr;
     char *dptr;
 
     /*
@@ -782,12 +782,12 @@ set_bonesfile_name(char *file, d_level *lev)
     dptr = eos(file);
     /* when this naming scheme was adopted, 'filecode' was one letter;
        3.3.0 turned it into a three letter string for quest levels */
-    Sprintf(dptr, "%c%s", gd.dungeons[lev->dnum].boneid,
+    Sprintf(dptr, "%c%s", gd.dungeons[lev->dungeon_number].boneid,
             In_quest(lev) ? gu.urole.filecode : "0");
     if ((sptr = Is_special(lev)) != 0)
         Sprintf(eos(dptr), ".%c", sptr->boneid);
     else
-        Sprintf(eos(dptr), ".%d", lev->dlevel);
+        Sprintf(eos(dptr), ".%d", lev->level_number);
 #ifdef VMS
     Strcat(dptr, ";1");
 #endif
@@ -816,7 +816,7 @@ set_bonestemp_name(void)
 }
 
 NHFILE *
-create_bonesfile(d_level *lev, char **bonesid, char errbuf[])
+create_bonesfile(dungeon_and_level_numbers *lev, char **bonesid, char errbuf[])
 {
     const char *file;
     NHFILE *nhfp = (NHFILE *) 0;
@@ -873,7 +873,7 @@ create_bonesfile(d_level *lev, char **bonesid, char errbuf[])
 
 /* move completed bones file to proper name */
 void
-commit_bonesfile(d_level *lev)
+commit_bonesfile(dungeon_and_level_numbers *lev)
 {
     const char *fq_bones, *tempname;
     int ret;
@@ -898,7 +898,7 @@ commit_bonesfile(d_level *lev)
 }
 
 NHFILE *
-open_bonesfile(d_level *lev, char **bonesid)
+open_bonesfile(dungeon_and_level_numbers *lev, char **bonesid)
 {
     const char *fq_bones;
     NHFILE *nhfp = (NHFILE *) 0;
@@ -926,7 +926,7 @@ open_bonesfile(d_level *lev, char **bonesid)
 }
 
 int
-delete_bonesfile(d_level *lev)
+delete_bonesfile(dungeon_and_level_numbers *lev)
 {
     (void) set_bonesfile_name(gb.bones, lev);
     return !(unlink(fqname(gb.bones, BONESPREFIX, 0)) < 0);
@@ -3939,7 +3939,7 @@ wizkit_addinv(struct obj *obj)
         obj->ox = 0; /* index of main dungeon */
         obj->oy = 1; /* starting level number */
         obj->owornmask =
-            (long) (MIGR_WITH_HERO | MIGR_NOBREAK | MIGR_NOSCATTER);
+            (long) (MIGRATE_WITH_HERO | MIGRATE_NOBREAK | MIGRATE_NOSCATTER);
     } else {
         (void) addinv(obj);
     }

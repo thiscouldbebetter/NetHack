@@ -182,7 +182,7 @@ dosave0(void)
      * [gu.uz_save is used by save_bubbles() as well as to restore u.uz]
      */
     gu.uz_save = u.uz;
-    u.uz.dnum = u.uz.dlevel = 0;
+    u.uz.dungeon_number = u.uz.level_number = 0;
     /* these pointers are no longer valid, and at least u.usteed
      * may mislead place_monster() on other levels
      */
@@ -225,7 +225,7 @@ dosave0(void)
     close_nhfile(nhfp);
 
     u.uz = gu.uz_save;
-    gu.uz_save.dnum = gu.uz_save.dlevel = 0;
+    gu.uz_save.dungeon_number = gu.uz_save.level_number = 0;
 
     /* get rid of current level --jgm */
     delete_levelfile(ledger_no(&u.uz));
@@ -444,14 +444,14 @@ savestateinlock(void)
 void
 savelev(NHFILE *nhfp, xint8 lev)
 {
-    boolean set_uz_save = (gu.uz_save.dnum == 0 && gu.uz_save.dlevel == 0);
+    boolean set_uz_save = (gu.uz_save.dungeon_number == 0 && gu.uz_save.level_number == 0);
 
     /* caller might have already set up gu.uz_save and zeroed u.uz;
        if not, we need to set it for save_bubbles(); caveat: if the
        player quits during character selection, u.uz won't be set yet
        but we'll be called during run-down */
     if (set_uz_save && perform_bwrite(nhfp)) {
-        if (u.uz.dnum == 0 && u.uz.dlevel == 0) {
+        if (u.uz.dungeon_number == 0 && u.uz.level_number == 0) {
             gp.program_state.something_worth_saving = 0;
             panic("savelev: where are we?");
         }
@@ -461,7 +461,7 @@ savelev(NHFILE *nhfp, xint8 lev)
     savelev_core(nhfp, lev);
 
     if (set_uz_save)
-        gu.uz_save.dnum = gu.uz_save.dlevel = 0; /* unset */
+        gu.uz_save.dungeon_number = gu.uz_save.level_number = 0; /* unset */
 }
 
 staticfn void
@@ -720,10 +720,10 @@ save_stairs(NHFILE *nhfp)
     while (stway) {
         if (perform_bwrite(nhfp)) {
             boolean use_relative = (gp.program_state.restoring != REST_GSTATE
-                                    && stway->tolev.dnum == u.uz.dnum);
+                                    && stway->tolev.dungeon_number == u.uz.dungeon_number);
             if (use_relative) {
                 /* make dlevel relative to current level */
-                stway->tolev.dlevel -= u.uz.dlevel;
+                stway->tolev.level_number -= u.uz.level_number;
             }
             if (nhfp->structlevel) {
                 bwrite(nhfp->fd, (genericptr_t) &buflen, sizeof buflen);
@@ -731,7 +731,7 @@ save_stairs(NHFILE *nhfp)
             }
             if (use_relative) {
                 /* reset stairway dlevel back to absolute */
-                stway->tolev.dlevel += u.uz.dlevel;
+                stway->tolev.level_number += u.uz.level_number;
             }
         }
         stway = stway->next;
@@ -991,16 +991,16 @@ savetrapchn(NHFILE *nhfp, struct trap *trap)
 
     while (trap) {
         boolean use_relative = (gp.program_state.restoring != REST_GSTATE
-                                && trap->dst.dnum == u.uz.dnum);
+                                && trap->dst.dungeon_number == u.uz.dungeon_number);
         trap2 = trap->ntrap;
         if (use_relative)
-            trap->dst.dlevel -= u.uz.dlevel; /* make it relative */
+            trap->dst.level_number -= u.uz.level_number; /* make it relative */
         if (perform_bwrite(nhfp)) {
             if (nhfp->structlevel)
                 bwrite(nhfp->fd, (genericptr_t) trap, sizeof *trap);
         }
         if (use_relative)
-            trap->dst.dlevel += u.uz.dlevel; /* reset back to absolute */
+            trap->dst.level_number += u.uz.level_number; /* reset back to absolute */
         if (release_data(nhfp))
             dealloc_trap(trap);
         trap = trap2;
@@ -1044,7 +1044,7 @@ savefruitchn(NHFILE *nhfp)
 staticfn void
 savelevchn(NHFILE *nhfp)
 {
-    s_level *tmplev, *tmplev2;
+    special_dungeon_level *tmplev, *tmplev2;
     int cnt = 0;
 
     for (tmplev = gs.sp_levchn; tmplev; tmplev = tmplev->next)

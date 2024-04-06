@@ -24,7 +24,7 @@ staticfn void misc_stats(winid, long *, long *);
 staticfn void you_sanity_check(void);
 staticfn void makemap_unmakemon(struct monster *, boolean);
 staticfn int QSORTCALLBACK migrsort_cmp(const genericptr, const genericptr);
-staticfn void list_migrating_mons(d_level *);
+staticfn void list_migrating_mons(dungeon_and_level_numbers *);
 
 DISABLE_WARNING_FORMAT_NONLITERAL
 
@@ -250,7 +250,7 @@ wiz_kill(void)
     const char *prompt = "Pick first monster to slay";
     boolean save_verbose = flags.verbose,
             save_autodescribe = iflags.autodescribe;
-    d_level uarehere = u.uz;
+    dungeon_and_level_numbers uarehere = u.uz;
 
     cc.x = u.ux, cc.y = u.uy;
     for (;;) {
@@ -718,13 +718,13 @@ wiz_map_levltyp(void)
 
     {
         char dsc[COLBUFSZ];
-        s_level *slev = Is_special(&u.uz);
+        special_dungeon_level *slev = Is_special(&u.uz);
 
-        Sprintf(dsc, "D:%d,L:%d", u.uz.dnum, u.uz.dlevel);
+        Sprintf(dsc, "D:%d,L:%d", u.uz.dungeon_number, u.uz.level_number);
         /* [dungeon branch features currently omitted] */
         /* special level features */
         if (slev) {
-            Sprintf(eos(dsc), " \"%s\"", slev->proto);
+            Sprintf(eos(dsc), " \"%s\"", slev->prototype_file_name);
             /* special level flags (note: dungeon.def doesn't set `maze'
                or `hell' for any specific levels so those never show up) */
             if (slev->flags.maze_like)
@@ -790,25 +790,25 @@ wiz_map_levltyp(void)
         if (On_W_tower_level(&u.uz))
             Strcat(dsc, " tower");
         /* append a branch identifier for completeness' sake */
-        if (u.uz.dnum == 0)
+        if (u.uz.dungeon_number == 0)
             Strcat(dsc, " dungeon");
-        else if (u.uz.dnum == mines_dnum)
+        else if (u.uz.dungeon_number == mines_dnum)
             Strcat(dsc, " mines");
         else if (In_sokoban(&u.uz))
             Strcat(dsc, " sokoban");
-        else if (u.uz.dnum == quest_dnum)
+        else if (u.uz.dungeon_number == quest_dnum)
             Strcat(dsc, " quest");
         else if (Is_knox(&u.uz))
             Strcat(dsc, " ludios");
-        else if (u.uz.dnum == 1)
+        else if (u.uz.dungeon_number == 1)
             Strcat(dsc, " gehennom");
-        else if (u.uz.dnum == tower_dnum)
+        else if (u.uz.dungeon_number == tower_dnum)
             Strcat(dsc, " vlad");
         else if (In_endgame(&u.uz))
             Strcat(dsc, " endgame");
         else {
             /* somebody's added a dungeon branch we're not expecting */
-            const char *brname = gd.dungeons[u.uz.dnum].dname;
+            const char *brname = gd.dungeons[u.uz.dungeon_number].dungeon_name;
 
             if (!brname || !*brname)
                 brname = "unknown";
@@ -1453,7 +1453,7 @@ migrsort_cmp(const genericptr vptr1, const genericptr vptr2)
    displays them as well */
 staticfn void
 list_migrating_mons(
-    d_level *nextlevl) /* default destination for wiz_migrate_mons() */
+    dungeon_and_level_numbers *nextlevl) /* default destination for wiz_migrate_mons() */
 {
     winid win = WIN_ERR;
     boolean showit = FALSE;
@@ -1465,9 +1465,9 @@ list_migrating_mons(
     int here = 0, nxtlv = 0, other = 0;
 
     for (mtmp = gm.migrating_mons; mtmp; mtmp = mtmp->nmon) {
-        if (mtmp->mux == u.uz.dnum && mtmp->muy == u.uz.dlevel)
+        if (mtmp->mux == u.uz.dungeon_number && mtmp->muy == u.uz.level_number)
             ++here;
-        else if (mtmp->mux == nextlevl->dnum && mtmp->muy == nextlevl->dlevel)
+        else if (mtmp->mux == nextlevl->dungeon_number && mtmp->muy == nextlevl->level_number)
             ++nxtlv;
         else
             ++other;
@@ -1517,10 +1517,10 @@ list_migrating_mons(
             for (mtmp = gm.migrating_mons; mtmp; mtmp = mtmp->nmon) {
                 if (c == 'a')
                     showit = TRUE;
-                else if (mtmp->mux == u.uz.dnum && mtmp->muy == u.uz.dlevel)
+                else if (mtmp->mux == u.uz.dungeon_number && mtmp->muy == u.uz.level_number)
                     showit = (c == 'c');
-                else if (mtmp->mux == nextlevl->dnum
-                         && mtmp->muy == nextlevl->dlevel)
+                else if (mtmp->mux == nextlevl->dungeon_number
+                         && mtmp->muy == nextlevl->level_number)
                     showit = (c == 'n');
                 else
                     showit = (c == 'o');
@@ -1541,7 +1541,7 @@ list_migrating_mons(
                 if (c == 'o' || c == 'a')
                     Sprintf(eos(buf), " to %d:%d", mtmp->mux, mtmp->muy);
                 xyloc = mtmp->mtrack[0].x; /* (for legibility) */
-                if (xyloc == MIGR_EXACT_XY) {
+                if (xyloc == MIGRATE_EXACT_XY) {
                     x = mtmp->mtrack[1].x;
                     y = mtmp->mtrack[1].y;
                     Sprintf(eos(buf), " at <%d,%d>", (int) x, (int) y);
@@ -1781,20 +1781,20 @@ wiz_migrate_mons(void)
     struct permonst *ptr;
     struct monster *mtmp;
 #endif
-    d_level tolevel;
+    dungeon_and_level_numbers tolevel;
 
     if (Is_stronghold(&u.uz))
         assign_level(&tolevel, &valley_level);
     else if (!Is_botlevel(&u.uz))
         get_level(&tolevel, depth(&u.uz) + 1);
     else
-        tolevel.dnum = 0, tolevel.dlevel = 0;
+        tolevel.dungeon_number = 0, tolevel.level_number = 0;
 
     list_migrating_mons(&tolevel);
 
 #ifdef DEBUG_MIGRATING_MONS
     inbuf[0] = '\033', inbuf[1] = '\0';
-    if (tolevel.dnum || tolevel.dlevel)
+    if (tolevel.dungeon_number || tolevel.level_number)
         getlin("How many random monsters to migrate to next level? [0]",
                inbuf);
     else
@@ -1812,7 +1812,7 @@ wiz_migrate_mons(void)
         ptr = rndmonst();
         mtmp = makemon(ptr, 0, 0, MM_NOMSG);
         if (mtmp)
-            migrate_to_level(mtmp, ledger_no(&tolevel), MIGR_RANDOM,
+            migrate_to_level(mtmp, ledger_no(&tolevel), MIGRATE_RANDOM,
                              (coord *) 0);
         mcount--;
     }

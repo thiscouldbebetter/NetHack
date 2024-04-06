@@ -4115,17 +4115,17 @@ l_create_stairway(lua_State *L, boolean using_ladder)
     if (using_ladder) {
         levl[x][y].typ = LADDER;
         if (up) {
-            d_level dest;
+            dungeon_and_level_numbers dest;
 
-            dest.dnum = u.uz.dnum;
-            dest.dlevel = u.uz.dlevel - 1;
+            dest.dungeon_number = u.uz.dungeon_number;
+            dest.level_number = u.uz.level_number - 1;
             stairway_add(x, y, TRUE, TRUE, &dest);
             levl[x][y].ladder = LA_UP;
         } else {
-            d_level dest;
+            dungeon_and_level_numbers dest;
 
-            dest.dnum = u.uz.dnum;
-            dest.dlevel = u.uz.dlevel + 1;
+            dest.dungeon_number = u.uz.dungeon_number;
+            dest.level_number = u.uz.level_number + 1;
             stairway_add(x, y, FALSE, TRUE, &dest);
             levl[x][y].ladder = LA_DOWN;
         }
@@ -5136,7 +5136,7 @@ ensure_way_out(void)
     set_selection_floodfillchk(floodfillchk_match_accessible);
 
     while (stway) {
-        if (stway->tolev.dnum == u.uz.dnum)
+        if (stway->tolev.dungeon_number == u.uz.dungeon_number)
             selection_floodfill(ov, stway->sx, stway->sy, TRUE);
         stway = stway->next;
     }

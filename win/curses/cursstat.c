@@ -2103,7 +2103,7 @@ draw_vertical(int x, int y, int hp, int hpmax)
     sprintf(buf, "%-*s the %-*s", namelen, gp.plname, ranklen, rank);
     draw_bar(TRUE, hp, hpmax, buf);
     wmove(win, y++, x);
-    wprintw(win, "%s", dungeons[u.uz.dnum].dname);
+    wprintw(win, "%s", dungeons[u.uz.dungeon_number].dungeon_name);
 
     y++; /* Blank line in-between */
     wmove(win, y++, x);

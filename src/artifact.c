@@ -1782,7 +1782,7 @@ arti_invoke(struct obj *obj)
             break;
         case CREATE_PORTAL: {
             int i, num_ok_dungeons, last_ok_dungeon = 0;
-            d_level newlev;
+            dungeon_and_level_numbers newlev;
             winid tmpwin = create_nhwindow(NHW_MENU);
             anything any;
             int clr = COLOR_CODE_NONE;
@@ -1791,14 +1791,14 @@ arti_invoke(struct obj *obj)
             start_menu(tmpwin, MENU_BEHAVE_STANDARD);
             /* use index+1 (cant use 0) as identifier */
             for (i = num_ok_dungeons = 0; i < gn.n_dgns; i++) {
-                if (!gd.dungeons[i].dunlev_ureached)
+                if (!gd.dungeons[i].depth_reached_by_player)
                     continue;
                 if (i == tutorial_dnum) /* can't portal into tutorial */
                     continue;
                 any.a_int = i + 1;
                 add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
                          TEXT_ATTRIBUTE_NONE, clr,
-                         gd.dungeons[i].dname, MENU_ITEMFLAGS_NONE);
+                         gd.dungeons[i].dungeon_name, MENU_ITEMFLAGS_NONE);
                 num_ok_dungeons++;
                 last_ok_dungeon = i;
             }
@@ -1825,14 +1825,14 @@ arti_invoke(struct obj *obj)
              * a use-once portal to that dungeon and go there.
              * The closest level is either the entry or dunlev_ureached.
              */
-            newlev.dnum = i;
+            newlev.dungeon_number = i;
             if (gd.dungeons[i].depth_start >= depth(&u.uz))
-                newlev.dlevel = gd.dungeons[i].entry_lev;
+                newlev.level_number = gd.dungeons[i].entry_level;
             else
-                newlev.dlevel = gd.dungeons[i].dunlev_ureached;
+                newlev.level_number = gd.dungeons[i].depth_reached_by_player;
 
             if (u.player_carrying_special_objects.amulet || In_endgame(&u.uz) || In_endgame(&newlev)
-                || newlev.dnum == u.uz.dnum || !next_to_u()) {
+                || newlev.dungeon_number == u.uz.dungeon_number || !next_to_u()) {
                 You_feel("very disoriented for a moment.");
             } else {
                 if (!Blind)
@@ -1873,7 +1873,7 @@ arti_invoke(struct obj *obj)
         case BANISH: {
             int nvanished = 0, nstayed = 0;
             struct monster *mtmp, *mtmp2;
-            d_level dest;
+            dungeon_and_level_numbers dest;
 
             find_hell(&dest);
 
@@ -1902,8 +1902,8 @@ arti_invoke(struct obj *obj)
                     if (!Inhell) {
                         nvanished++;
                         /* banish to a random level in Gehennom */
-                        dest.dlevel = random_integer_between_zero_and(dunlevs_in_dungeon(&dest));
-                        migrate_mon(mtmp, ledger_no(&dest), MIGR_RANDOM);
+                        dest.level_number = random_integer_between_zero_and(dunlevs_in_dungeon(&dest));
+                        migrate_mon(mtmp, ledger_no(&dest), MIGRATE_RANDOM);
                     } else {
                         u_teleport_mon(mtmp, FALSE);
                     }

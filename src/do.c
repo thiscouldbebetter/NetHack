@@ -1253,8 +1253,8 @@ dodown(void)
     }
     if (trap && Is_stronghold(&u.uz)) {
         goto_hell(FALSE, TRUE);
-    } else if (trap && trap->dst.dlevel != -1) {
-        d_level tdst;
+    } else if (trap && trap->dst.level_number != -1) {
+        dungeon_and_level_numbers tdst;
         assign_level(&tdst, &(trap->dst));
         (void) clamp_hole_destination(&tdst);
         goto_level(&tdst, FALSE, FALSE, FALSE);
@@ -1450,7 +1450,7 @@ familiar_level_msg(void)
 
 void
 goto_level(
-    d_level *newlevel, /* destination */
+    dungeon_and_level_numbers *newlevel, /* destination */
     boolean at_stairs, /* True if arriving via stairs/ladder */
     boolean falling,   /* when falling to level, objects might tag along */
     boolean portal)    /* True if arriving via magic portal */
@@ -1460,7 +1460,7 @@ goto_level(
     xint16 new_ledger;
     boolean cant_go_back, great_effort,
             up = (depth(newlevel) < depth(&u.uz)),
-            newdungeon = (u.uz.dnum != newlevel->dnum),
+            newdungeon = (u.uz.dungeon_number != newlevel->dungeon_number),
             leaving_tutorial = FALSE,
             was_in_W_tower = In_W_tower(u.ux, u.uy, &u.uz),
             familiar = FALSE,
@@ -1472,7 +1472,7 @@ goto_level(
     schar prev_temperature = gl.level.flags.temperature;
 
     if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel))
-        newlevel->dlevel = dunlevs_in_dungeon(newlevel);
+        newlevel->level_number = dunlevs_in_dungeon(newlevel);
     if (newdungeon) {
         if (In_endgame(newlevel)) { /* 1st Endgame Level !!! */
             if (!u.player_carrying_special_objects.amulet)
@@ -1520,7 +1520,7 @@ goto_level(
             if (diff != 0) {
                 assign_rnd_level(newlevel, &u.uz, diff);
                 /* assign_rnd_level() may have used a value less than diff */
-                diff = newlevel->dlevel - u.uz.dlevel; /* actual descent */
+                diff = newlevel->level_number - u.uz.level_number; /* actual descent */
                 /* if inside the tower, stay inside */
                 if (was_in_W_tower && !On_W_tower_level(newlevel))
                     diff = 0;
@@ -1583,7 +1583,7 @@ goto_level(
        hero returns to the previous level without any intervening dig */
 
     if (falling) /* assuming this is only trap door or hole */
-        impact_drop((struct obj *) 0, u.ux, u.uy, newlevel->dlevel);
+        impact_drop((struct obj *) 0, u.ux, u.uy, newlevel->level_number);
 
     check_special_room(TRUE); /* probably was a trap door */
     if (Punished)
@@ -1642,7 +1642,7 @@ goto_level(
     /* record this level transition as a potential seen branch unless using
      * some non-standard means of transportation (level teleport).
      */
-    if ((at_stairs || falling || portal) && (u.uz.dnum != newlevel->dnum))
+    if ((at_stairs || falling || portal) && (u.uz.dungeon_number != newlevel->dungeon_number))
         recbranch_mapseen(&u.uz, newlevel);
     assign_level(&u.uz0, &u.uz);
     assign_level(&u.uz, newlevel);
@@ -2012,7 +2012,7 @@ final_level(void)
 
 /* change levels at the end of this turn, after monsters finish moving */
 void
-schedule_goto(d_level *tolev, int utotype_flags,
+schedule_goto(dungeon_and_level_numbers *tolev, int utotype_flags,
               const char *pre_msg, const char *post_msg)
 {
     /* UTOTYPE_DEFERRED is used, so UTOTYPE_NONE can trigger deferred_goto() */
@@ -2031,7 +2031,7 @@ void
 deferred_goto(void)
 {
     if (!on_level(&u.uz, &u.utolev)) {
-        d_level dest, oldlev;
+        dungeon_and_level_numbers dest, oldlev;
         int typmask = u.utotype; /* save it; goto_level zeroes u.utotype */
 
         assign_level(&dest, &u.utolev);

@@ -885,7 +885,7 @@ struct instance_globals_s {
                               messages in artifact_hit() */
 
     /* decl.c */
-    s_level * sp_levchn;
+    special_dungeon_level * sp_levchn;
     stairway *stairs;
     int smeq[MAXNROFROOMS + 1];
     boolean stoned; /* done to monsters hit by 'c' */
@@ -893,7 +893,7 @@ struct instance_globals_s {
     struct mkroom *subrooms;
 
     /* do.c */
-    d_level save_dlevel; /* ? [even back in 3.4.3, only used in bones.c] */
+    dungeon_and_level_numbers save_dlevel; /* ? [even back in 3.4.3, only used in bones.c] */
 
     /* symbols.c */
     struct symsetentry symset[NUM_GRAPHICS];
@@ -1027,7 +1027,7 @@ struct instance_globals_u {
     struct Race urace; /* player's race. May be munged in role_init() */
 
     /* save.c */
-    d_level uz_save;
+    dungeon_and_level_numbers uz_save;
 
     /* new stuff */
     boolean havestate;

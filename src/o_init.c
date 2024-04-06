@@ -7,7 +7,7 @@
 
 #include "hack.h"
 
-staticfn void setgemprobs(d_level *);
+staticfn void setgemprobs(dungeon_and_level_numbers *);
 staticfn void randomize_gem_colors(void);
 staticfn void shuffle(int, int, boolean);
 staticfn void shuffle_all(void);
@@ -51,7 +51,7 @@ shuffle_tiles(void)
 #endif /* TILES_IN_GLYPHMAP */
 
 staticfn void
-setgemprobs(d_level *dlev)
+setgemprobs(dungeon_and_level_numbers *dlev)
 {
     int j, first, lev, sum = 0;
 
@@ -185,7 +185,7 @@ init_objects(void)
         gb.bases[(int) oclass] = first;
 
         if (oclass == GEM_CLASS) {
-            setgemprobs((d_level *) 0);
+            setgemprobs((dungeon_and_level_numbers *) 0);
             randomize_gem_colors();
         }
         first = last;

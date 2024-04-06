@@ -342,7 +342,7 @@ choose_stairs(
             /* no ladder either; look for branch stairs or ladder in any
                direction */
             for (stway = gs.stairs; stway; stway = stway->next)
-                if (stway->tolev.dnum != u.uz.dnum)
+                if (stway->tolev.dungeon_number != u.uz.dungeon_number)
                     break;
             /* if no branch stairs/ladder, check for regular stairs in
                opposite direction, then for regular ladder if necessary */

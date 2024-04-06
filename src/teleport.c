@@ -1117,18 +1117,18 @@ level_tele(void)
 {
     static const char get_there_from[] = "get there from %s.";
     int newlev;
-    d_level newlevel;
+    dungeon_and_level_numbers newlevel;
     const char *escape_by_flying = 0; /* when surviving dest of -N */
     char buf[BUFSZ];
     boolean force_dest = FALSE;
 
     if (iflags.debug_fuzzer) {
         do {
-            newlevel.dnum = random_integer_between_zero_and(gn.n_dgns);
-        } while (newlevel.dnum == astral_level.dnum
-                 || gd.dungeons[newlevel.dnum].flags.unconnected
-                 || !gd.dungeons[newlevel.dnum].num_dunlevs);
-        newlevel.dlevel = 1 + random_integer_between_zero_and(dunlevs_in_dungeon(&newlevel));
+            newlevel.dungeon_number = random_integer_between_zero_and(gn.n_dgns);
+        } while (newlevel.dungeon_number == astral_level.dungeon_number
+                 || gd.dungeons[newlevel.dungeon_number].flags.unconnected
+                 || !gd.dungeons[newlevel.dungeon_number].level_count);
+        newlevel.level_number = 1 + random_integer_between_zero_and(dunlevs_in_dungeon(&newlevel));
         assign_level(&u.ucamefrom, &u.uz);
         schedule_goto(&newlevel, UTOTYPE_NONE, (char *) 0, (char *) 0);
         return;
@@ -1180,8 +1180,8 @@ level_tele(void)
                 if (!newlev)
                     return;
 
-                newlevel.dnum = destdnum;
-                newlevel.dlevel = destlev;
+                newlevel.dungeon_number = destdnum;
+                newlevel.level_number = destlev;
                 if (In_endgame(&newlevel) && !In_endgame(&u.uz)) {
                     struct obj *amu;
 
@@ -1239,7 +1239,7 @@ level_tele(void)
          * we let negative values requests fall into the "heaven" handling.
          */
         if (In_quest(&u.uz) && newlev > 0)
-            newlev = newlev + gd.dungeons[u.uz.dnum].depth_start - 1;
+            newlev = newlev + gd.dungeons[u.uz.dungeon_number].depth_start - 1;
     } else { /* involuntary level tele */
  random_levtport:
         newlev = random_teleport_level();
@@ -1263,8 +1263,8 @@ level_tele(void)
             You_cant(get_there_from, "here");
             return;
         }
-        newlevel.dnum = u.uz.dnum;
-        newlevel.dlevel = llimit + newlev;
+        newlevel.dungeon_number = u.uz.dungeon_number;
+        newlevel.level_number = llimit + newlev;
         schedule_goto(&newlevel, UTOTYPE_NONE, (char *) 0, (char *) 0);
         return;
     }
@@ -1312,12 +1312,12 @@ level_tele(void)
     }
 
     if (gk.killer.name[0]) { /* the chosen destination was not survivable */
-        d_level lsav;
+        dungeon_and_level_numbers lsav;
 
         /* set specific death location; this also suppresses bones */
         lsav = u.uz;   /* save current level, see below */
-        u.uz.dnum = 0; /* main dungeon */
-        u.uz.dlevel = (newlev <= -10) ? -10 : 0; /* heaven or surface */
+        u.uz.dungeon_number = 0; /* main dungeon */
+        u.uz.level_number = (newlev <= -10) ? -10 : 0; /* heaven or surface */
         done(DIED);
         /* can only get here via life-saving (or declining to die in
            explore|debug mode); the hero has now left the dungeon... */
@@ -1331,13 +1331,13 @@ level_tele(void)
         /* [dlevel used to be set to 1, but it doesn't make sense to
             teleport out of the dungeon and float or fly down to the
             surface but then actually arrive back inside the dungeon] */
-        newlevel.dnum = 0;   /* specify main dungeon */
-        newlevel.dlevel = 0; /* escape the dungeon */
+        newlevel.dungeon_number = 0;   /* specify main dungeon */
+        newlevel.level_number = 0; /* escape the dungeon */
     } else if (force_dest) {
         /* wizard mode menu; no further validation needed */
         ;
-    } else if (u.uz.dnum == medusa_level.dnum
-               && newlev >= gd.dungeons[u.uz.dnum].depth_start
+    } else if (u.uz.dungeon_number == medusa_level.dungeon_number
+               && newlev >= gd.dungeons[u.uz.dungeon_number].depth_start
                                 + dunlevs_in_dungeon(&u.uz)) {
         find_hell(&newlevel);
     } else {
@@ -1345,10 +1345,10 @@ level_tele(void)
            which branches don't connect to anything deeper;
            mainly used to distinguish "can't get there from here"
            vs "from anywhere" rather than to control destination */
-        d_level *qbranch = In_quest(&u.uz) ? &qstart_level
+        dungeon_and_level_numbers *qbranch = In_quest(&u.uz) ? &qstart_level
                           : In_mines(&u.uz) ? &mineend_level
                             : &sanctum_level;
-        int deepest = gd.dungeons[qbranch->dnum].depth_start
+        int deepest = gd.dungeons[qbranch->dungeon_number].depth_start
                       + dunlevs_in_dungeon(qbranch) - 1;
 
         /* if invocation did not yet occur, teleporting into
@@ -1394,7 +1394,7 @@ level_tele(void)
 void
 domagicportal(struct trap *ttmp)
 {
-    struct d_level target_level;
+    struct dungeon_and_level_numbers target_level;
     int totype;
     const char *stunmsg = (char *) 0;
 
@@ -1697,7 +1697,7 @@ stairway_find_forwiz(boolean isladder, boolean up)
     stairway *stway = gs.stairs;
 
     while (stway && !(stway->isladder == isladder
-                      && stway->up == up && stway->tolev.dnum == u.uz.dnum))
+                      && stway->up == up && stway->tolev.dungeon_number == u.uz.dungeon_number))
         stway = stway->next;
     return stway;
 }
@@ -1910,8 +1910,8 @@ mlevel_tele_trap(
     if (mtmp == u.monster_stuck_to) /* probably a vortex */
         return Trap_Effect_Finished; /* temporary? kludge */
     if (teleport_pet(mtmp, force_it)) {
-        d_level tolevel;
-        int migrate_typ = MIGR_RANDOM;
+        dungeon_and_level_numbers tolevel;
+        int migrate_typ = MIGRATE_RANDOM;
 
         if (is_hole(tt)) {
             if (Is_stronghold(&u.uz)) {
@@ -1939,7 +1939,7 @@ mlevel_tele_trap(
                 return Trap_Effect_Finished;
             } else {
                 assign_level(&tolevel, &trap->dst);
-                migrate_typ = MIGR_PORTAL;
+                migrate_typ = MIGRATE_PORTAL;
             }
         } else if (tt == LEVEL_TELEP || tt == NO_TRAP) {
             int nlev;
@@ -2111,18 +2111,18 @@ random_teleport_level(void)
      */
     if (In_quest(&u.uz)) {
         int bottom = dunlevs_in_dungeon(&u.uz),
-            qlocate_depth = qlocate_level.dlevel;
+            qlocate_depth = qlocate_level.level_number;
 
         /* if hero hasn't reached the middle locate level yet,
            no one can randomly teleport past it */
         if (dunlev_reached(&u.uz) < qlocate_depth)
             bottom = qlocate_depth;
-        min_depth = gd.dungeons[u.uz.dnum].depth_start;
-        max_depth = bottom + (gd.dungeons[u.uz.dnum].depth_start - 1);
+        min_depth = gd.dungeons[u.uz.dungeon_number].depth_start;
+        max_depth = bottom + (gd.dungeons[u.uz.dungeon_number].depth_start - 1);
     } else {
         min_depth = 1;
         max_depth = dunlevs_in_dungeon(&u.uz)
-                    + (gd.dungeons[u.uz.dnum].depth_start - 1);
+                    + (gd.dungeons[u.uz.dungeon_number].depth_start - 1);
         /* can't reach Sanctum if the invocation hasn't been performed */
         if (Inhell && !u.player_event_history.invoked)
             max_depth -= 1;

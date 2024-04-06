@@ -278,7 +278,7 @@ losedogs(void)
 
     /* check for returning shk(s) */
     for (mtmp = gm.migrating_mons; mtmp; mtmp = mtmp->nmon) {
-        if (mtmp->mux != u.uz.dnum || mtmp->muy != u.uz.dlevel)
+        if (mtmp->mux != u.uz.dungeon_number || mtmp->muy != u.uz.level_number)
             continue;
         if (mtmp->isshk) {
             if (ESHK(mtmp)->dismiss_kops) {
@@ -318,8 +318,8 @@ losedogs(void)
        reason, mon_arrive() will put them on the 'failed_arrivals' list] */
     for (mprev = &gm.migrating_mons; (mtmp = *mprev) != 0; ) {
         xyloc = mtmp->mtrack[0].x; /* (for legibility) */
-        if (mtmp->mux == u.uz.dnum && mtmp->muy == u.uz.dlevel
-            && xyloc == MIGR_EXACT_XY) {
+        if (mtmp->mux == u.uz.dungeon_number && mtmp->muy == u.uz.level_number
+            && xyloc == MIGRATE_EXACT_XY) {
             /* remove mtmp from migrating_mons */
             *mprev = mtmp->nmon;
             mon_arrive(mtmp, Before_you);
@@ -343,8 +343,8 @@ losedogs(void)
        list below */
     for (mprev = &gm.migrating_mons; (mtmp = *mprev) != 0; ) {
         xyloc = mtmp->mtrack[0].x;
-        if (mtmp->mux == u.uz.dnum && mtmp->muy == u.uz.dlevel
-            && xyloc != MIGR_EXACT_XY) {
+        if (mtmp->mux == u.uz.dungeon_number && mtmp->muy == u.uz.level_number
+            && xyloc != MIGRATE_EXACT_XY) {
             /* remove mtmp from migrating_mons */
             *mprev = mtmp->nmon;
             /* note: if there's no room, it ends up on failed_arrivals list */
@@ -379,7 +379,7 @@ mon_arrive(struct monster *mtmp, int when)
     int num_segs;
     boolean failed_to_place = FALSE;
     stairway *stway;
-    d_level fromdlev;
+    dungeon_and_level_numbers fromdlev;
 
     mtmp->nmon = fmon;
     fmon = mtmp;
@@ -406,8 +406,8 @@ mon_arrive(struct monster *mtmp, int when)
     xyflags = mtmp->mtrack[0].y;
     xlocale = mtmp->mtrack[1].x;
     ylocale = mtmp->mtrack[1].y;
-    fromdlev.dnum = mtmp->mtrack[2].x;
-    fromdlev.dlevel = mtmp->mtrack[2].y;
+    fromdlev.dungeon_number = mtmp->mtrack[2].x;
+    fromdlev.level_number = mtmp->mtrack[2].y;
     mon_track_clear(mtmp);
 
     if (mtmp == u.monster_being_ridden)
@@ -426,7 +426,7 @@ mon_arrive(struct monster *mtmp, int when)
         return;
     } else if (when == Wiz_arrive) {
         /* resurrect() is bringing existing wizard to harass the hero */
-        xyloc = MIGR_WITH_HERO;
+        xyloc = MIGRATE_WITH_HERO;
     }
     /*
      * The monster arrived on this level independently of the player.
@@ -446,45 +446,45 @@ mon_arrive(struct monster *mtmp, int when)
         wander = 0;
 
     switch (xyloc) {
-    case MIGR_APPROX_XY: /* {x,y}locale set above */
+    case MIGRATE_APPROX_XY: /* {x,y}locale set above */
         break;
-    case MIGR_EXACT_XY:
+    case MIGRATE_EXACT_XY:
         wander = 0;
         break;
-    case MIGR_WITH_HERO:
+    case MIGRATE_WITH_HERO:
         xlocale = u.ux, ylocale = u.uy;
         break;
-    case MIGR_STAIRS_UP:
+    case MIGRATE_STAIRS_UP:
         if ((stway = stairway_find_from(&fromdlev, FALSE)) != 0) {
             xlocale = stway->sx;
             ylocale = stway->sy;
         }
         break;
-    case MIGR_STAIRS_DOWN:
+    case MIGRATE_STAIRS_DOWN:
         if ((stway = stairway_find_from(&fromdlev, FALSE)) != 0) {
             xlocale = stway->sx;
             ylocale = stway->sy;
         }
         break;
-    case MIGR_LADDER_UP:
+    case MIGRATE_LADDER_UP:
         if ((stway = stairway_find_from(&fromdlev, TRUE)) != 0) {
             xlocale = stway->sx;
             ylocale = stway->sy;
         }
         break;
-    case MIGR_LADDER_DOWN:
+    case MIGRATE_LADDER_DOWN:
         if ((stway = stairway_find_from(&fromdlev, TRUE)) != 0) {
             xlocale = stway->sx;
             ylocale = stway->sy;
         }
         break;
-    case MIGR_SSTAIRS:
+    case MIGRATE_SSTAIRS:
         if ((stway = stairway_find(&fromdlev)) != 0) {
             xlocale = stway->sx;
             ylocale = stway->sy;
         }
         break;
-    case MIGR_PORTAL:
+    case MIGRATE_PORTAL:
         if (In_endgame(&u.uz)) {
             /* there is no arrival portal for endgame levels */
             /* BUG[?]: for simplicity, this code relies on the fact
@@ -511,12 +511,12 @@ mon_arrive(struct monster *mtmp, int when)
             impossible("mon_arrive: no corresponding portal?");
         } /*FALLTHRU*/
     default:
-    case MIGR_RANDOM:
+    case MIGRATE_RANDOM:
         xlocale = ylocale = 0;
         break;
     }
 
-    if ((mtmp->migflags & MIGR_LEFTOVERS) != 0L) {
+    if ((mtmp->migflags & MIGRATE_LEFTOVERS) != 0L) {
         /* Pick up the rest of the MIGR_TO_SPECIES objects */
         if (gm.migrating_objs)
             deliver_obj_to_mon(mtmp, 0, DF_ALL);
@@ -816,7 +816,7 @@ keepdogs(
                priest, vault guard) who have level data in mon->mextra
                in case #wizmakemap is used to replace their home level
                while they're away from it */
-            migrate_to_level(mtmp, ledger_no(&u.uz), MIGR_EXACT_XY,
+            migrate_to_level(mtmp, ledger_no(&u.uz), MIGRATE_EXACT_XY,
                              (coord *) 0);
         } else if (mtmp->mleashed) {
             /* this can happen if your quest leader ejects you from the
@@ -834,7 +834,7 @@ migrate_to_level(
     xint16 xyloc, /* MIGR_xxx destination xy location: */
     coord *cc)   /* optional destination coordinates */
 {
-    d_level new_lev;
+    dungeon_and_level_numbers new_lev;
     coordxy xyflags;
     coordxy mx = mtmp->mx, my = mtmp->my; /* <mx,my> needed below */
     int num_segs; /* count of worm segments */
@@ -850,8 +850,8 @@ migrate_to_level(
     relmon(mtmp, &gm.migrating_mons); /* mtmp->mx,my retain their value */
     mtmp->mstate |= MON_MIGRATING;
 
-    new_lev.dnum = ledger_to_dnum((xint16) tolev);
-    new_lev.dlevel = ledger_to_dlev((xint16) tolev);
+    new_lev.dungeon_number = ledger_to_dnum((xint16) tolev);
+    new_lev.level_number = ledger_to_dlev((xint16) tolev);
     /* overload mtmp->[mx,my], mtmp->[mux,muy], and mtmp->mtrack[] as
        destination codes */
     xyflags = (depth(&new_lev) < depth(&u.uz)); /* 1 => up */
@@ -859,14 +859,14 @@ migrate_to_level(
         xyflags |= 2;
     mtmp->wormno = num_segs;
     mtmp->mlstmv = gm.moves;
-    mtmp->mtrack[2].x = u.uz.dnum; /* migrating from this dungeon */
-    mtmp->mtrack[2].y = u.uz.dlevel; /* migrating from this dungeon level */
+    mtmp->mtrack[2].x = u.uz.dungeon_number; /* migrating from this dungeon */
+    mtmp->mtrack[2].y = u.uz.level_number; /* migrating from this dungeon level */
     mtmp->mtrack[1].x = cc ? cc->x : mx;
     mtmp->mtrack[1].y = cc ? cc->y : my;
     mtmp->mtrack[0].x = xyloc;
     mtmp->mtrack[0].y = xyflags;
-    mtmp->mux = new_lev.dnum;
-    mtmp->muy = new_lev.dlevel;
+    mtmp->mux = new_lev.dungeon_number;
+    mtmp->muy = new_lev.level_number;
     mtmp->mx = mtmp->my = 0; /* mx==0 implies migrating */
 
     /* don't extinguish a mobile light; it still exists but has changed
@@ -883,11 +883,11 @@ discard_migrations(void)
 {
     struct monster *mtmp, **mprev;
     struct obj *otmp, **oprev;
-    d_level dest;
+    dungeon_and_level_numbers dest;
 
     for (mprev = &gm.migrating_mons; (mtmp = *mprev) != 0; ) {
-        dest.dnum = mtmp->mux;
-        dest.dlevel = mtmp->muy;
+        dest.dungeon_number = mtmp->mux;
+        dest.level_number = mtmp->muy;
         /* the Wizard is kept regardless of location so that he is
            ready to be brought back; nothing should be scheduled to
            migrate to the endgame but if we find such, we'll keep it */
@@ -904,8 +904,8 @@ discard_migrations(void)
 
     /* objects get similar treatment */
     for (oprev = &gm.migrating_objs; (otmp = *oprev) != 0; ) {
-        dest.dnum = otmp->ox;
-        dest.dlevel = otmp->oy;
+        dest.dungeon_number = otmp->ox;
+        dest.level_number = otmp->oy;
         /* there is no special case like the Wizard (certainly not the
            Amulet; the hero has to be carrying it to enter the endgame
            which triggers the call to this routine); again we don't
