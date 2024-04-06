@@ -208,14 +208,14 @@
     <ClCompile Include="$(WinTtyDir)getline.c" />
     <ClCompile Include="$(WinTtyDir)topl.c" />
     <ClCompile Include="$(WinTtyDir)wintty.c" />
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)cursdial.c" />
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)cursinit.c" />
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)cursinvt.c" />
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)cursmain.c" />
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)cursmesg.c" />
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)cursmisc.c" />
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)cursstat.c" />
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curswins.c" />
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_dialog.c" />
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_initialize.c" />
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_inventory.c" />
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_main.c" />
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_messages.c" />
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_miscellaneous.c" />
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_status.c" />
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_windows.c" />
     <ClCompile Condition="Exists('$(FMODINCDIR)\fmod.h') And Exists('$(FMODLIBLIB)') And Exists('$(FMODLIBDLL)')" Include="$(FMODSRC)" />
   </ItemGroup>
   <ItemGroup>
@@ -281,13 +281,13 @@
     <ClInclude Include="$(IncDir)you.h" />
     <ClInclude Include="$(IncDir)youprop.h" />
     <ClInclude Include="$(WinWin32Dir)nhresource.h" />
-    <ClInclude Include="$(WinCursDir)cursdial.h" />
-    <ClInclude Include="$(WinCursDir)cursinit.h" />
-    <ClInclude Include="$(WinCursDir)cursinvt.h" />
-    <ClInclude Include="$(WinCursDir)cursmesg.h" />
-    <ClInclude Include="$(WinCursDir)cursmisc.h" />
-    <ClInclude Include="$(WinCursDir)cursstat.h" />
-    <ClInclude Include="$(WinCursDir)curswins.h" />
+    <ClInclude Include="$(WinCursDir)curses_dialog.h" />
+    <ClInclude Include="$(WinCursDir)curses_initialize.h" />
+    <ClInclude Include="$(WinCursDir)curses_inventory.h" />
+    <ClInclude Include="$(WinCursDir)curses_messages.h" />
+    <ClInclude Include="$(WinCursDir)curses_miscellaneous.h" />
+    <ClInclude Include="$(WinCursDir)curses_status.h" />
+    <ClInclude Include="$(WinCursDir)curses_windows.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(WinWin32Dir)NetHack.rc" />

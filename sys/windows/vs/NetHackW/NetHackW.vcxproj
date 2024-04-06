@@ -212,16 +212,16 @@
     <ClCompile Include="$(SrcDir)worn.c" />
     <ClCompile Include="$(SrcDir)write.c" />
     <ClCompile Include="$(SrcDir)zap.c" />
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)cursdial.c" />
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)cursinit.c" />
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)cursinvt.c" />
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)cursmain.c" />
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)cursmesg.c">
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_dialog.c" />
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_initialize.c" />
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_inventory.c" />
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_main.c" />
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_messages.c">
       <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4820;4706;4244;4245;4100;4310;6001</DisableSpecificWarnings>
     </ClCompile>
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)cursmisc.c" />
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)cursstat.c" />
-    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curswins.c" />
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_miscellaneous.c" />
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_status.c" />
+    <ClCompile Condition="Exists('$(PDCURSES)')" Include="$(WinCursDir)curses_windows.c" />
     <ClCompile Condition="Exists('$(FMODINCDIR)\fmod.h') And Exists('$(FMODLIBLIB)') And Exists('$(FMODLIBDLL)')" Include="$(FMODSRC)">
       <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4820;4706;4244;4245;4100;4310;4201</DisableSpecificWarnings>
       <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4820;4706;4244;4245;4100;4310;4201</DisableSpecificWarnings>
