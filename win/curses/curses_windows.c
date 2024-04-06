@@ -1,7 +1,9 @@
 /* vim:set cin ft=c sw=4 sts=4 ts=8 et ai cino=Ls\:0t0(0 : -*- mode:c;fill-column:80;tab-width:8;c-basic-offset:4;indent-tabs-mode:nil;c-file-style:"k&r" -*-*/
-/* NetHack 3.7 curswins.c */
+/* NetHack 3.7 curses_windows.c */
 /* Copyright (c) Karl Garrison, 2010. */
 /* NetHack may be freely redistributed.  See license for details. */
+
+/* Modified by This Could Be Better, 2024. */
 
 #if defined(CURSES_UNICODE) && !defined(_XOPEN_SOURCE_EXTENDED)
 #define _XOPEN_SOURCE_EXTENDED 1
@@ -9,10 +11,10 @@
 #include "curses.h"
 #include "hack.h"
 #include "wincurs.h"
-#include "cursinit.h"
-#include "cursmisc.h"
-#include "curswins.h"
-#include "cursstat.h"
+#include "curses_initialize.h"
+#include "curses_miscellaneous.h"
+#include "curses_windows.h"
+#include "curses_status.h"
 
 /* Window handling for curses interface */
 

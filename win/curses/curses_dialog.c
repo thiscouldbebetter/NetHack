@@ -1,15 +1,17 @@
 /* vim:set cin ft=c sw=4 sts=4 ts=8 et ai cino=Ls\:0t0(0 : -*- mode:c;fill-column:80;tab-width:8;c-basic-offset:4;indent-tabs-mode:nil;c-file-style:"k&r" -*-*/
-/* NetHack 3.7 cursdial.c */
+/* NetHack 3.7 curses_dialog.c */
 /* Copyright (c) Karl Garrison, 2010. */
 /* NetHack may be freely redistributed.  See license for details. */
+
+/* Modified by This Could Be Better, 2024. */
 
 #include "curses.h"
 #include "hack.h"
 #include "wincurs.h"
-#include "cursinit.h"
-#include "curswins.h"
-#include "cursmisc.h"
-#include "cursdial.h"
+#include "curses_initialize.h"
+#include "curses_windows.h"
+#include "curses_miscellaneous.h"
+#include "curses_dialog.h"
 #include "func_tab.h"
 #include <ctype.h>
 
