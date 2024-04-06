@@ -898,7 +898,7 @@ int
 abon(void)
 {
     int sbon;
-    int str = ATTRIBUTE_CURRENT(A_STR), dex = ATTRIBUTE_CURRENT(A_DEX);
+    int str = ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH), dex = ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY);
 
     if (Upolyd)
         return (adj_lev(&mons[u.umonnum]) - 3);
@@ -908,9 +908,9 @@ abon(void)
         sbon = -1;
     else if (str < 17)
         sbon = 0;
-    else if (str <= STR18(50))
+    else if (str <= STRENGTH18(50))
         sbon = 1; /* up to 18/50 */
-    else if (str < STR18(100))
+    else if (str < STRENGTH18(100))
         sbon = 2;
     else
         sbon = 3;
@@ -935,7 +935,7 @@ abon(void)
 int
 dbon(void)
 {
-    int str = ATTRIBUTE_CURRENT(A_STR);
+    int str = ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH);
 
     if (Upolyd)
         return 0;
@@ -948,11 +948,11 @@ dbon(void)
         return 1;
     else if (str == 18)
         return 2; /* up to 18 */
-    else if (str <= STR18(75))
+    else if (str <= STRENGTH18(75))
         return 3; /* up to 18/75 */
-    else if (str <= STR18(90))
+    else if (str <= STRENGTH18(90))
         return 4; /* up to 18/90 */
-    else if (str < STR18(100))
+    else if (str < STRENGTH18(100))
         return 5; /* up to 18/99 */
     else
         return 6;
@@ -1281,7 +1281,7 @@ enhance_weapon_skill(void)
                 }
                 any.a_int = can_advance(i, speedy) ? i + 1 : 0;
                 add_menu(win, &nul_glyphinfo, &any, 0, 0,
-                         ATR_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
+                         TEXT_ATTRIBUTE_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
             }
 
         Strcpy(buf, (to_advance > 0) ? "Pick a skill to advance:"

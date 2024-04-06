@@ -319,7 +319,7 @@ onWMPaint(HWND hWnd, WPARAM wParam, LPARAM lParam)
             for (int i = 0; i < status_line->status_strings.count; i++) {
                 mswin_status_string * status_string = status_line->status_strings.status_strings[i];
                 int clr, atr;
-                int fntatr = ATR_NONE;
+                int fntatr = TEXT_ATTRIBUTE_NONE;
                 COLORREF nFg, nBg;
 
                 if (status_string->str == NULL || status_string->str[0] == '\0')
@@ -332,21 +332,21 @@ onWMPaint(HWND hWnd, WPARAM wParam, LPARAM lParam)
 
                 vlen = strlen(str);
 
-                if (atr & HL_BOLD)
-                    fntatr = ATR_BOLD;
-                else if (atr & HL_INVERSE)
-                    fntatr = ATR_INVERSE;
-                else if (atr & HL_ULINE)
-                    fntatr = ATR_ULINE;
-                else if (atr & HL_BLINK) {
+                if (atr & HIGHLIGHT_BOLD)
+                    fntatr = TEXT_ATTRIBUTE_BOLD;
+                else if (atr & HIGHLIGHT_INVERSE)
+                    fntatr = TEXT_ATTRIBUTE_INVERSE;
+                else if (atr & HIGHLIGHT_UNDERLINE)
+                    fntatr = TEXT_ATTRIBUTE_ULINE;
+                else if (atr & HIGHLIGHT_BLINK) {
                     data->has_blink_fields = TRUE;
                     if (data->blink_state) {
-                        fntatr = ATR_INVERSE;
-                        atr |= HL_INVERSE;
+                        fntatr = TEXT_ATTRIBUTE_INVERSE;
+                        atr |= HIGHLIGHT_INVERSE;
                     }
                 }
-                else if (atr & HL_DIM)
-                    fntatr = ATR_DIM;
+                else if (atr & HIGHLIGHT_DIM)
+                    fntatr = TEXT_ATTRIBUTE_DIM;
 
                 cached_font * fnt = mswin_get_font(NHW_STATUS, fntatr, hdc, FALSE);
 
@@ -358,7 +358,7 @@ onWMPaint(HWND hWnd, WPARAM wParam, LPARAM lParam)
                     : ((clr >= 0 && clr < COLOR_CODE_MAX) ? nhcolor_to_RGB(clr)
                         : status_fg_color));
 
-                if (atr & HL_DIM) {
+                if (atr & HIGHLIGHT_DIM) {
                     /* make a dim representation - this can produce color shift */
                     float redReduction = 0.5f;
                     float greenReduction = 0.5f;
@@ -429,7 +429,7 @@ onWMPaint(HWND hWnd, WPARAM wParam, LPARAM lParam)
                     DeleteObject(back_brush);
                 }
                 else {
-                    if (atr & HL_INVERSE) {
+                    if (atr & HIGHLIGHT_INVERSE) {
                         COLORREF tmp = nFg;
                         nFg = nBg;
                         nBg = tmp;
@@ -484,7 +484,7 @@ mswin_status_window_size(HWND hWnd, LPSIZE sz)
     PNHStatusWindow data = (PNHStatusWindow) GetWindowLongPtr(hWnd, GWLP_USERDATA);
     if (data) {
         HDC hdc = GetDC(hWnd);
-        cached_font * font = mswin_get_font(NHW_STATUS, ATR_NONE, hdc, FALSE);
+        cached_font * font = mswin_get_font(NHW_STATUS, TEXT_ATTRIBUTE_NONE, hdc, FALSE);
         HGDIOBJ saveFont = SelectObject(hdc, font->hFont);
 
         SIZE text_sz;

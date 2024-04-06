@@ -1207,7 +1207,7 @@ init_dungeons(void)
     int i, cl = 0;
     struct proto_dungeon pd;
     int tidx;
-    nhl_sandbox_info sbi = {NHL_SB_SAFE, 1*1024*1024, 0, 1*1024*1024};
+    nhl_sandbox_info sbi = {NHIGHLIGHT_SB_SAFE, 1*1024*1024, 0, 1*1024*1024};
 
     (void) memset(&pd, 0, sizeof (struct proto_dungeon));
     pd.n_levs = pd.n_brs = 0;
@@ -2190,7 +2190,7 @@ tport_menu(
         any.a_int = lchoices->idx + 1;
     }
     add_menu(win, &nul_glyphinfo, &any, lchoices->menuletter, 0,
-             ATR_NONE, clr, entry, MENU_ITEMFLAGS_NONE);
+             TEXT_ATTRIBUTE_NONE, clr, entry, MENU_ITEMFLAGS_NONE);
     /* this assumes there are at most 52 interesting levels */
     if (lchoices->menuletter == 'z')
         lchoices->menuletter = 'A';
@@ -3581,7 +3581,7 @@ print_mapseen(
     any = cg.zeroany;
     if (final == -1)
         any.a_int = ledger_no(&(mptr->lev)) + 1;
-    add_menu(win, &nul_glyphinfo, &any, 0, 0, ATR_NONE, COLOR_CODE_NONE,
+    add_menu(win, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE, COLOR_CODE_NONE,
              buf, MENU_ITEMFLAGS_NONE);
 
     if (mptr->flags.forgot)

@@ -417,14 +417,14 @@ do_earthquake(int force)
                         boolean keepfooting =
                                 (!(Fumbling && random_integer_between_zero_and(5))
                                  && (!(rnl(Role_if(PM_ARCHEOLOGIST) ? 3 : 9))
-                                     || ((ATTRIBUTE_CURRENT(A_DEX) > 7) && random_integer_between_zero_and(5))));
+                                     || ((ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) > 7) && random_integer_between_zero_and(5))));
 
                         You("are jostled around violently!");
                         set_utrap(rn1(6, 2), TT_PIT);
                         losehp(Maybe_Half_Phys(random(keepfooting ? 2 : 4)),
                                "hurt in a chasm", NO_KILLER_PREFIX);
                         if (keepfooting)
-                            exercise(A_DEX, TRUE);
+                            exercise(ATTRIBUTE_DEXTERITY, TRUE);
                         else
                             selftouch((Upolyd && (slithy(gy.youmonst.data)
                                                 || nolimbs(gy.youmonst.data)))
@@ -577,10 +577,10 @@ do_improvisation(struct obj *instr)
             same_old_song ? ", familiar" : "");
         Hero_playnotes(obj_to_instr(&itmp), improvisation, 50);
         put_monsters_to_sleep(u.ulevel * 5);
-        exercise(A_DEX, TRUE);
+        exercise(ATTRIBUTE_DEXTERITY, TRUE);
         break;
     case WOODEN_FLUTE: /* May charm snakes */
-        do_spec &= (random_integer_between_zero_and(ATTRIBUTE_CURRENT(A_DEX)) + u.ulevel > 25);
+        do_spec &= (random_integer_between_zero_and(ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY)) + u.ulevel > 25);
         if (!Deaf)
             pline("%s%s.", Tobjnam(instr, do_spec ? "trill" : "toot"),
                   same_old_song ? " a familiar tune" : "");
@@ -589,7 +589,7 @@ do_improvisation(struct obj *instr)
         Hero_playnotes(obj_to_instr(&itmp), improvisation, 50);
         if (do_spec)
             charm_snakes(u.ulevel * 3);
-        exercise(A_DEX, TRUE);
+        exercise(ATTRIBUTE_DEXTERITY, TRUE);
         break;
     case FIRE_HORN:  /* Idem wand of fire */
     case FROST_HORN: /* Idem wand of cold */
@@ -627,7 +627,7 @@ do_improvisation(struct obj *instr)
             You("blow into the horn.");
         Hero_playnotes(obj_to_instr(&itmp), improvisation, 80);
         awaken_monsters(u.ulevel * 30);
-        exercise(A_WIS, FALSE);
+        exercise(ATTRIBUTE_WISDOM, FALSE);
         break;
     case BUGLE: /* Awaken & attract soldiers */
         if (!Deaf)
@@ -637,7 +637,7 @@ do_improvisation(struct obj *instr)
             You("blow into the bugle.");
         Hero_playnotes(obj_to_instr(&itmp), improvisation, 80);
         awaken_soldiers(&gy.youmonst);
-        exercise(A_WIS, FALSE);
+        exercise(ATTRIBUTE_WISDOM, FALSE);
         break;
     case MAGIC_HARP: /* Charm monsters */
         consume_obj_charge(instr, TRUE);
@@ -650,10 +650,10 @@ do_improvisation(struct obj *instr)
             You_feel("very soothing vibrations.");
         Hero_playnotes(obj_to_instr(&itmp), improvisation, 50);
         charm_monsters((u.ulevel - 1) / 3 + 1);
-        exercise(A_DEX, TRUE);
+        exercise(ATTRIBUTE_DEXTERITY, TRUE);
         break;
     case WOODEN_HARP: /* May calm Nymph */
-        do_spec &= (random_integer_between_zero_and(ATTRIBUTE_CURRENT(A_DEX)) + u.ulevel > 25);
+        do_spec &= (random_integer_between_zero_and(ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY)) + u.ulevel > 25);
         if (!Deaf)
             pline("%s %s.", Yname2(instr),
                   (do_spec && same_old_song)
@@ -666,7 +666,7 @@ do_improvisation(struct obj *instr)
         Hero_playnotes(obj_to_instr(&itmp), improvisation, 50);
         if (do_spec)
             calm_nymphs(u.ulevel * 3);
-        exercise(A_DEX, TRUE);
+        exercise(ATTRIBUTE_DEXTERITY, TRUE);
         break;
     case DRUM_OF_EARTHQUAKE: /* create several pits */
         /* a drum of earthquake does not cause deafness
@@ -693,7 +693,7 @@ do_improvisation(struct obj *instr)
             } else {
                 You("pound on the drum.");
             }
-            exercise(A_WIS, FALSE);
+            exercise(ATTRIBUTE_WISDOM, FALSE);
         } else {
             /* TODO maybe: sound effects for these riffs */
             You("%s %s.",
@@ -795,7 +795,7 @@ do_play_instrument(struct obj *instr)
      * and if the tune conforms to what we're waiting for.
      */
     if (Is_stronghold(&u.uz)) {
-        exercise(A_WIS, TRUE); /* just for trying */
+        exercise(ATTRIBUTE_WISDOM, TRUE); /* just for trying */
         if (!strcmp(buf, gt.tune)) {
             /* Search for the drawbridge */
             for (y = u.uy - 1; y <= u.uy + 1; y++)

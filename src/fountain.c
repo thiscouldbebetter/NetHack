@@ -174,7 +174,7 @@ dofindgem(void)
                      FALSE, FALSE);
     SET_FOUNTAIN_LOOTED(u.ux, u.uy);
     newsym(u.ux, u.uy);
-    exercise(A_WIS, TRUE); /* a discovery! */
+    exercise(ATTRIBUTE_WISDOM, TRUE); /* a discovery! */
 }
 
 staticfn boolean
@@ -258,22 +258,22 @@ drinkfountain(void)
 
         pline("Wow!  This makes you feel great!");
         /* blessed restore ability */
-        for (ii = 0; ii < A_MAX; ii++)
-            if (ATTRIBUTE_BASE(ii) < AMAX(ii)) {
-                ATTRIBUTE_BASE(ii) = AMAX(ii);
+        for (ii = 0; ii < ATTRIBUTE_COUNT; ii++)
+            if (ATTRIBUTE_BASE(ii) < ATTRIBUTE_MAX(ii)) {
+                ATTRIBUTE_BASE(ii) = ATTRIBUTE_MAX(ii);
                 disp.botl = TRUE;
             }
         /* gain ability, blessed if "natural" luck is high */
-        i = random_integer_between_zero_and(A_MAX); /* start at a random attribute */
-        for (ii = 0; ii < A_MAX; ii++) {
+        i = random_integer_between_zero_and(ATTRIBUTE_COUNT); /* start at a random attribute */
+        for (ii = 0; ii < ATTRIBUTE_COUNT; ii++) {
             if (adjust_attribute(i, 1, littleluck ? -1 : 0) && littleluck)
                 break;
-            if (++i >= A_MAX)
+            if (++i >= ATTRIBUTE_COUNT)
                 i = 0;
         }
         display_nhwindow(WIN_MESSAGE, FALSE);
         pline("A wisp of vapor escapes the fountain...");
-        exercise(A_WIS, TRUE);
+        exercise(ATTRIBUTE_WISDOM, TRUE);
         levl[u.ux][u.uy].blessedftn = 0;
         return;
     }
@@ -290,7 +290,7 @@ drinkfountain(void)
             You_feel("self-knowledgeable...");
             display_nhwindow(WIN_MESSAGE, FALSE);
             enlightenment(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS);
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
             pline_The("feeling subsides.");
             break;
         case 20: /* Foul water */
@@ -308,7 +308,7 @@ drinkfountain(void)
             }
             poison_strdmg(rn1(4, 3), random(10), "contaminated water",
                           KILLED_BY);
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             break;
         case 22: /* Fountain of snakes! */
             dowatersnakes();
@@ -322,7 +322,7 @@ drinkfountain(void)
 
             pline("This water's no good!");
             morehungry(rn1(20, 11));
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             /* this is more severe than rndcurse() */
             for (obj = gi.invent; obj; obj = obj->nobj)
                 if (obj->oclass != COIN_CLASS && !obj->cursed && !random_integer_between_zero_and(5)) {
@@ -347,12 +347,12 @@ drinkfountain(void)
             }
             HSee_invisible |= FROMOUTSIDE;
             newsym(u.ux, u.uy);
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
             break;
         case 26: /* See Monsters */
             if (monster_detect((struct obj *) 0, 0))
                 pline_The("%s tastes like nothing.", hliquid("water"));
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
             break;
         case 27: /* Find a gem in the sparkling waters. */
             if (!FOUNTAIN_IS_LOOTED(u.ux, u.uy)) {
@@ -416,7 +416,7 @@ dipfountain(struct obj *obj)
             if (obj->spe > -6 && !random_integer_between_zero_and(3))
                 obj->spe--;
             obj->oerodeproof = FALSE;
-            exercise(A_WIS, FALSE);
+            exercise(ATTRIBUTE_WISDOM, FALSE);
             livelog_printf(LL_ARTIFACT,
                            "was denied %s!  The %s has deemed %s unworthy",
                            artiname(ART_EXCALIBUR), lady, uhim());
@@ -432,7 +432,7 @@ dipfountain(struct obj *obj)
             bless(obj);
             obj->oeroded = obj->oeroded2 = 0;
             obj->oerodeproof = TRUE;
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
             livelog_printf(LL_ARTIFACT, "was given %s by the %s",
                            artiname(ART_EXCALIBUR), lady);
         }
@@ -518,7 +518,7 @@ dipfountain(struct obj *obj)
                     }
                 You("lost some of your gold in the fountain!");
                 CLEAR_FOUNTAIN_LOOTED(u.ux, u.uy);
-                exercise(A_WIS, FALSE);
+                exercise(ATTRIBUTE_WISDOM, FALSE);
             }
         }
         break;
@@ -536,7 +536,7 @@ dipfountain(struct obj *obj)
         if (!Blind)
             pline("Far below you, you see coins glistening in the %s.",
                   hliquid("water"));
-        exercise(A_WIS, TRUE);
+        exercise(ATTRIBUTE_WISDOM, TRUE);
         newsym(u.ux, u.uy);
         break;
     default:
@@ -647,7 +647,7 @@ drinksink(void)
             You("find a ring in the sink!");
             (void) mkobj_at(RING_CLASS, u.ux, u.uy, TRUE);
             levl[u.ux][u.uy].looted |= S_LRING;
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
             newsym(u.ux, u.uy);
         } else
             pline("Some dirty %s backs up in the drain.", hliquid("water"));
@@ -668,7 +668,7 @@ drinksink(void)
         break;
     case 9:
         pline("Gaggg... this tastes like sewage!  You vomit.");
-        morehungry(rn1(30 - ATTRIBUTE_CURRENT(A_CON), 11));
+        morehungry(rn1(30 - ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION), 11));
         vomit();
         break;
     case 10:
@@ -811,8 +811,8 @@ sink_backs_up(coordxy x, coordxy y)
             You_see("a ring shining in its midst.");
         (void) mkobj_at(RING_CLASS, x, y, TRUE);
         newsym(x, y);
-        exercise(A_DEX, TRUE);
-        exercise(A_WIS, TRUE); /* a discovery! */
+        exercise(ATTRIBUTE_DEXTERITY, TRUE);
+        exercise(ATTRIBUTE_WISDOM, TRUE); /* a discovery! */
         levl[x][y].looted |= S_LRING;
     }
 }

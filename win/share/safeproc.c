@@ -462,7 +462,7 @@ safe_status_enablefield(
 {
 }
 
-/* call once for each field, then call with BL_FLUSH to output the result */
+/* call once for each field, then call with CONDITION_FLUSH to output the result */
 void
 safe_status_update(
     int idx UNUSED,

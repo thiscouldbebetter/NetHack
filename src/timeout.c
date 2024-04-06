@@ -179,7 +179,7 @@ stoned_dialogue(void)
     default:
         break;
     }
-    exercise(A_DEX, FALSE);
+    exercise(ATTRIBUTE_DEXTERITY, FALSE);
 }
 
 /* hero is getting sicker and sicker prior to vomiting */
@@ -258,7 +258,7 @@ vomiting_dialogue(void)
     }
     if (txt)
         You1(txt);
-    exercise(A_CON, FALSE);
+    exercise(ATTRIBUTE_CONSTITUTION, FALSE);
 }
 
 staticfn void
@@ -307,7 +307,7 @@ choke_dialogue(void)
             stop_occupation();
         }
     }
-    exercise(A_STR, FALSE);
+    exercise(ATTRIBUTE_STRENGTH, FALSE);
 }
 
 static NEARDATA const char *const sickness_texts[] = {
@@ -338,7 +338,7 @@ sickness_dialogue(void)
         }
         urgent_pline("%s", buf);
     }
-    exercise(A_CON, FALSE);
+    exercise(ATTRIBUTE_CONSTITUTION, FALSE);
 }
 
 static NEARDATA const char *const levi_texts[] = {
@@ -436,7 +436,7 @@ slime_dialogue(void)
             make_stoned(0L, (char *) 0, KILLED_BY_AN, (char *) 0);
         break;
     }
-    exercise(A_DEX, FALSE);
+    exercise(ATTRIBUTE_DEXTERITY, FALSE);
 }
 
 RESTORE_WARNING_FORMAT_NONLITERAL
@@ -659,11 +659,11 @@ nh_timeout(void)
                 /* hero might be able to bounce back from food poisoning,
                    but not other forms of illness */
                 if ((u.usick_type & SICK_NONVOMITABLE) == 0
-                    && random_integer_between_zero_and(100) < ATTRIBUTE_CURRENT(A_CON)) {
+                    && random_integer_between_zero_and(100) < ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION)) {
                     You("have recovered from your illness.");
                     make_sick(0, NULL, FALSE, SICK_ALL);
-                    exercise(A_CON, FALSE);
-                    adjust_attribute(A_CON, -1, 1);
+                    exercise(ATTRIBUTE_CONSTITUTION, FALSE);
+                    adjust_attribute(ATTRIBUTE_CONSTITUTION, -1, 1);
                     break;
                 }
                 urgent_pline("You die from your illness.");
@@ -1237,7 +1237,7 @@ slip_or_trip(void)
             && (!ice_only || !random_integer_between_zero_and(3))) {
             You("lose your balance.");
             dismount_steed(DISMOUNT_FELL);
-        } else if (!random_integer_between_zero_and(10 + ATTRIBUTE_CURRENT(A_DEX))) {
+        } else if (!random_integer_between_zero_and(10 + ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY))) {
             /* Maybe slip in a random direction.  This takes place after
                the hero has already changed location.  If the hero is
                in grid bug form, only allow forward hurtle, otherwise a

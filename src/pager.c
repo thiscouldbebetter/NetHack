@@ -1613,15 +1613,15 @@ do_look(int mode, coord *click_cc)
             /* 'y' and 'n' to keep backwards compatibility with previous
                versions: "Specify unknown object by cursor?" */
             add_menu(win, &nul_glyphinfo, &any,
-                     flags.lootabc ? 0 : any.a_char, 'y', ATR_NONE,
+                     flags.lootabc ? 0 : any.a_char, 'y', TEXT_ATTRIBUTE_NONE,
                      clr, "something on the map", MENU_ITEMFLAGS_NONE);
             any.a_char = 'i';
             add_menu(win, &nul_glyphinfo, &any,
-                     flags.lootabc ? 0 : any.a_char, 0, ATR_NONE,
+                     flags.lootabc ? 0 : any.a_char, 0, TEXT_ATTRIBUTE_NONE,
                      clr, "something you're carrying", MENU_ITEMFLAGS_NONE);
             any.a_char = '?';
             add_menu(win, &nul_glyphinfo, &any,
-                     flags.lootabc ? 0 : any.a_char, 'n', ATR_NONE,
+                     flags.lootabc ? 0 : any.a_char, 'n', TEXT_ATTRIBUTE_NONE,
                      clr, "something else (by symbol or name)",
                      MENU_ITEMFLAGS_NONE);
             if (!u.uswallow && !Hallucination) {
@@ -1634,36 +1634,36 @@ do_look(int mode, coord *click_cc)
                    bogus monster type, so suppress when hallucinating */
                 any.a_char = 'm';
                 add_menu(win, &nul_glyphinfo, &any,
-                         flags.lootabc ? 0 : any.a_char, 0, ATR_NONE,
+                         flags.lootabc ? 0 : any.a_char, 0, TEXT_ATTRIBUTE_NONE,
                          clr, "nearby monsters", MENU_ITEMFLAGS_NONE);
                 any.a_char = 'M';
                 add_menu(win, &nul_glyphinfo, &any,
-                         flags.lootabc ? 0 : any.a_char, 0, ATR_NONE, clr,
+                         flags.lootabc ? 0 : any.a_char, 0, TEXT_ATTRIBUTE_NONE, clr,
                          "all monsters shown on map", MENU_ITEMFLAGS_NONE);
                 any.a_char = 'o';
                 add_menu(win, &nul_glyphinfo, &any,
-                         flags.lootabc ? 0 : any.a_char, 0, ATR_NONE,
+                         flags.lootabc ? 0 : any.a_char, 0, TEXT_ATTRIBUTE_NONE,
                          clr, "nearby objects", MENU_ITEMFLAGS_NONE);
                 any.a_char = 'O';
                 add_menu(win, &nul_glyphinfo, &any,
-                         flags.lootabc ? 0 : any.a_char, 0, ATR_NONE, clr,
+                         flags.lootabc ? 0 : any.a_char, 0, TEXT_ATTRIBUTE_NONE, clr,
                          "all objects shown on map", MENU_ITEMFLAGS_NONE);
                 any.a_char = 't';
                 add_menu(win, &nul_glyphinfo, &any,
-                         flags.lootabc ? 0 : any.a_char, '^', ATR_NONE,
+                         flags.lootabc ? 0 : any.a_char, '^', TEXT_ATTRIBUTE_NONE,
                          clr, "nearby traps", MENU_ITEMFLAGS_NONE);
                 any.a_char = 'T';
                 add_menu(win, &nul_glyphinfo, &any,
-                         flags.lootabc ? 0 : any.a_char, '\"', ATR_NONE,
+                         flags.lootabc ? 0 : any.a_char, '\"', TEXT_ATTRIBUTE_NONE,
                          clr, "all seen or remembered traps",
                          MENU_ITEMFLAGS_NONE);
                 any.a_char = 'e';
                 add_menu(win, &nul_glyphinfo, &any,
-                         flags.lootabc ? 0 : any.a_char, '`', ATR_NONE,
+                         flags.lootabc ? 0 : any.a_char, '`', TEXT_ATTRIBUTE_NONE,
                          clr, "nearby engravings", MENU_ITEMFLAGS_NONE);
                 any.a_char = 'E';
                 add_menu(win, &nul_glyphinfo, &any,
-                         flags.lootabc ? 0 : any.a_char, '|', ATR_NONE,
+                         flags.lootabc ? 0 : any.a_char, '|', TEXT_ATTRIBUTE_NONE,
                          clr, "all seen or remembered engravings",
                          MENU_ITEMFLAGS_NONE);
             }
@@ -2756,7 +2756,7 @@ dohelp(void)
             Strcpy(helpbuf, help_menu_items[i].text);
         }
         any.a_int = i + 1;
-        add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0, ATR_NONE, clr,
+        add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE, clr,
                  helpbuf, MENU_ITEMFLAGS_NONE);
     }
     end_menu(tmpwin, "Select one item:");

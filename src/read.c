@@ -1113,8 +1113,8 @@ seffect_enchant_armor(struct obj **sobjp)
                         ? "Your skin glows then fades."
                         : "Your skin feels warm for a moment.");
         *sobjp = 0; /* useup() in strange_feeling() */
-        exercise(A_CON, !scursed);
-        exercise(A_STR, !scursed);
+        exercise(ATTRIBUTE_CONSTITUTION, !scursed);
+        exercise(ATTRIBUTE_STRENGTH, !scursed);
         return;
     }
     if (confused) {
@@ -1258,8 +1258,8 @@ seffect_destroy_armor(struct obj **sobjp)
         if (!otmp) {
             strange_feeling(sobj, "Your bones itch.");
             *sobjp = 0; /* useup() in strange_feeling() */
-            exercise(A_STR, FALSE);
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             return;
         }
         old_erodeproof = (otmp->oerodeproof != 0);
@@ -1278,8 +1278,8 @@ seffect_destroy_armor(struct obj **sobjp)
         if (!destroy_arm(otmp)) {
             strange_feeling(sobj, "Your skin itches.");
             *sobjp = 0; /* useup() in strange_feeling() */
-            exercise(A_STR, FALSE);
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             return;
         } else
             gk.known = TRUE;
@@ -1739,7 +1739,7 @@ seffect_amnesia(struct obj **sobjp)
         pline("Who was that Maud person anyway?");
     else
         pline("Thinking of Maud you forget everything else.");
-    exercise(A_WIS, FALSE);
+    exercise(ATTRIBUTE_WISDOM, FALSE);
 }
 
 staticfn void
@@ -2089,7 +2089,7 @@ seffects(struct obj *sobj) /* sobj - scroll or fake spellbook for spell */
     int otyp = sobj->otyp;
 
     if (objects[otyp].oc_magic)
-        exercise(A_WIS, TRUE);                       /* just for trying */
+        exercise(ATTRIBUTE_WISDOM, TRUE);                       /* just for trying */
 
     switch (otyp) {
 #ifdef MAIL_STRUCTURES
@@ -2345,7 +2345,7 @@ wand_explode(struct obj* obj, int chg /* recharging */)
     losehp(Maybe_Half_Phys(dmg), "exploding wand", KILLED_BY_AN);
     useup(obj);
     /* obscure side-effect */
-    exercise(A_STR, FALSE);
+    exercise(ATTRIBUTE_STRENGTH, FALSE);
 }
 
 /* used to collect gremlins being hit by light so that they can be processed

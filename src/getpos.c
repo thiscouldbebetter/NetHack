@@ -685,7 +685,7 @@ getpos_menu(coord *ccp, int gloc)
             Snprintf(fullbuf, sizeof fullbuf, "%s%s%s", firstmatch,
                     (*tmpbuf ? " " : ""), tmpbuf);
             add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                     ATR_NONE, clr, fullbuf, MENU_ITEMFLAGS_NONE);
+                     TEXT_ATTRIBUTE_NONE, clr, fullbuf, MENU_ITEMFLAGS_NONE);
         }
     }
 

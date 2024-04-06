@@ -219,7 +219,7 @@ in_trouble(void)
         return TROUBLE_HIT;
     if (ismnum(u.ulycn))
         return TROUBLE_LYCANTHROPE;
-    if (near_capacity() >= EXTREMELY_ENCUMBERED && AMAX(A_STR) - ATTRIBUTE_BASE(A_STR) > 3)
+    if (near_capacity() >= EXTREMELY_ENCUMBERED && ATTRIBUTE_MAX(ATTRIBUTE_STRENGTH) - ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) > 3)
         return TROUBLE_COLLAPSING;
     if (stuck_in_wall())
         return TROUBLE_STUCK_IN_WALL;
@@ -265,8 +265,8 @@ in_trouble(void)
     if ((HDeaf & TIMEOUT) > 1L)
         return TROUBLE_BLIND;
 
-    for (i = 0; i < A_MAX; i++)
-        if (ATTRIBUTE_BASE(i) < AMAX(i))
+    for (i = 0; i < ATTRIBUTE_COUNT; i++)
+        if (ATTRIBUTE_BASE(i) < ATTRIBUTE_MAX(i))
             return TROUBLE_POISONED;
     if (Wounded_legs && !u.monster_being_ridden)
         return TROUBLE_WOUNDED_LEGS;
@@ -438,8 +438,8 @@ fix_worst_trouble(int trouble)
     case TROUBLE_COLLAPSING:
         /* override Fixed_abil; uncurse that if feasible */
         You_feel("%sstronger.",
-                 (AMAX(A_STR) - ATTRIBUTE_BASE(A_STR) > 6) ? "much " : "");
-        ATTRIBUTE_BASE(A_STR) = AMAX(A_STR);
+                 (ATTRIBUTE_MAX(ATTRIBUTE_STRENGTH) - ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) > 6) ? "much " : "");
+        ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) = ATTRIBUTE_MAX(ATTRIBUTE_STRENGTH);
         disp.botl = TRUE;
         if (Fixed_abil) {
             if ((otmp = stuck_ring(uleft, RIN_SUSTAIN_ABILITY)) != 0) {
@@ -541,9 +541,9 @@ fix_worst_trouble(int trouble)
             pline("There's a tiger in your tank.");
         else
             You_feel("in good health again.");
-        for (i = 0; i < A_MAX; i++) {
-            if (ATTRIBUTE_BASE(i) < AMAX(i)) {
-                ATTRIBUTE_BASE(i) = AMAX(i);
+        for (i = 0; i < ATTRIBUTE_COUNT; i++) {
+            if (ATTRIBUTE_BASE(i) < ATTRIBUTE_MAX(i)) {
+                ATTRIBUTE_BASE(i) = ATTRIBUTE_MAX(i);
                 disp.botl = TRUE;
             }
         }
@@ -735,7 +735,7 @@ angrygods(aligntyp resp_god)
               gy.youmonst.data->mlet == S_HUMAN ? "mortal" : "creature");
         SetVoice((struct monster *) 0, 0, 80, voice_deity);
         verbalize("Thou must relearn thy lessons!");
-        (void) adjust_attribute(A_WIS, -1, FALSE);
+        (void) adjust_attribute(ATTRIBUTE_WISDOM, -1, FALSE);
         losexp((char *) 0);
         break;
     case 6:
@@ -1247,8 +1247,8 @@ pleased(aligntyp g_align)
             u.hit_points = u.hit_points_max;
             if (Upolyd)
                 u.mh = u.mhmax;
-            if (ATTRIBUTE_BASE(A_STR) < AMAX(A_STR)) {
-                ATTRIBUTE_BASE(A_STR) = AMAX(A_STR);
+            if (ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) < ATTRIBUTE_MAX(ATTRIBUTE_STRENGTH)) {
+                ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) = ATTRIBUTE_MAX(ATTRIBUTE_STRENGTH);
                 disp.botl = TRUE; /* before potential message */
                 (void) encumbered_message();
             }
@@ -1455,7 +1455,7 @@ consume_offering(struct obj *otmp)
         useup(otmp);
     else
         useupf(otmp, 1L);
-    exercise(A_WIS, TRUE);
+    exercise(ATTRIBUTE_WISDOM, TRUE);
 }
 
 /* feedback when attempting to offer the Amulet on a "low altar" (not one of
@@ -1630,7 +1630,7 @@ offer_different_alignment_altar(
             pline("%s rejects your sacrifice!", a_gname());
             godvoice(altaralign, "Suffer, infidel!");
             change_luck(-5);
-            (void) adjust_attribute(A_WIS, -2, TRUE);
+            (void) adjust_attribute(ATTRIBUTE_WISDOM, -2, TRUE);
             if (!Inhell)
                 angrygods(u.alignment.type);
         }
@@ -1642,7 +1642,7 @@ offer_different_alignment_altar(
             boolean shrine;
 
             You_feel("the power of %s increase.", u_gname());
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
             change_luck(1);
             shrine = on_shrine();
             levl[u.ux][u.uy].altarmask = Align2amask(u.alignment.type);
@@ -1665,7 +1665,7 @@ offer_different_alignment_altar(
         } else {
             pline("Unluckily, you feel the power of %s decrease.", u_gname());
             change_luck(-1);
-            exercise(A_WIS, FALSE);
+            exercise(ATTRIBUTE_WISDOM, FALSE);
             if (rnl(u.ulevel) > 6 && u.alignment.record > 0
                 && random(u.alignment.record) > (7 * ALIGNLIM) / 8)
                 summon_minion(altaralign, TRUE);
@@ -1683,10 +1683,10 @@ sacrifice_your_race(
 
     if (is_demon(gy.youmonst.data)) {
         You("find the idea very satisfying.");
-        exercise(A_WIS, TRUE);
+        exercise(ATTRIBUTE_WISDOM, TRUE);
     } else if (u.alignment.type != A_CHAOTIC) {
         pline("You'll regret this infamous offense!");
-        exercise(A_WIS, FALSE);
+        exercise(ATTRIBUTE_WISDOM, FALSE);
     }
 
     if (highaltar
@@ -1744,7 +1744,7 @@ sacrifice_your_race(
     if (u.alignment.type != A_CHAOTIC) {
         adjalign(-5);
         u.have_angered_gods += 3;
-        (void) adjust_attribute(A_WIS, -1, TRUE);
+        (void) adjust_attribute(ATTRIBUTE_WISDOM, -1, TRUE);
         if (!Inhell)
             angrygods(u.alignment.type);
         change_luck(-5);
@@ -1788,7 +1788,7 @@ bestow_artifact(void)
             godvoice(u.alignment.type, "Use my gift wisely!");
             u.artifacts_bestowed_count++;
             u.blessing_duration = rnz(300 + (50 * nartifacts));
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
             livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
                             "was bestowed with %s by %s",
                             artiname(otmp->oartifact),
@@ -1912,7 +1912,7 @@ dosacrifice(void)
                 pline("Such an action is an insult to %s!",
                       (unicalign == A_CHAOTIC) ? "chaos"
                          : unicalign ? "law" : "balance");
-                (void) adjust_attribute(A_WIS, -1, TRUE);
+                (void) adjust_attribute(ATTRIBUTE_WISDOM, -1, TRUE);
                 value = -5;
             } else if (u.alignment.type == altaralign) {
                 /* When different from altar, and altar is same as yours,
@@ -2197,7 +2197,7 @@ prayer_done(void) /* M. Stephenson (1.0.3b) */
             !Deaf ? "hear" : "intuit");
         wake_nearby(FALSE);
         adjalign(-2);
-        exercise(A_WIS, FALSE);
+        exercise(ATTRIBUTE_WISDOM, FALSE);
         if (!Inhell) {
             /* hero's god[dess] seems to be keeping his/her head down */
             pline("Nothing else happens."); /* not actually true... */
@@ -2214,7 +2214,7 @@ prayer_done(void) /* M. Stephenson (1.0.3b) */
         rehumanize();
         /* no Half_physical_damage adjustment here */
         losehp(random(20), "residual undead turning effect", KILLED_BY_AN);
-        exercise(A_CON, FALSE);
+        exercise(ATTRIBUTE_CONSTITUTION, FALSE);
         return 1;
     }
     if (Inhell) {
@@ -2351,7 +2351,7 @@ doturn(void)
         || u.have_angered_gods > 6) { /* "Die, mortal!" */
         pline("For some reason, %s seems to ignore you.", Gname);
         aggravate();
-        exercise(A_WIS, FALSE);
+        exercise(ATTRIBUTE_WISDOM, FALSE);
         return ECMD_TIME;
     }
     if (Inhell) {
@@ -2363,7 +2363,7 @@ doturn(void)
         return ECMD_TIME;
     }
     pline("Calling upon %s, you chant an arcane formula.", Gname);
-    exercise(A_WIS, TRUE);
+    exercise(ATTRIBUTE_WISDOM, TRUE);
 
     /* note: does not perform unturn_dead() on victims' inventories */
     turn_undead_range = BOLT_LIM + (u.ulevel / 5); /* 8 to 14 */
@@ -2562,7 +2562,7 @@ altar_wrath(coordxy x, coordxy y)
 
     if (u.alignment.type == altaralign && u.alignment.record > -random_integer_between_zero_and(4)) {
         godvoice(altaralign, "How darest thou desecrate my altar!");
-        (void) adjust_attribute(A_WIS, -1, FALSE);
+        (void) adjust_attribute(ATTRIBUTE_WISDOM, -1, FALSE);
         u.alignment.record--;
     } else {
         pline("%s %s%s:",

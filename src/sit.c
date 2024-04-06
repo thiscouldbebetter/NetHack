@@ -41,18 +41,18 @@ throne_sit_effect(void)
     if (random(6) > 4) {
         switch (random(13)) {
         case 1:
-            (void) adjust_attribute(random_integer_between_zero_and(A_MAX), -rn1(4, 3), FALSE);
+            (void) adjust_attribute(random_integer_between_zero_and(ATTRIBUTE_COUNT), -rn1(4, 3), FALSE);
             losehp(random(10), "cursed throne", KILLED_BY_AN);
             break;
         case 2:
-            (void) adjust_attribute(random_integer_between_zero_and(A_MAX), 1, FALSE);
+            (void) adjust_attribute(random_integer_between_zero_and(ATTRIBUTE_COUNT), 1, FALSE);
             break;
         case 3:
             pline("A%s electric shock shoots through your body!",
                   (Shock_resistance) ? "n" : " massive");
             losehp(Shock_resistance ? random(6) : random(30), "electric chair",
                    KILLED_BY_AN);
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             break;
         case 4:
             You_feel("much, much better!");
@@ -298,7 +298,7 @@ dosit(void)
         }
     } else if (trap != 0 || (u.utrap && (u.utraptype >= TT_LAVA))) {
         if (u.utrap) {
-            exercise(A_WIS, FALSE); /* you're getting stuck longer */
+            exercise(ATTRIBUTE_WISDOM, FALSE); /* you're getting stuck longer */
             if (u.utraptype == TT_BEARTRAP) {
                 You_cant("sit down with your %s in the bear trap.",
                          body_part(FOOT));
@@ -308,7 +308,7 @@ dosit(void)
                     You("sit down on a spike.  Ouch!");
                     losehp(Half_physical_damage ? random_integer_between_zero_and(2) : 1,
                            "sitting on an iron spike", KILLED_BY);
-                    exercise(A_STR, FALSE);
+                    exercise(ATTRIBUTE_STRENGTH, FALSE);
                 } else
                     You("sit down in the pit.");
                 u.utrap += random_integer_between_zero_and(5);

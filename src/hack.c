@@ -449,7 +449,7 @@ moverock(void)
                         pline("With %s effort you move %s.",
                               easypush ? "little" : "great", what);
                     if (!easypush)
-                        exercise(A_STR, TRUE);
+                        exercise(ATTRIBUTE_STRENGTH, TRUE);
                 } else {
                     if (givemesg)
                         pline("%s moves %s.",
@@ -782,16 +782,16 @@ dosinkfall(void)
            are really still worn has no effect on bones data */
         ELevitation = HLevitation = 0L;
         You("crash to the floor!");
-        dmg = rn1(8, 25 - (int) ATTRIBUTE_CURRENT(A_CON));
+        dmg = rn1(8, 25 - (int) ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION));
         losehp(Maybe_Half_Phys(dmg), fell_on_sink, NO_KILLER_PREFIX);
-        exercise(A_DEX, FALSE);
+        exercise(ATTRIBUTE_DEXTERITY, FALSE);
         selftouch("Falling, you");
         for (obj = gl.level.objects[u.ux][u.uy]; obj; obj = obj->nexthere)
             if (obj->oclass == WEAPON_CLASS || is_weptool(obj)) {
                 You("fell on %s.", doname(obj));
                 losehp(Maybe_Half_Phys(random(3)), fell_on_sink,
                        NO_KILLER_PREFIX);
-                exercise(A_CON, FALSE);
+                exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             }
         ELevitation = save_ELev;
         HLevitation = save_HLev;
@@ -1015,14 +1015,14 @@ test_move(
                         = gc.context.move
                           = (doopen_indir(x, y) == ECMD_TIME ? 1 : 0);
                     } else if (x == ux || y == uy) {
-                        if (Blind || Stunned || ATTRIBUTE_CURRENT(A_DEX) < 10
+                        if (Blind || Stunned || ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) < 10
                             || Fumbling) {
                             if (u.monster_being_ridden) {
                                 You_cant("lead %s through that closed door.",
                                          y_monnam(u.monster_being_ridden));
                             } else {
                                 pline("Ouch!  You bump into a door.");
-                                exercise(A_DEX, FALSE);
+                                exercise(ATTRIBUTE_DEXTERITY, FALSE);
                             }
                             /* use current move; needed for the "ouch" case
                                but done for steed case too for consistency;
@@ -2220,14 +2220,14 @@ air_turbulence(void)
         switch (random_integer_between_zero_and(3)) {
         case 0:
             You("tumble in place.");
-            exercise(A_DEX, FALSE);
+            exercise(ATTRIBUTE_DEXTERITY, FALSE);
             break;
         case 1:
             You_cant("control your movements very well.");
             break;
         case 2:
             pline("It's hard to walk in thin air.");
-            exercise(A_DEX, TRUE);
+            exercise(ATTRIBUTE_DEXTERITY, TRUE);
             break;
         }
         return TRUE;
@@ -2423,7 +2423,7 @@ carrying_too_much(void)
         && !Is_airlevel(&u.uz)) {
         if (wtcap < OVERLOADED) {
             You("don't have enough stamina to move.");
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
         } else
             You("collapse under your load.");
         nomul(0);
@@ -2858,7 +2858,7 @@ overexert_hp(void)
         disp.botl = TRUE;
     } else {
         You("pass out from exertion!");
-        exercise(A_CON, FALSE);
+        exercise(ATTRIBUTE_CONSTITUTION, FALSE);
         fall_asleep(-10, FALSE);
     }
 }
@@ -4036,7 +4036,7 @@ weight_cap(void)
        functions enough in that situation to enhance carrying capacity */
     BLevitation &= ~I_SPECIAL;
 
-    carrcap = 25 * (ATTRIBUTE_CURRENT_STRENGTH + ATTRIBUTE_CURRENT(A_CON)) + 50;
+    carrcap = 25 * (ATTRIBUTE_CURRENT_STRENGTH + ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION)) + 50;
     if (Upolyd) {
         /* consistent with can_carry() in mon.c */
         if (gy.youmonst.data->mlet == S_NYMPH)

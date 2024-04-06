@@ -78,7 +78,7 @@ use_saddle(struct obj *otmp)
     }
     if (ptr == &mons[PM_AMOROUS_DEMON]) {
         pline("Shame on you!");
-        exercise(A_WIS, FALSE);
+        exercise(ATTRIBUTE_WISDOM, FALSE);
         return ECMD_TIME;
     }
     if (mtmp->isminion || mtmp->isshk || mtmp->ispriest || mtmp->isgd
@@ -92,7 +92,7 @@ use_saddle(struct obj *otmp)
     }
 
     /* Calculate your chance */
-    chance = ATTRIBUTE_CURRENT(A_DEX) + ATTRIBUTE_CURRENT(A_CHA) / 2 + 2 * mtmp->mtame;
+    chance = ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) + ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA) / 2 + 2 * mtmp->mtame;
     chance += u.ulevel * (mtmp->mtame ? 20 : 5);
     if (!mtmp->mtame)
         chance -= 10 * mtmp->m_lev;

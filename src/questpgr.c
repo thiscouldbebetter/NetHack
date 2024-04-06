@@ -478,7 +478,7 @@ com_pager_core(
     lua_State *L;
     char *text = NULL, *synopsis = NULL, *fallback_msgid = NULL;
     boolean res = FALSE;
-    nhl_sandbox_info sbi = {NHL_SB_SAFE, 1*1024*1024, 0, 1*1024*1024};
+    nhl_sandbox_info sbi = {NHIGHLIGHT_SB_SAFE, 1*1024*1024, 0, 1*1024*1024};
 
     if (skip_pager(TRUE))
         return FALSE;

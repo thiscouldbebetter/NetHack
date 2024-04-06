@@ -595,7 +595,7 @@ curs_new_menu_item(winid wid, const char *str)
     new_item->identifier = cg.zeroany;
     new_item->accelerator = '\0';
     new_item->group_accel = '\0';
-    new_item->attr = ATR_NONE;
+    new_item->attr = TEXT_ATTRIBUTE_NONE;
     new_item->color = COLOR_CODE_NONE;
     new_item->str = new_str;
     new_item->presel = FALSE;

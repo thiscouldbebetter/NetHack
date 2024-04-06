@@ -429,7 +429,7 @@ Helmet_on(void)
         /* people think marked wizards know what they're talking about,
            but it takes trained arrogance to pull it off, and the actual
            enchantment of the hat is irrelevant */
-        ABON(A_CHA) += (Role_if(PM_WIZARD) ? 1 : -1);
+        ATTRIBUTE_BONUS(ATTRIBUTE_CHARISMA) += (Role_if(PM_WIZARD) ? 1 : -1);
         disp.botl = TRUE;
         makeknown(uarmh->otyp);
         break;
@@ -467,8 +467,8 @@ Helmet_on(void)
             pline("My brain hurts!"); /* Monty Python's Flying Circus */
         } else if (uarmh && uarmh->otyp == DUNCE_CAP) {
             You_feel("%s.", /* track INT change; ignore WIS */
-                     ATTRIBUTE_CURRENT(A_INT)
-                             <= (ATTRIBUTE_BASE(A_INT) + ABON(A_INT) + ATEMP(A_INT))
+                     ATTRIBUTE_CURRENT(ATTRIBUTE_INTELLIGENCE)
+                             <= (ATTRIBUTE_BASE(ATTRIBUTE_INTELLIGENCE) + ATTRIBUTE_BONUS(ATTRIBUTE_INTELLIGENCE) + ATTRIBUTE_TEMPORARY(ATTRIBUTE_INTELLIGENCE))
                          ? "like sitting in a corner"
                          : "giddy");
         } else {
@@ -505,7 +505,7 @@ Helmet_off(void)
         break;
     case CORNUTHAUM:
         if (!gc.context.takeoff.cancelled_don) {
-            ABON(A_CHA) += (Role_if(PM_WIZARD) ? -1 : 1);
+            ATTRIBUTE_BONUS(ATTRIBUTE_CHARISMA) += (Role_if(PM_WIZARD) ? -1 : 1);
             disp.botl = TRUE;
         }
         break;
@@ -1133,7 +1133,7 @@ adjust_attrib(struct obj *obj, int which, int val)
     boolean observable;
 
     old_attrib = ATTRIBUTE_CURRENT(which);
-    ABON(which) += val;
+    ATTRIBUTE_BONUS(which) += val;
     observable = (old_attrib != ATTRIBUTE_CURRENT(which));
     /* if didn't change, usually means ring is +0 but might
         be because nonzero couldn't go below min or above max;
@@ -1219,13 +1219,13 @@ Ring_on(struct obj *obj)
         }
         break;
     case RIN_GAIN_STRENGTH:
-        adjust_attrib(obj, A_STR, obj->spe);
+        adjust_attrib(obj, ATTRIBUTE_STRENGTH, obj->spe);
         break;
     case RIN_GAIN_CONSTITUTION:
-        adjust_attrib(obj, A_CON, obj->spe);
+        adjust_attrib(obj, ATTRIBUTE_CONSTITUTION, obj->spe);
         break;
     case RIN_ADORNMENT:
-        adjust_attrib(obj, A_CHA, obj->spe);
+        adjust_attrib(obj, ATTRIBUTE_CHARISMA, obj->spe);
         break;
     case RIN_INCREASE_ACCURACY: /* KMH */
         u.hit_increment += obj->spe;
@@ -1318,13 +1318,13 @@ Ring_off_or_gone(struct obj *obj, boolean gone)
         }
         break;
     case RIN_GAIN_STRENGTH:
-        adjust_attrib(obj, A_STR, -obj->spe);
+        adjust_attrib(obj, ATTRIBUTE_STRENGTH, -obj->spe);
         break;
     case RIN_GAIN_CONSTITUTION:
-        adjust_attrib(obj, A_CON, -obj->spe);
+        adjust_attrib(obj, ATTRIBUTE_CONSTITUTION, -obj->spe);
         break;
     case RIN_ADORNMENT:
-        adjust_attrib(obj, A_CHA, -obj->spe);
+        adjust_attrib(obj, ATTRIBUTE_CHARISMA, -obj->spe);
         break;
     case RIN_INCREASE_ACCURACY: /* KMH */
         u.hit_increment -= obj->spe;
@@ -3120,15 +3120,15 @@ adj_abon(struct obj *otmp, schar delta)
     if (uarmg && uarmg == otmp && otmp->otyp == GAUNTLETS_OF_DEXTERITY) {
         if (delta) {
             makeknown(uarmg->otyp);
-            ABON(A_DEX) += (delta);
+            ATTRIBUTE_BONUS(ATTRIBUTE_DEXTERITY) += (delta);
         }
         disp.botl = TRUE;
     }
     if (uarmh && uarmh == otmp && otmp->otyp == HELM_OF_BRILLIANCE) {
         if (delta) {
             makeknown(uarmh->otyp);
-            ABON(A_INT) += (delta);
-            ABON(A_WIS) += (delta);
+            ATTRIBUTE_BONUS(ATTRIBUTE_INTELLIGENCE) += (delta);
+            ATTRIBUTE_BONUS(ATTRIBUTE_WISDOM) += (delta);
         }
         disp.botl = TRUE;
     }

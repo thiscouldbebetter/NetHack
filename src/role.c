@@ -65,7 +65,7 @@ const struct Role roles[NUM_ROLES+1] = {
       0,
       2,
       10,
-      A_INT,
+      ATTRIBUTE_INTELLIGENCE,
       SPE_MAGIC_MAPPING,
       -4 },
     { { "Barbarian", 0 },
@@ -106,7 +106,7 @@ const struct Role roles[NUM_ROLES+1] = {
       0,
       0,
       8,
-      A_INT,
+      ATTRIBUTE_INTELLIGENCE,
       SPE_HASTE_SELF,
       -4 },
     { { "Caveman", "Cavewoman" },
@@ -147,7 +147,7 @@ const struct Role roles[NUM_ROLES+1] = {
       0,
       1,
       8,
-      A_INT,
+      ATTRIBUTE_INTELLIGENCE,
       SPE_DIG,
       -4 },
     { { "Healer", 0 },
@@ -187,7 +187,7 @@ const struct Role roles[NUM_ROLES+1] = {
       -3,
       2,
       10,
-      A_WIS,
+      ATTRIBUTE_WISDOM,
       SPE_CURE_SICKNESS,
       -4 },
     { { "Knight", 0 },
@@ -227,7 +227,7 @@ const struct Role roles[NUM_ROLES+1] = {
       -2,
       0,
       9,
-      A_WIS,
+      ATTRIBUTE_WISDOM,
       SPE_TURN_UNDEAD,
       -4 },
     { { "Monk", 0 },
@@ -268,7 +268,7 @@ const struct Role roles[NUM_ROLES+1] = {
       -2,
       2,
       20,
-      A_WIS,
+      ATTRIBUTE_WISDOM,
       SPE_RESTORE_ABILITY,
       -4 },
     { { "Priest", "Priestess" },
@@ -309,7 +309,7 @@ const struct Role roles[NUM_ROLES+1] = {
       -2,
       2,
       10,
-      A_WIS,
+      ATTRIBUTE_WISDOM,
       SPE_REMOVE_CURSE,
       -4 },
     /* Note:  Rogue precedes Ranger so that use of `-R' on the command line
@@ -351,7 +351,7 @@ const struct Role roles[NUM_ROLES+1] = {
       0,
       1,
       9,
-      A_INT,
+      ATTRIBUTE_INTELLIGENCE,
       SPE_DETECT_TREASURE,
       -4 },
     { { "Ranger", 0 },
@@ -406,7 +406,7 @@ const struct Role roles[NUM_ROLES+1] = {
       2,
       1,
       10,
-      A_INT,
+      ATTRIBUTE_INTELLIGENCE,
       SPE_INVISIBILITY,
       -4 },
     { { "Samurai", 0 },
@@ -446,7 +446,7 @@ const struct Role roles[NUM_ROLES+1] = {
       0,
       0,
       8,
-      A_INT,
+      ATTRIBUTE_INTELLIGENCE,
       SPE_CLAIRVOYANCE,
       -4 },
     { { "Tourist", 0 },
@@ -486,7 +486,7 @@ const struct Role roles[NUM_ROLES+1] = {
       1,
       2,
       10,
-      A_INT,
+      ATTRIBUTE_INTELLIGENCE,
       SPE_CHARM_MONSTER,
       -4 },
     { { "Valkyrie", 0 },
@@ -526,7 +526,7 @@ const struct Role roles[NUM_ROLES+1] = {
       -2,
       0,
       9,
-      A_WIS,
+      ATTRIBUTE_WISDOM,
       SPE_CONE_OF_COLD,
       -4 },
     { { "Wizard", 0 },
@@ -567,7 +567,7 @@ const struct Role roles[NUM_ROLES+1] = {
       0,
       3,
       10,
-      A_INT,
+      ATTRIBUTE_INTELLIGENCE,
       SPE_MAGIC_MISSILE,
       -4 },
     /* Array terminator */
@@ -592,7 +592,7 @@ const struct Race races[] = {
         MH_GNOME | MH_ORC,
         /*    Str     Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
-        { STR18(100), 18, 18, 18, 18, 18 },
+        { STRENGTH18(100), 18, 18, 18, 18, 18 },
         /* Init   Lower  Higher */
         { 2, 0, 0, 2, 1, 0 }, /* Hit points */
         { 1, 0, 2, 0, 2, 0 }  /* Energy */
@@ -632,7 +632,7 @@ const struct Race races[] = {
         MH_ORC,
         /*    Str     Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
-        { STR18(100), 16, 16, 20, 20, 16 },
+        { STRENGTH18(100), 16, 16, 20, 20, 16 },
         /* Init   Lower  Higher */
         { 4, 0, 0, 3, 2, 0 }, /* Hit points */
         { 0, 0, 0, 0, 0, 0 }  /* Energy */
@@ -652,7 +652,7 @@ const struct Race races[] = {
         MH_HUMAN,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
-        { STR18(50), 19, 18, 18, 18, 18 },
+        { STRENGTH18(50), 19, 18, 18, 18, 18 },
         /* Init   Lower  Higher */
         { 1, 0, 0, 1, 0, 0 }, /* Hit points */
         { 2, 0, 2, 0, 2, 0 }  /* Energy */
@@ -672,7 +672,7 @@ const struct Race races[] = {
         MH_HUMAN | MH_ELF | MH_DWARF,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
-        { STR18(50), 16, 16, 18, 18, 16 },
+        { STRENGTH18(50), 16, 16, 18, 18, 16 },
         /* Init   Lower  Higher */
         { 1, 0, 0, 1, 0, 0 }, /* Hit points */
         { 1, 0, 1, 0, 1, 0 }  /* Energy */
@@ -1929,24 +1929,24 @@ role_menu_extra(int which, winid where, boolean preselect)
         any.a_int = RS_menu_arg(which);
         Sprintf(buf, "Pick%s %s first", (f >= 0) ? " another" : "", what);
         add_menu(where, &nul_glyphinfo, &any, RS_menu_let[which], 0,
-                 ATR_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
+                 TEXT_ATTRIBUTE_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
     } else if (which == RS_filter) {
         char setfiltering[40];
 
         any.a_int = RS_menu_arg(RS_filter);
         Sprintf(setfiltering, "%s role/race/&c filtering",
                 gotrolefilter() ? "Reset" : "Set");
-        add_menu(where, &nul_glyphinfo, &any, '~', 0, ATR_NONE,
+        add_menu(where, &nul_glyphinfo, &any, '~', 0, TEXT_ATTRIBUTE_NONE,
                  clr, setfiltering, MENU_ITEMFLAGS_NONE);
     } else if (which == ROLE_RANDOM) {
         any.a_int = ROLE_RANDOM;
         add_menu(where, &nul_glyphinfo, &any, '*', 0,
-                 ATR_NONE, clr, "Random",
+                 TEXT_ATTRIBUTE_NONE, clr, "Random",
                  preselect ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     } else if (which == ROLE_NONE) {
         any.a_int = ROLE_NONE;
         add_menu(where, &nul_glyphinfo, &any, 'q', 0,
-                 ATR_NONE, clr, "Quit",
+                 TEXT_ATTRIBUTE_NONE, clr, "Quit",
                  preselect ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     } else {
         impossible("role_menu_extra: bad arg (%d)", which);
@@ -2646,18 +2646,18 @@ genl_player_setup(int screenheight)
         /* [ynaq] menu choices */
         any.a_int = 1;
         add_menu(win, &nul_glyphinfo, &any, 'y', 0,
-                 ATR_NONE, clr, "Yes; start game", MENU_ITEMFLAGS_SELECTED);
+                 TEXT_ATTRIBUTE_NONE, clr, "Yes; start game", MENU_ITEMFLAGS_SELECTED);
         any.a_int = 2;
         add_menu(win, &nul_glyphinfo, &any, 'n', 0,
-                 ATR_NONE, clr, "No; choose role again", MENU_ITEMFLAGS_NONE);
+                 TEXT_ATTRIBUTE_NONE, clr, "No; choose role again", MENU_ITEMFLAGS_NONE);
         if (iflags.renameallowed) {
             any.a_int = 3;
-            add_menu(win, &nul_glyphinfo, &any, 'a', 0, ATR_NONE,
+            add_menu(win, &nul_glyphinfo, &any, 'a', 0, TEXT_ATTRIBUTE_NONE,
                      clr, "Not yet; choose another name", MENU_ITEMFLAGS_NONE);
         }
         any.a_int = -1;
         add_menu(win, &nul_glyphinfo, &any, 'q', 0,
-                 ATR_NONE, clr, "Quit", MENU_ITEMFLAGS_NONE);
+                 TEXT_ATTRIBUTE_NONE, clr, "Quit", MENU_ITEMFLAGS_NONE);
         Sprintf(pbuf, "Is this ok? [yn%sq]", iflags.renameallowed ? "a" : "");
         end_menu(win, pbuf);
         n = select_menu(win, PICK_ONE, &selected);
@@ -2880,7 +2880,7 @@ setup_rolemenu(
         /* !filtering implies reset_role_filtering() where we want to
            mark this role as preselected if current filter excludes it */
         add_menu(win, &nul_glyphinfo, &any, thisch, 0,
-                 ATR_NONE, clr, an(rolenamebuf),
+                 TEXT_ATTRIBUTE_NONE, clr, an(rolenamebuf),
                  (!filtering && !role_ok)
                     ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
         lastch = thisch;
@@ -2919,7 +2919,7 @@ setup_racemenu(
         add_menu(win, &nul_glyphinfo, &any,
                  filtering ? this_ch : highc(this_ch),
                  filtering ? highc(this_ch) : 0,
-                 ATR_NONE, clr, races[i].noun,
+                 TEXT_ATTRIBUTE_NONE, clr, races[i].noun,
                  (!filtering && !race_ok)
                     ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     }
@@ -2955,7 +2955,7 @@ setup_gendmenu(
         add_menu(win, &nul_glyphinfo, &any,
                  filtering ? this_ch : highc(this_ch),
                  filtering ? highc(this_ch) : 0,
-                 ATR_NONE, clr, genders[i].adj,
+                 TEXT_ATTRIBUTE_NONE, clr, genders[i].adj,
                  (!filtering && !gend_ok)
                     ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     }
@@ -2991,7 +2991,7 @@ setup_algnmenu(
         add_menu(win, &nul_glyphinfo, &any,
                  filtering ? this_ch : highc(this_ch),
                  filtering ? highc(this_ch) : 0,
-                 ATR_NONE, clr, aligns[i].adj,
+                 TEXT_ATTRIBUTE_NONE, clr, aligns[i].adj,
                  (!filtering && !algn_ok)
                     ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     }

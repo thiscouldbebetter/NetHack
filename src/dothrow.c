@@ -123,7 +123,7 @@ throw_obj(struct obj *obj, int shotlimit)
         res = ECMD_OK;
         goto unsplit_stack;
     }
-    if ((is_art(obj, ART_MJOLLNIR) && ATTRIBUTE_CURRENT(A_STR) < STR19(25))
+    if ((is_art(obj, ART_MJOLLNIR) && ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH) < STRENGTH19(25))
         || (obj->otyp == BOULDER && !throws_rocks(gy.youmonst.data))) {
         pline("It's too heavy.");
         res = ECMD_TIME;
@@ -169,7 +169,7 @@ throw_obj(struct obj *obj, int shotlimit)
                          || (Role_if(PM_HEALER) && skill != P_KNIFE)
                          || (Role_if(PM_TOURIST) && skill != -P_DART)
                          /* poor dexterity also inhibits multishot */
-                         || Fumbling || ATTRIBUTE_CURRENT(A_DEX) <= 6);
+                         || Fumbling || ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) <= 6);
 
         /* Bonus if the player is proficient in this weapon... */
         switch (P_SKILL(weapon_type(obj))) {
@@ -320,7 +320,7 @@ throw_ok(struct obj *obj)
 
     if (AutoReturn(obj, obj->owornmask)
         /* to get here, obj is boomerang or is uwep and (alkys or Mjollnir) */
-        && (obj->oartifact != ART_MJOLLNIR || ATTRIBUTE_CURRENT(A_STR) >= STR19(25)))
+        && (obj->oartifact != ART_MJOLLNIR || ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH) >= STRENGTH19(25)))
         return GETOBJ_SUGGEST;
 
     if (obj->quan == 1 && (obj == uwep || (obj == uswapwep && u.using_two_weapons)))
@@ -470,7 +470,7 @@ dofire(void)
        on its caller to make sure hero is strong enough to throw that */
     boolean uwep_Throw_and_Return = (uwep && AutoReturn(uwep, uwep->owornmask)
                                      && (uwep->oartifact != ART_MJOLLNIR
-                                         || ATTRIBUTE_CURRENT(A_STR) >= STR19(25)));
+                                         || ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH) >= STRENGTH19(25)));
     int altres, res = ECMD_OK;
 
     /*
@@ -1499,7 +1499,7 @@ throwit(struct obj *obj,
         && !Is_airlevel(&u.uz)) {
         You("have so little stamina, %s drops from your grasp.",
             the(xname(obj)));
-        exercise(A_CON, FALSE);
+        exercise(ATTRIBUTE_CONSTITUTION, FALSE);
         u.dx = u.dy = 0;
         u.dz = 1;
     }
@@ -1549,7 +1549,7 @@ throwit(struct obj *obj,
         mon = boomhit(obj, u.dx, u.dy);
         iflags.returning_missile = 0; /* has returned or isn't going to */
         if (mon == &gy.youmonst) { /* the thing was caught */
-            exercise(A_DEX, TRUE);
+            exercise(ATTRIBUTE_DEXTERITY, TRUE);
             obj = return_throw_to_inv(obj, wep_mask, twoweap, oldslot);
             clear_thrownobj = TRUE;
             goto throwit_return;
@@ -1992,14 +1992,14 @@ thitmonst(
      */
     tmp = -1 + Luck + find_mac(mon) + u.hit_increment
           + maybe_polyd(gy.youmonst.data->mlevel, u.ulevel);
-    if (ATTRIBUTE_CURRENT(A_DEX) < 4)
+    if (ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) < 4)
         tmp -= 3;
-    else if (ATTRIBUTE_CURRENT(A_DEX) < 6)
+    else if (ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) < 6)
         tmp -= 2;
-    else if (ATTRIBUTE_CURRENT(A_DEX) < 8)
+    else if (ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) < 8)
         tmp -= 1;
-    else if (ATTRIBUTE_CURRENT(A_DEX) >= 14)
-        tmp += (ATTRIBUTE_CURRENT(A_DEX) - 14);
+    else if (ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) >= 14)
+        tmp += (ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) - 14);
 
     /* Modify to-hit depending on distance; but keep it sane.
      * Polearms get a distance penalty even when wielded; it's
@@ -2162,7 +2162,7 @@ thitmonst(
                 if (mon->wormno)
                     cutworm(mon, gb.bhitpos.x, gb.bhitpos.y, chopper);
             }
-            exercise(A_DEX, TRUE);
+            exercise(ATTRIBUTE_DEXTERITY, TRUE);
             /* if hero was swallowed and projectile killed the engulfer,
                'obj' got added to engulfer's inventory and then dropped,
                so we can't safely use that pointer anymore; it escapes
@@ -2187,11 +2187,11 @@ thitmonst(
         }
 
     } else if (otyp == HEAVY_IRON_BALL) {
-        exercise(A_STR, TRUE);
+        exercise(ATTRIBUTE_STRENGTH, TRUE);
         if (tmp >= dieroll) {
             int was_swallowed = guaranteed_hit;
 
-            exercise(A_DEX, TRUE);
+            exercise(ATTRIBUTE_DEXTERITY, TRUE);
             if (!hmon(mon, obj, hmode, dieroll)) { /* mon killed */
                 if (was_swallowed && !u.uswallow && obj == uball)
                     return 1; /* already did placebc() */
@@ -2201,9 +2201,9 @@ thitmonst(
         }
 
     } else if (otyp == BOULDER) {
-        exercise(A_STR, TRUE);
+        exercise(ATTRIBUTE_STRENGTH, TRUE);
         if (tmp >= dieroll) {
-            exercise(A_DEX, TRUE);
+            exercise(ATTRIBUTE_DEXTERITY, TRUE);
             (void) hmon(mon, obj, hmode, dieroll);
         } else {
             tmiss(obj, mon, TRUE);
@@ -2211,12 +2211,12 @@ thitmonst(
 
     } else if ((otyp == EGG || otyp == CREAM_PIE || otyp == BLINDING_VENOM
                 || otyp == ACID_VENOM)
-               && (guaranteed_hit || ATTRIBUTE_CURRENT(A_DEX) > random(25))) {
+               && (guaranteed_hit || ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) > random(25))) {
         (void) hmon(mon, obj, hmode, dieroll);
         return 1; /* hmon used it up */
 
     } else if (obj->oclass == POTION_CLASS
-               && (guaranteed_hit || ATTRIBUTE_CURRENT(A_DEX) > random(25))) {
+               && (guaranteed_hit || ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) > random(25))) {
         potionhit(mon, obj, POTHIT_HERO_THROW);
         return 1;
 

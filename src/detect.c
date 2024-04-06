@@ -451,7 +451,7 @@ gold_detect(struct obj *sobj)
         ter_typ |= TER_MON; /* so autodescribe will recognize hero */
     }
     You_feel("very greedy, and sense gold!");
-    exercise(A_WIS, TRUE);
+    exercise(ATTRIBUTE_WISDOM, TRUE);
 
     browse_map(ter_typ, "gold");
 
@@ -569,7 +569,7 @@ food_detect(struct obj *sobj)
                 Your("%s tingles and you smell %s.", body_part(NOSE), what);
         } else
             You("sense %s.", what);
-        exercise(A_WIS, TRUE);
+        exercise(ATTRIBUTE_WISDOM, TRUE);
 
         browse_map(ter_typ, "food");
 
@@ -1181,8 +1181,8 @@ use_crystal_ball(struct obj **optr)
         return;
     }
     oops = is_quest_artifact(obj) ? 8 : obj->blessed ? 16 : 20;
-    if (charged && (obj->cursed || random(oops) > ATTRIBUTE_CURRENT(A_INT))) {
-        long impair = (long) random(100 - 3 * ATTRIBUTE_CURRENT(A_INT));
+    if (charged && (obj->cursed || random(oops) > ATTRIBUTE_CURRENT(ATTRIBUTE_INTELLIGENCE))) {
+        long impair = (long) random(100 - 3 * ATTRIBUTE_CURRENT(ATTRIBUTE_INTELLIGENCE));
 
         switch (random((obj->oartifact || obj->blessed) ? 4 : 5)) {
         case 1:
@@ -1402,7 +1402,7 @@ do_mapping(void)
            will be a no-op; call it anyway */
         reconstrain_map();
     }
-    exercise(A_WIS, TRUE);
+    exercise(ATTRIBUTE_WISDOM, TRUE);
 }
 
 /* clairvoyance */
@@ -1809,7 +1809,7 @@ find_trap(struct trap *trap)
     boolean cleared = FALSE;
 
     trap->tseen = 1;
-    exercise(A_WIS, TRUE);
+    exercise(ATTRIBUTE_WISDOM, TRUE);
     feel_newsym(trap->tx, trap->ty);
 
     /* The "Hallucination ||" is to preserve 3.6.1 behavior, but this
@@ -1870,7 +1870,7 @@ mfind0(struct monster *mtmp, boolean via_warning)
                         * 'I' in it.  Logically, this should still take time
                         * and lead to `return 1', but if we did that the hero
                         * would keep finding the same monster every turn. */
-        exercise(A_WIS, TRUE);
+        exercise(ATTRIBUTE_WISDOM, TRUE);
         if (!canspotmon(mtmp)) {
             map_invisible(x, y);
             set_msg_xy(x, y);
@@ -1915,7 +1915,7 @@ dosearch0(int aflag) /* intrinsic autosearch vs explicit searching */
                     if (rnl(7 - fund))
                         continue;
                     cvt_sdoor_to_door(&levl[x][y]); /* .typ = DOOR */
-                    exercise(A_WIS, TRUE);
+                    exercise(ATTRIBUTE_WISDOM, TRUE);
                     nomul(0);
                     feel_location(x, y); /* make sure it shows up */
                     set_msg_xy(x, y);
@@ -1925,7 +1925,7 @@ dosearch0(int aflag) /* intrinsic autosearch vs explicit searching */
                         continue;
                     levl[x][y].typ = CORR;
                     unblock_point(x, y); /* vision */
-                    exercise(A_WIS, TRUE);
+                    exercise(ATTRIBUTE_WISDOM, TRUE);
                     nomul(0);
                     feel_newsym(x, y); /* make sure it shows up */
                     set_msg_xy(x, y);
@@ -1951,7 +1951,7 @@ dosearch0(int aflag) /* intrinsic autosearch vs explicit searching */
                         nomul(0);
                         if (trap->ttyp == STATUE_TRAP) {
                             if (activate_statue_trap(trap, x, y, FALSE))
-                                exercise(A_WIS, TRUE);
+                                exercise(ATTRIBUTE_WISDOM, TRUE);
                             return 1;
                         } else {
                             find_trap(trap);

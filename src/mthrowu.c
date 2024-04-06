@@ -141,14 +141,14 @@ thitu(
                 && Hate_silver) {
                 /* extra damage already applied by dmgval() */
                 pline_The("silver sears your flesh!");
-                exercise(A_CON, FALSE);
+                exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             }
             if (is_acid) {
                 pline("It burns!");
                 monstunseesu(M_SEEN_ACID);
             }
             losehp(dam, knm, kprefix); /* acid damage */
-            exercise(A_STR, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
         }
         return 1;
     }
@@ -691,7 +691,7 @@ m_throw(
 
                 Strcpy(onmbuf, xname(singleobj));
                 Strcpy(knmbuf, killer_xname(singleobj));
-                poisoned(onmbuf, A_STR, knmbuf,
+                poisoned(onmbuf, ATTRIBUTE_STRENGTH, knmbuf,
                          /* if damage triggered life-saving,
                             poison is limited to attrib loss */
                          (u.times_died > oldumort) ? 0 : 10, TRUE);

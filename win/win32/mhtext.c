@@ -88,7 +88,7 @@ NHTextWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         HWND control = GetDlgItem(hWnd, IDC_TEXT_CONTROL);
         HDC hdc = GetDC(control);
-        cached_font * font = mswin_get_font(NHW_TEXT, ATR_NONE, hdc, FALSE);
+        cached_font * font = mswin_get_font(NHW_TEXT, TEXT_ATTRIBUTE_NONE, hdc, FALSE);
         /* set text control font */
         
         if (!control) {

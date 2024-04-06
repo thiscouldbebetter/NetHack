@@ -1221,7 +1221,7 @@ trapeffect_dart_trap(
                          &otmp, "little dart")) {
             if (otmp) {
                 if (otmp->opoisoned)
-                    poisoned("dart", A_CON, "little dart",
+                    poisoned("dart", ATTRIBUTE_CONSTITUTION, "little dart",
                              /* if damage triggered life-saving,
                                 poison is limited to attrib loss */
                              (u.times_died > oldumort) ? 0 : 10, TRUE);
@@ -1311,7 +1311,7 @@ trapeffect_rocktrap(
 
             if (!harmless) {
                 losehp(Maybe_Half_Phys(dmg), "falling rock", KILLED_BY_AN);
-                exercise(A_STR, FALSE);
+                exercise(ATTRIBUTE_STRENGTH, FALSE);
             }
         }
     } else {
@@ -1456,7 +1456,7 @@ trapeffect_bear_trap(
                 You("howl in anger!");
             losehp(Maybe_Half_Phys(dmg), "bear trap", KILLED_BY_AN);
         }
-        exercise(A_DEX, FALSE);
+        exercise(ATTRIBUTE_DEXTERITY, FALSE);
     } else {
         struct permonst *mptr = mtmp->data;
         boolean in_sight = canseemon(mtmp) || (mtmp == u.monster_being_ridden);
@@ -1854,7 +1854,7 @@ trapeffect_pit(
                            : "fell into a pit of iron spikes",
                        NO_KILLER_PREFIX);
                 if (!random_integer_between_zero_and(6))
-                    poisoned("spikes", A_STR,
+                    poisoned("spikes", ATTRIBUTE_STRENGTH,
                              (conj_pit || adj_pit || deliberate)
                              ? "stepping on poison spikes"
                              : "fall onto poison spikes",
@@ -1878,8 +1878,8 @@ trapeffect_pit(
             if (!conj_pit)
                 selftouch("Falling, you");
             gv.vision_full_recalc = 1; /* vision limits change */
-            exercise(A_STR, FALSE);
-            exercise(A_DEX, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
+            exercise(ATTRIBUTE_DEXTERITY, FALSE);
         }
     } else {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.monster_being_ridden);
@@ -2068,7 +2068,7 @@ trapeffect_web(
 
         /* Time stuck in the web depends on your/steed strength. */
         {
-            int tim, str = ATTRIBUTE_CURRENT(A_STR);
+            int tim, str = ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH);
 
             /* If mounted, the steed gets trapped.  Use mintrap
              * to do all the work.  If mtrapped is set as a result,
@@ -2445,7 +2445,7 @@ trapeffect_landmine(
             saddle = sobj_at(SADDLE, u.ux, u.uy);
             set_wounded_legs(LEFT_SIDE, rn1(35, 41));
             set_wounded_legs(RIGHT_SIDE, rn1(35, 41));
-            exercise(A_DEX, FALSE);
+            exercise(ATTRIBUTE_DEXTERITY, FALSE);
         }
         /* add a pit before calling losehp so bones won't keep the landmine;
            blow_up_landmine() will remove pit afterwards if inappropriate */
@@ -4221,7 +4221,7 @@ domagictrap(void)
             int i, j;
             struct monster *mtmp;
 
-            (void) adjust_attribute(A_CHA, 1, FALSE);
+            (void) adjust_attribute(ATTRIBUTE_CHARISMA, 1, FALSE);
             for (i = -1; i <= 1; i++)
                 for (j = -1; j <= 1; j++) {
                     if (!isok(u.ux + i, u.uy + j))
@@ -5198,7 +5198,7 @@ move_into_trap(struct trap *ttmp)
            setting it not-yet-seen above resulted in leaving it hidden */
         if ((ttmp = t_at(u.ux, u.uy)) != 0)
             ttmp->tseen = 1;
-        exercise(A_WIS, FALSE);
+        exercise(ATTRIBUTE_WISDOM, FALSE);
     }
 }
 
@@ -5568,11 +5568,11 @@ untrap_box(
         || (!force && confused && !random_integer_between_zero_and(3))) {
         You("find a trap on %s!", the(xname(box)));
         if (!confused)
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
 
         if (ynq("Disarm it?") == 'y') {
             if (box->otrapped) {
-                int ch = ATTRIBUTE_CURRENT(A_DEX) + u.ulevel;
+                int ch = ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) + u.ulevel;
 
                 if (Role_if(PM_ROGUE))
                     ch *= 2;
@@ -5584,7 +5584,7 @@ untrap_box(
                     You("disarm it!");
                     box->otrapped = 0;
                 }
-                exercise(A_DEX, TRUE);
+                exercise(ATTRIBUTE_DEXTERITY, TRUE);
             } else {
                 pline("That %s was not trapped.", xname(box));
             }
@@ -5807,12 +5807,12 @@ untrap(
          && (force || (!confused && random_integer_between_zero_and(MAXULEV - u.ulevel + 11) < 10)))
         || (!force && confused && !random_integer_between_zero_and(3))) {
         You("find a trap on the door!");
-        exercise(A_WIS, TRUE);
+        exercise(ATTRIBUTE_WISDOM, TRUE);
         if (ynq("Disarm it?") != 'y')
             return 1;
         if (levl[x][y].doormask & D_TRAPPED) {
             ch = 15 + (Role_if(PM_ROGUE) ? u.ulevel * 3 : u.ulevel);
-            exercise(A_DEX, TRUE);
+            exercise(ATTRIBUTE_DEXTERITY, TRUE);
             if (!force && (confused || Fumbling
                            || random(75 + level_difficulty() / 2) > ch)) {
                 You("set it off!");
@@ -6121,7 +6121,7 @@ chest_trap(
             }
             wake_nearby(FALSE);
             losehp(Maybe_Half_Phys(d(6, 6)), buf, KILLED_BY_AN);
-            exercise(A_STR, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
             if (costly && loss) {
                 if (insider)
                     You("owe %ld %s for objects destroyed.", loss,
@@ -6140,18 +6140,18 @@ chest_trap(
         case 17:
             pline("A cloud of noxious gas billows from %s.", the(xname(obj)));
             if (random_integer_between_zero_and(3))
-                poisoned("gas cloud", A_STR, "cloud of poison gas", 15, FALSE);
+                poisoned("gas cloud", ATTRIBUTE_STRENGTH, "cloud of poison gas", 15, FALSE);
             else
                 create_gas_cloud(obj->ox, obj->oy, 1, 8);
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             break;
         case 16:
         case 15:
         case 14:
         case 13:
             You_feel("a needle prick your %s.", body_part(bodypart));
-            poisoned("needle", A_CON, "poisoned needle", 10, FALSE);
-            exercise(A_CON, FALSE);
+            poisoned("needle", ATTRIBUTE_CONSTITUTION, "poisoned needle", 10, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             break;
         case 12:
         case 11:
@@ -6185,7 +6185,7 @@ chest_trap(
                 pline("Suddenly you are frozen in place!");
                 nomul(-d(5, 6));
                 gm.multi_reason = "frozen by a trap";
-                exercise(A_DEX, FALSE);
+                exercise(ATTRIBUTE_DEXTERITY, FALSE);
                 gn.nomovemsg = You_can_move_again;
             } else
                 You("momentarily stiffen.");
@@ -6420,9 +6420,9 @@ b_trapped(const char *item, int bodypart)
     pline("KABOOM!!  %s was booby-trapped!", The(item));
     wake_nearby(FALSE);
     losehp(Maybe_Half_Phys(dmg), "explosion", KILLED_BY_AN);
-    exercise(A_STR, FALSE);
+    exercise(ATTRIBUTE_STRENGTH, FALSE);
     if (bodypart != NO_PART)
-        exercise(A_CON, FALSE);
+        exercise(ATTRIBUTE_CONSTITUTION, FALSE);
     make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
 }
 

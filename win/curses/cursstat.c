@@ -85,49 +85,49 @@ curses_status_finish(void)
  *      -- the fldindex identifies which field is changing and
  *         is an integer index value from botl.h
  *      -- fldindex could be any one of the following from botl.h:
- *         BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
- *         BL_ALIGN, BL_SCORE, BL_CAP, BL_GOLD, BL_ENE, BL_ENEMAX,
- *         BL_XP, BL_AC, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
- *         BL_LEVELDESC, BL_EXP, BL_CONDITION
- *      -- fldindex could also be BL_FLUSH (-1), which is not really
+ *         CONDITION_TITLE, CONDITION_STR, CONDITION_DX, CONDITION_CO, CONDITION_IN, CONDITION_WI, CONDITION_CH,
+ *         CONDITION_ALIGN, CONDITION_SCORE, CONDITION_CAP, CONDITION_GOLD, CONDITION_ENE, CONDITION_ENEMAX,
+ *         CONDITION_XP, CONDITION_AC, CONDITION_HD, CONDITION_TIME, CONDITION_HUNGER, CONDITION_HP, CONDITION_HPMAX,
+ *         CONDITION_LEVELDESC, CONDITION_EXP, CONDITION_CONDITION
+ *      -- fldindex could also be CONDITION_FLUSH (-1), which is not really
  *         a field index, but is a special trigger to tell the
  *         windowport that it should redisplay all its status fields,
  *         even if no changes have been presented to it.
- *      -- ptr is usually a "char *", unless fldindex is BL_CONDITION.
- *         If fldindex is BL_CONDITION, then ptr is a long value with
+ *      -- ptr is usually a "char *", unless fldindex is CONDITION_CONDITION.
+ *         If fldindex is CONDITION_CONDITION, then ptr is a long value with
  *         any or none of the following bits set (from botl.h):
- *              BL_MASK_STONE           0x00000001L
- *              BL_MASK_SLIME           0x00000002L
- *              BL_MASK_STRNGL          0x00000004L
- *              BL_MASK_FOODPOIS        0x00000008L
- *              BL_MASK_TERMILL         0x00000010L
- *              BL_MASK_BLIND           0x00000020L
- *              BL_MASK_DEAF            0x00000040L
- *              BL_MASK_STUN            0x00000080L
- *              BL_MASK_CONF            0x00000100L
- *              BL_MASK_HALLU           0x00000200L
- *              BL_MASK_LEV             0x00000400L
- *              BL_MASK_FLY             0x00000800L
- *              BL_MASK_RIDE            0x00001000L
- *      -- The value passed for BL_GOLD includes an encoded leading
+ *              CONDITION_MASK_STONE           0x00000001L
+ *              CONDITION_MASK_SLIME           0x00000002L
+ *              CONDITION_MASK_STRNGL          0x00000004L
+ *              CONDITION_MASK_FOODPOIS        0x00000008L
+ *              CONDITION_MASK_TERMILL         0x00000010L
+ *              CONDITION_MASK_BLIND           0x00000020L
+ *              CONDITION_MASK_DEAF            0x00000040L
+ *              CONDITION_MASK_STUN            0x00000080L
+ *              CONDITION_MASK_CONF            0x00000100L
+ *              CONDITION_MASK_HALLU           0x00000200L
+ *              CONDITION_MASK_LEV             0x00000400L
+ *              CONDITION_MASK_FLY             0x00000800L
+ *              CONDITION_MASK_RIDE            0x00001000L
+ *      -- The value passed for CONDITION_GOLD includes an encoded leading
  *         symbol for GOLD "\GXXXXNNNN:nnn". If the window port needs to use
  *         the textual gold amount without the leading "$:" the port will
- *         have to skip past ':' in the passed "ptr" for the BL_GOLD case.
+ *         have to skip past ':' in the passed "ptr" for the CONDITION_GOLD case.
  *      -- color is an unsigned int.
  *               color_index = color & 0x00FF;       CLR_* value
- *               attribute   = color & 0xFF00 >> 8;  BL_* values
+ *               attribute   = color & 0xFF00 >> 8;  CONDITION_* values
  *         This holds the color and attribute that the field should
  *         be displayed in.
- *         This is relevant for everything except BL_CONDITION fldindex.
- *         If fldindex is BL_CONDITION, this parameter should be ignored,
+ *         This is relevant for everything except CONDITION_CONDITION fldindex.
+ *         If fldindex is CONDITION_CONDITION, this parameter should be ignored,
  *         as condition hilighting is done via the next colormasks
  *         parameter instead.
  *
  *      -- colormasks - pointer to cond_hilites[] array of colormasks.
- *         Only relevant for BL_CONDITION fldindex. The window port
+ *         Only relevant for CONDITION_CONDITION fldindex. The window port
  *         should ignore this parameter for other fldindex values.
  *         Each condition bit must only ever appear in one of the
- *         CLR_ array members, but can appear in multiple HL_ATTCLR_
+ *         CLR_ array members, but can appear in multiple HIGHLIGHT_ATTRIBUTE_COLOR_
  *         offsets (because more than one attribute can co-exist).
  *         See doc/window.txt for more details.
  */
@@ -148,7 +148,7 @@ curses_status_update(
     long *condptr = (long *) ptr;
     char *text = (char *) ptr;
 
-    if (fldidx != BL_FLUSH) {
+    if (fldidx != CONDITION_FLUSH) {
         if (fldidx < 0 || fldidx >= MAXBLSTATS) {
             /* panic immediately sets gb.bot_disabled to avoid bot() */
             panic("curses_status_update(%d)", fldidx);
@@ -157,7 +157,7 @@ curses_status_update(
         *status_vals[fldidx] = '\0';
         if (!status_activefields[fldidx])
             return;
-        if (fldidx == BL_CONDITION) {
+        if (fldidx == CONDITION_CONDITION) {
             curses_condition_bits = *condptr;
             curses_colormasks = colormasks;
         } else {
@@ -169,22 +169,22 @@ curses_status_update(
              *  and get constructed at need from status_vals[] rather
              *  than the original values passed to status_update()).
              */
-            if (fldidx == BL_GOLD) {
+            if (fldidx == CONDITION_GOLD) {
                 /* decode once instead of every time it's displayed */
-                status_vals[BL_GOLD][0] = ' ';
-                text = decode_mixed(&status_vals[BL_GOLD][1], text);
-            } else if ((fldidx == BL_HUNGER || fldidx == BL_CAP)
+                status_vals[CONDITION_GOLD][0] = ' ';
+                text = decode_mixed(&status_vals[CONDITION_GOLD][1], text);
+            } else if ((fldidx == CONDITION_HUNGER || fldidx == CONDITION_CAP)
                        && (!*text || !strcmp(text, " "))) {
                 /* fieldfmt[] is " %s"; avoid lone space when empty */
                 *status_vals[fldidx] = '\0';
             } else {
                 Sprintf(status_vals[fldidx],
-                        (fldidx == BL_TITLE && iflags.wc2_hitpointbar)
+                        (fldidx == CONDITION_TITLE && iflags.wc2_hitpointbar)
                         ? "%-30s" : status_fieldfmt[fldidx]
                                     ? status_fieldfmt[fldidx] : "%s",
                         text);
                 /* strip trailing spaces; core ought to do this for us */
-                if (fldidx == BL_HUNGER || fldidx == BL_LEVELDESC)
+                if (fldidx == CONDITION_HUNGER || fldidx == CONDITION_LEVELDESC)
                     (void) trimspaces(status_vals[fldidx]);
             }
 
@@ -193,12 +193,12 @@ curses_status_update(
             vert_status_dirty = 1;
 
             curses_status_colors[fldidx] = color_and_attr;
-            if (iflags.wc2_hitpointbar && fldidx == BL_HP) {
+            if (iflags.wc2_hitpointbar && fldidx == CONDITION_HP) {
                 hpbar_percent = percent;
                 hpbar_color = color_and_attr;
             }
         }
-    } else { /* BL_FLUSH */
+    } else { /* CONDITION_FLUSH */
         draw_status();
         changed_fields = 0;
     }
@@ -247,46 +247,46 @@ draw_status(void)
 static void
 draw_horizontal(boolean border)
 {
-#define blPAD BL_FLUSH
+#define blPAD CONDITION_FLUSH
     /* almost all fields already come with a leading space;
        "xspace" indicates places where we'll generate an extra one */
     static const enum statusfields
     twolineorder[3][16] = {
-        { BL_TITLE,
-          /*xspace*/ BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
-          /*xspace*/ BL_ALIGN,
-          /*xspace*/ BL_SCORE,
-          BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
-        { BL_LEVELDESC,
-          /*xspace*/ BL_GOLD,
-          /*xspace*/ BL_HP, BL_HPMAX,
-          /*xspace*/ BL_ENE, BL_ENEMAX,
-          /*xspace*/ BL_AC,
-          /*xspace*/ BL_XP, BL_EXP, BL_HD,
-          /*xspace*/ BL_TIME,
-          /*xspace*/ BL_HUNGER, BL_CAP, BL_CONDITION, BL_VERS,
-          BL_FLUSH },
-        { BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
+        { CONDITION_TITLE,
+          /*xspace*/ CONDITION_STR, CONDITION_DX, CONDITION_CO, CONDITION_IN, CONDITION_WI, CONDITION_CH,
+          /*xspace*/ CONDITION_ALIGN,
+          /*xspace*/ CONDITION_SCORE,
+          CONDITION_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
+        { CONDITION_LEVELDESC,
+          /*xspace*/ CONDITION_GOLD,
+          /*xspace*/ CONDITION_HP, CONDITION_HPMAX,
+          /*xspace*/ CONDITION_ENE, CONDITION_ENEMAX,
+          /*xspace*/ CONDITION_AC,
+          /*xspace*/ CONDITION_XP, CONDITION_EXP, CONDITION_HD,
+          /*xspace*/ CONDITION_TIME,
+          /*xspace*/ CONDITION_HUNGER, CONDITION_CAP, CONDITION_CONDITION, CONDITION_VERS,
+          CONDITION_FLUSH },
+        { CONDITION_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
           blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
     },
     threelineorder[3][16] = { /* moves align to line 2, leveldesc+ to 3 */
-        { BL_TITLE,
-          /*xspace*/ BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
-          /*xspace*/ BL_SCORE,
-          BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
-        { BL_ALIGN,
-          /*xspace*/ BL_GOLD,
-          /*xspace*/ BL_HP, BL_HPMAX,
-          /*xspace*/ BL_ENE, BL_ENEMAX,
-          /*xspace*/ BL_AC,
-          /*xspace*/ BL_XP, BL_EXP, BL_HD,
-          /*xspace*/ BL_HUNGER, BL_CAP,
-          BL_FLUSH, blPAD, blPAD, blPAD },
-        { BL_LEVELDESC,
-          /*xspace*/ BL_TIME,
-          /*xspecial*/ BL_CONDITION,
-          /*xspecial*/ BL_VERS,
-          BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
+        { CONDITION_TITLE,
+          /*xspace*/ CONDITION_STR, CONDITION_DX, CONDITION_CO, CONDITION_IN, CONDITION_WI, CONDITION_CH,
+          /*xspace*/ CONDITION_SCORE,
+          CONDITION_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
+        { CONDITION_ALIGN,
+          /*xspace*/ CONDITION_GOLD,
+          /*xspace*/ CONDITION_HP, CONDITION_HPMAX,
+          /*xspace*/ CONDITION_ENE, CONDITION_ENEMAX,
+          /*xspace*/ CONDITION_AC,
+          /*xspace*/ CONDITION_XP, CONDITION_EXP, CONDITION_HD,
+          /*xspace*/ CONDITION_HUNGER, CONDITION_CAP,
+          CONDITION_FLUSH, blPAD, blPAD, blPAD },
+        { CONDITION_LEVELDESC,
+          /*xspace*/ CONDITION_TIME,
+          /*xspecial*/ CONDITION_CONDITION,
+          /*xspecial*/ CONDITION_VERS,
+          CONDITION_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
           blPAD, blPAD, blPAD, blPAD }
     };
     const enum statusfields (*fieldorder)[16];
@@ -351,22 +351,22 @@ draw_horizontal(boolean border)
     clen = (int) strlen(cbuf);
 
     cap_and_hunger = 0;
-    if (*status_vals[BL_HUNGER])
+    if (*status_vals[CONDITION_HUNGER])
         cap_and_hunger |= 1;
-    if (*status_vals[BL_CAP])
+    if (*status_vals[CONDITION_CAP])
         cap_and_hunger |= 2;
     exp_points = (flags.showexp ? 1 : 0);
     /* don't bother conditionalizing this; always 0 for !SCORE_ON_BOTL */
-    sho_score = (status_activefields[BL_SCORE] != 0);
-    sho_vers = (status_activefields[BL_VERS] != 0);
-    versstart = sho_vers ? (width - (int) strlen(status_vals[BL_VERS])
+    sho_score = (status_activefields[CONDITION_SCORE] != 0);
+    sho_vers = (status_activefields[CONDITION_VERS] != 0);
+    versstart = sho_vers ? (width - (int) strlen(status_vals[CONDITION_VERS])
                             + (border ? 1 : 0))
                          : 0;
 
     /* simplify testing which fields reside on which lines; assume line #0 */
     (void) memset((genericptr_t) valline, 0, sizeof valline);
     for (j = 1; j < number_of_lines; ++j)
-        for (i = 0; (fld = fieldorder[j][i]) != BL_FLUSH; ++i)
+        for (i = 0; (fld = fieldorder[j][i]) != CONDITION_FLUSH; ++i)
             valline[fld] = j;
 
     /* iterate 0 and 1 and maybe 2 for status lines 1 and 2 and maybe 3 */
@@ -376,8 +376,8 @@ draw_horizontal(boolean border)
         /* first pass for line #j -- figure out spacing */
         (void) memset((genericptr_t) spacing, 0, sizeof spacing);
         w = xtra = 0; /* w: width so far; xtra: number of extra spaces */
-        prev_fld = BL_FLUSH;
-        for (i = 0; (fld = fieldorder[j][i]) != BL_FLUSH; ++i) {
+        prev_fld = CONDITION_FLUSH;
+        for (i = 0; (fld = fieldorder[j][i]) != CONDITION_FLUSH; ++i) {
             /* when the core marks a field as disabled, it doesn't call
                status_update() to tell us to throw away the old value, so
                polymorph leaves stale XP and rehumanize leaves stale HD */
@@ -389,23 +389,23 @@ draw_horizontal(boolean border)
             /* most fields already include a leading space; we don't try to
                count those separately, they're just part of field's length */
             switch (fld) {
-            case BL_EXP:
+            case CONDITION_EXP:
                 spacing[fld] = 0; /* no leading or extra space */
                 if (!exp_points)
                     continue;
                 break;
-            case BL_HPMAX:
-            case BL_ENEMAX:
+            case CONDITION_HPMAX:
+            case CONDITION_ENEMAX:
                 spacing[fld] = 0; /* no leading or extra space */
                 break;
-            case BL_DX:
-            case BL_CO:
-            case BL_IN:
-            case BL_WI:
-            case BL_CH:
+            case CONDITION_DX:
+            case CONDITION_CO:
+            case CONDITION_IN:
+            case CONDITION_WI:
+            case CONDITION_CH:
                 spacing[fld] = 0; /* leading space but no extra space */
                 break;
-            case BL_TITLE:
+            case CONDITION_TITLE:
                 if (iflags.wc2_hitpointbar) {
                     w += 2; /* count '[' and ']' */
                     t = (int) strlen(text);
@@ -414,34 +414,34 @@ draw_horizontal(boolean border)
                                         * functional result being 'w += 30' */
                 }
                 /*FALLTHRU*/
-            case BL_ALIGN:
-            case BL_LEVELDESC:
+            case CONDITION_ALIGN:
+            case CONDITION_LEVELDESC:
                 spacing[fld] = (i > 0 ? 1 : 0); /* extra space unless first */
                 break;
-            case BL_HUNGER:
+            case CONDITION_HUNGER:
                 spacing[fld] = (cap_and_hunger & 1);
                 break;
-            case BL_CAP:
+            case CONDITION_CAP:
                 spacing[fld] = (cap_and_hunger == 2);
                 break;
-            case BL_CONDITION:
+            case CONDITION_CONDITION:
                 text = cbuf; /* for 'w += strlen(text)' below */
                 spacing[fld] = (cap_and_hunger == 0);
                 break;
-            case BL_VERS:
-            case BL_STR:
-            case BL_HP:
-            case BL_ENE:
-            case BL_AC:
-            case BL_GOLD:
+            case CONDITION_VERS:
+            case CONDITION_STR:
+            case CONDITION_HP:
+            case CONDITION_ENE:
+            case CONDITION_AC:
+            case CONDITION_GOLD:
                 spacing[fld] = 1; /* always extra space */
                 break;
-            case BL_XP:
-            case BL_HD:
-            case BL_TIME:
+            case CONDITION_XP:
+            case CONDITION_HD:
+            case CONDITION_TIME:
                 spacing[fld] = status_activefields[fld] ? 1 : 0;
                 break;
-            case BL_SCORE:
+            case CONDITION_SCORE:
                 spacing[fld] = sho_score ? 1 : 0;
                 break;
             default:
@@ -451,9 +451,9 @@ draw_horizontal(boolean border)
             /* if preceding field has any trailing spaces, don't add extra;
                (should only apply to prev==title; status_update() handles
                others that used to have trailing spaces by stripping such) */
-            if (spacing[fld] > 0 && prev_fld != BL_FLUSH
+            if (spacing[fld] > 0 && prev_fld != CONDITION_FLUSH
                 && *(p = status_vals[prev_fld]) && *(eos(p) - 1) == ' '
-                && (prev_fld != BL_TITLE || !iflags.wc2_hitpointbar))
+                && (prev_fld != CONDITION_TITLE || !iflags.wc2_hitpointbar))
                 spacing[fld] = 0;
             xtra += spacing[fld];
 
@@ -471,14 +471,14 @@ draw_horizontal(boolean border)
         }
         w += xtra; /* simplify further width checks */
         /* if showing exper points and line is too wide, don't show them */
-        if (w > width && exp_points && j == valline[BL_EXP]
-            && ((*cbuf && j == valline[BL_CONDITION])
-                || (cap_and_hunger && j == valline[BL_HUNGER]))) {
+        if (w > width && exp_points && j == valline[CONDITION_EXP]
+            && ((*cbuf && j == valline[CONDITION_CONDITION])
+                || (cap_and_hunger && j == valline[CONDITION_HUNGER]))) {
             exp_points = 0;
             goto startover;
         }
 #ifdef SCORE_ON_BOTL
-        if (sho_score && j == valline[BL_SCORE]) {
+        if (sho_score && j == valline[CONDITION_SCORE]) {
             /* no point in letting score become truncated on the right
                because showing fewer than all digits would be useless */
             if (w > width) {
@@ -491,18 +491,18 @@ draw_horizontal(boolean border)
                 }
             }
             /* right justify score unless window is very wide */
-            t = COLNO + (int) strlen(status_vals[BL_SCORE]);
+            t = COLNO + (int) strlen(status_vals[CONDITION_SCORE]);
             if (t > width)
                 t = width;
             if (w < t)
-                spacing[BL_SCORE] += (t - w);
+                spacing[CONDITION_SCORE] += (t - w);
         }
 #endif
 
         /* second pass for line #j -- render it */
         x = y = border ? 1 : 0;
         wmove(win, y + j, x);
-        for (i = 0; (fld = fieldorder[j][i]) != BL_FLUSH; ++i) {
+        for (i = 0; (fld = fieldorder[j][i]) != CONDITION_FLUSH; ++i) {
             if (!status_activefields[fld])
                 continue;
 
@@ -517,26 +517,26 @@ draw_horizontal(boolean border)
                 ++text; /* for first field of line, discard leading space */
 
             switch (fld) {
-            case BL_EXP:
+            case CONDITION_EXP:
                 /* might be 'active' but suppressed due to lack of room */
                 if (!exp_points)
                     continue;
                 break;
-            case BL_HUNGER:
+            case CONDITION_HUNGER:
                 if (number_of_lines == 3) {
                     /* remember hunger's position */
                     getyx(win, conddummy, condstart);
                     /* if hunger won't be shown, figure out where cap
                        will be; if cap won't be shown either, use where
                        conditions would go if they were on this line */
-                    condstart += (cap_and_hunger == 2) ? spacing[BL_CAP]
+                    condstart += (cap_and_hunger == 2) ? spacing[CONDITION_CAP]
                                  : (cap_and_hunger == 0) ? 1 : 0;
                     nhUse(conddummy);   /* getyx needed 3 args */
                 }
                 if (!(cap_and_hunger & 1))
                     continue;
                 break;
-            case BL_CAP:
+            case CONDITION_CAP:
                 /* always enabled but might be empty */
                 if (!(cap_and_hunger & 2))
                     continue;
@@ -555,7 +555,7 @@ draw_horizontal(boolean border)
                      nhUse(ey); /* getyx needed 3 args */
                 }
                 break;
-            case BL_SCORE:
+            case CONDITION_SCORE:
 #ifdef SCORE_ON_BOTL
                 if ((sho_score & 2) != 0) { /* strip "S:" prefix */
                     if ((colon = strchr(text, ':')) != 0)
@@ -571,15 +571,15 @@ draw_horizontal(boolean border)
                 break;
             }
 
-            if (fld == BL_TITLE && iflags.wc2_hitpointbar) {
+            if (fld == CONDITION_TITLE && iflags.wc2_hitpointbar) {
                 /* hitpointbar using hp percent calculation; title width
                    is padded to 30 if shorter, truncated at 30 if longer;
                    overall width is 32 because of the enclosing brackets */
                 curs_HPbar(text, 0);
 
-            } else if (fld != BL_CONDITION) {
+            } else if (fld != CONDITION_CONDITION) {
                 /* regular field, including title if no hitpointbar */
-                if (fld == BL_VERS) {
+                if (fld == CONDITION_VERS) {
                     getyx(win, y, x);
                     if (x < versstart)
                         wmove(win, y, versstart); /* right justify */
@@ -627,9 +627,9 @@ draw_horizontal(boolean border)
                     /* cbuf[] was populated above; clen is its length */
                     if (number_of_lines == 3) {
                         int vlen = (sho_vers
-                                    && fieldorder[j][i + 1] == BL_VERS)
-                                   ? ((int) strlen(status_vals[BL_VERS])
-                                      + spacing[BL_VERS])
+                                    && fieldorder[j][i + 1] == CONDITION_VERS)
+                                   ? ((int) strlen(status_vals[CONDITION_VERS])
+                                      + spacing[CONDITION_VERS])
                                    : 0;
 
                         clen += vlen; /* when aligning conditions, treat
@@ -683,31 +683,31 @@ draw_vertical(boolean border)
     /* for blank lines, the digit prefix is the order in which they get
        removed if we need to shrink to fit within height limit (very rare) */
     static const enum statusfields fieldorder[] = {
-        BL_TITLE, /* might be overlaid by hitpoint bar */
+        CONDITION_TITLE, /* might be overlaid by hitpoint bar */
         /* 5:blank */
-        BL_HP, BL_HPMAX,
-        BL_ENE, BL_ENEMAX,
-        BL_AC,
+        CONDITION_HP, CONDITION_HPMAX,
+        CONDITION_ENE, CONDITION_ENEMAX,
+        CONDITION_AC,
         /* 4:blank */
-        BL_LEVELDESC,
-        BL_ALIGN,
-        BL_XP, BL_EXP, BL_HD,
-        BL_GOLD,
+        CONDITION_LEVELDESC,
+        CONDITION_ALIGN,
+        CONDITION_XP, CONDITION_EXP, CONDITION_HD,
+        CONDITION_GOLD,
         /* 3:blank (but only if time or score or both enabled) */
-        BL_TIME,
-        BL_SCORE,
+        CONDITION_TIME,
+        CONDITION_SCORE,
         /* 2:blank */
-        BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
+        CONDITION_STR, CONDITION_DX, CONDITION_CO, CONDITION_IN, CONDITION_WI, CONDITION_CH,
         /* 6:blank (if any of hunger, encumbrance, or conditions appear) */
-        BL_HUNGER, BL_CAP, /* these two are shown on same line */
-        BL_CONDITION, /* shown three per line so may take up to four lines */
+        CONDITION_HUNGER, CONDITION_CAP, /* these two are shown on same line */
+        CONDITION_CONDITION, /* shown three per line so may take up to four lines */
         /* 1:blank (bottom justified) */
-        BL_VERS,
-        BL_FLUSH
+        CONDITION_VERS,
+        CONDITION_FLUSH
     };
     static const enum statusfields shrinkorder[] = {
-         BL_VERS, BL_STR, BL_SCORE, BL_TIME, BL_LEVELDESC, BL_HP,
-         BL_CONDITION, BL_CAP, BL_HUNGER
+         CONDITION_VERS, CONDITION_STR, CONDITION_SCORE, CONDITION_TIME, CONDITION_LEVELDESC, CONDITION_HP,
+         CONDITION_CONDITION, CONDITION_CAP, CONDITION_HUNGER
     };
     coordxy spacing[MAXBLSTATS];
     int i, fld, cap_and_hunger, time_and_score, cond_count,
@@ -737,14 +737,14 @@ draw_vertical(boolean border)
      */
 
     cap_and_hunger = 0;
-    if (*status_vals_long[BL_HUNGER])
+    if (*status_vals_long[CONDITION_HUNGER])
         cap_and_hunger |= 1;
-    if (*status_vals_long[BL_CAP])
+    if (*status_vals_long[CONDITION_CAP])
         cap_and_hunger |= 2;
     time_and_score = 0;
-    if (status_activefields[BL_TIME])
+    if (status_activefields[CONDITION_TIME])
         time_and_score |= 1;
-    if (status_activefields[BL_SCORE])
+    if (status_activefields[CONDITION_SCORE])
         time_and_score |= 2;
     cond_count = 0;
     if (curses_condition_bits) {
@@ -753,43 +753,43 @@ draw_vertical(boolean border)
                 ++cond_count;
     }
     per_line = 2; /* will be changed to 3 if status becomes too tall */
-    sho_vers = (status_activefields[BL_VERS] ? 1 : 0);
+    sho_vers = (status_activefields[CONDITION_VERS] ? 1 : 0);
 
     /* count how many lines we'll need; we normally space several groups of
        fields with blank lines but might need to compress some of those out */
     height_needed = border ? 2 : 0;
     for (i = 0; (fld = i) < SIZE(spacing); ++i) {
         switch ((enum statusfields) fld) {
-        case BL_HPMAX:
-        case BL_ENEMAX:
-        case BL_EXP:
+        case CONDITION_HPMAX:
+        case CONDITION_ENEMAX:
+        case CONDITION_EXP:
             spacing[fld] = 0; /* these will continue the previous line */
             break;
-        case BL_HP:
-        case BL_LEVELDESC:
-        case BL_STR:
+        case CONDITION_HP:
+        case CONDITION_LEVELDESC:
+        case CONDITION_STR:
             spacing[fld] = 2; /* simple group separation (no conditionals) */
             break;
-        case BL_TIME:
+        case CONDITION_TIME:
             /* time will be separated from gold unless it is inactive */
             spacing[fld] = (time_and_score & 1) ? 2 : 0;
             break;
-        case BL_SCORE:
+        case CONDITION_SCORE:
             /* unlike hunger+cap, score is shown on separate line from time;
                needs time+score separator if time is inactive */
             spacing[fld] = (time_and_score == 2) ? 2
                            : (time_and_score == 3) ? 1 : 0;
             break;
-        case BL_HUNGER:
+        case CONDITION_HUNGER:
             /* separated from characteristics unless blank */
             spacing[fld] = (cap_and_hunger & 1) ? 2 : 0;
             break;
-        case BL_CAP:
+        case CONDITION_CAP:
             /* on same line as hunger if both are non-blank,
                otherwise needs blank line if hunger is being omitted */
             spacing[fld] = (cap_and_hunger == 2) ? 2 : 0;
             break;
-        case BL_CONDITION:
+        case CONDITION_CONDITION:
             /* need blank line if hunger and encumbrance are both omitted,
                otherwise just start on next line; if more than 3 conditions
                are present, this will consume multiple lines from height */
@@ -798,11 +798,11 @@ draw_vertical(boolean border)
             if (cond_count > per_line)
                 height_needed += (cond_count - 1) / per_line;
             break;
-        case BL_VERS:
+        case CONDITION_VERS:
             spacing[fld] = sho_vers ? 2 : 0;
             break;
-        case BL_XP:
-        case BL_HD:
+        case CONDITION_XP:
+        case CONDITION_HD:
         default:
             /* might be inactive, otherwise normal case of 'on next line' */
             spacing[fld] = status_activefields[fld] ? 1 : 0;
@@ -834,32 +834,32 @@ draw_vertical(boolean border)
            require 24 lines or more in order to enable vertical status,
            but that has been relaxed to 20 so height_needed might still
            be too high after suppressing all the blank lines */
-        if (height_needed > height && status_activefields[BL_SCORE]) {
-            height_needed -= spacing[BL_SCORE];
-            spacing[BL_SCORE] = 0;
+        if (height_needed > height && status_activefields[CONDITION_SCORE]) {
+            height_needed -= spacing[CONDITION_SCORE];
+            spacing[CONDITION_SCORE] = 0;
             time_and_score &= ~2;
         }
 #endif
     } else if (height_needed < height) {
         if (sho_vers) {
             /* bottom justify 'version' */
-            spacing[BL_VERS] += height - height_needed; /* 2 + (h - h') */
+            spacing[CONDITION_VERS] += height - height_needed; /* 2 + (h - h') */
             height_needed = height;
         }
     }
-    /* height_needed isn't used beyond here but was updated (for BL_SCORE
-       or BL_VERS) to keep it accurate in case that changes someday */
+    /* height_needed isn't used beyond here but was updated (for CONDITION_SCORE
+       or CONDITION_VERS) to keep it accurate in case that changes someday */
     nhUse(height_needed);
 
     if (border)
         x++, y++;
-    for (i = 0; (fld = fieldorder[i]) != BL_FLUSH; ++i) {
+    for (i = 0; (fld = fieldorder[i]) != CONDITION_FLUSH; ++i) {
         if (!status_activefields[fld])
             continue;
-        if ((fld == BL_HUNGER && !(cap_and_hunger & 1))
-            || (fld == BL_CAP && !(cap_and_hunger & 2))
-            || (fld == BL_TIME && !(time_and_score & 1))
-            || (fld == BL_SCORE && !(time_and_score & 2)))
+        if ((fld == CONDITION_HUNGER && !(cap_and_hunger & 1))
+            || (fld == CONDITION_CAP && !(cap_and_hunger & 2))
+            || (fld == CONDITION_TIME && !(time_and_score & 1))
+            || (fld == CONDITION_SCORE && !(time_and_score & 2)))
             continue;
 
         if (spacing[fld]) {
@@ -867,19 +867,19 @@ draw_vertical(boolean border)
             wmove(win, y - 1, x); /* move to next (or further) line */
         }
 
-        if (fld == BL_TITLE && iflags.wc2_hitpointbar) {
+        if (fld == CONDITION_TITLE && iflags.wc2_hitpointbar) {
             /* 4: left+right borders and open+close brackets; 2: brackets */
             curs_HPbar(status_vals_long[fld], width - (border ? 4 : 2));
 
-        } else if (fld != BL_CONDITION) {
+        } else if (fld != CONDITION_CONDITION) {
             /* regular field (including title if no hitpoint bar) */
             text = status_vals_long[fld];
             /* hunger and encumbrance come with a leading space;
                we'll put them on the same line and omit that space for
                the first (or only) and keep it for the second (if both) */
             if (*text == ' '
-                && (fld == BL_HUNGER
-                    || (fld == BL_CAP && cap_and_hunger != 3)))
+                && (fld == CONDITION_HUNGER
+                    || (fld == CONDITION_CAP && cap_and_hunger != 3)))
                 ++text;
 #ifdef STATUS_HILITES
             coloridx = curses_status_colors[fld]; /* includes attributes */
@@ -887,12 +887,12 @@ draw_vertical(boolean border)
                 /* most status_vals_long[] are "long-text : value" and
                    unlike horizontal status's abbreviated "ab:value",
                    we highlight just the value portion */
-                p = (fld != BL_TITLE) ? strchr(text, ':') : 0;
+                p = (fld != CONDITION_TITLE) ? strchr(text, ':') : 0;
                 p = !p ? text : p + 1;
                 while (*p == ' ')
                     ++p;
-                if ((fld == BL_EXP && *p == '/')
-                    || ((fld == BL_HPMAX || fld == BL_ENEMAX) && *p == '('))
+                if ((fld == CONDITION_EXP && *p == '/')
+                    || ((fld == CONDITION_HPMAX || fld == CONDITION_ENEMAX) && *p == '('))
                     ++p;
                 /* prefix portion, if any, is output without highlighting */
                 if (p > text) {
@@ -901,7 +901,7 @@ draw_vertical(boolean border)
                     waddstr(win, text); /* output the prefix */
                     *p = savedch;
                     text = p; /* rest of field */
-                    if ((fld == BL_HPMAX || fld == BL_ENEMAX)
+                    if ((fld == CONDITION_HPMAX || fld == CONDITION_ENEMAX)
                         && (p = strchr(text, ')')) != 0) {
                         savedch = *p;
                         *p = '\0';
@@ -928,7 +928,7 @@ draw_vertical(boolean border)
                 if (attrmask)
                     wattroff(win, attrmask);
             } /* resume normal rendition */
-            if ((fld == BL_HPMAX || fld == BL_ENEMAX) && savedch == ')') {
+            if ((fld == CONDITION_HPMAX || fld == CONDITION_ENEMAX) && savedch == ')') {
                 *p = savedch;
                 waddstr(win, p);
             }
@@ -1150,8 +1150,8 @@ curs_vert_status_vals(int win_width)
     int fldidx, hp_width, en_tmp, fld_width, lbl_width;
 
     /* width of bigger of full HP and full En regardless of current value */
-    hp_width = (int) strlen(status_vals[BL_HPMAX]) - 2; /* -2: "("...")" */
-    en_tmp = (int) strlen(status_vals[BL_ENEMAX]) - 2;
+    hp_width = (int) strlen(status_vals[CONDITION_HPMAX]) - 2; /* -2: "("...")" */
+    en_tmp = (int) strlen(status_vals[CONDITION_ENEMAX]) - 2;
     if (en_tmp > hp_width)
         hp_width = en_tmp;
     /*
@@ -1163,11 +1163,11 @@ curs_vert_status_vals(int win_width)
     lbl_width = 13;
  startover:
     for (fldidx = 0; fldidx < MAXBLSTATS; ++fldidx) {
-        if (!status_activefields[fldidx] || fldidx == BL_CONDITION) {
+        if (!status_activefields[fldidx] || fldidx == CONDITION_CONDITION) {
             *status_vals_long[fldidx] = '\0';
         } else {
             text = status_vals[fldidx];
-            if (fldidx != BL_TITLE && fldidx != BL_LEVELDESC) {
+            if (fldidx != CONDITION_TITLE && fldidx != CONDITION_LEVELDESC) {
                 if ((colon = strchr(text, ':')) != 0)
                     text = colon + 1;
             }
@@ -1176,46 +1176,46 @@ curs_vert_status_vals(int win_width)
             leadingspace[0] = '\0';
             /* classify type of field (labeled or not) and make some fixups */
             switch ((enum statusfields) fldidx) {
-            case BL_XP:
+            case CONDITION_XP:
                  /* "experience-level : N" is too long and becomes misleading
                     if value is shown as 'N/experience-points' */
                 lbl = "experience";
                 break;
-            case BL_LEVELDESC:
+            case CONDITION_LEVELDESC:
                 /* "dungeon-level" is redundant when value is "Dlvl-N" */
                 lbl = "location";
                 break;
-            case BL_HD:
+            case CONDITION_HD:
                 /* "HD" is too oscure; 0 actually means 1d4 (so about 1/2);
                    "hit-dice" is obscure too but doesn't stand out as such */
                 lbl = (!strcmp(text, "1") || !strcmp(text, "0")) ? "hit-die"
                       : "hit-dice";
                 break;
-            case BL_ALIGN:
+            case CONDITION_ALIGN:
                 /* don't want sprintf(": %s") below inserting second space */
                 if (*text == ' ')
                     ++text;
                 break;
-            case BL_HP:
-            case BL_ENE:
+            case CONDITION_HP:
+            case CONDITION_ENE:
                 /* pad HP and En so that they're right aligned */
                 fld_width = (int) strlen(text);
                 if (fld_width < hp_width)
                     Sprintf(leadingspace, "%*s", hp_width - fld_width, " ");
                 break;
-            case BL_STR:
-            case BL_DX:
-            case BL_CO:
-            case BL_IN:
-            case BL_WI:
-            case BL_CH:
+            case CONDITION_STR:
+            case CONDITION_DX:
+            case CONDITION_CO:
+            case CONDITION_IN:
+            case CONDITION_WI:
+            case CONDITION_CH:
                 /* for vertical orientation, right justify characteristics;
                    exceptional strength, if present, will protrude to right */
                 if (strlen(text) == 1)
                      Strcpy(leadingspace, " ");
                 break;
-            case BL_HPMAX:
-            case BL_ENEMAX:
+            case CONDITION_HPMAX:
+            case CONDITION_ENEMAX:
                  /* pad HPmax and Enmax so that they're right aligned with
                     each other with a one-space gap after current HP/En */
                 fld_width = (int) strlen(text);
@@ -1223,11 +1223,11 @@ curs_vert_status_vals(int win_width)
                     Sprintf(leadingspace, "%*s",
                             (hp_width + 3) - fld_width, " ");
                 /*FALLTHRU*/
-            case BL_VERS:
-            case BL_EXP:
-            case BL_HUNGER:
-            case BL_CAP:
-            case BL_TITLE:
+            case CONDITION_VERS:
+            case CONDITION_EXP:
+            case CONDITION_HUNGER:
+            case CONDITION_CAP:
+            case CONDITION_TITLE:
                 use_name = FALSE;
                 break;
             default:
@@ -1237,18 +1237,18 @@ curs_vert_status_vals(int win_width)
                 Sprintf(status_vals_long[fldidx], "%*.*s: %s%s",
                         -lbl_width, lbl_width, lbl, leadingspace, text);
                 *status_vals_long[fldidx] = highc(*status_vals_long[fldidx]);
-            } else if (fldidx == BL_VERS && *text) {
+            } else if (fldidx == CONDITION_VERS && *text) {
                 int txtlen = (int) strlen(text);
 
                 /* right justify without "Version :" prefix; if longer than
                    width, keep only the *end* of the value */
                 if (txtlen >= win_width)
-                    Strcpy(status_vals_long[BL_VERS],
+                    Strcpy(status_vals_long[CONDITION_VERS],
                            eos((char *) text) - win_width);
                 else
-                    Sprintf(status_vals_long[BL_VERS],
+                    Sprintf(status_vals_long[CONDITION_VERS],
                             "%*s%s", win_width - txtlen, " ", text);
-            } else if ((fldidx == BL_HUNGER || fldidx == BL_CAP) && *text) {
+            } else if ((fldidx == CONDITION_HUNGER || fldidx == CONDITION_CAP) && *text) {
                 /* hunger and encumbrance are shown side-by-side in
                    a 26 character or wider window; if leading space is
                    present, get rid of it, then add one we're sure about */
@@ -1259,8 +1259,8 @@ curs_vert_status_vals(int win_width)
                 /* unlabeled: title, hp-max, en-max, exp-points, hunger+cap */
                 Sprintf(status_vals_long[fldidx], "%s%s", leadingspace, text);
                 /* when appending, base field uses field name as label */
-                use_name = (fldidx == BL_HPMAX || fldidx == BL_ENEMAX
-                            || fldidx == BL_EXP);
+                use_name = (fldidx == CONDITION_HPMAX || fldidx == CONDITION_ENEMAX
+                            || fldidx == CONDITION_EXP);
             }
             /* check whether 'label : value' is too wide; if so, we'll
                shorten the label's allowed width and try again */
@@ -1269,14 +1269,14 @@ curs_vert_status_vals(int win_width)
                 /* each extension field is preceded by its base field in
                    order to append, so base's _vals_long[] has been set */
                 switch ((enum statusfields) fldidx) {
-                case BL_HPMAX:
-                    fld_width += (int) strlen(status_vals_long[BL_HP]);
+                case CONDITION_HPMAX:
+                    fld_width += (int) strlen(status_vals_long[CONDITION_HP]);
                     break;
-                case BL_ENEMAX:
-                    fld_width += (int) strlen(status_vals_long[BL_ENE]);
+                case CONDITION_ENEMAX:
+                    fld_width += (int) strlen(status_vals_long[CONDITION_ENE]);
                     break;
-                case BL_EXP:
-                    fld_width += (int) strlen(status_vals_long[BL_XP]);
+                case CONDITION_EXP:
+                    fld_width += (int) strlen(status_vals_long[CONDITION_XP]);
                     break;
                 default:
                     break;
@@ -1317,26 +1317,26 @@ condattr(long bm, unsigned long *bmarray)
     int i, attr = 0;
 
     if (bm && bmarray) {
-        for (i = HL_ATTCLR_BOLD; i < BL_ATTCLR_MAX; ++i) {
+        for (i = HIGHLIGHT_ATTRIBUTE_COLOR_BOLD; i < CONDITION_ATTRIBUTE_COLOR_MAX; ++i) {
             if ((bmarray[i] & bm) != 0) {
                 switch(i) {
-                case HL_ATTCLR_BOLD:
-                    attr |= HL_BOLD;
+                case HIGHLIGHT_ATTRIBUTE_COLOR_BOLD:
+                    attr |= HIGHLIGHT_BOLD;
                     break;
-                case HL_ATTCLR_DIM:
-                    attr |= HL_DIM;
+                case HIGHLIGHT_ATTRIBUTE_COLOR_DIM:
+                    attr |= HIGHLIGHT_DIM;
                     break;
-                case HL_ATTCLR_ITALIC:
-                    attr |= HL_ITALIC;
+                case HIGHLIGHT_ATTRIBUTE_COLOR_ITALIC:
+                    attr |= HIGHLIGHT_ITALIC;
                     break;
-                case HL_ATTCLR_ULINE:
-                    attr |= HL_ULINE;
+                case HIGHLIGHT_ATTRIBUTE_COLOR_ULINE:
+                    attr |= HIGHLIGHT_UNDERLINE;
                     break;
-                case HL_ATTCLR_BLINK:
-                    attr |= HL_BLINK;
+                case HIGHLIGHT_ATTRIBUTE_COLOR_BLINK:
+                    attr |= HIGHLIGHT_BLINK;
                     break;
-                case HL_ATTCLR_INVERSE:
-                    attr |= HL_INVERSE;
+                case HIGHLIGHT_ATTRIBUTE_COLOR_INVERSE:
+                    attr |= HIGHLIGHT_INVERSE;
                     break;
                 }
             }
@@ -1351,17 +1351,17 @@ nhattr2curses(int attrmask)
 {
     int result = 0;
 
-    if (attrmask & HL_BOLD)
+    if (attrmask & HIGHLIGHT_BOLD)
         result |= A_BOLD;
-    if (attrmask & HL_DIM)
+    if (attrmask & HIGHLIGHT_DIM)
         result |= A_DIM;
-    if (attrmask & HL_ITALIC)
+    if (attrmask & HIGHLIGHT_ITALIC)
         result |= A_ITALIC;
-    if (attrmask & HL_ULINE)
+    if (attrmask & HIGHLIGHT_UNDERLINE)
         result |= A_UNDERLINE;
-    if (attrmask & HL_BLINK)
+    if (attrmask & HIGHLIGHT_BLINK)
         result |= A_BLINK;
-    if (attrmask & HL_INVERSE)
+    if (attrmask & HIGHLIGHT_INVERSE)
         result |= A_REVERSE;
 
     return result;
@@ -1483,7 +1483,7 @@ get_trouble_color(const char *stat)
             res = curses_color_attr(stat_color.color, 0);
             int count;
             for (count = 0; (1 << count) <= stat_color.attr_bits; count++) {
-                if (count != ATR_NONE &&
+                if (count != TEXT_ATTRIBUTE_NONE &&
                     (stat_color.attr_bits & (1 << count)))
                     res |= curses_convert_attr(count);
             }
@@ -1686,7 +1686,7 @@ hpen_color_attr(boolean is_hp, int cur, int max)
         attr |= curses_color_attr(stat_color.color, 0);
 
     for (count = 0; (1 << count) <= stat_color.attr_bits; count++) {
-        if (count != ATR_NONE && (stat_color.attr_bits & (1 << count)))
+        if (count != TEXT_ATTRIBUTE_NONE && (stat_color.attr_bits & (1 << count)))
             attr |= curses_convert_attr(count);
     }
 
@@ -1883,12 +1883,12 @@ draw_horizontal(int x, int y, int hp, int hpmax)
     draw_bar(TRUE, hp, hpmax, buf);
 
     /* Attributes */
-    print_statdiff(" St:", &prevstr, ACURR(A_STR), STAT_STR);
-    print_statdiff(" Dx:", &prevdex, ACURR(A_DEX), STAT_OTHER);
-    print_statdiff(" Co:", &prevcon, ACURR(A_CON), STAT_OTHER);
-    print_statdiff(" In:", &prevint, ACURR(A_INT), STAT_OTHER);
-    print_statdiff(" Wi:", &prevwis, ACURR(A_WIS), STAT_OTHER);
-    print_statdiff(" Ch:", &prevcha, ACURR(A_CHA), STAT_OTHER);
+    print_statdiff(" St:", &prevstr, ACURR(ATTRIBUTE_STRENGTH), STAT_STR);
+    print_statdiff(" Dx:", &prevdex, ACURR(ATTRIBUTE_DEXTERITY), STAT_OTHER);
+    print_statdiff(" Co:", &prevcon, ACURR(ATTRIBUTE_CONSTITUTION), STAT_OTHER);
+    print_statdiff(" In:", &prevint, ACURR(ATTRIBUTE_INTELLIGENCE), STAT_OTHER);
+    print_statdiff(" Wi:", &prevwis, ACURR(ATTRIBUTE_WISDOM), STAT_OTHER);
+    print_statdiff(" Ch:", &prevcha, ACURR(ATTRIBUTE_CHARISMA), STAT_OTHER);
 
     wprintw(win, (u.ualign.type == A_CHAOTIC ? " Chaotic" :
                   u.ualign.type == A_NEUTRAL ? " Neutral" : " Lawful"));
@@ -2033,7 +2033,7 @@ draw_horizontal_new(int x, int y, int hp, int hpmax)
     /* Right-aligned attributes */
     int stat_length = 6; /* " Dx:xx" */
     int str_length = 6;
-    if (ACURR(A_STR) > 18 && ACURR(A_STR) < 119)
+    if (ACURR(ATTRIBUTE_STRENGTH) > 18 && ACURR(ATTRIBUTE_STRENGTH) < 119)
         str_length = 9;
 
     getmaxyx(win, y, x);
@@ -2049,24 +2049,24 @@ draw_horizontal_new(int x, int y, int hp, int hpmax)
     x -= stat_length;
     int orig_x = x;
     wmove(win, y, x);
-    print_statdiff(" Co:", &prevcon, ACURR(A_CON), STAT_OTHER);
+    print_statdiff(" Co:", &prevcon, ACURR(ATTRIBUTE_CONSTITUTION), STAT_OTHER);
     x -= stat_length;
     wmove(win, y, x);
-    print_statdiff(" Dx:", &prevdex, ACURR(A_DEX), STAT_OTHER);
+    print_statdiff(" Dx:", &prevdex, ACURR(ATTRIBUTE_DEXTERITY), STAT_OTHER);
     x -= str_length;
     wmove(win, y, x);
-    print_statdiff(" St:", &prevstr, ACURR(A_STR), STAT_STR);
+    print_statdiff(" St:", &prevstr, ACURR(ATTRIBUTE_STRENGTH), STAT_STR);
 
     x = orig_x;
     y++;
     wmove(win, y, x);
-    print_statdiff(" Ch:", &prevcha, ACURR(A_CHA), STAT_OTHER);
+    print_statdiff(" Ch:", &prevcha, ACURR(ATTRIBUTE_CHARISMA), STAT_OTHER);
     x -= stat_length;
     wmove(win, y, x);
-    print_statdiff(" Wi:", &prevwis, ACURR(A_WIS), STAT_OTHER);
+    print_statdiff(" Wi:", &prevwis, ACURR(ATTRIBUTE_WISDOM), STAT_OTHER);
     x -= str_length;
     wmove(win, y, x);
-    print_statdiff(" In:", &prevint, ACURR(A_INT), STAT_OTHER);
+    print_statdiff(" In:", &prevint, ACURR(ATTRIBUTE_INTELLIGENCE), STAT_OTHER);
 }
 
 /* Personally I never understood the point of a vertical status bar. But removing the
@@ -2109,17 +2109,17 @@ draw_vertical(int x, int y, int hp, int hpmax)
     wmove(win, y++, x);
 
     /* Attributes. Old  vertical order is preserved */
-    print_statdiff("Strength:      ", &prevstr, ACURR(A_STR), STAT_STR);
+    print_statdiff("Strength:      ", &prevstr, ACURR(ATTRIBUTE_STRENGTH), STAT_STR);
     wmove(win, y++, x);
-    print_statdiff("Intelligence:  ", &prevint, ACURR(A_INT), STAT_OTHER);
+    print_statdiff("Intelligence:  ", &prevint, ACURR(ATTRIBUTE_INTELLIGENCE), STAT_OTHER);
     wmove(win, y++, x);
-    print_statdiff("Wisdom:        ", &prevwis, ACURR(A_WIS), STAT_OTHER);
+    print_statdiff("Wisdom:        ", &prevwis, ACURR(ATTRIBUTE_WISDOM), STAT_OTHER);
     wmove(win, y++, x);
-    print_statdiff("Dexterity:     ", &prevdex, ACURR(A_DEX), STAT_OTHER);
+    print_statdiff("Dexterity:     ", &prevdex, ACURR(ATTRIBUTE_DEXTERITY), STAT_OTHER);
     wmove(win, y++, x);
-    print_statdiff("Constitution:  ", &prevcon, ACURR(A_CON), STAT_OTHER);
+    print_statdiff("Constitution:  ", &prevcon, ACURR(ATTRIBUTE_CONSTITUTION), STAT_OTHER);
     wmove(win, y++, x);
-    print_statdiff("Charisma:      ", &prevcha, ACURR(A_CHA), STAT_OTHER);
+    print_statdiff("Charisma:      ", &prevcha, ACURR(ATTRIBUTE_CHARISMA), STAT_OTHER);
     wmove(win, y++, x);
     wprintw(win,   "Alignment:     ");
     wprintw(win, (u.ualign.type == A_CHAOTIC ? "Chaotic" :

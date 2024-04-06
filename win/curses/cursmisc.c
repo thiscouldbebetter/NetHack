@@ -742,28 +742,28 @@ curses_convert_attr(int attr)
 
     /* first, strip off control flags masked onto the display attributes
        (caller should have already done this...) */
-    attr &= ~(ATR_URGENT | ATR_NOHISTORY);
+    attr &= ~(TEXT_ATTRIBUTE_URGENT | TEXT_ATTRIBUTE_NOHISTORY);
 
     switch (attr) {
-    case ATR_NONE:
+    case TEXT_ATTRIBUTE_NONE:
         curses_attr = A_NORMAL;
         break;
-    case ATR_ULINE:
+    case TEXT_ATTRIBUTE_ULINE:
         curses_attr = A_UNDERLINE;
         break;
-    case ATR_BOLD:
+    case TEXT_ATTRIBUTE_BOLD:
         curses_attr = A_BOLD;
         break;
-    case ATR_DIM:
+    case TEXT_ATTRIBUTE_DIM:
         curses_attr = A_DIM;
         break;
-    case ATR_BLINK:
+    case TEXT_ATTRIBUTE_BLINK:
         curses_attr = A_BLINK;
         break;
-    case ATR_INVERSE:
+    case TEXT_ATTRIBUTE_INVERSE:
         curses_attr = A_REVERSE;
         break;
-    case ATR_ITALIC:
+    case TEXT_ATTRIBUTE_ITALIC:
         curses_attr = A_ITALIC;
         break;
     default:

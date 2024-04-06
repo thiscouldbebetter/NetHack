@@ -621,7 +621,7 @@ priest_talk(struct monster *priest)
                 money2u(priest, pmoney > 1L ? 2 : 1);
             } else
                 pline("%s preaches the virtues of poverty.", Monnam(priest));
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
         } else
             pline("%s is not interested.", Monnam(priest));
         return;
@@ -643,7 +643,7 @@ priest_talk(struct monster *priest)
                 SetVoice(priest, 0, 80, 0);
                 verbalize("I thank thee for thy contribution.");
                 /* give player some token */
-                exercise(A_WIS, TRUE);
+                exercise(ATTRIBUTE_WISDOM, TRUE);
             }
         } else if (offer < (u.ulevel * 400)) {
             SetVoice(priest, 0, 80, 0);
@@ -835,7 +835,7 @@ ghod_hitsu(struct monster *priest)
     buzz(BZ_M_SPELL(BZ_OFS_AD(AD_ELEC)), 6, x, y, sgn(gt.tbx), sgn(gt.tby));
     gb.buzzer = oldbuzzer;
     gc.current_wand = oldcurrwand;
-    exercise(A_WIS, FALSE);
+    exercise(ATTRIBUTE_WISDOM, FALSE);
 }
 
 void

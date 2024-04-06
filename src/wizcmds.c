@@ -357,7 +357,7 @@ wiz_load_lua(void)
         char buf[BUFSZ];
             /* Large but not unlimited memory and CPU so random bits of
              * code can be tested by wizards. */
-        nhl_sandbox_info sbi = {NHL_SB_SAFE | NHL_SB_DEBUGGING,
+        nhl_sandbox_info sbi = {NHIGHLIGHT_SB_SAFE | NHIGHLIGHT_SB_DEBUGGING,
                 16*1024*1024, 0, 16*1024*1024};
 
         buf[0] = '\0';
@@ -983,7 +983,7 @@ wiz_intrinsic(void)
                 Sprintf(buf, "%-27s [%li]", propname, oldtimeout);
             else
                 Sprintf(buf, "%s", propname);
-            add_menu(win, &nul_glyphinfo, &any, 0, 0, ATR_NONE, clr, buf,
+            add_menu(win, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE, clr, buf,
                      MENU_ITEMFLAGS_NONE);
         }
         end_menu(win, "Which intrinsics?");
@@ -1910,7 +1910,7 @@ wizcustom_callback(winid win, int glyphnum, char *id)
 #endif
             any.a_int = glyphnum + 1; /* avoid 0 */
             Snprintf(buf, sizeof buf, "%s %s %s %s", bufa, bufb, bufc, bufu);
-            add_menu(win, &nul_glyphinfo, &any, 0, 0, ATR_NONE, clr, buf,
+            add_menu(win, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE, clr, buf,
                      MENU_ITEMFLAGS_NONE);
         }
     }

@@ -700,7 +700,7 @@ staticfn void
 savelife(int how)
 {
     int uhpmin;
-    int givehp = 50 + 10 * (ATTRIBUTE_CURRENT(A_CON) / 2);
+    int givehp = 50 + 10 * (ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION) / 2);
 
     /* life-drain/level-loss to experience level 0 kills without actually
        reducing ulevel below 1, but include this for bulletproofing */
@@ -1079,7 +1079,7 @@ done(int how)
         if (uamul)
             useup(uamul);
 
-        (void) adjust_attribute(A_CON, -1, TRUE);
+        (void) adjust_attribute(ATTRIBUTE_CONSTITUTION, -1, TRUE);
         savelife(how);
         if (how == GENOCIDED) {
             pline("Unfortunately you are still genocided...");

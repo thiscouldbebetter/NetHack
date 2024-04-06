@@ -133,7 +133,7 @@ artitouch(struct obj *obj)
         /* only give this message once */
         Qstat(touched_artifact) = TRUE;
         qt_pager("gotit");
-        exercise(A_WIS, TRUE);
+        exercise(ATTRIBUTE_WISDOM, TRUE);
     }
 }
 
@@ -334,7 +334,7 @@ chat_with_leader(struct monster *mtmp)
 
         if (not_capable()) {
             qt_pager("badlevel");
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
             expulsion(FALSE);
         } else if ((purity = is_pure(TRUE)) < 0) {
             if (!Qstat(pissed_off)) {
@@ -345,11 +345,11 @@ chat_with_leader(struct monster *mtmp)
         } else if (purity == 0) {
             qt_pager("badalign");
             Qstat(not_ready) = 1;
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
             expulsion(FALSE);
         } else { /* You are worthy! */
             qt_pager("assignquest");
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
             Qstat(got_quest) = TRUE;
         }
     }

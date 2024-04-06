@@ -983,7 +983,7 @@ dig_up_grave(coord *cc)
     }
 
     /* Grave-robbing is frowned upon... */
-    exercise(A_WIS, FALSE);
+    exercise(ATTRIBUTE_WISDOM, FALSE);
     if (Role_if(PM_ARCHEOLOGIST)) {
         adjalign(-sgn(u.alignment.type) * 3);
         You_feel("like a despicable grave-robber!");
@@ -1458,9 +1458,9 @@ draft_message(boolean unexpected)
                and 4-F for ineligible due to physical or mental defect;
                some intermediate values exist but are rarely seen */
             You_feel("like you are %s.",
-                     (ATTRIBUTE_CURRENT(A_STR) < 6 || ATTRIBUTE_CURRENT(A_DEX) < 6
-                      || ATTRIBUTE_CURRENT(A_CON) < 6 || ATTRIBUTE_CURRENT(A_CHA) < 6
-                      || ATTRIBUTE_CURRENT(A_INT) < 6 || ATTRIBUTE_CURRENT(A_WIS) < 6) ? "4-F"
+                     (ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH) < 6 || ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) < 6
+                      || ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION) < 6 || ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA) < 6
+                      || ATTRIBUTE_CURRENT(ATTRIBUTE_INTELLIGENCE) < 6 || ATTRIBUTE_CURRENT(ATTRIBUTE_WISDOM) < 6) ? "4-F"
                                                                : "1-A");
     } else {
         if (!Hallucination) {

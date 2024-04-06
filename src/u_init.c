@@ -844,9 +844,9 @@ u_init_carry_attr_boost(void)
 {
     /* make sure you can carry all you have - especially for Tourists */
     while (inv_weight() > 0) {
-        if (adjust_attribute(A_STR, 1, TRUE))
+        if (adjust_attribute(ATTRIBUTE_STRENGTH, 1, TRUE))
             continue;
-        if (adjust_attribute(A_CON, 1, TRUE))
+        if (adjust_attribute(ATTRIBUTE_CONSTITUTION, 1, TRUE))
             continue;
         /* only get here when didn't boost strength or constitution */
         break;

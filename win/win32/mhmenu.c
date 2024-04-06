@@ -300,7 +300,7 @@ MenuWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR) data);
         }
         /* set font for the text control */
-        cached_font * font = mswin_get_font(NHW_MENU, ATR_NONE, hdc, FALSE);
+        cached_font * font = mswin_get_font(NHW_MENU, TEXT_ATTRIBUTE_NONE, hdc, FALSE);
         SendMessage(control, WM_SETFONT,
                     (WPARAM) font->hFont,
                     (LPARAM) 0);
@@ -574,7 +574,7 @@ onMSNHCommand(HWND hWnd, WPARAM wParam, LPARAM lParam)
 
         /* calculate dimensions of the added line of text */
         hdc = GetDC(text_view);
-        cached_font * font = mswin_get_font(NHW_MENU, ATR_NONE, hdc, FALSE);
+        cached_font * font = mswin_get_font(NHW_MENU, TEXT_ATTRIBUTE_NONE, hdc, FALSE);
         saveFont = SelectObject(hdc, font->hFont);
         SetRect(&text_rt, 0, 0, 0, 0);
         DrawTextA(hdc, msg_data->text, strlen(msg_data->text), &text_rt,
@@ -965,7 +965,7 @@ onMeasureItem(HWND hWnd, WPARAM wParam, LPARAM lParam)
     GetClientRect(GetMenuControl(hWnd), &list_rect);
 
     hdc = GetDC(GetMenuControl(hWnd));
-    cached_font * font = mswin_get_font(NHW_MENU, ATR_INVERSE, hdc, FALSE);
+    cached_font * font = mswin_get_font(NHW_MENU, TEXT_ATTRIBUTE_INVERSE, hdc, FALSE);
     saveFont = SelectObject(hdc, font->hFont);
     GetTextMetrics(hdc, &tm);
 
@@ -1194,7 +1194,7 @@ onDrawItem(HWND hWnd, WPARAM wParam, LPARAM lParam)
 
             /* TOOD: add blinking for blink text */
 
-            cached_font * blink_font = mswin_get_font(NHW_MENU, ATR_BLINK, lpdis->hDC, FALSE);
+            cached_font * blink_font = mswin_get_font(NHW_MENU, TEXT_ATTRIBUTE_BLINK, lpdis->hDC, FALSE);
             SelectObject(lpdis->hDC, blink_font->hFont);
 
             /* calculate text rectangle */

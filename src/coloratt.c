@@ -46,17 +46,17 @@ struct attr_names {
 };
 
 static const struct attr_names attrnames[] = {
-    { "none", ATR_NONE },
-    { "bold", ATR_BOLD },
-    { "dim", ATR_DIM },
-    { "italic", ATR_ITALIC },
-    { "underline", ATR_ULINE },
-    { "blink", ATR_BLINK },
-    { "inverse", ATR_INVERSE },
-    { (const char *) 0, ATR_NONE }, /* everything after this is an alias */
-    { "normal", ATR_NONE },
-    { "uline", ATR_ULINE },
-    { "reverse", ATR_INVERSE },
+    { "none", TEXT_ATTRIBUTE_NONE },
+    { "bold", TEXT_ATTRIBUTE_BOLD },
+    { "dim", TEXT_ATTRIBUTE_DIM },
+    { "italic", TEXT_ATTRIBUTE_ITALIC },
+    { "underline", TEXT_ATTRIBUTE_ULINE },
+    { "blink", TEXT_ATTRIBUTE_BLINK },
+    { "inverse", TEXT_ATTRIBUTE_INVERSE },
+    { (const char *) 0, TEXT_ATTRIBUTE_NONE }, /* everything after this is an alias */
+    { "normal", TEXT_ATTRIBUTE_NONE },
+    { "uline", TEXT_ATTRIBUTE_ULINE },
+    { "reverse", TEXT_ATTRIBUTE_INVERSE },
 };
 
 /* { colortyp, tableindex, rgbindx, name, hexval, r, g, b }, */
@@ -248,7 +248,7 @@ color_attr_parse_str(color_attr *ca, char *str)
 {
     char buf[BUFSZ];
     char *amp = NULL;
-    int tmp, c = COLOR_CODE_NONE, a = ATR_NONE;
+    int tmp, c = COLOR_CODE_NONE, a = TEXT_ATTRIBUTE_NONE;
 
     (void) strncpy(buf, str, sizeof buf - 1);
     buf[sizeof buf - 1] = '\0';
@@ -411,28 +411,28 @@ query_attr(const char *prompt, int dflt_attr)
                should be excluded if any other choices were picked */
             for (i = 0; i < pick_cnt; ++i) {
                 j = picks[i].item.a_int - 1;
-                if (attrnames[j].attr != ATR_NONE || pick_cnt == 1) {
+                if (attrnames[j].attr != TEXT_ATTRIBUTE_NONE || pick_cnt == 1) {
                     switch (attrnames[j].attr) {
-                    case ATR_NONE:
-                        k = HL_NONE;
+                    case TEXT_ATTRIBUTE_NONE:
+                        k = HIGHLIGHT_NONE;
                         break;
-                    case ATR_BOLD:
-                        k |= HL_BOLD;
+                    case TEXT_ATTRIBUTE_BOLD:
+                        k |= HIGHLIGHT_BOLD;
                         break;
-                    case ATR_DIM:
-                        k |= HL_DIM;
+                    case TEXT_ATTRIBUTE_DIM:
+                        k |= HIGHLIGHT_DIM;
                         break;
-                    case ATR_ITALIC:
-                        k |= HL_ITALIC;
+                    case TEXT_ATTRIBUTE_ITALIC:
+                        k |= HIGHLIGHT_ITALIC;
                         break;
-                    case ATR_ULINE:
-                        k |= HL_ULINE;
+                    case TEXT_ATTRIBUTE_ULINE:
+                        k |= HIGHLIGHT_UNDERLINE;
                         break;
-                    case ATR_BLINK:
-                        k |= HL_BLINK;
+                    case TEXT_ATTRIBUTE_BLINK:
+                        k |= HIGHLIGHT_BLINK;
                         break;
-                    case ATR_INVERSE:
-                        k |= HL_INVERSE;
+                    case TEXT_ATTRIBUTE_INVERSE:
+                        k |= HIGHLIGHT_INVERSE;
                         break;
                     }
                 }
@@ -476,7 +476,7 @@ query_color(const char *prompt, int dflt_color)
             break;
         any.a_int = i + 1;
         add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                 ATR_NONE, COLOR_CODE_NONE, colornames[i].name,
+                 TEXT_ATTRIBUTE_NONE, COLOR_CODE_NONE, colornames[i].name,
                  (colornames[i].color == dflt_color) ? MENU_ITEMFLAGS_SELECTED
                                                      : MENU_ITEMFLAGS_NONE);
     }
@@ -550,7 +550,7 @@ basic_menu_colors(
                 if (c == COLOR_CODE_BLACK || c == COLOR_CODE_WHITE || c == COLOR_CODE_NONE)
                     continue; /* skip these */
                 Sprintf(cnm, patternfmt, colornames[i].name);
-                add_menu_coloring_parsed(cnm, c, ATR_NONE);
+                add_menu_coloring_parsed(cnm, c, TEXT_ATTRIBUTE_NONE);
             }
 
             /* right now, menu_colorings contains the alternate color list;
@@ -602,7 +602,7 @@ add_menu_coloring_parsed(const char *str, int c, int a)
 boolean
 add_menu_coloring(char *tmpstr) /* never Null but could be empty */
 {
-    int c = COLOR_CODE_NONE, a = ATR_NONE;
+    int c = COLOR_CODE_NONE, a = TEXT_ATTRIBUTE_NONE;
     char *tmps, *cs, *amp;
     char str[BUFSZ];
 

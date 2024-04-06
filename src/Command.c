@@ -572,7 +572,7 @@ doextlist(void)
         Sprintf(buf, "Switch to %s commands that don't autocomplete",
                 menumode ? "including" : "excluding");
         any.a_int = 1;
-        add_menu(menuwin, &nul_glyphinfo, &any, 'a', 0, ATR_NONE, clr, buf,
+        add_menu(menuwin, &nul_glyphinfo, &any, 'a', 0, TEXT_ATTRIBUTE_NONE, clr, buf,
                  MENU_ITEMFLAGS_NONE);
 
         if (!*searchbuf) {
@@ -582,7 +582,7 @@ doextlist(void)
                actual list of extended commands shown via separator lines;
                having ':' as an explicit selector overrides the default
                menu behavior for it; we retain 's' as a group accelerator */
-            add_menu(menuwin, &nul_glyphinfo, &any, ':', 's', ATR_NONE,
+            add_menu(menuwin, &nul_glyphinfo, &any, ':', 's', TEXT_ATTRIBUTE_NONE,
                      clr, "Search extended commands",
                      MENU_ITEMFLAGS_NONE);
         } else {
@@ -595,12 +595,12 @@ doextlist(void)
                also want to hide it from general menu use) because it won't
                work for interfaces which support ':' to search; use as a
                general menu command takes precedence over group accelerator */
-            add_menu(menuwin, &nul_glyphinfo, &any, 's', ':', ATR_NONE,
+            add_menu(menuwin, &nul_glyphinfo, &any, 's', ':', TEXT_ATTRIBUTE_NONE,
                      clr, buf, MENU_ITEMFLAGS_NONE);
         }
         if (wizard) {
             any.a_int = 4;
-            add_menu(menuwin, &nul_glyphinfo, &any, 'z', 0, ATR_NONE, clr,
+            add_menu(menuwin, &nul_glyphinfo, &any, 'z', 0, TEXT_ATTRIBUTE_NONE, clr,
           onelist ? "Switch to showing debugging commands in separate section"
        : "Switch to showing all alphabetically, including debugging commands",
                      MENU_ITEMFLAGS_NONE);
@@ -812,7 +812,7 @@ extcmd_via_menu(void)
                     Sprintf(buf, fmtstr, prompt);
                     any.a_char = prevaccelerator;
                     add_menu(win, &nul_glyphinfo, &any, any.a_char,
-                             0, ATR_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
+                             0, TEXT_ATTRIBUTE_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
                     acount = 0;
                     if (!(accelerator != prevaccelerator || one_per_line))
                         wastoolong = TRUE;
@@ -836,7 +836,7 @@ extcmd_via_menu(void)
             Sprintf(buf, fmtstr, prompt);
             any.a_char = prevaccelerator;
             add_menu(win, &nul_glyphinfo, &any, any.a_char, 0,
-                     ATR_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
+                     TEXT_ATTRIBUTE_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
         }
         Snprintf(prompt, sizeof(prompt), "Extended Command: %s", cbuf);
         end_menu(win, prompt);
@@ -1100,29 +1100,29 @@ doterrain(void)
     start_menu(men, MENU_BEHAVE_STANDARD);
     any = cg.zeroany;
     any.a_int = 1;
-    add_menu(men, &nul_glyphinfo, &any, 0, 0, ATR_NONE, clr,
+    add_menu(men, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE, clr,
              "known map without monsters, objects, and traps",
              MENU_ITEMFLAGS_SELECTED);
     any.a_int = 2;
-    add_menu(men, &nul_glyphinfo, &any, 0, 0, ATR_NONE,
+    add_menu(men, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE,
              clr, "known map without monsters and objects",
              MENU_ITEMFLAGS_NONE);
     any.a_int = 3;
-    add_menu(men, &nul_glyphinfo, &any, 0, 0, ATR_NONE,
+    add_menu(men, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE,
              clr, "known map without monsters",
              MENU_ITEMFLAGS_NONE);
     if (discover || wizard) {
         any.a_int = 4;
-        add_menu(men, &nul_glyphinfo, &any, 0, 0, ATR_NONE,
+        add_menu(men, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE,
                  clr, "full map without monsters, objects, and traps",
                  MENU_ITEMFLAGS_NONE);
         if (wizard) {
             any.a_int = 5;
-            add_menu(men, &nul_glyphinfo, &any, 0, 0, ATR_NONE,
+            add_menu(men, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE,
                      clr, "internal levl[][].typ codes in base-36",
                      MENU_ITEMFLAGS_NONE);
             any.a_int = 6;
-            add_menu(men, &nul_glyphinfo, &any, 0, 0, ATR_NONE,
+            add_menu(men, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE,
                      clr, "legend of base-36 levl[][].typ codes",
                      MENU_ITEMFLAGS_NONE);
         }
@@ -2133,7 +2133,7 @@ handler_rebind_keys_add(boolean keyfirst)
     }
 
     any.a_int = -1;
-    add_menu(win, &nul_glyphinfo, &any, '\0', 0, ATR_NONE, clr,
+    add_menu(win, &nul_glyphinfo, &any, '\0', 0, TEXT_ATTRIBUTE_NONE, clr,
              "nothing: unbind the key",
              MENU_ITEMFLAGS_NONE);
 
@@ -2147,7 +2147,7 @@ handler_rebind_keys_add(boolean keyfirst)
 
         any.a_int = (i + 1);
         Sprintf(buf, "%s: %s", ec->ef_txt, ec->ef_desc);
-        add_menu(win, &nul_glyphinfo, &any, '\0', 0, ATR_NONE, clr, buf,
+        add_menu(win, &nul_glyphinfo, &any, '\0', 0, TEXT_ATTRIBUTE_NONE, clr, buf,
              MENU_ITEMFLAGS_NONE);
     }
     if (key)
@@ -2212,14 +2212,14 @@ redo_rebind:
     any = cg.zeroany;
 
     any.a_int = 1;
-    add_menu(win, &nul_glyphinfo, &any, '\0', 0, ATR_NONE, clr,
+    add_menu(win, &nul_glyphinfo, &any, '\0', 0, TEXT_ATTRIBUTE_NONE, clr,
              "bind key to a command", MENU_ITEMFLAGS_NONE);
     any.a_int = 2;
-    add_menu(win, &nul_glyphinfo, &any, '\0', 0, ATR_NONE, clr,
+    add_menu(win, &nul_glyphinfo, &any, '\0', 0, TEXT_ATTRIBUTE_NONE, clr,
              "bind command to a key", MENU_ITEMFLAGS_NONE);
     if (count_bind_keys()) {
         any.a_int = 3;
-        add_menu(win, &nul_glyphinfo, &any, '\0', 0, ATR_NONE, clr,
+        add_menu(win, &nul_glyphinfo, &any, '\0', 0, TEXT_ATTRIBUTE_NONE, clr,
                  "view changed key binds", MENU_ITEMFLAGS_NONE);
     }
     end_menu(win, "Do what?");
@@ -4018,7 +4018,7 @@ mcmd_addmenu(winid win, int act, const char *txt)
     /* TODO: fixed letters for the menu entries? */
     any = cg.zeroany;
     any.a_int = act;
-    add_menu(win, &nul_glyphinfo, &any, '\0', 0, ATR_NONE, clr, txt,
+    add_menu(win, &nul_glyphinfo, &any, '\0', 0, TEXT_ATTRIBUTE_NONE, clr, txt,
              MENU_ITEMFLAGS_NONE);
 }
 
@@ -4980,7 +4980,7 @@ yn_func_menu_opt(winid win, char key, const char *text, char def)
     any = cg.zeroany;
     any.a_char = key;
     add_menu(win, &nul_glyphinfo, &any, key, 0,
-             ATR_NONE, COLOR_CODE_NONE, text,
+             TEXT_ATTRIBUTE_NONE, COLOR_CODE_NONE, text,
              (def == key) ? MENU_ITEMFLAGS_SELECTED
                           : MENU_ITEMFLAGS_NONE);
 

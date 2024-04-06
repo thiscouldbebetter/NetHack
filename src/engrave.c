@@ -395,7 +395,7 @@ make_engr_at(
         if (gi.in_mklev)
             ep->guardobjects = 1;
         else
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
     }
     ep->engr_time = e_time;
     ep->engr_type = (xint8) ((e_type > 0) ? e_type : random(N_ENGRAVE - 1));
@@ -1580,7 +1580,7 @@ disturb_grave(coordxy x, coordxy y)
         You("disturb the undead!");
         lev->disturbed = 1;
         (void) makemon(&mons[PM_GHOUL], x, y, NO_MM_FLAGS);
-        exercise(A_WIS, FALSE);
+        exercise(ATTRIBUTE_WISDOM, FALSE);
     }
 }
 

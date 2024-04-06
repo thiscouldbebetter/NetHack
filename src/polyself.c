@@ -478,10 +478,10 @@ polyself(int psflags)
     /* being Stunned|Unaware doesn't negate this aspect of Poly_control */
     if (!Polymorph_control && !forcecontrol && !draconian && !iswere
         && !isvamp) {
-        if (random_integer_between_zero_and(20) > ATTRIBUTE_CURRENT(A_CON)) {
+        if (random_integer_between_zero_and(20) > ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION)) {
             You1(shudder_for_moment);
             losehp(random(30), "system shock", KILLED_BY_AN);
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             return;
         }
     }
@@ -734,7 +734,7 @@ polymon(int mntmp)
     if (gm.mvitals[mntmp].mvflags & G_GENOD) { /* allow G_EXTINCT */
         You_feel("rather %s-ish.",
                  pmname(&mons[mntmp], flags.female ? FEMALE : MALE));
-        exercise(A_WIS, TRUE);
+        exercise(ATTRIBUTE_WISDOM, TRUE);
         return 0;
     }
 
@@ -746,8 +746,8 @@ polymon(int mntmp)
 
     /* exercise used to be at the very end but only Wis was affected
        there since the polymorph was always in effect by then */
-    exercise(A_CON, FALSE);
-    exercise(A_WIS, TRUE);
+    exercise(ATTRIBUTE_CONSTITUTION, FALSE);
+    exercise(ATTRIBUTE_WISDOM, TRUE);
 
     if (!Upolyd) {
         /* Human to monster; save human stats */
@@ -810,16 +810,16 @@ polymon(int mntmp)
      */
     newMaxStr = uasmon_maxStr();
     if (strongmonst(&mons[mntmp])) {
-        ATTRIBUTE_BASE(A_STR) = AMAX(A_STR) = (schar) newMaxStr;
+        ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) = ATTRIBUTE_MAX(ATTRIBUTE_STRENGTH) = (schar) newMaxStr;
     } else {
         /* not a strongmonst(); if hero has exceptional strength, remove it
            (note: removal is temporary until returning to original form);
            we don't attempt to enforce lower maximum for wimpy forms;
            unlike for strongmonst, current strength does not get set to max */
-        AMAX(A_STR) = (schar) newMaxStr;
+        ATTRIBUTE_MAX(ATTRIBUTE_STRENGTH) = (schar) newMaxStr;
         /* make sure current is not higher than max (strip exceptional Str) */
-        if (ATTRIBUTE_BASE(A_STR) > AMAX(A_STR))
-            ATTRIBUTE_BASE(A_STR) = AMAX(A_STR);
+        if (ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) > ATTRIBUTE_MAX(ATTRIBUTE_STRENGTH))
+            ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) = ATTRIBUTE_MAX(ATTRIBUTE_STRENGTH);
     }
 
     if (Stone_resistance && Stoned) { /* parnes@eniac.seas.upenn.edu */
@@ -1102,9 +1102,9 @@ uasmon_maxStr(void)
            limited to 18/00 regardless of whether they're strongmonst, but
            the two strongmonst types (monarchs and nobles) have current
            strength set to 18 [by polymon()], the others don't */
-        newMaxStr = R ? R->attrmax[A_STR] : live_H ? STR19(19) : STR18(100);
+        newMaxStr = R ? R->attrmax[ATTRIBUTE_STRENGTH] : live_H ? STRENGTH19(19) : STRENGTH18(100);
     } else {
-        newMaxStr = R ? R->attrmax[A_STR] : 18; /* 18 is same as STR18(0) */
+        newMaxStr = R ? R->attrmax[ATTRIBUTE_STRENGTH] : 18; /* 18 is same as STR18(0) */
     }
     return (schar) newMaxStr;
 }
@@ -1151,7 +1151,7 @@ break_armor(void)
                 end_burn(otmp, FALSE);
 
             You("break out of your armor!");
-            exercise(A_STR, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
             (void) Armor_gone();
             useup(otmp);
         }
@@ -1524,7 +1524,7 @@ dospinweb(void)
         You("cannot spin webs while stuck in a trap.");
         return ECMD_OK;
     }
-    exercise(A_DEX, TRUE);
+    exercise(ATTRIBUTE_DEXTERITY, TRUE);
     if (ttmp) {
         switch (ttmp->ttyp) {
         case PIT:
@@ -1607,7 +1607,7 @@ dosummon(void)
     disp.botl = TRUE;
 
     You("call upon your brethren for help!");
-    exercise(A_WIS, TRUE);
+    exercise(ATTRIBUTE_WISDOM, TRUE);
     if (!were_summon(gy.youmonst.data, TRUE, &placeholder, (char *) 0))
         pline("But none arrive.");
     return ECMD_TIME;
@@ -2158,7 +2158,7 @@ ugolemeffects(int damtype, int dam)
             u.mh = u.mhmax;
         disp.botl = TRUE;
         pline("Strangely, you feel better than before.");
-        exercise(A_STR, TRUE);
+        exercise(ATTRIBUTE_STRENGTH, TRUE);
     }
 }
 

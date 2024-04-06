@@ -54,7 +54,7 @@ staticfn int dispinv_with_action(char *, boolean, const char *);
 
 /* enum and structs are defined in wintype.h */
 static win_request_info wri_info;
-static int perminv_flags = InvOptNone;
+static int perminv_flags = InventoryOptionNone;
 static boolean in_perm_invent_toggled;
 
 /* wizards can wish for venom, which will become an invisible inventory
@@ -2943,7 +2943,7 @@ ia_addmenu(winid win, int act, char let, const char *txt)
     any = cg.zeroany;
     any.a_int = act;
     add_menu(win, &nul_glyphinfo, &any, let, 0,
-             ATR_NONE, clr, txt, MENU_ITEMFLAGS_NONE);
+             TEXT_ATTRIBUTE_NONE, clr, txt, MENU_ITEMFLAGS_NONE);
 }
 
 staticfn void
@@ -3565,8 +3565,8 @@ display_pickinv(
         win = WIN_INVEN;
         menu_behavior = MENU_BEHAVE_PERMINV;
         prepare_perminvent(win);
-        show_gold = ((wri_info.fromcore.invmode & InvShowGold) != 0);
-        inuse_only = ((wri_info.fromcore.invmode & InvInUse) != 0);
+        show_gold = ((wri_info.fromcore.invmode & InventoryShowGold) != 0);
+        inuse_only = ((wri_info.fromcore.invmode & InventoryInUse) != 0);
         doing_perm_invent = TRUE;
     }
     /*
@@ -3704,7 +3704,7 @@ display_pickinv(
                 Sprintf(eos(prompt), " (%s for all)",
                         visctrl(iflags.override_ID));
             add_menu(win, &nul_glyphinfo, &any, '_', iflags.override_ID,
-                     ATR_NONE, clr, prompt, MENU_ITEMFLAGS_SKIPINVERT);
+                     TEXT_ATTRIBUTE_NONE, clr, prompt, MENU_ITEMFLAGS_SKIPINVERT);
             gotsomething = TRUE;
         }
    } else if (usextra) {
@@ -3712,7 +3712,7 @@ display_pickinv(
         if (flags.sortpack)
             add_menu_heading(win, "Miscellaneous");
         any.a_char = HANDS_SYM; /* '-' */
-        add_menu(win, &nul_glyphinfo, &any, HANDS_SYM, 0, ATR_NONE,
+        add_menu(win, &nul_glyphinfo, &any, HANDS_SYM, 0, TEXT_ATTRIBUTE_NONE,
                  clr, xtra_choice, MENU_ITEMFLAGS_NONE);
         gotsomething = TRUE;
     }
@@ -3771,7 +3771,7 @@ display_pickinv(
                 Sprintf(barehands, "%s %s (no weapon)",
                         uarmg ? "gloved" : "bare", formattedobj);
                 add_menu(win, &nul_glyphinfo, &any, ilet, 0,
-                         ATR_NONE, clr, barehands, MENU_ITEMFLAGS_NONE);
+                         TEXT_ATTRIBUTE_NONE, clr, barehands, MENU_ITEMFLAGS_NONE);
             } else {
                 /* normal inventory item */
                 tmpglyph = obj_to_glyph(otmp, random2_on_display_range);
@@ -3779,7 +3779,7 @@ display_pickinv(
                 formattedobj = doname(otmp);
                 add_menu(win, &tmpglyphinfo, &any, ilet,
                          wizid ? def_oc_syms[(int) otmp->oclass].sym : 0,
-                         ATR_NONE, clr, formattedobj, MENU_ITEMFLAGS_NONE);
+                         TEXT_ATTRIBUTE_NONE, clr, formattedobj, MENU_ITEMFLAGS_NONE);
             }
             /* doname() uses a static pool of obuf[] output buffers and
                we don't want inventory display to overwrite all of them,
@@ -3809,7 +3809,7 @@ display_pickinv(
         any = cg.zeroany;
         add_menu_heading(win, "Special");
         any.a_char = '*';
-        add_menu(win, &nul_glyphinfo, &any, '*', 0, ATR_NONE, clr,
+        add_menu(win, &nul_glyphinfo, &any, '*', 0, TEXT_ATTRIBUTE_NONE, clr,
                  "(list everything)", MENU_ITEMFLAGS_NONE);
         gotsomething = TRUE;
     }
@@ -3938,7 +3938,7 @@ display_used_invlets(char avoidlet)
                     tmpglyph = obj_to_glyph(otmp, random2_on_display_range);
                     map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
                     add_menu(win, &tmpglyphinfo, &any, ilet, 0,
-                             ATR_NONE, clr, doname(otmp), MENU_ITEMFLAGS_NONE);
+                             TEXT_ATTRIBUTE_NONE, clr, doname(otmp), MENU_ITEMFLAGS_NONE);
                 }
             }
             if (flags.sortpack && *++invlet)
@@ -6079,8 +6079,8 @@ perm_invent_toggled(boolean negated)
         gc.core_invent_state = 0;
     } else {
         gp.perm_invent_toggling_direction = toggling_on;
-        if (iflags.perminv_mode == InvOptNone)
-            iflags.perminv_mode = InvOptOn; /* all inventory except gold */
+        if (iflags.perminv_mode == InventoryOptionNone)
+            iflags.perminv_mode = InventoryOptionOn; /* all inventory except gold */
         sync_perminvent();
     }
     gp.perm_invent_toggling_direction = toggling_not;

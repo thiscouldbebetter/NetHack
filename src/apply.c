@@ -983,7 +983,7 @@ const char *
 beautiful(void)
 {
     const char *res;
-    int cha = ATTRIBUTE_CURRENT(A_CHA);
+    int cha = ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA);
 
     /* don't bother complaining about the sexism; nethack is not real life */
     res = ((cha >= 25) ? "sublime" /* 25 is the maximum possible */
@@ -2022,7 +2022,7 @@ jump(int magic) /* 0=Physical, otherwise skill level */
     } else if (!magic && near_capacity() > UNENCUMBERED) {
         You("are carrying too much to jump!");
         return ECMD_OK;
-    } else if (!magic && (u.uhunger <= 100 || ATTRIBUTE_CURRENT(A_STR) < 6)) {
+    } else if (!magic && (u.uhunger <= 100 || ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH) < 6)) {
         You("lack the strength to jump!");
         return ECMD_OK;
     } else if (!magic && Wounded_legs) {
@@ -2248,7 +2248,7 @@ use_unicorn_horn(struct obj **optr)
         switch (random_integer_between_zero_and(13) / 2) { /* case 6 is half as likely as the others */
         case 0:
             make_sick((Sick & TIMEOUT) ? (Sick & TIMEOUT) / 3L + 1L
-                                       : (long) rn1(ATTRIBUTE_CURRENT(A_CON), 20),
+                                       : (long) rn1(ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION), 20),
                       xname(obj), TRUE, SICK_NONVOMITABLE);
             break;
         case 1:
@@ -2842,12 +2842,12 @@ use_trap(struct obj *otmp)
     }
     gt.trapinfo.tobj = otmp;
     gt.trapinfo.tx = u.ux, gt.trapinfo.ty = u.uy;
-    tmp = ATTRIBUTE_CURRENT(A_DEX);
+    tmp = ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY);
     gt.trapinfo.time_needed =
         (tmp > 17) ? 2 : (tmp > 12) ? 3 : (tmp > 7) ? 4 : 5;
     if (Blind)
         gt.trapinfo.time_needed *= 2;
-    tmp = ATTRIBUTE_CURRENT(A_STR);
+    tmp = ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH);
     if (ttyp == BEAR_TRAP && tmp < 18)
         gt.trapinfo.time_needed += (tmp > 12) ? 1 : (tmp > 7) ? 2 : 4;
     /*[fumbling and/or confusion and/or cursed object check(s)
@@ -2966,10 +2966,10 @@ use_whip(struct obj *obj)
     proficient = 0;
     if (Role_if(PM_ARCHEOLOGIST))
         ++proficient;
-    if (ATTRIBUTE_CURRENT(A_DEX) < 6)
+    if (ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) < 6)
         proficient--;
-    else if (ATTRIBUTE_CURRENT(A_DEX) >= 14)
-        proficient += (ATTRIBUTE_CURRENT(A_DEX) - 14);
+    else if (ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) >= 14)
+        proficient += (ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) - 14);
     if (Fumbling)
         --proficient;
     if (proficient > 3)
@@ -3699,14 +3699,14 @@ use_grapple(struct obj *obj)
         start_menu(tmpwin, MENU_BEHAVE_STANDARD);
         any.a_int++;
         Sprintf(buf, "an object on the %s", surface(cc.x, cc.y));
-        add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0, ATR_NONE,
+        add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE,
                  clr, buf, MENU_ITEMFLAGS_NONE);
         any.a_int++;
-        add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0, ATR_NONE,
+        add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE,
                  clr, "a monster", MENU_ITEMFLAGS_NONE);
         any.a_int++;
         Sprintf(buf, "the %s", surface(cc.x, cc.y));
-        add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0, ATR_NONE, clr,
+        add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE, clr,
                  buf, MENU_ITEMFLAGS_NONE);
         end_menu(tmpwin, "Aim for what?");
         tohit = random_integer_between_zero_and(4);
@@ -3827,7 +3827,7 @@ do_break_wand(struct obj *obj)
     } else if (!freehand()) {
         Your("%s are occupied!", makeplural(body_part(HAND)));
         return ECMD_OK;
-    } else if (ATTRIBUTE_CURRENT(A_STR) < (is_fragile ? 5 : 10)) {
+    } else if (ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH) < (is_fragile ? 5 : 10)) {
         You("don't have the strength to break %s!", yname(obj));
         return ECMD_OK;
     }
@@ -4319,9 +4319,9 @@ unfixable_trouble_count(boolean is_horn)
         unfixable_trbl++;
     if (Strangled)
         unfixable_trbl++;
-    if (ATEMP(A_DEX) < 0 && Wounded_legs)
+    if (ATTRIBUTE_TEMPORARY(ATTRIBUTE_DEXTERITY) < 0 && Wounded_legs)
         unfixable_trbl++;
-    if (ATEMP(A_STR) < 0 && u.uhs >= WEAK)
+    if (ATTRIBUTE_TEMPORARY(ATTRIBUTE_STRENGTH) < 0 && u.uhs >= WEAK)
         unfixable_trbl++;
     /* lycanthropy is undesirable, but it doesn't actually make you feel bad
        so don't count it as a trouble which can't be fixed */
@@ -4415,7 +4415,7 @@ flip_coin(struct obj *obj)
         pline("It tumbles away.");
         lose_coin = TRUE;
     } else if (Glib || Fumbling
-               || (ATTRIBUTE_CURRENT(A_DEX) < 10 && !random_integer_between_zero_and(ATTRIBUTE_CURRENT(A_DEX)))) {
+               || (ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) < 10 && !random_integer_between_zero_and(ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY)))) {
         pline("It slips between your %s.", fingers_or_gloves(FALSE));
         lose_coin = TRUE;
     }

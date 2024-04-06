@@ -677,7 +677,7 @@ explode(
                 done((adtyp == AD_FIRE) ? BURNING : DIED);
             }
         }
-        exercise(A_STR, FALSE);
+        exercise(ATTRIBUTE_STRENGTH, FALSE);
     }
 
     if (shopdamage) {

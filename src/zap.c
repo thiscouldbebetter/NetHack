@@ -1202,19 +1202,19 @@ cancel_item(struct obj *obj)
         switch (otyp) {
         case RIN_GAIN_STRENGTH:
             if ((obj->owornmask & W_RING) != 0L) {
-                ABON(A_STR) -= obj->spe;
+                ATTRIBUTE_BONUS(ATTRIBUTE_STRENGTH) -= obj->spe;
                 disp.botl = TRUE;
             }
             break;
         case RIN_GAIN_CONSTITUTION:
             if ((obj->owornmask & W_RING) != 0L) {
-                ABON(A_CON) -= obj->spe;
+                ATTRIBUTE_BONUS(ATTRIBUTE_CONSTITUTION) -= obj->spe;
                 disp.botl = TRUE;
             }
             break;
         case RIN_ADORNMENT:
             if ((obj->owornmask & W_RING) != 0L) {
-                ABON(A_CHA) -= obj->spe;
+                ATTRIBUTE_BONUS(ATTRIBUTE_CHARISMA) -= obj->spe;
                 disp.botl = TRUE;
             }
             break;
@@ -1232,14 +1232,14 @@ cancel_item(struct obj *obj)
             break;
         case GAUNTLETS_OF_DEXTERITY:
             if ((obj->owornmask & W_ARMG) != 0L) {
-                ABON(A_DEX) -= obj->spe;
+                ATTRIBUTE_BONUS(ATTRIBUTE_DEXTERITY) -= obj->spe;
                 disp.botl = TRUE;
             }
             break;
         case HELM_OF_BRILLIANCE:
             if ((obj->owornmask & W_ARMH) != 0L) {
-                ABON(A_INT) -= obj->spe;
-                ABON(A_WIS) -= obj->spe;
+                ATTRIBUTE_BONUS(ATTRIBUTE_INTELLIGENCE) -= obj->spe;
+                ATTRIBUTE_BONUS(ATTRIBUTE_WISDOM) -= obj->spe;
                 disp.botl = TRUE;
             }
             break;
@@ -1360,19 +1360,19 @@ drain_item(struct obj *obj, boolean by_you)
     switch (obj->otyp) {
     case RIN_GAIN_STRENGTH:
         if ((obj->owornmask & W_RING) && u_ring) {
-            ABON(A_STR)--;
+            ATTRIBUTE_BONUS(ATTRIBUTE_STRENGTH)--;
             disp.botl = TRUE;
         }
         break;
     case RIN_GAIN_CONSTITUTION:
         if ((obj->owornmask & W_RING) && u_ring) {
-            ABON(A_CON)--;
+            ATTRIBUTE_BONUS(ATTRIBUTE_CONSTITUTION)--;
             disp.botl = TRUE;
         }
         break;
     case RIN_ADORNMENT:
         if ((obj->owornmask & W_RING) && u_ring) {
-            ABON(A_CHA)--;
+            ATTRIBUTE_BONUS(ATTRIBUTE_CHARISMA)--;
             disp.botl = TRUE;
         }
         break;
@@ -1390,14 +1390,14 @@ drain_item(struct obj *obj, boolean by_you)
         break;
     case HELM_OF_BRILLIANCE:
         if ((obj->owornmask & W_ARMH) && (obj == uarmh)) {
-            ABON(A_INT)--;
-            ABON(A_WIS)--;
+            ATTRIBUTE_BONUS(ATTRIBUTE_INTELLIGENCE)--;
+            ATTRIBUTE_BONUS(ATTRIBUTE_WISDOM)--;
             disp.botl = TRUE;
         }
         break;
     case GAUNTLETS_OF_DEXTERITY:
         if ((obj->owornmask & W_ARMG) && (obj == uarmg)) {
-            ABON(A_DEX)--;
+            ATTRIBUTE_BONUS(ATTRIBUTE_DEXTERITY)--;
             disp.botl = TRUE;
         }
         break;
@@ -2328,7 +2328,7 @@ bhito(struct obj *obj, struct obj *otmp)
                             pline("%s appears.", Monnam(mtmp));
                     }
                     if (learn_it)
-                        exercise(A_WIS, TRUE);
+                        exercise(ATTRIBUTE_WISDOM, TRUE);
                 }
             }
             break;
@@ -2466,7 +2466,7 @@ do_enlightenment_effect(void)
     display_nhwindow(WIN_MESSAGE, FALSE);
     enlightenment(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS);
     pline_The("feeling subsides.");
-    exercise(A_WIS, TRUE);
+    exercise(ATTRIBUTE_WISDOM, TRUE);
 }
 
 /*
@@ -2565,7 +2565,7 @@ dozap(void)
         pline1(nothing_happens);
     } else if (obj->cursed && !random_integer_between_zero_and(WAND_BACKFIRE_CHANCE)) {
         backfire(obj); /* the wand blows up in your face! */
-        exercise(A_STR, FALSE);
+        exercise(ATTRIBUTE_STRENGTH, FALSE);
         /* 'obj' is gone; skip update_inventory() because
            backfire() -> useupall() -> freeinv() did it */
         return ECMD_TIME;
@@ -2639,7 +2639,7 @@ zapyourself(struct obj *obj, boolean ordinary)
                 damage = d(2, 12);
             } else
                 damage = d(1 + obj->spe, 6);
-            exercise(A_STR, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
             monstunseesu(M_SEEN_MAGR);
         }
         break;
@@ -2650,7 +2650,7 @@ zapyourself(struct obj *obj, boolean ordinary)
         if (!Shock_resistance) {
             You("shock yourself!");
             damage = orig_dmg;
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             monstunseesu(M_SEEN_ELEC);
         } else {
             shieldeff(u.ux, u.uy);
@@ -3338,7 +3338,7 @@ weffects(struct obj *obj)
     int otyp = obj->otyp;
     boolean disclose = FALSE, was_unkn = !objects[otyp].oc_name_known;
 
-    exercise(A_WIS, TRUE);
+    exercise(ATTRIBUTE_WISDOM, TRUE);
     if (u.monster_being_ridden && (objects[otyp].oc_dir != NODIR) && !u.dx && !u.dy
         && (u.dz > 0) && zap_steed(obj)) {
         disclose = TRUE;
@@ -3385,7 +3385,7 @@ int
 spell_damage_bonus(
     int dmg) /* base amount to be adjusted by bonus or penalty */
 {
-    int intell = ATTRIBUTE_CURRENT(A_INT);
+    int intell = ATTRIBUTE_CURRENT(ATTRIBUTE_INTELLIGENCE);
 
     /* Punish low intelligence before low level else low intelligence
        gets punished only when high level */
@@ -3414,7 +3414,7 @@ staticfn int
 spell_hit_bonus(int skill)
 {
     int hit_bon = 0;
-    int dex = ATTRIBUTE_CURRENT(A_DEX);
+    int dex = ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY);
 
     switch (P_SKILL(spell_skilltype(skill))) {
     case P_ISRESTRICTED:
@@ -4079,7 +4079,7 @@ boomhit(struct obj *obj, coordxy dx, coordxy dy)
             break;
         }
         if (u_at(gb.bhitpos.x, gb.bhitpos.y)) { /* ct == 9 */
-            if (Fumbling || random_integer_between_zero_and(20) >= ATTRIBUTE_CURRENT(A_DEX)) {
+            if (Fumbling || random_integer_between_zero_and(20) >= ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY)) {
                 /* we hit ourselves */
                 (void) thitu(10 + obj->spe, dmgval(obj, &gy.youmonst), &obj,
                              "boomerang");
@@ -4291,7 +4291,7 @@ zhitu(
             monstseesu(M_SEEN_MAGR);
         } else {
             dam = d(nd, 6);
-            exercise(A_STR, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
             monstunseesu(M_SEEN_MAGR);
         }
         break;
@@ -4393,14 +4393,14 @@ zhitu(
             ugolemeffects(AD_ELEC, orig_dam);
         } else {
             dam = orig_dam;
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             monstunseesu(M_SEEN_ELEC);
         }
         if (!random_integer_between_zero_and(3))
             (void) destroy_items(&gy.youmonst, AD_ELEC, orig_dam);
         break;
     case ZT_POISON_GAS:
-        poisoned("blast", A_DEX, "poisoned blast", 15, FALSE);
+        poisoned("blast", ATTRIBUTE_DEXTERITY, "poisoned blast", 15, FALSE);
         break;
     case ZT_ACID:
         if (Acid_resistance) {
@@ -4410,7 +4410,7 @@ zhitu(
         } else {
             pline_The("%s burns!", hliquid("acid"));
             dam = d(nd, 6);
-            exercise(A_STR, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
             monstunseesu(M_SEEN_ACID);
         }
         /* using two weapons at once makes both of them more vulnerable */
@@ -5781,7 +5781,7 @@ maybe_destroy_item(
                     how = "exploding glob of slime";
                 losehp(dmg, one ? how : (const char *) makeplural(how),
                        one ? KILLED_BY_AN : KILLED_BY);
-                exercise(A_STR, FALSE);
+                exercise(ATTRIBUTE_STRENGTH, FALSE);
             }
         }
     }

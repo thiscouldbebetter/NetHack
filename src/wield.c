@@ -855,7 +855,7 @@ dotwoweapon(void)
         You("begin two-weapon combat.");
         set_twoweap(TRUE); /* u.twoweap = TRUE */
         update_inventory();
-        return (random(20) > ATTRIBUTE_CURRENT(A_DEX)) ? ECMD_TIME : ECMD_OK;
+        return (random(20) > ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY)) ? ECMD_TIME : ECMD_OK;
     }
     return ECMD_OK;
 }
@@ -938,7 +938,7 @@ chwepon(struct obj *otmp, int amount)
                     (amount >= 0) ? "twitch" : "itch");
         }
         strange_feeling(otmp, buf); /* pline()+docall()+useup() */
-        exercise(A_DEX, (boolean) (amount >= 0));
+        exercise(ATTRIBUTE_DEXTERITY, (boolean) (amount >= 0));
         return 0;
     }
 

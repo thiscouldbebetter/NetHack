@@ -932,7 +932,7 @@ genl_status_enablefield(
 
 DISABLE_WARNING_FORMAT_NONLITERAL
 
-/* call once for each field, then call with BL_FLUSH to output the result */
+/* call once for each field, then call with CONDITION_FLUSH to output the result */
 void
 genl_status_update(
     int idx,
@@ -949,71 +949,71 @@ genl_status_update(
 
     static enum statusfields fieldorder[][15] = {
         /* line one */
-        { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH, BL_ALIGN,
-          BL_SCORE, BL_FLUSH, BL_FLUSH, BL_FLUSH, BL_FLUSH, BL_FLUSH,
-          BL_FLUSH },
+        { CONDITION_TITLE, CONDITION_STR, CONDITION_DX, CONDITION_CO, CONDITION_IN, CONDITION_WI, CONDITION_CH, CONDITION_ALIGN,
+          CONDITION_SCORE, CONDITION_FLUSH, CONDITION_FLUSH, CONDITION_FLUSH, CONDITION_FLUSH, CONDITION_FLUSH,
+          CONDITION_FLUSH },
         /* line two, default order */
-        { BL_LEVELDESC, BL_GOLD,
-          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
-          BL_XP, BL_EXP, BL_HD,
-          BL_TIME,
-          BL_HUNGER, BL_CAP, BL_CONDITION,
-          BL_FLUSH },
+        { CONDITION_LEVELDESC, CONDITION_GOLD,
+          CONDITION_HP, CONDITION_HPMAX, CONDITION_ENE, CONDITION_ENEMAX, CONDITION_AC,
+          CONDITION_XP, CONDITION_EXP, CONDITION_HD,
+          CONDITION_TIME,
+          CONDITION_HUNGER, CONDITION_CAP, CONDITION_CONDITION,
+          CONDITION_FLUSH },
         /* move time to the end */
-        { BL_LEVELDESC, BL_GOLD,
-          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
-          BL_XP, BL_EXP, BL_HD,
-          BL_HUNGER, BL_CAP, BL_CONDITION,
-          BL_TIME, BL_FLUSH },
+        { CONDITION_LEVELDESC, CONDITION_GOLD,
+          CONDITION_HP, CONDITION_HPMAX, CONDITION_ENE, CONDITION_ENEMAX, CONDITION_AC,
+          CONDITION_XP, CONDITION_EXP, CONDITION_HD,
+          CONDITION_HUNGER, CONDITION_CAP, CONDITION_CONDITION,
+          CONDITION_TIME, CONDITION_FLUSH },
         /* move experience and time to the end */
-        { BL_LEVELDESC, BL_GOLD,
-          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
-          BL_HUNGER, BL_CAP, BL_CONDITION,
-          BL_XP, BL_EXP, BL_HD, BL_TIME, BL_FLUSH },
+        { CONDITION_LEVELDESC, CONDITION_GOLD,
+          CONDITION_HP, CONDITION_HPMAX, CONDITION_ENE, CONDITION_ENEMAX, CONDITION_AC,
+          CONDITION_HUNGER, CONDITION_CAP, CONDITION_CONDITION,
+          CONDITION_XP, CONDITION_EXP, CONDITION_HD, CONDITION_TIME, CONDITION_FLUSH },
         /* move level description plus gold and experience and time to end */
-        { BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
-          BL_HUNGER, BL_CAP, BL_CONDITION,
-          BL_LEVELDESC, BL_GOLD, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_FLUSH },
+        { CONDITION_HP, CONDITION_HPMAX, CONDITION_ENE, CONDITION_ENEMAX, CONDITION_AC,
+          CONDITION_HUNGER, CONDITION_CAP, CONDITION_CONDITION,
+          CONDITION_LEVELDESC, CONDITION_GOLD, CONDITION_XP, CONDITION_EXP, CONDITION_HD, CONDITION_TIME, CONDITION_FLUSH },
     };
 
     /* in case interface is using genl_status_update() but has not
        specified WC2_FLUSH_STATUS (status_update() for field values
-       is buffered so final BL_FLUSH is needed to produce output) */
+       is buffered so final CONDITION_FLUSH is needed to produce output) */
     windowprocs.wincap2 |= WC2_FLUSH_STATUS;
 
     if (idx >= 0) {
         if (!status_activefields[idx])
             return;
         switch (idx) {
-        case BL_CONDITION:
+        case CONDITION_CONDITION:
             cond = condptr ? *condptr : 0L;
             nb = status_vals[idx];
             *nb = '\0';
-            if (cond & BL_MASK_STONE)
+            if (cond & CONDITION_MASK_PETRIFIED)
                 Strcpy(nb = eos(nb), " Stone");
-            if (cond & BL_MASK_SLIME)
+            if (cond & CONDITION_MASK_SLIMED)
                 Strcpy(nb = eos(nb), " Slime");
-            if (cond & BL_MASK_STRNGL)
+            if (cond & CONDITION_MASK_STRANGLED)
                 Strcpy(nb = eos(nb), " Strngl");
-            if (cond & BL_MASK_FOODPOIS)
+            if (cond & CONDITION_MASK_FOOD_POISONED)
                 Strcpy(nb = eos(nb), " FoodPois");
-            if (cond & BL_MASK_TERMILL)
+            if (cond & CONDITION_MASK_TERMINALLY_ILL)
                 Strcpy(nb = eos(nb), " TermIll");
-            if (cond & BL_MASK_BLIND)
+            if (cond & CONDITION_MASK_BLIND)
                 Strcpy(nb = eos(nb), " Blind");
-            if (cond & BL_MASK_DEAF)
+            if (cond & CONDITION_MASK_DEAF)
                 Strcpy(nb = eos(nb), " Deaf");
-            if (cond & BL_MASK_STUN)
+            if (cond & CONDITION_MASK_STUNNED)
                 Strcpy(nb = eos(nb), " Stun");
-            if (cond & BL_MASK_CONF)
+            if (cond & CONDITION_MASK_CONFUSED)
                 Strcpy(nb = eos(nb), " Conf");
-            if (cond & BL_MASK_HALLU)
+            if (cond & CONDITION_MASK_HALLUCINATING)
                 Strcpy(nb = eos(nb), " Hallu");
-            if (cond & BL_MASK_LEV)
+            if (cond & CONDITION_MASK_LEVITATING)
                 Strcpy(nb = eos(nb), " Lev");
-            if (cond & BL_MASK_FLY)
+            if (cond & CONDITION_MASK_FLYING)
                 Strcpy(nb = eos(nb), " Fly");
-            if (cond & BL_MASK_RIDE)
+            if (cond & CONDITION_MASK_RIDE)
                 Strcpy(nb = eos(nb), " Ride");
             break;
         default:
@@ -1022,29 +1022,29 @@ genl_status_update(
                     text ? text : "");
             break;
         }
-        return; /* processed one field other than BL_FLUSH */
-    } /* (idx >= 0, thus not BL_FLUSH, BL_RESET, BL_CHARACTERISTICS) */
+        return; /* processed one field other than CONDITION_FLUSH */
+    } /* (idx >= 0, thus not CONDITION_FLUSH, CONDITION_RESET, CONDITION_CHARACTERISTICS) */
 
-    /* does BL_RESET require any specific code to ensure all fields ? */
+    /* does CONDITION_RESET require any specific code to ensure all fields ? */
 
-    if (!(idx == BL_FLUSH || idx == BL_RESET))
+    if (!(idx == CONDITION_FLUSH || idx == CONDITION_RESET))
         return;
 
-    /* We've received BL_FLUSH; time to output the gathered data */
+    /* We've received CONDITION_FLUSH; time to output the gathered data */
     nb = newbot1;
     *nb = '\0';
-    /* BL_FLUSH is the only pseudo-index value we need to check for
+    /* CONDITION_FLUSH is the only pseudo-index value we need to check for
        in the loop below because it is the only entry used to pad the
        end of the fieldorder array. We could stop on any
        negative (illegal) index, but this should be fine */
-    for (i = 0; (idx1 = fieldorder[0][i]) != BL_FLUSH; ++i) {
+    for (i = 0; (idx1 = fieldorder[0][i]) != CONDITION_FLUSH; ++i) {
         if (status_activefields[idx1])
             Strcpy(nb = eos(nb), status_vals[idx1]);
     }
     /* if '$' is encoded, buffer length of \GXXXXNNNN is 9 greater than
        single char; we want to subtract that 9 when checking display length */
-    lndelta = (status_activefields[BL_GOLD]
-               && strstr(status_vals[BL_GOLD], "\\G")) ? 9 : 0;
+    lndelta = (status_activefields[CONDITION_GOLD]
+               && strstr(status_vals[CONDITION_GOLD], "\\G")) ? 9 : 0;
     /* basic bot2 formats groups of second line fields into five buffers,
        then decides how to order those buffers based on comparing lengths
        of [sub]sets of them to the width of the map; we have more control
@@ -1053,18 +1053,18 @@ genl_status_update(
         fieldlist = fieldorder[pass];
         nb = newbot2;
         *nb = '\0';
-        for (i = 0; (idx2 = fieldlist[i]) != BL_FLUSH; ++i) {
+        for (i = 0; (idx2 = fieldlist[i]) != CONDITION_FLUSH; ++i) {
             if (status_activefields[idx2]) {
                 const char *val = status_vals[idx2];
 
                 switch (idx2) {
-                case BL_HP: /* for pass 4, Hp comes first; mungspaces()
+                case CONDITION_HP: /* for pass 4, Hp comes first; mungspaces()
                                will strip the unwanted leading spaces */
-                case BL_XP: case BL_HD:
-                case BL_TIME:
+                case CONDITION_XP: case CONDITION_HD:
+                case CONDITION_TIME:
                     Strcpy(nb = eos(nb), " ");
                     break;
-                case BL_LEVELDESC:
+                case CONDITION_LEVELDESC:
                     /* leveldesc has no leading space, so if we've moved
                        it past the first position, provide one */
                     if (i != 0)
@@ -1079,13 +1079,13 @@ genl_status_update(
                  * 'encumbrance' is either " " or " encumbrance_text";
                  * 'conditions'  is either ""  or " cond1 cond2...".
                  */
-                case BL_HUNGER:
+                case CONDITION_HUNGER:
                     /* hunger==" " - keep it, end up with " ";
                        hunger!=" " - insert space and get "  hunger" */
                     if (strcmp(val, " "))
                         Strcpy(nb = eos(nb), " ");
                     break;
-                case BL_CAP:
+                case CONDITION_CAP:
                     /* cap==" " - suppress it, retain "  hunger" or " ";
                        cap!=" " - use it, get "  hunger cap" or "  cap" */
                     if (!strcmp(val, " "))
@@ -1097,12 +1097,12 @@ genl_status_update(
                 Strcpy(nb = eos(nb), val); /* status_vals[idx2] */
             } /* status_activefields[idx2] */
 
-            if (idx2 == BL_CONDITION && pass < 4
+            if (idx2 == CONDITION_CONDITION && pass < 4
                 && strlen(newbot2) - lndelta > COLNO)
                 break; /* switch to next order */
         } /* i */
 
-        if (idx2 == BL_FLUSH) { /* made it past BL_CONDITION */
+        if (idx2 == CONDITION_FLUSH) { /* made it past CONDITION_CONDITION */
             if (pass > 1)
                 mungspaces(newbot2);
             break;
@@ -1698,7 +1698,7 @@ choose_classes_menu(const char *prompt,
         }
         any.a_int = *class_list;
         add_menu(win, &nul_glyphinfo, &any, accelerator,
-                 category ? *class_list : 0, ATR_NONE, clr, buf,
+                 category ? *class_list : 0, TEXT_ATTRIBUTE_NONE, clr, buf,
                  selected ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
         if (category > 0) {
             if (next_accelerator == 'Z')
@@ -1720,7 +1720,7 @@ choose_classes_menu(const char *prompt,
            having it selected means that it would have to be explicitly
            de-selected in order to select anything else */
         add_menu(win, &nul_glyphinfo, &any, 'A', 0,
-                 ATR_NONE, clr, buf, MENU_ITEMFLAGS_SKIPINVERT);
+                 TEXT_ATTRIBUTE_NONE, clr, buf, MENU_ITEMFLAGS_SKIPINVERT);
         if (!strcmp(prompt, "Autopickup what?")) {
             add_menu_str(win,
                    "Note: when no choices are selected, \"all\" is implied.");
@@ -1761,7 +1761,7 @@ choose_classes_menu(const char *prompt,
 /* enum and structs are defined in wintype.h */
 
 win_request_info zerowri = { { 0L, 0, 0, 0, 0, 0, 0, 0 },
-                             { 0, 0, { COLOR_CODE_NONE, ATR_NONE }}};
+                             { 0, 0, { COLOR_CODE_NONE, TEXT_ATTRIBUTE_NONE }}};
 
 void
 adjust_menu_promptstyle(winid window, color_attr *style)
@@ -1813,7 +1813,7 @@ add_menu_heading(winid tmpwin, const char *buf)
 
     /* suppress highlighting during end-of-game disclosure */
     if (gp.program_state.gameover)
-        attr = ATR_NONE, color = COLOR_CODE_NONE;
+        attr = TEXT_ATTRIBUTE_NONE, color = COLOR_CODE_NONE;
 
     add_menu(tmpwin, &nul_glyphinfo, &any, '\0', '\0', attr, color,
              buf, MENU_ITEMFLAGS_SKIPMENUCOLORS);
@@ -1825,7 +1825,7 @@ add_menu_str(winid tmpwin, const char *buf)
 {
     anything any = cg.zeroany;
 
-    add_menu(tmpwin, &nul_glyphinfo, &any, '\0', '\0', ATR_NONE, COLOR_CODE_NONE,
+    add_menu(tmpwin, &nul_glyphinfo, &any, '\0', '\0', TEXT_ATTRIBUTE_NONE, COLOR_CODE_NONE,
              buf, MENU_ITEMFLAGS_NONE);
 }
 

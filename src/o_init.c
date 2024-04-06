@@ -455,7 +455,7 @@ discover_object(
         if (mark_as_known) {
             objects[oindx].oc_name_known = 1;
             if (credit_hero)
-                exercise(A_WIS, TRUE);
+                exercise(ATTRIBUTE_WISDOM, TRUE);
         }
         /* !in_moveloop => initial inventory, gameover => final disclosure */
         if (gp.program_state.in_moveloop && !gp.program_state.gameover) {
@@ -589,7 +589,7 @@ choose_disco_sort(
     for (i = 0; disco_orders_descr[i]; ++i) {
         any.a_int = disco_order_let[i];
         add_menu(tmpwin, &nul_glyphinfo, &any, (char) any.a_int,
-                 0, ATR_NONE, clr,
+                 0, TEXT_ATTRIBUTE_NONE, clr,
                  disco_orders_descr[i],
                  (disco_order_let[i] == flags.discosort)
                     ? MENU_ITEMFLAGS_SELECTED
@@ -858,7 +858,7 @@ doclassdisco(void)
             if (!traditional) {
                 any.a_int = 'u';
                 add_menu(tmpwin, &nul_glyphinfo, &any, menulet++,
-                         0, ATR_NONE, clr, unique_items, MENU_ITEMFLAGS_NONE);
+                         0, TEXT_ATTRIBUTE_NONE, clr, unique_items, MENU_ITEMFLAGS_NONE);
             }
             break;
         }
@@ -869,7 +869,7 @@ doclassdisco(void)
         if (!traditional) {
             any.a_int = 'a';
             add_menu(tmpwin, &nul_glyphinfo, &any, menulet++,
-                     0, ATR_NONE, clr, artifact_items, MENU_ITEMFLAGS_NONE);
+                     0, TEXT_ATTRIBUTE_NONE, clr, artifact_items, MENU_ITEMFLAGS_NONE);
         }
     }
 
@@ -890,7 +890,7 @@ doclassdisco(void)
                     if (!traditional) {
                         any.a_int = c;
                         add_menu(tmpwin, &nul_glyphinfo, &any,
-                                 menulet++, c, ATR_NONE, clr,
+                                 menulet++, c, TEXT_ATTRIBUTE_NONE, clr,
                                  oclass_to_name(oclass, buf),
                                  MENU_ITEMFLAGS_NONE);
                     }
@@ -1070,7 +1070,7 @@ rename_disco(void)
             }
             any.a_int = dis;
             add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                     ATR_NONE, clr,
+                     TEXT_ATTRIBUTE_NONE, clr,
                      disco_typename(dis), MENU_ITEMFLAGS_NONE);
         }
     }

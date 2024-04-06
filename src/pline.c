@@ -66,14 +66,14 @@ dumplogfreemessages(void)
 staticfn void
 putmesg(const char *line)
 {
-    int attr = ATR_NONE;
+    int attr = TEXT_ATTRIBUTE_NONE;
 
     if ((gp.pline_flags & URGENT_MESSAGE) != 0
         && (windowprocs.wincap2 & WC2_URGENT_MESG) != 0)
-        attr |= ATR_URGENT;
+        attr |= TEXT_ATTRIBUTE_URGENT;
     if ((gp.pline_flags & SUPPRESS_HISTORY) != 0
         && (windowprocs.wincap2 & WC2_SUPPRESS_HIST) != 0)
-        attr |= ATR_NOHISTORY;
+        attr |= TEXT_ATTRIBUTE_NOHISTORY;
     putstr(WIN_MESSAGE, attr, line);
     SoundSpeak(line);
 }

@@ -708,9 +708,9 @@ typedef unsigned char uchar;
 
 /* TEMPORARY - MAKE UNCONDITIONAL BEFORE RELEASE */
 /* undef this to check if sandbox breaks something */
-#define NHL_SANDBOX
+#define NHIGHLIGHT_SANDBOX
 
-#ifdef NHL_SANDBOX
+#ifdef NHIGHLIGHT_SANDBOX
 #ifdef CHRONICLE
     /* LIVELOG (and therefore CHRONICLE)  is needed for --loglua */
 #define LIVELOG

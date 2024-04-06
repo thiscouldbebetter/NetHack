@@ -169,7 +169,7 @@ static const struct Role urole_init_data = {
      0,
      0,
      4,
-    A_INT,
+    ATTRIBUTE_INTELLIGENCE,
      0,
     -3
 };
@@ -189,7 +189,7 @@ static const struct Race urace_init_data = {
     0,
     /*    Str     Int Wis Dex Con Cha */
     { 3, 3, 3, 3, 3, 3 },
-    { STR18(100), 18, 18, 18, 18, 18 },
+    { STRENGTH18(100), 18, 18, 18, 18, 18 },
     /* Init   Lower  Higher */
     { 2, 0, 0, 2, 1, 0 }, /* Hit points */
     { 1, 0, 2, 0, 2, 0 }  /* Energy */

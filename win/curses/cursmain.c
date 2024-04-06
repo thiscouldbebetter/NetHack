@@ -56,7 +56,7 @@ static char *dummy_get_color_string(void);
 struct window_procs curses_procs = {
     WPID(curses),
     (WC_ALIGN_MESSAGE | WC_ALIGN_STATUS | WC_COLOR | WC_INVERSE
-     | WC_HILITE_PET | WC_WINDOWCOLORS
+     | WC_HIGHLIGHT_PET | WC_WINDOWCOLORS
 #ifdef NCURSES_MOUSE_VERSION /* (this macro name works for PDCURSES too) */
      | WC_MOUSE_SUPPORT
 #endif
@@ -70,7 +70,7 @@ struct window_procs curses_procs = {
      | WC2_SELECTSAVED
 #endif
 #if defined(STATUS_HILITES)
-     | WC2_HILITE_STATUS
+     | WC2_HIGHLIGHT_STATUS
 #endif
      | WC2_FLUSH_STATUS | WC2_TERM_SIZE
      | WC2_STATUSLINES | WC2_WINDOWBORDERS | WC2_PETATTR | WC2_GUICOLOR
@@ -152,7 +152,7 @@ int orig_cursor;            /* Preserve initial cursor state */
 WINDOW *base_term;          /* underlying terminal window */
 boolean counting;           /* Count window is active */
 WINDOW *mapwin, *statuswin, *messagewin;    /* Main windows */
-color_attr curses_menu_promptstyle = { COLOR_CODE_NONE, ATR_NONE };
+color_attr curses_menu_promptstyle = { COLOR_CODE_NONE, TEXT_ATTRIBUTE_NONE };
 
 /* Track if we're performing an update to the permanent window.
    Needed since we aren't using the normal menu functions to handle
@@ -568,17 +568,17 @@ curses_putstr(winid wid, int attr, const char *text)
 {
     int mesgflags, curses_attr;
 
-    mesgflags = attr & (ATR_URGENT | ATR_NOHISTORY);
+    mesgflags = attr & (TEXT_ATTRIBUTE_URGENT | TEXT_ATTRIBUTE_NOHISTORY);
     attr &= ~mesgflags;
 
     /* this is comparable to tty's cw->flags &= ~WIN_STOP; if messages are
        being suppressed after >>ESC, override that and resume showing them */
-    if ((mesgflags & ATR_URGENT) != 0) {
+    if ((mesgflags & TEXT_ATTRIBUTE_URGENT) != 0) {
          curs_mesg_suppress_seq = -1L;
          curs_mesg_no_suppress = TRUE;
     }
 
-    if (wid == WIN_MESSAGE && (mesgflags & ATR_NOHISTORY) != 0) {
+    if (wid == WIN_MESSAGE && (mesgflags & TEXT_ATTRIBUTE_NOHISTORY) != 0) {
         /* display message without saving it in recall history */
         curses_count_window(text);
     } else {
@@ -694,7 +694,7 @@ curses_add_menu(winid wid, const glyph_info *glyphinfo,
 {
     int curses_attr;
 
-    attr &= ~(ATR_URGENT | ATR_NOHISTORY);
+    attr &= ~(TEXT_ATTRIBUTE_URGENT | TEXT_ATTRIBUTE_NOHISTORY);
     curses_attr = curses_convert_attr(attr);
 
     /* 'inv_update': 0 for normal menus, 1 and up for perminv window */

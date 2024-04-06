@@ -228,7 +228,7 @@ struct instance_globals_c {
     struct _cmd_queue *command_queue[NUM_CQS];
 
     /* botl.c */
-    unsigned long cond_hilites[BL_ATTCLR_MAX];
+    unsigned long cond_hilites[CONDITION_ATTRIBUTE_COLOR_MAX];
     int condmenu_sortorder;
 
     /* cmd.c */

@@ -173,7 +173,7 @@ getrumor(
         if (count >= 50)
             impossible("Can't find non-cookie rumor?");
         else if (!gi.in_mklev) /* avoid exercising wisdom for graffiti */
-            exercise(A_WIS, (adjtruth > 0));
+            exercise(ATTRIBUTE_WISDOM, (adjtruth > 0));
     } else {
         couldnt_open_file(RUMORFILE);
         gt.true_rumor_size = -1; /* don't try to open it again */
@@ -753,7 +753,7 @@ doconsult(struct monster *oracl)
             add_xpts = u_pay / (u.player_event_history.minor_oracle ? 25 : 10);
         /* ~100 pts if very 1st, ~40 pts if minor already done */
         u.player_event_history.major_oracle = TRUE;
-        exercise(A_WIS, !cheapskate);
+        exercise(ATTRIBUTE_WISDOM, !cheapskate);
     }
     if (add_xpts) {
         more_experienced(add_xpts, u_pay / 50);

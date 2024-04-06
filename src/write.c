@@ -148,7 +148,7 @@ dowrite(struct obj *pen)
     paper->dknown = 1;
     if (paper->otyp != SCR_BLANK_PAPER && paper->otyp != SPE_BLANK_PAPER) {
         pline("That %s is not blank!", typeword);
-        exercise(A_WIS, FALSE);
+        exercise(ATTRIBUTE_WISDOM, FALSE);
         return ECMD_TIME;
     }
 
@@ -294,7 +294,7 @@ dowrite(struct obj *pen)
      */
     actualcost = rn1(basecost / 2, basecost / 2);
     curseval = bcsign(pen) + bcsign(paper);
-    exercise(A_WIS, TRUE);
+    exercise(ATTRIBUTE_WISDOM, TRUE);
     /* dry out marker */
     if (pen->spe < actualcost) {
         pen->spe = 0;

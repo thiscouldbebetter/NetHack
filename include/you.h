@@ -8,7 +8,7 @@
 #ifndef YOU_H
 #define YOU_H
 
-#include "attrib.h"
+#include "Attributes.h"
 #include "monst.h"
 #ifndef PROP_H
 #include "prop.h" /* (needed here for util/makedefs.c) */
@@ -202,8 +202,8 @@ struct Role {
 #define ROLE_CHAOTIC   AM_CHAOTIC
 
 	/*** Attributes (from attrib.c and exper.c) ***/
-	xint16 attrbase[A_MAX];    /* lowest initial attributes */
-	xint16 attrdist[A_MAX];    /* distribution of initial attributes */
+	xint16 attrbase[ATTRIBUTE_COUNT];    /* lowest initial attributes */
+	xint16 attrdist[ATTRIBUTE_COUNT];    /* distribution of initial attributes */
 	struct RoleAdvance hpadv; /* hit point advancement */
 	struct RoleAdvance enadv; /* energy advancement */
 	xint16 xlev;               /* cutoff experience level */
@@ -262,8 +262,8 @@ struct Race {
 		hatemask;   /* bit mask of always hostile */
 
 	/*** Attributes ***/
-	xint16 attrmin[A_MAX];     /* minimum allowable attribute */
-	xint16 attrmax[A_MAX];     /* maximum allowable attribute */
+	xint16 attrmin[ATTRIBUTE_COUNT];     /* minimum allowable attribute */
+	xint16 attrmax[ATTRIBUTE_COUNT];     /* maximum allowable attribute */
 	struct RoleAdvance hpadv; /* hit point advancement */
 	struct RoleAdvance enadv; /* energy advancement */
 #if 0 /* DEFERRED */

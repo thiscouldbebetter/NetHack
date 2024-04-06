@@ -11,12 +11,12 @@
 
 #define NHSW_LINES 2
 
-static const int fieldorder1[] = { BL_TITLE, BL_STR, BL_DX,    BL_CO,    BL_IN,
-                             BL_WI,    BL_CH,  BL_ALIGN, BL_SCORE, -1 };
-static const int fieldorder2[] = { BL_LEVELDESC, BL_GOLD,      BL_HP,   BL_HPMAX,
-                             BL_ENE,       BL_ENEMAX,    BL_AC,   BL_XP,
-                             BL_EXP,       BL_HD,        BL_TIME, BL_HUNGER,
-                             BL_CAP,       BL_CONDITION, -1 };
+static const int fieldorder1[] = { CONDITION_TITLE, CONDITION_STR, CONDITION_DX,    CONDITION_CO,    CONDITION_IN,
+                             CONDITION_WI,    CONDITION_CH,  CONDITION_ALIGN, CONDITION_SCORE, -1 };
+static const int fieldorder2[] = { CONDITION_LEVELDESC, CONDITION_GOLD,      CONDITION_HP,   CONDITION_HPMAX,
+                             CONDITION_ENE,       CONDITION_ENEMAX,    CONDITION_AC,   CONDITION_XP,
+                             CONDITION_EXP,       CONDITION_HD,        CONDITION_TIME, CONDITION_HUNGER,
+                             CONDITION_CAP,       CONDITION_CONDITION, -1 };
 static const int *fieldorders[] = { fieldorder1, fieldorder2, NULL };
 static const int fieldcounts[NHSW_LINES] = { SIZE(fieldorder1) - 1, SIZE(fieldorder2) - 1};
 

@@ -205,7 +205,7 @@ extern
  */
 /* clang-format off */
 #define WC_COLOR         0x00000001L /* 01 Port can display things in color  */
-#define WC_HILITE_PET    0x00000002L /* 02 supports hilite pet               */
+#define WC_HIGHLIGHT_PET    0x00000002L /* 02 supports hilite pet               */
 #define WC_ASCII_MAP     0x00000004L /* 03 supports an ascii map             */
 #define WC_TILED_MAP     0x00000008L /* 04 supports a tiled map              */
 #define WC_PRELOAD_TILES 0x00000010L /* 05 supports pre-loading tiles        */
@@ -245,13 +245,13 @@ extern
 #define WC2_FULLSCREEN    0x0001L /* 01 display full screen             */
 #define WC2_SOFTKEYBOARD  0x0002L /* 02 software keyboard               */
 #define WC2_WRAPTEXT      0x0004L /* 03 wrap long lines of text         */
-#define WC2_HILITE_STATUS 0x0008L /* 04 hilite fields in status         */
+#define WC2_HIGHLIGHT_STATUS 0x0008L /* 04 hilite fields in status         */
 #define WC2_SELECTSAVED   0x0010L /* 05 saved game selection menu       */
 #define WC2_DARKGRAY      0x0020L /* 06 use bold black for black glyphs */
 #define WC2_HITPOINTBAR   0x0040L /* 07 show bar representing hit points */
-#define WC2_FLUSH_STATUS  0x0080L /* 08 call status_update(BL_FLUSH)
+#define WC2_FLUSH_STATUS  0x0080L /* 08 call status_update(CONDITION_FLUSH)
                                    *    after updating status window fields */
-#define WC2_RESET_STATUS  0x0100L /* 09 call status_update(BL_RESET) to
+#define WC2_RESET_STATUS  0x0100L /* 09 call status_update(CONDITION_RESET) to
                                    *    indicate 'draw everything'      */
 #define WC2_TERM_SIZE     0x0200L /* 10 support setting terminal size   */
 #define WC2_STATUSLINES   0x0400L /* 11 switch between 2|3 lines of status */

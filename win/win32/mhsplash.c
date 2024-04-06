@@ -210,7 +210,7 @@ NHSplashWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message) {
     case WM_INITDIALOG: {
         HDC hdc = GetDC(hWnd);
-        cached_font * font = mswin_get_font(NHW_TEXT, ATR_NONE, hdc, FALSE);
+        cached_font * font = mswin_get_font(NHW_TEXT, TEXT_ATTRIBUTE_NONE, hdc, FALSE);
         /* set text control font */
         SendMessage(hWnd, WM_SETFONT, (WPARAM)font->hFont,  0);
         ReleaseDC(hWnd, hdc);

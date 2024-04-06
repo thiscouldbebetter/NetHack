@@ -861,7 +861,7 @@ touch_artifact(struct obj *obj, struct monster *mon)
             tmp = random(10), dmg += Maybe_Half_Phys(tmp);
         Sprintf(buf, "touching %s", oart->name);
         losehp(dmg, buf, KILLED_BY); /* magic damage, not physical */
-        exercise(A_WIS, FALSE);
+        exercise(ATTRIBUTE_WISDOM, FALSE);
     }
 
     /* can pick it up unless you're totally non-synch'd with the artifact */
@@ -1797,7 +1797,7 @@ arti_invoke(struct obj *obj)
                     continue;
                 any.a_int = i + 1;
                 add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                         ATR_NONE, clr,
+                         TEXT_ATTRIBUTE_NONE, clr,
                          gd.dungeons[i].dname, MENU_ITEMFLAGS_NONE);
                 num_ok_dungeons++;
                 last_ok_dungeon = i;
@@ -2328,7 +2328,7 @@ retouch_object(
                 dmg += random(10);
             Sprintf(buf, "handling %s", what);
             losehp(dmg, buf, KILLED_BY);
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
         }
     }
 

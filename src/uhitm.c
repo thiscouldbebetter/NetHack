@@ -546,7 +546,7 @@ do_attack(struct monster *mtmp)
                     makeplural(body_part(HAND)));
         }
     }
-    exercise(A_STR, TRUE); /* you're exercising muscles */
+    exercise(ATTRIBUTE_STRENGTH, TRUE); /* you're exercising muscles */
     /* andrew@orca: prevent unlimited pick-axe attacks */
     u_wipe_engr(3);
 
@@ -778,7 +778,7 @@ hitum(struct monster *mon, struct attack *uattk)
     dieroll = random(20);
     mhit = (tmp > dieroll || u.uswallow);
     if (tmp > dieroll)
-        exercise(A_DEX, TRUE);
+        exercise(ATTRIBUTE_DEXTERITY, TRUE);
 
     /* gb.bhitpos is set up by caller */
     malive = known_hitum(mon, uwep, &mhit, tmp, armorpenalty, uattk, dieroll);
@@ -1217,7 +1217,7 @@ hmon_hitmon_misc_obj(
             } else {
                 pline("Splat!");
                 useup_eggs(obj);
-                exercise(A_WIS, FALSE);
+                exercise(ATTRIBUTE_WISDOM, FALSE);
             }
         }
         break;
@@ -2064,7 +2064,7 @@ demonpet(void)
     pm = i != NON_PM ? &mons[i] : gy.youmonst.data;
     if ((dtmp = makemon(pm, u.ux, u.uy, NO_MM_FLAGS)) != 0)
         (void) tamedog(dtmp, (struct obj *) 0, FALSE);
-    exercise(A_WIS, TRUE);
+    exercise(ATTRIBUTE_WISDOM, TRUE);
 }
 
 staticfn boolean
@@ -2681,7 +2681,7 @@ mhitm_ad_acid(
                 mhm->damage = 0;
             } else {
                 pline("You're covered in %s!  It burns!", hliquid("acid"));
-                exercise(A_STR, FALSE);
+                exercise(ATTRIBUTE_STRENGTH, FALSE);
                 monstunseesu(M_SEEN_ACID);
             }
         else
@@ -2733,7 +2733,7 @@ mhitm_ad_sgld(
                 dropy(mongold);
             }
         }
-        exercise(A_DEX, TRUE);
+        exercise(ATTRIBUTE_DEXTERITY, TRUE);
         mhm->damage = 0;
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
@@ -3042,13 +3042,13 @@ mhitm_ad_drst(
         }
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
-        int ptmp = A_STR;  /* A_STR == 0 */
+        int ptmp = ATTRIBUTE_STRENGTH;  /* ATTRIBUTE_STRENGTH == 0 */
         char buf[BUFSZ];
 
         switch (mattk->adtyp) {
-        case AD_DRST: ptmp = A_STR; break;
-        case AD_DRDX: ptmp = A_DEX; break;
-        case AD_DRCO: ptmp = A_CON; break;
+        case AD_DRST: ptmp = ATTRIBUTE_STRENGTH; break;
+        case AD_DRDX: ptmp = ATTRIBUTE_DEXTERITY; break;
+        case AD_DRCO: ptmp = ATTRIBUTE_CONSTITUTION; break;
         }
         hitmsg(magr, mattk);
         if (!negated && !random_integer_between_zero_and(8)) {
@@ -3175,7 +3175,7 @@ mhitm_ad_drin(
                 return;
         }
         /* adjattrib gives dunce cap message when appropriate */
-        (void) adjust_attribute(A_INT, -random(2), FALSE);
+        (void) adjust_attribute(ATTRIBUTE_INTELLIGENCE, -random(2), FALSE);
 
     } else {
         /* mhitm */
@@ -3364,7 +3364,7 @@ mhitm_ad_plys(
                 /* set gm.multi_reason;
                    3.6.x used "paralyzed by a monster"; be more specific */
                 dynamic_multi_reason(magr, "paralyzed", FALSE);
-                exercise(A_DEX, FALSE);
+                exercise(ATTRIBUTE_DEXTERITY, FALSE);
             }
         }
     } else {
@@ -3695,7 +3695,7 @@ mhitm_ad_famn(
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         pline("%s reaches out, and your body shrivels.", Monnam(magr));
-        exercise(A_CON, FALSE);
+        exercise(ATTRIBUTE_CONSTITUTION, FALSE);
         if (!is_fainted())
             morehungry(rn1(40, 40));
         /* plus the normal damage */
@@ -3934,7 +3934,7 @@ mhitm_ad_phys(
                     mhm->hitflags |= M_ATTK_HIT;
                 }
             } else if (u.monster_stuck_to == magr) {
-                exercise(A_STR, FALSE);
+                exercise(ATTRIBUTE_STRENGTH, FALSE);
                 You("are being %s.",
                     (pa == &mons[PM_ROPE_GOLEM]) ? "choked" : "crushed");
             }
@@ -3975,7 +3975,7 @@ mhitm_ad_phys(
                 if (objects[otmp->otyp].oc_material == SILVER
                     && Hate_silver) {
                     pline_The("silver sears your flesh!");
-                    exercise(A_CON, FALSE);
+                    exercise(ATTRIBUTE_CONSTITUTION, FALSE);
                 }
                 /* this redundancy necessary because you have
                    to take the damage _before_ being cloned;
@@ -3992,7 +3992,7 @@ mhitm_ad_phys(
                     && (u.umonnum == PM_BLACK_PUDDING
                         || u.umonnum == PM_BROWN_PUDDING)) {
                     if (tmp > 1)
-                        exercise(A_STR, FALSE);
+                        exercise(ATTRIBUTE_STRENGTH, FALSE);
                     /* inflict damage now; we know it can't be fatal */
                     u.mh -= tmp;
                     disp.botl = TRUE;
@@ -4155,7 +4155,7 @@ mhitm_ad_were(
             && !Protection_from_shape_changers && !defends(AD_WERE, uwep)
             && !mhitm_mgc_atk_negated(magr, mdef, TRUE)) {
             urgent_pline("You feel feverish.");
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             set_ulycn(monsndx(pa));
             retouch_equipment(2);
         }
@@ -4220,9 +4220,9 @@ mhitm_ad_heal(
                     u.hit_points = u.hit_points_max;
             }
             if (!random_integer_between_zero_and(3))
-                exercise(A_STR, TRUE);
+                exercise(ATTRIBUTE_STRENGTH, TRUE);
             if (!random_integer_between_zero_and(3))
-                exercise(A_CON, TRUE);
+                exercise(ATTRIBUTE_CONSTITUTION, TRUE);
             if (Sick)
                 make_sick(0L, (char *) 0, FALSE, SICK_ALL);
             disp.botl = TRUE;
@@ -4346,9 +4346,9 @@ mhitm_ad_legs(
             } else
                 pline("%s pricks your %s %s!", Monst_name, sidestr, leg);
 
-            set_wounded_legs(side, random(60 - ATTRIBUTE_CURRENT(A_DEX)));
-            exercise(A_STR, FALSE);
-            exercise(A_DEX, FALSE);
+            set_wounded_legs(side, random(60 - ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY)));
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
+            exercise(ATTRIBUTE_DEXTERITY, FALSE);
         }
     } else {
         /* mhitm */
@@ -4971,7 +4971,7 @@ gulpum(struct monster *mdef, struct attack *mattk)
                             make_slimed(5L, (char *) 0);
                         }
                     } else
-                        exercise(A_CON, TRUE);
+                        exercise(ATTRIBUTE_CONSTITUTION, TRUE);
                 }
                 end_engulf();
                 return M_ATTK_DEF_DIED;
@@ -5755,7 +5755,7 @@ passive(
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
                 passive_obj(mon, weapon, &(ptr->mattk[i]));
         }
-        exercise(A_STR, FALSE);
+        exercise(ATTRIBUTE_STRENGTH, FALSE);
         break;
     case AD_STON:
         if (mhitb) { /* successful attack */
@@ -5865,7 +5865,7 @@ passive(
                             s_suffix(mon_nam(mon)));
                     } else {
                         You("are frozen by %s gaze!", s_suffix(mon_nam(mon)));
-                        nomul((ATTRIBUTE_CURRENT(A_WIS) > 12 || random_integer_between_zero_and(4)) ? -tmp : -127);
+                        nomul((ATTRIBUTE_CURRENT(ATTRIBUTE_WISDOM) > 12 || random_integer_between_zero_and(4)) ? -tmp : -127);
                         /* set gm.multi_reason;
                            3.6.x used "frozen by a monster's gaze" */
                         dynamic_multi_reason(mon, "frozen", TRUE);
@@ -5886,7 +5886,7 @@ passive(
                 /* set gm.multi_reason;
                    3.6.x used "frozen by a monster"; be more specific */
                 dynamic_multi_reason(mon, "frozen", FALSE);
-                exercise(A_DEX, FALSE);
+                exercise(ATTRIBUTE_DEXTERITY, FALSE);
             }
             break;
         case AD_COLD: /* brown mold or blue jelly */

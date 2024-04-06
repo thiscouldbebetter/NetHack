@@ -381,7 +381,7 @@ learn(void)
         gc.context.spbook.delay++;
         return 1; /* still busy */
     }
-    exercise(A_WIS, TRUE); /* you're studying. */
+    exercise(ATTRIBUTE_WISDOM, TRUE); /* you're studying. */
     booktype = book->otyp;
     if (booktype == SPE_BOOK_OF_THE_DEAD) {
         deadbook(book);
@@ -409,7 +409,7 @@ learn(void)
                  spellknow(i) ? "keener" : "restored");
             incrnknow(i, 1);
             book->spestudied++;
-            exercise(A_WIS, TRUE); /* extra study */
+            exercise(ATTRIBUTE_WISDOM, TRUE); /* extra study */
         }
         makeknown((int) booktype);
     } else { /* (spellid(i) == NO_SPELL) */
@@ -465,7 +465,7 @@ study_book(struct obj *spellbook)
     if (!confused && !Sleep_resistance
         && objdescr_is(spellbook, "dull")) {
         const char *eyes;
-        int dullbook = random(25) - ATTRIBUTE_CURRENT(A_WIS);
+        int dullbook = random(25) - ATTRIBUTE_CURRENT(ATTRIBUTE_WISDOM);
 
         /* adjust chance if hero stayed awake, got interrupted, retries */
         if (gc.context.spbook.delay && spellbook == gc.context.spbook.book)
@@ -567,7 +567,7 @@ study_book(struct obj *spellbook)
                 too_hard = TRUE;
             } else {
                 /* uncursed - chance to fail */
-                int read_ability = ATTRIBUTE_CURRENT(A_INT) + 4 + u.ulevel / 2
+                int read_ability = ATTRIBUTE_CURRENT(ATTRIBUTE_INTELLIGENCE) + 4 + u.ulevel / 2
                                    - 2 * objects[booktype].oc_level
                              + ((ublindf && ublindf->otyp == LENSES) ? 2 : 0);
 
@@ -782,7 +782,7 @@ dowizcast(void)
         if (n >= SPE_BLANK_PAPER)
             break;
         any.a_int = n;
-        add_menu(win, &nul_glyphinfo, &any, 0, 0, ATR_NONE, COLOR_CODE_NONE,
+        add_menu(win, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE, COLOR_CODE_NONE,
                  OBJ_NAME(objects[n]), MENU_ITEMFLAGS_NONE);
     }
     end_menu(win, "Cast which spell?");
@@ -1228,7 +1228,7 @@ spelleffects_check(int spell, int *res, int *energy)
         You("are too hungry to cast that spell.");
         *res = ECMD_OK;
         return TRUE;
-    } else if (ATTRIBUTE_CURRENT(A_STR) < 4 && spellid(spell) != SPE_RESTORE_ABILITY) {
+    } else if (ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH) < 4 && spellid(spell) != SPE_RESTORE_ABILITY) {
         You("lack the strength to cast spells.");
         *res = ECMD_OK;
         return TRUE;
@@ -1290,7 +1290,7 @@ spelleffects_check(int spell, int *res, int *energy)
              * b) Wizards have spent their life at magic and
              * understand quite well how to cast spells.
              */
-            int intell = acurr(A_INT);
+            int intell = acurr(ATTRIBUTE_INTELLIGENCE);
             if (!Role_if(PM_WIZARD))
                 intell = 10;
             switch (intell) {
@@ -1352,7 +1352,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
 
     u.energy -= energy;
     disp.botl = TRUE;
-    exercise(A_WIS, TRUE);
+    exercise(ATTRIBUTE_WISDOM, TRUE);
     /* pseudo is a temporary "false" object containing the spell stats */
     pseudo = mksobj(force ? spell : spellid(spell), FALSE, FALSE);
     pseudo->blessed = pseudo->cursed = 0;
@@ -1621,7 +1621,7 @@ throwspell(void)
         return 0;
     } else if (u.uswallow) {
         pline_The("spell is cut short!");
-        exercise(A_WIS, FALSE); /* What were you THINKING! */
+        exercise(ATTRIBUTE_WISDOM, FALSE); /* What were you THINKING! */
         u.dx = 0;
         u.dy = 0;
         return 1;
@@ -1760,7 +1760,7 @@ losespells(void)
             forget_single_object(spellid(i));
 #endif
             /* and abuse wisdom */
-            exercise(A_WIS, FALSE);
+            exercise(ATTRIBUTE_WISDOM, FALSE);
             /* there's now one less spell slated to be forgotten */
             --nzap;
         }
@@ -1937,7 +1937,7 @@ spellsortmenu(void)
         }
         any.a_int = i + 1;
         add_menu(tmpwin, &nul_glyphinfo, &any, let, 0,
-                 ATR_NONE, clr, spl_sortchoices[i],
+                 TEXT_ATTRIBUTE_NONE, clr, spl_sortchoices[i],
                  (i == gs.spl_sortmode) ? MENU_ITEMFLAGS_SELECTED
                                         : MENU_ITEMFLAGS_NONE);
     }
@@ -2048,7 +2048,7 @@ dospellmenu(
 
         any.a_int = splnum + 1; /* must be non-zero */
         add_menu(tmpwin, &nul_glyphinfo, &any, spellet(splnum), 0,
-                 ATR_NONE, clr, buf,
+                 TEXT_ATTRIBUTE_NONE, clr, buf,
                  (splnum == splaction)
                     ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     }
@@ -2061,7 +2061,7 @@ dospellmenu(
             /* more than 1 spell, add an extra menu entry */
             any.a_int = SPELLMENU_SORT + 1;
             add_menu(tmpwin, &nul_glyphinfo, &any, '+', 0,
-                     ATR_NONE, clr, "[sort spells]", MENU_ITEMFLAGS_NONE);
+                     TEXT_ATTRIBUTE_NONE, clr, "[sort spells]", MENU_ITEMFLAGS_NONE);
         }
     }
     end_menu(tmpwin, prompt);

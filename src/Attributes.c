@@ -129,7 +129,7 @@ adjust_attribute(
     if (Fixed_abil || !amount_to_add)
         return FALSE;
 
-    if ((attribute_index == A_INT || attribute_index == A_WIS) && uarmh && uarmh->otyp == DUNCE_CAP) {
+    if ((attribute_index == ATTRIBUTE_INTELLIGENCE || attribute_index == ATTRIBUTE_WISDOM) && uarmh && uarmh->otyp == DUNCE_CAP) {
         if (message_flag == 0)
             Your("cap constricts briefly, then relaxes again.");
         return FALSE;
@@ -137,16 +137,16 @@ adjust_attribute(
 
     old_acurr = ATTRIBUTE_CURRENT(attribute_index);
     old_abase = ATTRIBUTE_BASE(attribute_index);
-    old_amax = AMAX(attribute_index);
+    old_amax = ATTRIBUTE_MAX(attribute_index);
     ATTRIBUTE_BASE(attribute_index) += amount_to_add; /* when incr is negative, this reduces ABASE() */
     if (amount_to_add > 0) {
-        if (ATTRIBUTE_BASE(attribute_index) > AMAX(attribute_index)) {
-            AMAX(attribute_index) = ATTRIBUTE_BASE(attribute_index);
-            if (AMAX(attribute_index) > ATTRMAX(attribute_index))
-                ATTRIBUTE_BASE(attribute_index) = AMAX(attribute_index) = ATTRMAX(attribute_index);
+        if (ATTRIBUTE_BASE(attribute_index) > ATTRIBUTE_MAX(attribute_index)) {
+            ATTRIBUTE_MAX(attribute_index) = ATTRIBUTE_BASE(attribute_index);
+            if (ATTRIBUTE_MAX(attribute_index) > ATTRMAX(attribute_index))
+                ATTRIBUTE_BASE(attribute_index) = ATTRIBUTE_MAX(attribute_index) = ATTRMAX(attribute_index);
         }
         attrstr = attributesPositive[attribute_index];
-        abonflg = (ABON(attribute_index) < 0);
+        abonflg = (ATTRIBUTE_BONUS(attribute_index) < 0);
     } else { /* incr is negative */
         if (ATTRIBUTE_BASE(attribute_index) < ATTRMIN(attribute_index)) {
             /*
@@ -168,16 +168,16 @@ adjust_attribute(
              */
             decr = random_integer_between_zero_and(ATTRMIN(attribute_index) - ATTRIBUTE_BASE(attribute_index) + 1);
             ATTRIBUTE_BASE(attribute_index) = ATTRMIN(attribute_index);
-            AMAX(attribute_index) -= decr;
-            if (AMAX(attribute_index) < ATTRMIN(attribute_index))
-                AMAX(attribute_index) = ATTRMIN(attribute_index);
+            ATTRIBUTE_MAX(attribute_index) -= decr;
+            if (ATTRIBUTE_MAX(attribute_index) < ATTRMIN(attribute_index))
+                ATTRIBUTE_MAX(attribute_index) = ATTRMIN(attribute_index);
         }
         attrstr = attributesNegative[attribute_index];
-        abonflg = (ABON(attribute_index) > 0);
+        abonflg = (ATTRIBUTE_BONUS(attribute_index) > 0);
     }
     if (ATTRIBUTE_CURRENT(attribute_index) == old_acurr) {
         if (message_flag == 0 && flags.verbose) {
-            if (ATTRIBUTE_BASE(attribute_index) == old_abase && AMAX(attribute_index) == old_amax) {
+            if (ATTRIBUTE_BASE(attribute_index) == old_abase && ATTRIBUTE_MAX(attribute_index) == old_amax) {
                 pline("You're %s as %s as you can get.",
                       abonflg ? "currently" : "already", attrstr);
             } else {
@@ -193,7 +193,7 @@ adjust_attribute(
     disp.botl = TRUE;
     if (message_flag <= 0)
         You_feel("%s%s!", (amount_to_add > 1 || amount_to_add < -1) ? "very " : "", attrstr);
-    if (gp.program_state.in_moveloop && (attribute_index == A_STR || attribute_index == A_CON))
+    if (gp.program_state.in_moveloop && (attribute_index == ATTRIBUTE_STRENGTH || attribute_index == ATTRIBUTE_CONSTITUTION))
         (void) encumbered_message();
     return TRUE;
 }
@@ -205,14 +205,14 @@ gainstr(struct obj *otmp, int incr, boolean givemsg)
     int num = incr;
 
     if (!num) {
-        if (ATTRIBUTE_BASE(A_STR) < 18)
+        if (ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) < 18)
             num = (random_integer_between_zero_and(4) ? 1 : random(6));
-        else if (ATTRIBUTE_BASE(A_STR) < STR18(85))
+        else if (ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) < STRENGTH18(85))
             num = random(10);
         else
             num = 1;
     }
-    (void) adjust_attribute(A_STR, (otmp && otmp->cursed) ? -num : num,
+    (void) adjust_attribute(ATTRIBUTE_STRENGTH, (otmp && otmp->cursed) ? -num : num,
                      givemsg ? -1 : 1);
 }
 
@@ -221,15 +221,15 @@ void
 losestr(int num, const char *knam, schar k_format)
 {
     int uhpmin = minuhpmax(1), olduhpmax = u.hit_points_max;
-    int ustr = ATTRIBUTE_BASE(A_STR) - num, amt, dmg;
+    int ustr = ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) - num, amt, dmg;
     boolean waspolyd = Upolyd;
 
-    if (num <= 0 || ATTRIBUTE_BASE(A_STR) < ATTRMIN(A_STR)) {
-        impossible("losestr: %d - %d", ATTRIBUTE_BASE(A_STR), num);
+    if (num <= 0 || ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) < ATTRMIN(ATTRIBUTE_STRENGTH)) {
+        impossible("losestr: %d - %d", ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH), num);
         return;
     }
     dmg = 0;
-    while (ustr < ATTRMIN(A_STR)) {
+    while (ustr < ATTRMIN(ATTRIBUTE_STRENGTH)) {
         ++ustr;
         --num;
         amt = rn1(4, 3); /* (0..(4-1))+3 => 3..6; used to use flat 6 here */
@@ -266,7 +266,7 @@ losestr(int num, const char *knam, schar k_format)
     /* 'num' could have been reduced to 0 in the minimum strength loop;
        '(Upolyd || !waspolyd)' is True unless damage caused rehumanization */
     if (num > 0 && (Upolyd || !waspolyd))
-        (void) adjust_attribute(A_STR, -num, 1);
+        (void) adjust_attribute(ATTRIBUTE_STRENGTH, -num, 1);
 }
 
 /* combined strength loss and damage from some poisons */
@@ -281,12 +281,12 @@ static const struct poison_effect_message {
     void (*delivery_func)(const char *, ...);
     const char *effect_msg;
 } poiseff[] = {
-    { You_feel, "weaker" },             /* A_STR */
-    { Your, "brain is on fire" },       /* A_INT */
-    { Your, "judgement is impaired" },  /* A_WIS */
-    { Your, "muscles won't obey you" }, /* A_DEX */
-    { You_feel, "very sick" },          /* A_CON */
-    { You, "break out in hives" }       /* A_CHA */
+    { You_feel, "weaker" },             /* ATTRIBUTE_STRENGTH */
+    { Your, "brain is on fire" },       /* ATTRIBUTE_INTELLIGENCE */
+    { Your, "judgement is impaired" },  /* ATTRIBUTE_WISDOM */
+    { Your, "muscles won't obey you" }, /* ATTRIBUTE_DEXTERITY */
+    { You_feel, "very sick" },          /* ATTRIBUTE_CONSTITUTION */
+    { You, "break out in hives" }       /* ATTRIBUTE_CHARISMA */
 };
 
 /* feedback for attribute loss due to poisoning */
@@ -304,9 +304,9 @@ poisontell(int typ,         /* which attribute */
      * Phrasing for other attributes which might have fixed values
      * (dunce cap) is such that we don't need message fixups for them.
      */
-    if (typ == A_STR && ATTRIBUTE_CURRENT(A_STR) == STR19(25))
+    if (typ == ATTRIBUTE_STRENGTH && ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH) == STRENGTH19(25))
         msg_txt = "innately weaker";
-    else if (typ == A_CON && ATTRIBUTE_CURRENT(A_CON) == 25)
+    else if (typ == ATTRIBUTE_CONSTITUTION && ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION) == 25)
         msg_txt = "sick inside";
 
     (*func)("%s%c", msg_txt, exclaim ? '!' : '.');
@@ -355,7 +355,7 @@ poisoned(
     }
 
     i = !fatal ? 1 : random_integer_between_zero_and(fatal + (thrown_weapon ? 20 : 0));
-    if (i == 0 && typ != A_CHA) {
+    if (i == 0 && typ != ATTRIBUTE_CHARISMA) {
         /* sometimes survivable instant kill */
         loss = 6 + d(4, 6);
         if (u.hit_points <= loss) {
@@ -366,9 +366,9 @@ poisoned(
             /* survived, but with severe reaction */
             u.hit_points_max = max(3, u.hit_points_max - (loss / 2));
             losehp(loss, pkiller, kprefix); /* poison damage */
-            if (adjust_attribute(A_CON, (typ != A_CON) ? -1 : -3, TRUE))
-                poisontell(A_CON, TRUE);
-            if (typ != A_CON && adjust_attribute(typ, -3, 1))
+            if (adjust_attribute(ATTRIBUTE_CONSTITUTION, (typ != ATTRIBUTE_CONSTITUTION) ? -1 : -3, TRUE))
+                poisontell(ATTRIBUTE_CONSTITUTION, TRUE);
+            if (typ != ATTRIBUTE_CONSTITUTION && adjust_attribute(typ, -3, 1))
                 poisontell(typ, TRUE);
         }
     } else if (i > 5) {
@@ -380,7 +380,7 @@ poisoned(
             loss = (loss + 1) / 2;
         losehp(loss, pkiller, kprefix); /* poison damage */
     } else {
-        /* attribute loss; if typ is A_STR, reduction in current and
+        /* attribute loss; if typ is ATTRIBUTE_STRENGTH, reduction in current and
            maximum HP will occur once strength has dropped down to 3 */
         loss = (thrown_weapon || !fatal) ? 1 : d(2, 2); /* was rn1(3,3) */
         /* check that a stat change was made */
@@ -457,15 +457,15 @@ restore_attrib(void)
      * its own timeout routine.
      */
 
-    for (i = 0; i < A_MAX; i++) { /* all temporary losses/gains */
-        equilibrium = ((i == A_STR && u.uhs >= WEAK)
-                       || (i == A_DEX && Wounded_legs)) ? -1 : 0;
-        if (ATEMP(i) != equilibrium && ATIME(i) != 0) {
-            if (!(--(ATIME(i)))) { /* countdown for change */
-                ATEMP(i) += (ATEMP(i) > 0) ? -1 : 1;
+    for (i = 0; i < ATTRIBUTE_COUNT; i++) { /* all temporary losses/gains */
+        equilibrium = ((i == ATTRIBUTE_STRENGTH && u.uhs >= WEAK)
+                       || (i == ATTRIBUTE_DEXTERITY && Wounded_legs)) ? -1 : 0;
+        if (ATTRIBUTE_TEMPORARY(i) != equilibrium && ATTRIBUTE_TEMPORARY_TIME(i) != 0) {
+            if (!(--(ATTRIBUTE_TEMPORARY_TIME(i)))) { /* countdown for change */
+                ATTRIBUTE_TEMPORARY(i) += (ATTRIBUTE_TEMPORARY(i) > 0) ? -1 : 1;
                 disp.botl = TRUE;
-                if (ATEMP(i)) /* reset timer */
-                    ATIME(i) = 100 / ATTRIBUTE_CURRENT(A_CON);
+                if (ATTRIBUTE_TEMPORARY(i)) /* reset timer */
+                    ATTRIBUTE_TEMPORARY_TIME(i) = 100 / ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION);
             }
         }
     }
@@ -479,14 +479,14 @@ void
 exercise(int i, boolean inc_or_dec)
 {
     debugpline0("Exercise:");
-    if (i == A_INT || i == A_CHA)
+    if (i == ATTRIBUTE_INTELLIGENCE || i == ATTRIBUTE_CHARISMA)
         return; /* can't exercise these */
 
     /* no physical exercise while polymorphed; the body's temporary */
-    if (Upolyd && i != A_WIS)
+    if (Upolyd && i != ATTRIBUTE_WISDOM)
         return;
 
-    if (abs(AEXE(i)) < AVAL) {
+    if (abs(ATTRIBUTE_FROM_EXERCISE(i)) < AVAL) {
         /*
          *      Law of diminishing returns (Part I):
          *
@@ -496,14 +496,14 @@ exercise(int i, boolean inc_or_dec)
          *
          *      Note: *YES* ACURR is the right one to use.
          */
-        AEXE(i) += (inc_or_dec) ? (random_integer_between_zero_and(19) > ATTRIBUTE_CURRENT(i)) : -random_integer_between_zero_and(2);
+        ATTRIBUTE_FROM_EXERCISE(i) += (inc_or_dec) ? (random_integer_between_zero_and(19) > ATTRIBUTE_CURRENT(i)) : -random_integer_between_zero_and(2);
         debugpline3("%s, %s AEXE = %d",
-                    (i == A_STR) ? "Str" : (i == A_WIS) ? "Wis" : (i == A_DEX)
+                    (i == ATTRIBUTE_STRENGTH) ? "Str" : (i == ATTRIBUTE_WISDOM) ? "Wis" : (i == ATTRIBUTE_DEXTERITY)
                                                                       ? "Dex"
                                                                       : "Con",
-                    (inc_or_dec) ? "inc" : "dec", AEXE(i));
+                    (inc_or_dec) ? "inc" : "dec", ATTRIBUTE_FROM_EXERCISE(i));
     }
-    if (gm.moves > 0 && (i == A_STR || i == A_CON))
+    if (gm.moves > 0 && (i == ATTRIBUTE_STRENGTH || i == ATTRIBUTE_CONSTITUTION))
         (void) encumbered_message();
 }
 
@@ -521,21 +521,21 @@ exerper(void)
         debugpline0("exerper: Hunger checks");
         switch (hs) {
         case SATIATED:
-            exercise(A_DEX, FALSE);
+            exercise(ATTRIBUTE_DEXTERITY, FALSE);
             if (Role_if(PM_MONK))
-                exercise(A_WIS, FALSE);
+                exercise(ATTRIBUTE_WISDOM, FALSE);
             break;
         case NOT_HUNGRY:
-            exercise(A_CON, TRUE);
+            exercise(ATTRIBUTE_CONSTITUTION, TRUE);
             break;
         case WEAK:
-            exercise(A_STR, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
             if (Role_if(PM_MONK)) /* fasting */
-                exercise(A_WIS, TRUE);
+                exercise(ATTRIBUTE_WISDOM, TRUE);
             break;
         case FAINTING:
         case FAINTED:
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             break;
         }
 
@@ -543,15 +543,15 @@ exerper(void)
         debugpline0("exerper: Encumber checks");
         switch (near_capacity()) {
         case MODERATELY_ENCUMBERED:
-            exercise(A_STR, TRUE);
+            exercise(ATTRIBUTE_STRENGTH, TRUE);
             break;
         case HEAVILY_ENCUMBERED:
-            exercise(A_STR, TRUE);
-            exercise(A_DEX, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, TRUE);
+            exercise(ATTRIBUTE_DEXTERITY, FALSE);
             break;
         case EXTREMELY_ENCUMBERED:
-            exercise(A_DEX, FALSE);
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_DEXTERITY, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             break;
         }
     }
@@ -560,22 +560,22 @@ exerper(void)
     if (!(gm.moves % 5)) {
         debugpline0("exerper: Status checks");
         if ((HClairvoyant & (INTRINSIC | TIMEOUT)) && !BClairvoyant)
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
         if (HRegeneration)
-            exercise(A_STR, TRUE);
+            exercise(ATTRIBUTE_STRENGTH, TRUE);
 
         if (Sick || Vomiting)
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
         if (Confusion || Hallucination)
-            exercise(A_WIS, FALSE);
+            exercise(ATTRIBUTE_WISDOM, FALSE);
         if ((Wounded_legs && !u.monster_being_ridden) || Fumbling || HStun)
-            exercise(A_DEX, FALSE);
+            exercise(ATTRIBUTE_DEXTERITY, FALSE);
     }
 }
 
 /* exercise/abuse text (must be in attribute order, not botl order);
    phrased as "You must have been [][0]." or "You haven't been [][1]." */
-static NEARDATA const char *const exertext[A_MAX][2] = {
+static NEARDATA const char *const exertext[ATTRIBUTE_COUNT][2] = {
     { "exercising diligently", "exercising properly" },           /* Str */
     { 0, 0 },                                                     /* Int */
     { "very observant", "paying attention" },                     /* Wis */
@@ -606,8 +606,8 @@ exerchk(void)
          *      increase/decrease, you lose some of the
          *      accumulated effects.
          */
-        for (i = 0; i < A_MAX; ++i) {
-            ax = AEXE(i);
+        for (i = 0; i < ATTRIBUTE_COUNT; ++i) {
+            ax = ATTRIBUTE_FROM_EXERCISE(i);
             /* nothing to do here if no exercise or abuse has occurred
                (Int and Cha always fall into this category) */
             if (!ax)
@@ -624,16 +624,16 @@ exerchk(void)
                 goto nextattrib;
             /* can't exercise non-Wisdom while polymorphed; previous
                exercise/abuse gradually wears off without impact then */
-            if (Upolyd && i != A_WIS)
+            if (Upolyd && i != ATTRIBUTE_WISDOM)
                 goto nextattrib;
 
             debugpline2("exerchk: testing %s (%d).",
-                        (i == A_STR) ? "Str"
-                        : (i == A_INT) ? "Int?"
-                          : (i == A_WIS) ? "Wis"
-                            : (i == A_DEX) ? "Dex"
-                              : (i == A_CON) ? "Con"
-                                : (i == A_CHA) ? "Cha?"
+                        (i == ATTRIBUTE_STRENGTH) ? "Str"
+                        : (i == ATTRIBUTE_INTELLIGENCE) ? "Int?"
+                          : (i == ATTRIBUTE_WISDOM) ? "Wis"
+                            : (i == ATTRIBUTE_DEXTERITY) ? "Dex"
+                              : (i == ATTRIBUTE_CONSTITUTION) ? "Con"
+                                : (i == ATTRIBUTE_CHARISMA) ? "Cha?"
                                   : "???",
                         ax);
             /*
@@ -642,14 +642,14 @@ exerchk(void)
              *  You don't *always* gain by exercising.
              *  [MRS 92/10/28 - Treat Wisdom specially for balance.]
              */
-            if (random_integer_between_zero_and(AVAL) > ((i != A_WIS) ? (abs(ax) * 2 / 3) : abs(ax)))
+            if (random_integer_between_zero_and(AVAL) > ((i != ATTRIBUTE_WISDOM) ? (abs(ax) * 2 / 3) : abs(ax)))
                 goto nextattrib;
 
             debugpline1("exerchk: changing %d.", i);
             if (adjust_attribute(i, mod_val, -1)) {
                 debugpline1("exerchk: changed %d.", i);
                 /* if you actually changed an attrib - zero accumulation */
-                AEXE(i) = ax = 0;
+                ATTRIBUTE_FROM_EXERCISE(i) = ax = 0;
                 /* then print an explanation */
                 You("%s %s.",
                     (mod_val > 0) ? "must have been" : "haven't been",
@@ -658,7 +658,7 @@ exerchk(void)
  nextattrib:
             /* this used to be ``AEXE(i) /= 2'' but that would produce
                platform-dependent rounding/truncation for negative vals */
-            AEXE(i) = (abs(ax) / 2) * mod_val;
+            ATTRIBUTE_FROM_EXERCISE(i) = (abs(ax) / 2) * mod_val;
         }
         gc.context.next_attrib_check += rn1(200, 800);
         debugpline1("exerchk: next check at %ld.",
@@ -667,7 +667,7 @@ exerchk(void)
 }
 
 /* return random hero attribute (by role's attr distribution).
-   returns A_MAX if failed. */
+   returns ATTRIBUTE_MAX if failed. */
 staticfn int
 rnd_attr(void)
 {
@@ -675,7 +675,7 @@ rnd_attr(void)
 
     /* 3.7: the x -= ... calculation used to have an off by 1 error that
        resulted in the values being biased toward Str and away from Cha */
-    for (i = 0; i < A_MAX; ++i)
+    for (i = 0; i < ATTRIBUTE_COUNT; ++i)
         if ((x -= gu.urole.attrdist[i]) < 0)
             break;
     return i;
@@ -694,13 +694,13 @@ initialize_attribute_role_redist(int np, boolean addition)
     while ((addition ? (np > 0) : (np < 0)) && tryct < 100) {
         int i = rnd_attr();
 
-        if (i >= A_MAX || ATTRIBUTE_BASE(i) >= ATTRMAX(i)) {
+        if (i >= ATTRIBUTE_COUNT || ATTRIBUTE_BASE(i) >= ATTRMAX(i)) {
             tryct++;
             continue;
         }
         tryct = 0;
         ATTRIBUTE_BASE(i) += adj;
-        AMAX(i) += adj;
+        ATTRIBUTE_MAX(i) += adj;
         np -= adj;
     }
     return np;
@@ -712,9 +712,9 @@ init_attr(int np)
 {
     int i;
 
-    for (i = 0; i < A_MAX; i++) {
-        ATTRIBUTE_BASE(i) = AMAX(i) = gu.urole.attrbase[i];
-        ATEMP(i) = ATIME(i) = 0;
+    for (i = 0; i < ATTRIBUTE_COUNT; i++) {
+        ATTRIBUTE_BASE(i) = ATTRIBUTE_MAX(i) = gu.urole.attrbase[i];
+        ATTRIBUTE_TEMPORARY(i) = ATTRIBUTE_TEMPORARY_TIME(i) = 0;
         np -= gu.urole.attrbase[i];
     }
 
@@ -729,17 +729,17 @@ redist_attr(void)
 {
     int i, tmp;
 
-    for (i = 0; i < A_MAX; i++) {
-        if (i == A_INT || i == A_WIS)
+    for (i = 0; i < ATTRIBUTE_COUNT; i++) {
+        if (i == ATTRIBUTE_INTELLIGENCE || i == ATTRIBUTE_WISDOM)
             continue;
         /* Polymorphing doesn't change your mind */
-        tmp = AMAX(i);
-        AMAX(i) += (random_integer_between_zero_and(5) - 2);
-        if (AMAX(i) > ATTRMAX(i))
-            AMAX(i) = ATTRMAX(i);
-        if (AMAX(i) < ATTRMIN(i))
-            AMAX(i) = ATTRMIN(i);
-        ATTRIBUTE_BASE(i) = ATTRIBUTE_BASE(i) * AMAX(i) / tmp;
+        tmp = ATTRIBUTE_MAX(i);
+        ATTRIBUTE_MAX(i) += (random_integer_between_zero_and(5) - 2);
+        if (ATTRIBUTE_MAX(i) > ATTRMAX(i))
+            ATTRIBUTE_MAX(i) = ATTRMAX(i);
+        if (ATTRIBUTE_MAX(i) < ATTRMIN(i))
+            ATTRIBUTE_MAX(i) = ATTRMIN(i);
+        ATTRIBUTE_BASE(i) = ATTRIBUTE_BASE(i) * ATTRIBUTE_MAX(i) / tmp;
         /* ABASE(i) > ATTRMAX(i) is impossible */
         if (ATTRIBUTE_BASE(i) < ATTRMIN(i))
             ATTRIBUTE_BASE(i) = ATTRMIN(i);
@@ -753,13 +753,13 @@ vary_init_attr(void)
 {
     int i;
 
-    for (i = 0; i < A_MAX; i++)
+    for (i = 0; i < ATTRIBUTE_COUNT; i++)
         if (!random_integer_between_zero_and(20)) {
             int xd = random_integer_between_zero_and(7) - 2; /* biased variation */
 
             (void) adjust_attribute(i, xd, TRUE);
-            if (ATTRIBUTE_BASE(i) < AMAX(i))
-                AMAX(i) = ATTRIBUTE_BASE(i);
+            if (ATTRIBUTE_BASE(i) < ATTRIBUTE_MAX(i))
+                ATTRIBUTE_MAX(i) = ATTRIBUTE_BASE(i);
         }
 }
 
@@ -1094,17 +1094,17 @@ newhp(void)
             if (gu.urace.hpadv.hirnd > 0)
                 hp += random(gu.urace.hpadv.hirnd);
         }
-        if (ATTRIBUTE_CURRENT(A_CON) <= 3)
+        if (ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION) <= 3)
             conplus = -2;
-        else if (ATTRIBUTE_CURRENT(A_CON) <= 6)
+        else if (ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION) <= 6)
             conplus = -1;
-        else if (ATTRIBUTE_CURRENT(A_CON) <= 14)
+        else if (ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION) <= 14)
             conplus = 0;
-        else if (ATTRIBUTE_CURRENT(A_CON) <= 16)
+        else if (ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION) <= 16)
             conplus = 1;
-        else if (ATTRIBUTE_CURRENT(A_CON) == 17)
+        else if (ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION) == 17)
             conplus = 2;
-        else if (ATTRIBUTE_CURRENT(A_CON) == 18)
+        else if (ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION) == 18)
             conplus = 3;
         else
             conplus = 4;
@@ -1159,36 +1159,36 @@ acurr(int chridx)
 {
     int tmp, result = 0; /* 'result' will always be reset to positive value */
 
-    assert(chridx >= 0 && chridx < A_MAX);
+    assert(chridx >= 0 && chridx < ATTRIBUTE_COUNT);
     tmp = u.attributes_bonus.a[chridx] + u.attributes_temporary.a[chridx] + u.attributes_current.a[chridx];
 
     /* for Strength:  3 <= result <= 125;
        for all others:  3 <= result <= 25 */
-    if (chridx == A_STR) {
+    if (chridx == ATTRIBUTE_STRENGTH) {
         /* strength value is encoded:  3..18 normal, 19..118 for 18/xx (with
            1 <= xx <= 100), and 119..125 for other characteristics' 19..25;
            STR18(x) yields 18 + x (intended for 0 <= x <= 100; not used here);
            STR19(y) yields 100 + y (intended for 19 <= y <= 25) */
-        if (tmp >= STR19(25) || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER))
-            result = STR19(25); /* 125 */
+        if (tmp >= STRENGTH19(25) || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER))
+            result = STRENGTH19(25); /* 125 */
         else
             /* need non-zero here to avoid 'if(result==0)' below because
                that doesn't deal with Str encoding; the cap of 25 applied
                there would limit Str to 18/07 [18 + 7] */
             result = max(tmp, 3);
-    } else if (chridx == A_CHA) {
+    } else if (chridx == ATTRIBUTE_CHARISMA) {
         if (tmp < 18 && (gy.youmonst.data->mlet == S_NYMPH
                          || u.umonnum == PM_AMOROUS_DEMON))
             result = 18;
-    } else if (chridx == A_CON) {
+    } else if (chridx == ATTRIBUTE_CONSTITUTION) {
         if (u_wield_art(ART_OGRESMASHER))
             result = 25;
-    } else if (chridx == A_INT || chridx == A_WIS) {
+    } else if (chridx == ATTRIBUTE_INTELLIGENCE || chridx == ATTRIBUTE_WISDOM) {
         /* Yes, this may raise Int and/or Wis if hero is sufficiently
            stupid.  There are lower levels of cognition than "dunce". */
         if (uarmh && uarmh->otyp == DUNCE_CAP)
             result = 6;
-    } else if (chridx == A_DEX) {
+    } else if (chridx == ATTRIBUTE_DEXTERITY) {
         ; /* there aren't any special cases for dexterity */
     }
 
@@ -1198,16 +1198,16 @@ acurr(int chridx)
     return (schar) result;
 }
 
-/* condense clumsy ACURR(A_STR) value into value that fits into formulas */
+/* condense clumsy ACURR(ATTRIBUTE_STRENGTH) value into value that fits into formulas */
 schar
 acurrstr(void)
 {
-    int str = ATTRIBUTE_CURRENT(A_STR), /* 3..125 after massaging by acurr() */
+    int str = ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH), /* 3..125 after massaging by acurr() */
         result; /* 3..25 */
 
-    if (str <= STR18(0)) /* <= 18; max(,3) here is redundant */
+    if (str <= STRENGTH18(0)) /* <= 18; max(,3) here is redundant */
         result = max(str, 3); /* 3..18 */
-    else if (str <= STR19(21)) /* <= 121 */
+    else if (str <= STRENGTH19(21)) /* <= 121 */
         /* this converts
            18/01..18/31 into 19,
            18/32..18/81 into 20,
@@ -1229,18 +1229,18 @@ extremeattr(int attrindx) /* does attrindx's value match its max or min? */
     int lolimit = 3, hilimit = 25, curval = ATTRIBUTE_CURRENT(attrindx);
 
     /* upper limit for Str is 25 but its value is encoded differently */
-    if (attrindx == A_STR) {
-        hilimit = STR19(25); /* 125 */
+    if (attrindx == ATTRIBUTE_STRENGTH) {
+        hilimit = STRENGTH19(25); /* 125 */
         /* lower limit for Str can also be 25 */
         if (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
             lolimit = hilimit;
-    } else if (attrindx == A_CON) {
+    } else if (attrindx == ATTRIBUTE_CONSTITUTION) {
         if (u_wield_art(ART_OGRESMASHER))
             lolimit = hilimit;
     }
     /* this exception is hypothetical; the only other worn item affecting
        Int or Wis is another helmet so can't be in use at the same time */
-    if (attrindx == A_INT || attrindx == A_WIS) {
+    if (attrindx == ATTRIBUTE_INTELLIGENCE || attrindx == ATTRIBUTE_WISDOM) {
         if (uarmh && uarmh->otyp == DUNCE_CAP)
             hilimit = lolimit = 6;
     }

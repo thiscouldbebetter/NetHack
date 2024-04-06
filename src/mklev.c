@@ -272,7 +272,7 @@ makerooms(void)
     boolean tried_vault = FALSE;
     int themeroom_tries = 0;
     char *fname;
-    nhl_sandbox_info sbi = {NHL_SB_SAFE, 1*1024*1024, 0, 1*1024*1024};
+    nhl_sandbox_info sbi = {NHIGHLIGHT_SB_SAFE, 1*1024*1024, 0, 1*1024*1024};
     lua_State *themes = (lua_State *) gl.luathemes[u.uz.dnum];
 
     if (!themes && *(fname = gd.dungeons[u.uz.dnum].themerms)) {

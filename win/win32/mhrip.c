@@ -147,7 +147,7 @@ NHRIPWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message) {
     case WM_INITDIALOG: {
         HDC hdc = GetDC(hWnd);
-        cached_font * font = mswin_get_font(NHW_TEXT, ATR_NONE, hdc, FALSE);
+        cached_font * font = mswin_get_font(NHW_TEXT, TEXT_ATTRIBUTE_NONE, hdc, FALSE);
 
         /* set text control font */
         SendMessage(hWnd, WM_SETFONT, (WPARAM)font->hFont, 0);
@@ -169,7 +169,7 @@ NHRIPWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         PAINTSTRUCT ps;
         HFONT OldFont;
         HDC hdc = BeginPaint(hWnd, &ps);
-        cached_font * font = mswin_get_font(NHW_TEXT, ATR_NONE, hdc, FALSE);
+        cached_font * font = mswin_get_font(NHW_TEXT, TEXT_ATTRIBUTE_NONE, hdc, FALSE);
 
         OldFont = SelectObject(hdc, font->hFont);
         hdcBitmap = CreateCompatibleDC(hdc);

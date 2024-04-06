@@ -285,9 +285,9 @@ attrval(
     int attrvalue,
     char resultbuf[]) /* should be at least [7] to hold "18/100\0" */
 {
-    if (attrindx != A_STR || attrvalue <= 18)
+    if (attrindx != ATTRIBUTE_STRENGTH || attrvalue <= 18)
         Sprintf(resultbuf, "%d", attrvalue);
-    else if (attrvalue > STR18(100)) /* 19 to 25 */
+    else if (attrvalue > STRENGTH18(100)) /* 19 to 25 */
         Sprintf(resultbuf, "%d", attrvalue - 100);
     else /* simplify "18/\**" to be "18/100" */
         Sprintf(resultbuf, "18/%02d", attrvalue - 18);
@@ -802,12 +802,12 @@ characteristics_enlightenment(int mode, int final)
     enlght_out(buf);
 
     /* bottom line order */
-    one_characteristic(mode, final, A_STR); /* strength */
-    one_characteristic(mode, final, A_DEX); /* dexterity */
-    one_characteristic(mode, final, A_CON); /* constitution */
-    one_characteristic(mode, final, A_INT); /* intelligence */
-    one_characteristic(mode, final, A_WIS); /* wisdom */
-    one_characteristic(mode, final, A_CHA); /* charisma */
+    one_characteristic(mode, final, ATTRIBUTE_STRENGTH); /* strength */
+    one_characteristic(mode, final, ATTRIBUTE_DEXTERITY); /* dexterity */
+    one_characteristic(mode, final, ATTRIBUTE_CONSTITUTION); /* constitution */
+    one_characteristic(mode, final, ATTRIBUTE_INTELLIGENCE); /* intelligence */
+    one_characteristic(mode, final, ATTRIBUTE_WISDOM); /* wisdom */
+    one_characteristic(mode, final, ATTRIBUTE_CHARISMA); /* charisma */
 }
 
 /* display one attribute value for characteristics_enlightenment() */
@@ -834,25 +834,25 @@ one_characteristic(int mode, int final, int attrindx)
             hide_innate_value = TRUE;
     }
     switch (attrindx) {
-    case A_STR:
+    case ATTRIBUTE_STRENGTH:
         if (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER && uarmg->cursed)
             hide_innate_value = TRUE;
         break;
-    case A_DEX:
+    case ATTRIBUTE_DEXTERITY:
         break;
-    case A_CON:
+    case ATTRIBUTE_CONSTITUTION:
         if (u_wield_art(ART_OGRESMASHER) && uwep->cursed)
             hide_innate_value = TRUE;
         break;
-    case A_INT:
+    case ATTRIBUTE_INTELLIGENCE:
         if (uarmh && uarmh->otyp == DUNCE_CAP && uarmh->cursed)
             hide_innate_value = TRUE;
         break;
-    case A_WIS:
+    case ATTRIBUTE_WISDOM:
         if (uarmh && uarmh->otyp == DUNCE_CAP && uarmh->cursed)
             hide_innate_value = TRUE;
         break;
-    case A_CHA:
+    case ATTRIBUTE_CHARISMA:
         break;
     default:
         return; /* impossible */
@@ -874,12 +874,12 @@ one_characteristic(int mode, int final, int attrindx)
            spoilers to keep track of such stuff) or attrmax was different
            from abase (at end of game; this attribute wasn't maxed out) */
         abase = ATTRIBUTE_BASE(attrindx);
-        apeak = AMAX(attrindx);
+        apeak = ATTRIBUTE_MAX(attrindx);
         alimit = ATTRMAX(attrindx);
         /* criterium for whether the limit is interesting varies */
         interesting_alimit =
             final ? TRUE /* was originally `(abase != alimit)' */
-                  : (alimit != (attrindx != A_STR ? 18 : STR18(100)));
+                  : (alimit != (attrindx != ATTRIBUTE_STRENGTH ? 18 : STRENGTH18(100)));
         paren_pfx = final ? " (" : " (current; ";
         if (acurrent != abase) {
             Sprintf(eos(valubuf), "%sbase:%s", paren_pfx,
@@ -2685,7 +2685,7 @@ set_vanq_order(boolean for_vanq)
             desc = "alphabetically";
         any.a_int = i + 1;
         add_menu(tmpwin, &nul_glyphinfo, &any, *vanqorders[i][0], 0,
-                 ATR_NONE, clr, desc,
+                 TEXT_ATTRIBUTE_NONE, clr, desc,
                  (i == flags.vanq_sortmode) ? MENU_ITEMFLAGS_SELECTED
                                             : MENU_ITEMFLAGS_NONE);
     }
@@ -2787,7 +2787,7 @@ list_vanquished(char defquery, boolean ask)
                     Strcpy(buf, def_monsyms[(int) mlet].explain);
                     /* 'ask' implies final disclosure, where highlighting
                        of various header lines is suppressed */
-                    putstr(klwin, ask ? ATR_NONE : iflags.menu_headings.attr,
+                    putstr(klwin, ask ? TEXT_ATTRIBUTE_NONE : iflags.menu_headings.attr,
                            upstart(buf));
                     prev_mlet = mlet;
                 }
@@ -2998,7 +2998,7 @@ list_genocided(char defquery, boolean ask)
                     Strcpy(buf, def_monsyms[(int) mlet].explain);
                     /* 'ask' implies final disclosure, where highlighting
                        of various header lines is suppressed */
-                    putstr(klwin, ask ? ATR_NONE : iflags.menu_headings.attr,
+                    putstr(klwin, ask ? TEXT_ATTRIBUTE_NONE : iflags.menu_headings.attr,
                            upstart(buf));
                     prev_mlet = mlet;
                 }

@@ -126,11 +126,11 @@ is_edible(struct obj *obj)
 void
 init_uhunger(void)
 {
-    disp.botl = (u.uhs != NOT_HUNGRY || ATEMP(A_STR) < 0);
+    disp.botl = (u.uhs != NOT_HUNGRY || ATTRIBUTE_TEMPORARY(ATTRIBUTE_STRENGTH) < 0);
     u.uhunger = 900;
     u.uhs = NOT_HUNGRY;
-    if (ATEMP(A_STR) < 0) {
-        ATEMP(A_STR) = 0;
+    if (ATTRIBUTE_TEMPORARY(ATTRIBUTE_STRENGTH) < 0) {
+        ATTRIBUTE_TEMPORARY(ATTRIBUTE_STRENGTH) = 0;
         (void) encumbered_message();
     }
 }
@@ -254,7 +254,7 @@ choke(struct obj *food)
         You_feel("like a glutton!");
     }
 
-    exercise(A_CON, FALSE);
+    exercise(ATTRIBUTE_CONSTITUTION, FALSE);
 
     if (Breathless || Hunger || (!Strangled && !random_integer_between_zero_and(20))) {
         /* choking by eating AoS doesn't involve stuffing yourself */
@@ -659,18 +659,18 @@ eat_brains(
             gk.killer.format = NO_KILLER_PREFIX;
             done(DIED);
             /* life-saving needed to reach here */
-            exercise(A_WIS, FALSE);
+            exercise(ATTRIBUTE_WISDOM, FALSE);
             *dmg_p += xtra_dmg; /* Rider takes extra damage */
         } else {
             morehungry(-random(30)); /* cannot choke */
-            if (ATTRIBUTE_BASE(A_INT) < AMAX(A_INT)) {
+            if (ATTRIBUTE_BASE(ATTRIBUTE_INTELLIGENCE) < ATTRIBUTE_MAX(ATTRIBUTE_INTELLIGENCE)) {
                 /* recover lost Int; won't increase current max */
-                ATTRIBUTE_BASE(A_INT) += random(4);
-                if (ATTRIBUTE_BASE(A_INT) > AMAX(A_INT))
-                    ATTRIBUTE_BASE(A_INT) = AMAX(A_INT);
+                ATTRIBUTE_BASE(ATTRIBUTE_INTELLIGENCE) += random(4);
+                if (ATTRIBUTE_BASE(ATTRIBUTE_INTELLIGENCE) > ATTRIBUTE_MAX(ATTRIBUTE_INTELLIGENCE))
+                    ATTRIBUTE_BASE(ATTRIBUTE_INTELLIGENCE) = ATTRIBUTE_MAX(ATTRIBUTE_INTELLIGENCE);
                 disp.botl = TRUE;
             }
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
             *dmg_p += xtra_dmg;
         }
         /* targeting another mind flayer or your own underlying species
@@ -682,7 +682,7 @@ eat_brains(
          * monster mind flayer is eating hero's brain
          */
         /* no such thing as mindless players */
-        if (ATTRIBUTE_BASE(A_INT) <= ATTRMIN(A_INT)) {
+        if (ATTRIBUTE_BASE(ATTRIBUTE_INTELLIGENCE) <= ATTRMIN(ATTRIBUTE_INTELLIGENCE)) {
             static NEARDATA const char brainlessness[] = "brainlessness";
 
             if (Lifesaved) {
@@ -702,11 +702,11 @@ eat_brains(
             done(DIED);
             /* can only get here when in wizard or explore mode and user has
                explicitly chosen not to die; arbitrarily boost intelligence */
-            ATTRIBUTE_BASE(A_INT) = ATTRMIN(A_INT) + 2;
+            ATTRIBUTE_BASE(ATTRIBUTE_INTELLIGENCE) = ATTRMIN(ATTRIBUTE_INTELLIGENCE) + 2;
             You_feel("like a scarecrow.");
         }
         give_nutrit = TRUE; /* in case a conflicted pet is doing this */
-        exercise(A_WIS, FALSE);
+        exercise(ATTRIBUTE_WISDOM, FALSE);
         /* caller handles Int and memory loss */
 
     } else { /* mhitm */
@@ -820,7 +820,7 @@ cprefx(int pm)
         gk.killer.format = NO_KILLER_PREFIX;
         done(DIED);
         /* life-saving needed to reach here */
-        exercise(A_WIS, FALSE);
+        exercise(ATTRIBUTE_WISDOM, FALSE);
         /* revive an actual corpse; can't do that if it was a tin;
            3.7: this used to assume that such tins were impossible but
            they can be wished for in wizard mode; they can't make it
@@ -852,7 +852,7 @@ fix_petrification(void)
 
     if (Hallucination)
         Sprintf(buf, "What a pity--you just ruined a future piece of %sart!",
-                ATTRIBUTE_CURRENT(A_CHA) > 15 ? "fine " : "");
+                ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA) > 15 ? "fine " : "");
     else
         Strcpy(buf, "You feel limber!");
     make_stoned(0L, buf, 0, (char *) 0);
@@ -1249,10 +1249,10 @@ cpostfx(int pm)
         break;
     case PM_MIND_FLAYER:
     case PM_MASTER_MIND_FLAYER:
-        if (ATTRIBUTE_BASE(A_INT) < ATTRMAX(A_INT)) {
+        if (ATTRIBUTE_BASE(ATTRIBUTE_INTELLIGENCE) < ATTRMAX(ATTRIBUTE_INTELLIGENCE)) {
             if (!random_integer_between_zero_and(2)) {
                 pline("Yum!  That was real brain food!");
-                (void) adjust_attribute(A_INT, 1, FALSE);
+                (void) adjust_attribute(ATTRIBUTE_INTELLIGENCE, 1, FALSE);
                 break; /* don't give them telepathy, too */
             }
         } else {
@@ -1702,7 +1702,7 @@ start_tin(struct obj *otmp)
                 stackobj(otmp);
             return;
         }
-        tmp = rn1(1 + 500 / ((int) (ATTRIBUTE_CURRENT(A_DEX) + ATTRIBUTE_CURRENT_STRENGTH)), 10);
+        tmp = rn1(1 + 500 / ((int) (ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) + ATTRIBUTE_CURRENT_STRENGTH)), 10);
     }
 
     gc.context.tin.tin = otmp;
@@ -2229,17 +2229,17 @@ eataccessory(struct obj *otmp)
 
         case RIN_ADORNMENT:
             accessory_has_effect(otmp);
-            if (adjust_attribute(A_CHA, otmp->spe, -1))
+            if (adjust_attribute(ATTRIBUTE_CHARISMA, otmp->spe, -1))
                 makeknown(typ);
             break;
         case RIN_GAIN_STRENGTH:
             accessory_has_effect(otmp);
-            if (adjust_attribute(A_STR, otmp->spe, -1))
+            if (adjust_attribute(ATTRIBUTE_STRENGTH, otmp->spe, -1))
                 makeknown(typ);
             break;
         case RIN_GAIN_CONSTITUTION:
             accessory_has_effect(otmp);
-            if (adjust_attribute(A_CON, otmp->spe, -1))
+            if (adjust_attribute(ATTRIBUTE_CONSTITUTION, otmp->spe, -1))
                 makeknown(typ);
             break;
         case RIN_INCREASE_ACCURACY:
@@ -2364,12 +2364,12 @@ eatspecial(void)
         /* sugarless chewing gum which used to be heavily advertised on TV */
         pline(Hallucination ? "Four out of five dentists agree."
                             : "That was pure chewing satisfaction!");
-        exercise(A_WIS, TRUE);
+        exercise(ATTRIBUTE_WISDOM, TRUE);
     }
     if (otmp->otyp == FLINT && !otmp->cursed) {
         /* chewable vitamin for kids based on "The Flintstones" TV cartoon */
         pline("Yabba-dabba delicious!");
-        exercise(A_CON, TRUE);
+        exercise(ATTRIBUTE_CONSTITUTION, TRUE);
     }
 
     if (otmp == uwep && otmp->quan == 1L)
@@ -3322,7 +3322,7 @@ newuhs(boolean incr)
         /* this used to be -(200 + 20 * Con) but that was when being asleep
            suppressed per-turn uhunger decrement but being fainted didn't;
            now uhunger becomes more negative at a slower rate */
-        } else if (u.uhunger < -(100 + 10 * (int) ATTRIBUTE_CURRENT(A_CON))) {
+        } else if (u.uhunger < -(100 + 10 * (int) ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION))) {
             u.uhs = STARVED;
             disp.botl = TRUE;
             bot();
@@ -3340,7 +3340,7 @@ newuhs(boolean incr)
             /* this used to be losestr(1) which had the potential to
                be fatal (still handled below) by reducing HP if it
                tried to take base strength below minimum of 3 */
-            ATEMP(A_STR) = -1; /* temporary loss overrides Fixed_abil */
+            ATTRIBUTE_TEMPORARY(ATTRIBUTE_STRENGTH) = -1; /* temporary loss overrides Fixed_abil */
             /* defer context.botl status update until after hunger message */
         } else if (newhs < WEAK && u.uhs >= WEAK) {
             /* this used to be losestr(-1) which could be abused by
@@ -3349,7 +3349,7 @@ newuhs(boolean incr)
                strength by a point each time the cycle was performed;
                substituting "while polymorphed" for sustain ability and
                "rehumanize" for ring removal might have done that too */
-            ATEMP(A_STR) = 0; /* repair of loss also overrides Fixed_abil */
+            ATTRIBUTE_TEMPORARY(ATTRIBUTE_STRENGTH) = 0; /* repair of loss also overrides Fixed_abil */
             /* defer context.botl status update until after hunger message */
         }
 

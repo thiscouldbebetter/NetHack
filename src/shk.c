@@ -1418,7 +1418,7 @@ menu_pick_pay_items(struct monster *shkp)
                     bp->useup ? "(used up) " : "",
                     doname(otmp));
             any.a_int = n + 1; /* +1: avoid 0 */
-            add_menu(win, &nul_glyphinfo, &any, 0, 0, ATR_NONE, clr, buf,
+            add_menu(win, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE, clr, buf,
                      MENU_ITEMFLAGS_NONE);
         }
     }
@@ -2398,17 +2398,17 @@ get_cost(
              || (uarmu && !uarm && !uarmc)) /* touristy shirt visible */
         multiplier *= 4L, divisor *= 3L;
 
-    if (ATTRIBUTE_CURRENT(A_CHA) > 18)
+    if (ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA) > 18)
         divisor *= 2L;
-    else if (ATTRIBUTE_CURRENT(A_CHA) == 18)
+    else if (ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA) == 18)
         multiplier *= 2L, divisor *= 3L;
-    else if (ATTRIBUTE_CURRENT(A_CHA) >= 16)
+    else if (ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA) >= 16)
         multiplier *= 3L, divisor *= 4L;
-    else if (ATTRIBUTE_CURRENT(A_CHA) <= 5)
+    else if (ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA) <= 5)
         multiplier *= 2L;
-    else if (ATTRIBUTE_CURRENT(A_CHA) <= 7)
+    else if (ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA) <= 7)
         multiplier *= 3L, divisor *= 2L;
-    else if (ATTRIBUTE_CURRENT(A_CHA) <= 10)
+    else if (ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA) <= 10)
         multiplier *= 4L, divisor *= 3L;
 
     /* tmp = (tmp * multiplier) / divisor [with roundoff tweak] */
@@ -5147,7 +5147,7 @@ check_unpaid_usage(struct obj *otmp, boolean altusage)
     if (!Deaf && !muteshk(shkp)) {
         SetVoice(shkp, 0, 80, 0);
         verbalize(fmt, arg1, arg2, tmp, currency(tmp));
-        exercise(A_WIS, TRUE); /* you just got info */
+        exercise(ATTRIBUTE_WISDOM, TRUE); /* you just got info */
     }
     ESHK(shkp)->debit += tmp;
 }

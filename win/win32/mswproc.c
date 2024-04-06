@@ -2,6 +2,8 @@
 /* Copyright (C) 2001 by Alex Kompel */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 /*
  * This file implements the interface between the window port specific
  * code in the mswin port and the rest of the nethack game engine.
@@ -76,12 +78,12 @@ COLORREF message_bg_color = RGB(0, 0, 0);
 COLORREF message_fg_color = RGB(0xFF, 0xFF, 0xFF);
 
 strbuf_t raw_print_strbuf = { 0 };
-color_attr mswin_menu_promptstyle = { COLOR_CODE_NONE, ATR_NONE };
+color_attr mswin_menu_promptstyle = { COLOR_CODE_NONE, TEXT_ATTRIBUTE_NONE };
 
 /* Interface definition, for windows.c */
 struct window_procs mswin_procs = {
     WPID(mswin),
-    WC_COLOR | WC_HILITE_PET | WC_ALIGN_MESSAGE | WC_ALIGN_STATUS | WC_INVERSE
+    WC_COLOR | WC_HIGHLIGHT_PET | WC_ALIGN_MESSAGE | WC_ALIGN_STATUS | WC_INVERSE
         | WC_SCROLL_AMOUNT | WC_SCROLL_MARGIN | WC_MAP_MODE | WC_FONT_MESSAGE
         | WC_FONT_STATUS | WC_FONT_MENU | WC_FONT_TEXT | WC_FONT_MAP
         | WC_FONTSIZ_MESSAGE | WC_FONTSIZ_STATUS | WC_FONTSIZ_MENU
@@ -90,7 +92,7 @@ struct window_procs mswin_procs = {
         | WC_PERM_INVENT
         | WC_SPLASH_SCREEN | WC_POPUP_DIALOG | WC_MOUSE_SUPPORT,
 #ifdef STATUS_HILITES
-    WC2_HITPOINTBAR | WC2_FLUSH_STATUS | WC2_RESET_STATUS | WC2_HILITE_STATUS |
+    WC2_HITPOINTBAR | WC2_FLUSH_STATUS | WC2_RESET_STATUS | WC2_HIGHLIGHT_STATUS |
 #endif
 #ifdef ENHANCED_SYMBOLS
      WC2_U_UTF8STR | WC2_EXTRACOLORS |
@@ -233,7 +235,7 @@ mswin_init_nhwindows(int *argc, char **argv)
 
     /* set font-related options to change in the game */
     set_wc_option_mod_status(
-        WC_HILITE_PET | WC_ALIGN_MESSAGE | WC_ALIGN_STATUS | WC_SCROLL_AMOUNT
+        WC_HIGHLIGHT_PET | WC_ALIGN_MESSAGE | WC_ALIGN_STATUS | WC_SCROLL_AMOUNT
             | WC_SCROLL_MARGIN | WC_MAP_MODE | WC_FONT_MESSAGE
             | WC_FONT_STATUS | WC_FONT_MENU | WC_FONT_TEXT
             | WC_FONTSIZ_MESSAGE | WC_FONTSIZ_STATUS | WC_FONTSIZ_MENU
@@ -436,7 +438,7 @@ prompt_for_player_selection(void)
                         } else
                             Strcpy(rolenamebuf, roles[i].name.m);
                     }
-                    add_menu(win, &nul_glyphinfo, &any, thisch, 0, ATR_NONE,
+                    add_menu(win, &nul_glyphinfo, &any, thisch, 0, TEXT_ATTRIBUTE_NONE,
                              clr, an(rolenamebuf), MENU_ITEMFLAGS_NONE);
                     lastch = thisch;
                 }
@@ -446,10 +448,10 @@ prompt_for_player_selection(void)
             if (any.a_int == 0) /* must be non-zero */
                 any.a_int = randrole(FALSE) + 1;
             add_menu(win, &nul_glyphinfo, &any, '*', 0,
-                     ATR_NONE, clr, "Random", MENU_ITEMFLAGS_NONE);
+                     TEXT_ATTRIBUTE_NONE, clr, "Random", MENU_ITEMFLAGS_NONE);
             any.a_int = i + 1; /* must be non-zero */
             add_menu(win, &nul_glyphinfo, &any, 'q', 0,
-                     ATR_NONE, clr, "Quit", MENU_ITEMFLAGS_NONE);
+                     TEXT_ATTRIBUTE_NONE, clr, "Quit", MENU_ITEMFLAGS_NONE);
             Sprintf(pbuf, "Pick a role for your %s", plbuf);
             end_menu(win, pbuf);
             n = select_menu(win, PICK_ONE, &selected);
@@ -512,7 +514,7 @@ prompt_for_player_selection(void)
                                 flags.initalign)) {
                         any.a_int = i + 1; /* must be non-zero */
                         add_menu(win, &nul_glyphinfo, &any,
-                                 races[i].noun[0], 0, ATR_NONE, clr,
+                                 races[i].noun[0], 0, TEXT_ATTRIBUTE_NONE, clr,
                                  races[i].noun, MENU_ITEMFLAGS_NONE);
                     }
                 any.a_int = pick_race(flags.initrole, flags.initgend,
@@ -520,10 +522,10 @@ prompt_for_player_selection(void)
                 if (any.a_int == 0) /* must be non-zero */
                     any.a_int = randrace(flags.initrole) + 1;
                 add_menu(win, &nul_glyphinfo, &any, '*', 0,
-                         ATR_NONE, clr, "Random", MENU_ITEMFLAGS_NONE);
+                         TEXT_ATTRIBUTE_NONE, clr, "Random", MENU_ITEMFLAGS_NONE);
                 any.a_int = i + 1; /* must be non-zero */
                 add_menu(win, &nul_glyphinfo, &any, 'q', 0,
-                         ATR_NONE, clr, "Quit", MENU_ITEMFLAGS_NONE);
+                         TEXT_ATTRIBUTE_NONE, clr, "Quit", MENU_ITEMFLAGS_NONE);
                 Sprintf(pbuf, "Pick the race of your %s", plbuf);
                 end_menu(win, pbuf);
                 n = select_menu(win, PICK_ONE, &selected);
@@ -587,7 +589,7 @@ prompt_for_player_selection(void)
                                 flags.initalign)) {
                         any.a_int = i + 1;
                         add_menu(win, &nul_glyphinfo, &any,
-                                 genders[i].adj[0], 0, ATR_NONE, clr,
+                                 genders[i].adj[0], 0, TEXT_ATTRIBUTE_NONE, clr,
                                  genders[i].adj, MENU_ITEMFLAGS_NONE);
                     }
                 any.a_int = pick_gend(flags.initrole, flags.initrace,
@@ -595,10 +597,10 @@ prompt_for_player_selection(void)
                 if (any.a_int == 0) /* must be non-zero */
                     any.a_int = randgend(flags.initrole, flags.initrace) + 1;
                 add_menu(win, &nul_glyphinfo, &any, '*', 0,
-                         ATR_NONE, clr, "Random", MENU_ITEMFLAGS_NONE);
+                         TEXT_ATTRIBUTE_NONE, clr, "Random", MENU_ITEMFLAGS_NONE);
                 any.a_int = i + 1; /* must be non-zero */
                 add_menu(win, &nul_glyphinfo, &any, 'q', 0,
-                         ATR_NONE, clr, "Quit", MENU_ITEMFLAGS_NONE);
+                         TEXT_ATTRIBUTE_NONE, clr, "Quit", MENU_ITEMFLAGS_NONE);
                 Sprintf(pbuf, "Pick the gender of your %s", plbuf);
                 end_menu(win, pbuf);
                 n = select_menu(win, PICK_ONE, &selected);
@@ -661,7 +663,7 @@ prompt_for_player_selection(void)
                                  flags.initgend, i)) {
                         any.a_int = i + 1;
                         add_menu(win, &nul_glyphinfo, &any,
-                                 aligns[i].adj[0], 0, ATR_NONE, clr,
+                                 aligns[i].adj[0], 0, TEXT_ATTRIBUTE_NONE, clr,
                                  aligns[i].adj, MENU_ITEMFLAGS_NONE);
                     }
                 any.a_int = pick_align(flags.initrole, flags.initrace,
@@ -669,10 +671,10 @@ prompt_for_player_selection(void)
                 if (any.a_int == 0) /* must be non-zero */
                     any.a_int = randalign(flags.initrole, flags.initrace) + 1;
                 add_menu(win, &nul_glyphinfo, &any, '*', 0,
-                         ATR_NONE, clr, "Random", MENU_ITEMFLAGS_NONE);
+                         TEXT_ATTRIBUTE_NONE, clr, "Random", MENU_ITEMFLAGS_NONE);
                 any.a_int = i + 1; /* must be non-zero */
                 add_menu(win, &nul_glyphinfo, &any, 'q', 0,
-                         ATR_NONE, clr, "Quit", MENU_ITEMFLAGS_NONE);
+                         TEXT_ATTRIBUTE_NONE, clr, "Quit", MENU_ITEMFLAGS_NONE);
                 Sprintf(pbuf, "Pick the alignment of your %s", plbuf);
                 end_menu(win, pbuf);
                 n = select_menu(win, PICK_ONE, &selected);
@@ -1076,7 +1078,7 @@ mswin_display_file(const char *filename, boolean must_exist)
             len = strlen(line);
             if (line[len - 1] == '\n')
                 line[len - 1] = '\x0';
-            mswin_putstr(text, ATR_NONE, line);
+            mswin_putstr(text, TEXT_ATTRIBUTE_NONE, line);
         }
         (void) dlb_fclose(f);
 
@@ -1603,7 +1605,7 @@ mswin_yn_function(const char *question, const char *choices, char def)
                 (WPARAM) MSNH_MSG_CARET, (LPARAM) &createcaret);
 
     mswin_clear_nhwindow(WIN_MESSAGE);
-    mswin_putstr(WIN_MESSAGE, ATR_BOLD, message);
+    mswin_putstr(WIN_MESSAGE, TEXT_ATTRIBUTE_BOLD, message);
 
     /* Only here if main window is not present */
     ch = 0;
@@ -1637,12 +1639,12 @@ mswin_yn_function(const char *question, const char *choices, char def)
             char z, digit_string[2];
             int n_len = 0;
             long value = 0;
-            mswin_putstr_ex(WIN_MESSAGE, ATR_BOLD, ("#"), 1);
+            mswin_putstr_ex(WIN_MESSAGE, TEXT_ATTRIBUTE_BOLD, ("#"), 1);
             n_len++;
             digit_string[1] = '\0';
             if (ch != '#') {
                 digit_string[0] = ch;
-                mswin_putstr_ex(WIN_MESSAGE, ATR_BOLD, digit_string, 1);
+                mswin_putstr_ex(WIN_MESSAGE, TEXT_ATTRIBUTE_BOLD, digit_string, 1);
                 n_len++;
                 value = ch - '0';
                 ch = '#';
@@ -1654,7 +1656,7 @@ mswin_yn_function(const char *question, const char *choices, char def)
                     if (value < 0)
                         break; /* overflow: try again */
                     digit_string[0] = z;
-                    mswin_putstr_ex(WIN_MESSAGE, ATR_BOLD, digit_string, 1);
+                    mswin_putstr_ex(WIN_MESSAGE, TEXT_ATTRIBUTE_BOLD, digit_string, 1);
                     n_len++;
                 } else if (z == 'y' || strchr(quitchars, z)) {
                     if (z == '\033')
@@ -1666,7 +1668,7 @@ mswin_yn_function(const char *question, const char *choices, char def)
                         break;
                     } else {
                         value /= 10;
-                        mswin_putstr_ex(WIN_MESSAGE, ATR_BOLD, digit_string,
+                        mswin_putstr_ex(WIN_MESSAGE, TEXT_ATTRIBUTE_BOLD, digit_string,
                                         -1);
                         n_len--;
                     }
@@ -1681,7 +1683,7 @@ mswin_yn_function(const char *question, const char *choices, char def)
             else if (value == 0)
                 ch = 'n'; /* 0 => "no" */
             else {        /* remove number from top line, then try again */
-                mswin_putstr_ex(WIN_MESSAGE, ATR_BOLD, digit_string, -n_len);
+                mswin_putstr_ex(WIN_MESSAGE, TEXT_ATTRIBUTE_BOLD, digit_string, -n_len);
                 n_len = 0;
                 ch = (char) 0;
             }
@@ -1696,7 +1698,7 @@ mswin_yn_function(const char *question, const char *choices, char def)
     if (isprint((uchar) ch) && ch != '#') {
         res_ch[0] = ch;
         res_ch[1] = '\x0';
-        mswin_putstr_ex(WIN_MESSAGE, ATR_BOLD, res_ch, 1);
+        mswin_putstr_ex(WIN_MESSAGE, TEXT_ATTRIBUTE_BOLD, res_ch, 1);
     }
 
     return ch;
@@ -1728,10 +1730,10 @@ mswin_getlin(const char *question, char *input)
                     (WPARAM) MSNH_MSG_CARET, (LPARAM) &createcaret);
 
         /* mswin_clear_nhwindow(WIN_MESSAGE); */
-        mswin_putstr_ex(WIN_MESSAGE, ATR_BOLD, question, 0);
-        mswin_putstr_ex(WIN_MESSAGE, ATR_BOLD, " ", 1);
+        mswin_putstr_ex(WIN_MESSAGE, TEXT_ATTRIBUTE_BOLD, question, 0);
+        mswin_putstr_ex(WIN_MESSAGE, TEXT_ATTRIBUTE_BOLD, " ", 1);
 #ifdef EDIT_GETLIN
-        mswin_putstr_ex(WIN_MESSAGE, ATR_BOLD, input, 0);
+        mswin_putstr_ex(WIN_MESSAGE, TEXT_ATTRIBUTE_BOLD, input, 0);
         len = strlen(input);
 #else
         input[0] = '\0';
@@ -1753,7 +1755,7 @@ mswin_getlin(const char *question, char *input)
                 break;
             default:
                 if (input[0])
-                    mswin_putstr_ex(WIN_MESSAGE, ATR_NONE, input, -len);
+                    mswin_putstr_ex(WIN_MESSAGE, TEXT_ATTRIBUTE_NONE, input, -len);
                 if (c == VK_BACK) {
                     if (len > 0)
                         len--;
@@ -1764,7 +1766,7 @@ mswin_getlin(const char *question, char *input)
                     input[len++] = c;
                     input[len] = '\0';
                 }
-                mswin_putstr_ex(WIN_MESSAGE, ATR_NONE, input, 1);
+                mswin_putstr_ex(WIN_MESSAGE, TEXT_ATTRIBUTE_NONE, input, 1);
                 break;
             }
         }
@@ -1804,7 +1806,7 @@ mswin_get_ext_cmd(void)
         cmd[0] = '\0';
         i = -2;
         mswin_clear_nhwindow(WIN_MESSAGE);
-        mswin_putstr_ex(WIN_MESSAGE, ATR_BOLD, "#", 0);
+        mswin_putstr_ex(WIN_MESSAGE, TEXT_ATTRIBUTE_BOLD, "#", 0);
         len = 0;
         ShowCaret(mswin_hwnd_from_winid(WIN_MESSAGE));
         while (i == -2) {
@@ -1829,7 +1831,7 @@ mswin_get_ext_cmd(void)
                 break;
             default:
                 if (cmd[0])
-                    mswin_putstr_ex(WIN_MESSAGE, ATR_BOLD, cmd,
+                    mswin_putstr_ex(WIN_MESSAGE, TEXT_ATTRIBUTE_BOLD, cmd,
                                     -(int) strlen(cmd));
                 if (c == VK_BACK) {
                     if (len > 0)
@@ -1856,7 +1858,7 @@ mswin_get_ext_cmd(void)
                         Strcpy(cmd, extcmdlist[com_index].ef_txt);
                     }
                 }
-                mswin_putstr_ex(WIN_MESSAGE, ATR_BOLD, cmd, 1);
+                mswin_putstr_ex(WIN_MESSAGE, TEXT_ATTRIBUTE_BOLD, cmd, 1);
                 break;
             }
         }
@@ -1992,12 +1994,12 @@ mswin_preference_update(const char *pref)
             iflags.wc_fontsiz_menu = NHFONT_DEFAULT_SIZE;
 
         HDC hdc = GetDC(GetNHApp()->hMainWnd);
-        mswin_get_font(NHW_MENU, ATR_NONE, hdc, TRUE);
-        mswin_get_font(NHW_MENU, ATR_BOLD, hdc, TRUE);
-        mswin_get_font(NHW_MENU, ATR_DIM, hdc, TRUE);
-        mswin_get_font(NHW_MENU, ATR_ULINE, hdc, TRUE);
-        mswin_get_font(NHW_MENU, ATR_BLINK, hdc, TRUE);
-        mswin_get_font(NHW_MENU, ATR_INVERSE, hdc, TRUE);
+        mswin_get_font(NHW_MENU, TEXT_ATTRIBUTE_NONE, hdc, TRUE);
+        mswin_get_font(NHW_MENU, TEXT_ATTRIBUTE_BOLD, hdc, TRUE);
+        mswin_get_font(NHW_MENU, TEXT_ATTRIBUTE_DIM, hdc, TRUE);
+        mswin_get_font(NHW_MENU, TEXT_ATTRIBUTE_ULINE, hdc, TRUE);
+        mswin_get_font(NHW_MENU, TEXT_ATTRIBUTE_BLINK, hdc, TRUE);
+        mswin_get_font(NHW_MENU, TEXT_ATTRIBUTE_INVERSE, hdc, TRUE);
         ReleaseDC(GetNHApp()->hMainWnd, hdc);
 
         mswin_layout_main_window(NULL);
@@ -2011,12 +2013,12 @@ mswin_preference_update(const char *pref)
             iflags.wc_fontsiz_status = NHFONT_DEFAULT_SIZE;
 
         HDC hdc = GetDC(GetNHApp()->hMainWnd);
-        mswin_get_font(NHW_STATUS, ATR_NONE, hdc, TRUE);
-        mswin_get_font(NHW_STATUS, ATR_BOLD, hdc, TRUE);
-        mswin_get_font(NHW_STATUS, ATR_DIM, hdc, TRUE);
-        mswin_get_font(NHW_STATUS, ATR_ULINE, hdc, TRUE);
-        mswin_get_font(NHW_STATUS, ATR_BLINK, hdc, TRUE);
-        mswin_get_font(NHW_STATUS, ATR_INVERSE, hdc, TRUE);
+        mswin_get_font(NHW_STATUS, TEXT_ATTRIBUTE_NONE, hdc, TRUE);
+        mswin_get_font(NHW_STATUS, TEXT_ATTRIBUTE_BOLD, hdc, TRUE);
+        mswin_get_font(NHW_STATUS, TEXT_ATTRIBUTE_DIM, hdc, TRUE);
+        mswin_get_font(NHW_STATUS, TEXT_ATTRIBUTE_ULINE, hdc, TRUE);
+        mswin_get_font(NHW_STATUS, TEXT_ATTRIBUTE_BLINK, hdc, TRUE);
+        mswin_get_font(NHW_STATUS, TEXT_ATTRIBUTE_INVERSE, hdc, TRUE);
         ReleaseDC(GetNHApp()->hMainWnd, hdc);
 
         for (int i = 1; i < MAXWINDOWS; i++) {
@@ -2036,12 +2038,12 @@ mswin_preference_update(const char *pref)
             iflags.wc_fontsiz_message = NHFONT_DEFAULT_SIZE;
 
         HDC hdc = GetDC(GetNHApp()->hMainWnd);
-        mswin_get_font(NHW_MESSAGE, ATR_NONE, hdc, TRUE);
-        mswin_get_font(NHW_MESSAGE, ATR_BOLD, hdc, TRUE);
-        mswin_get_font(NHW_MESSAGE, ATR_DIM, hdc, TRUE);
-        mswin_get_font(NHW_MESSAGE, ATR_ULINE, hdc, TRUE);
-        mswin_get_font(NHW_MESSAGE, ATR_BLINK, hdc, TRUE);
-        mswin_get_font(NHW_MESSAGE, ATR_INVERSE, hdc, TRUE);
+        mswin_get_font(NHW_MESSAGE, TEXT_ATTRIBUTE_NONE, hdc, TRUE);
+        mswin_get_font(NHW_MESSAGE, TEXT_ATTRIBUTE_BOLD, hdc, TRUE);
+        mswin_get_font(NHW_MESSAGE, TEXT_ATTRIBUTE_DIM, hdc, TRUE);
+        mswin_get_font(NHW_MESSAGE, TEXT_ATTRIBUTE_ULINE, hdc, TRUE);
+        mswin_get_font(NHW_MESSAGE, TEXT_ATTRIBUTE_BLINK, hdc, TRUE);
+        mswin_get_font(NHW_MESSAGE, TEXT_ATTRIBUTE_INVERSE, hdc, TRUE);
         ReleaseDC(GetNHApp()->hMainWnd, hdc);
 
         InvalidateRect(mswin_hwnd_from_winid(WIN_MESSAGE), NULL, TRUE);
@@ -2056,12 +2058,12 @@ mswin_preference_update(const char *pref)
             iflags.wc_fontsiz_text = NHFONT_DEFAULT_SIZE;
 
         HDC hdc = GetDC(GetNHApp()->hMainWnd);
-        mswin_get_font(NHW_TEXT, ATR_NONE, hdc, TRUE);
-        mswin_get_font(NHW_TEXT, ATR_BOLD, hdc, TRUE);
-        mswin_get_font(NHW_TEXT, ATR_DIM, hdc, TRUE);
-        mswin_get_font(NHW_TEXT, ATR_ULINE, hdc, TRUE);
-        mswin_get_font(NHW_TEXT, ATR_BLINK, hdc, TRUE);
-        mswin_get_font(NHW_TEXT, ATR_INVERSE, hdc, TRUE);
+        mswin_get_font(NHW_TEXT, TEXT_ATTRIBUTE_NONE, hdc, TRUE);
+        mswin_get_font(NHW_TEXT, TEXT_ATTRIBUTE_BOLD, hdc, TRUE);
+        mswin_get_font(NHW_TEXT, TEXT_ATTRIBUTE_DIM, hdc, TRUE);
+        mswin_get_font(NHW_TEXT, TEXT_ATTRIBUTE_ULINE, hdc, TRUE);
+        mswin_get_font(NHW_TEXT, TEXT_ATTRIBUTE_BLINK, hdc, TRUE);
+        mswin_get_font(NHW_TEXT, TEXT_ATTRIBUTE_INVERSE, hdc, TRUE);
         ReleaseDC(GetNHApp()->hMainWnd, hdc);
 
         mswin_layout_main_window(NULL);
@@ -2157,7 +2159,7 @@ mswin_putmsghistory(const char *msg, boolean restoring)
     save_sound_opt = GetNHApp()->bNoSounds;
     GetNHApp()->bNoSounds =
         TRUE; /* disable sounds while restoring message history */
-    mswin_putstr_ex(WIN_MESSAGE, ATR_NONE, msg, 0);
+    mswin_putstr_ex(WIN_MESSAGE, TEXT_ATTRIBUTE_NONE, msg, 0);
     clear_nhwindow(WIN_MESSAGE); /* it is in fact end-of-turn indication so
                                     each message will print on the new line */
     GetNHApp()->bNoSounds = save_sound_opt; /* restore sounds option */
@@ -2872,36 +2874,36 @@ static mswin_status_string _condition_strings[CONDITION_COUNT];
 static mswin_status_field _status_fields[MAXBLSTATS];
 
 static mswin_condition_field _condition_fields[CONDITION_COUNT] = {
-    { BL_MASK_BAREH,     "Bare" },
-    { BL_MASK_BLIND,     "Blind" },
-    { BL_MASK_BUSY,      "Busy" },
-    { BL_MASK_CONF,      "Conf" },
-    { BL_MASK_DEAF,      "Deaf" },
-    { BL_MASK_ELF_IRON,  "Iron" },
-    { BL_MASK_FLY,       "Fly" },
-    { BL_MASK_FOODPOIS,  "FoodPois" },
-    { BL_MASK_GLOWHANDS, "Glow" },
-    { BL_MASK_GRAB,      "Grab" },
-    { BL_MASK_HALLU,     "Hallu" },
-    { BL_MASK_HELD,      "Held" },
-    { BL_MASK_ICY,       "Icy" },
-    { BL_MASK_INLAVA,    "Lava" },
-    { BL_MASK_LEV,       "Lev" },
-    { BL_MASK_PARLYZ,    "Parlyz" },
-    { BL_MASK_RIDE,      "Ride" },
-    { BL_MASK_SLEEPING,  "Zzz" },
-    { BL_MASK_SLIME,     "Slime" },
-    { BL_MASK_SLIPPERY,  "Slip" },
-    { BL_MASK_STONE,     "Stone" },
-    { BL_MASK_STRNGL,    "Strngl" },
-    { BL_MASK_STUN,      "Stun" },
-    { BL_MASK_SUBMERGED, "Sub" },
-    { BL_MASK_TERMILL,   "TermIll" },
-    { BL_MASK_TETHERED,  "Teth" },
-    { BL_MASK_TRAPPED,   "Trap" },
-    { BL_MASK_UNCONSC,   "Out" },
-    { BL_MASK_WOUNDEDL,  "Legs" },
-    { BL_MASK_HOLDING,   "Uhold" },
+    { CONDITION_MASK_BAREHANDED,    "Bare" },
+    { CONDITION_MASK_BLIND,         "Blind" },
+    { CONDITION_MASK_BUSY,          "Busy" },
+    { CONDITION_MASK_CONFUSED,      "Conf" },
+    { CONDITION_MASK_DEAF,          "Deaf" },
+    { CONDITION_MASK_ELF_IRON,      "Iron" },
+    { CONDITION_MASK_FLYING,        "Fly" },
+    { CONDITION_MASK_FOOD_POISONED, "FoodPois" },
+    { CONDITION_MASK_GLOWING_HANDS, "Glow" },
+    { CONDITION_MASK_GRAB,          "Grab" },
+    { CONDITION_MASK_HALLUCINATING, "Hallu" },
+    { CONDITION_MASK_HELD,          "Held" },
+    { CONDITION_MASK_ICY,           "Icy" },
+    { CONDITION_MASK_INLAVA,        "Lava" },
+    { CONDITION_MASK_LEVITATING,    "Lev" },
+    { CONDITION_MASK_PARALYZED,     "Parlyz" },
+    { CONDITION_MASK_RIDE,          "Ride" },
+    { CONDITION_MASK_SLEEPING,      "Zzz" },
+    { CONDITION_MASK_SLIMED,        "Slime" },
+    { CONDITION_MASK_SLIPPERY,      "Slip" },
+    { CONDITION_MASK_PETRIFIED,     "Stone" },
+    { CONDITION_MASK_STRANGLED,     "Strngl" },
+    { CONDITION_MASK_STUNNED,       "Stun" },
+    { CONDITION_MASK_SUBMERGED,     "Sub" },
+    { CONDITION_MASK_TERMINALLY_ILL,"TermIll" },
+    { CONDITION_MASK_TETHERED,      "Teth" },
+    { CONDITION_MASK_TRAPPED,       "Trap" },
+    { CONDITION_MASK_UNCONSCIOUS,   "Out" },
+    { CONDITION_MASK_WOUNDED_LEG,   "Legs" },
+    { CONDITION_MASK_HOLDING,       "Uhold" },
 };
 
 extern winid WIN_STATUS;
@@ -2971,7 +2973,7 @@ mswin_status_init(void)
             status_strings->status_strings[status_strings->count++] =
                 &_status_strings[field_index];
 
-            if (field_index == BL_CONDITION) {
+            if (field_index == CONDITION_CONDITION) {
                 for (int j = 0; j < CONDITION_COUNT; j++) {
                     ci = cond_idx[j];
                     nhassert(status_strings->count <= SIZE(status_strings->status_strings));
@@ -2986,9 +2988,9 @@ mswin_status_init(void)
     for (int i = 0; i < MAXBLSTATS; ++i) {
 #ifdef STATUS_HILITES
         _status_hilites[i].thresholdtype = 0;
-        _status_hilites[i].behavior = BL_THRESHOLD_NONE;
-        _status_hilites[i].under = BL_HILITE_NONE;
-        _status_hilites[i].over = BL_HILITE_NONE;
+        _status_hilites[i].behavior = CONDITION_THRESHOLD_NONE;
+        _status_hilites[i].under = CONDITION_HIGHLIGHT_NONE;
+        _status_hilites[i].over = CONDITION_HIGHLIGHT_NONE;
 #endif /* STATUS_HILITES */
     }
     /* Use a window for the genl version; backward port compatibility */
@@ -3014,10 +3016,10 @@ status_enablefield(int fldindex, char fldname, char fieldfmt, boolean enable)
                    to disable as well as enable fields, depending on the
                    value of the final argument (TRUE = enable).
                 -- fldindex could be one of the following from botl.h:
-                   BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
-                   BL_ALIGN, BL_SCORE, BL_CAP, BL_GOLD, BL_ENE, BL_ENEMAX,
-                   BL_XP, BL_AC, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
-                   BL_LEVELDESC, BL_EXP, BL_CONDITION
+                   CONDITION_TITLE, CONDITION_STR, CONDITION_DX, CONDITION_CO, CONDITION_IN, CONDITION_WI, CONDITION_CH,
+                   CONDITION_ALIGN, CONDITION_SCORE, CONDITION_CAP, CONDITION_GOLD, CONDITION_ENE, CONDITION_ENEMAX,
+                   CONDITION_XP, CONDITION_AC, CONDITION_HD, CONDITION_TIME, CONDITION_HUNGER, CONDITION_HP, CONDITION_HPMAX,
+                   CONDITION_LEVELDESC, CONDITION_EXP, CONDITION_CONDITION
                 -- There are MAXBLSTATS status fields (from botl.h)
 */
 void
@@ -3043,10 +3045,10 @@ mswin_status_enablefield(int fieldidx, const char *nm, const char *fmt,
         string->str = (field->enabled ? field->string : NULL);
         string->space_in_front = field->space_in_front;
 
-        if (field->field_index == BL_CONDITION)
+        if (field->field_index == CONDITION_CONDITION)
             string->str = NULL;
 
-        string->draw_bar = (field->enabled && field->field_index == BL_TITLE);
+        string->draw_bar = (field->enabled && field->field_index == CONDITION_TITLE);
     }
 }
 
@@ -3068,15 +3070,15 @@ static int
 mswin_condattr(long bm, unsigned long *bmarray)
 {
     if (bm && bmarray) {
-        if (bm & bmarray[HL_ATTCLR_BOLD])    return HL_BOLD;
-        if (bm & bmarray[HL_ATTCLR_DIM])     return HL_DIM;
-        if (bm & bmarray[HL_ATTCLR_ITALIC])  return HL_ITALIC;
-        if (bm & bmarray[HL_ATTCLR_ULINE])   return HL_ULINE;
-        if (bm & bmarray[HL_ATTCLR_BLINK])   return HL_BLINK;
-        if (bm & bmarray[HL_ATTCLR_INVERSE]) return HL_INVERSE;
+        if (bm & bmarray[HIGHLIGHT_ATTRIBUTE_COLOR_BOLD])    return HIGHLIGHT_BOLD;
+        if (bm & bmarray[HIGHLIGHT_ATTRIBUTE_COLOR_DIM])     return HIGHLIGHT_DIM;
+        if (bm & bmarray[HIGHLIGHT_ATTRIBUTE_COLOR_ITALIC])  return HIGHLIGHT_ITALIC;
+        if (bm & bmarray[HIGHLIGHT_ATTRIBUTE_COLOR_ULINE])   return HIGHLIGHT_UNDERLINE;
+        if (bm & bmarray[HIGHLIGHT_ATTRIBUTE_COLOR_BLINK])   return HIGHLIGHT_BLINK;
+        if (bm & bmarray[HIGHLIGHT_ATTRIBUTE_COLOR_INVERSE]) return HIGHLIGHT_INVERSE;
     }
 
-    return HL_NONE;
+    return HIGHLIGHT_NONE;
 }
 
 /*
@@ -3086,41 +3088,41 @@ status_update(int fldindex, genericptr_t ptr, int chg, int percent, int color, u
                 -- the fldindex identifies which field is changing and
                    is an integer index value from botl.h
                 -- fldindex could be any one of the following from botl.h:
-                   BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
-                   BL_ALIGN, BL_SCORE, BL_CAP, BL_GOLD, BL_ENE, BL_ENEMAX,
-                   BL_XP, BL_AC, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
-                   BL_LEVELDESC, BL_EXP, BL_CONDITION
-                -- fldindex could also be BL_FLUSH, which is not really
+                   CONDITION_TITLE, CONDITION_STR, CONDITION_DX, CONDITION_CO, CONDITION_IN, CONDITION_WI, CONDITION_CH,
+                   CONDITION_ALIGN, CONDITION_SCORE, CONDITION_CAP, CONDITION_GOLD, CONDITION_ENE, CONDITION_ENEMAX,
+                   CONDITION_XP, CONDITION_AC, CONDITION_HD, CONDITION_TIME, CONDITION_HUNGER, CONDITION_HP, CONDITION_HPMAX,
+                   CONDITION_LEVELDESC, CONDITION_EXP, CONDITION_CONDITION
+                -- fldindex could also be CONDITION_FLUSH, which is not really
                    a field index, but is a special trigger to tell the 
                    windowport that it should output all changes received
                    to this point. It marks the end of a bot() cycle.
-                -- fldindex could also be BL_RESET, which is not really
+                -- fldindex could also be CONDITION_RESET, which is not really
                    a field index, but is a special advisory to tell the 
                    windowport that it should redisplay all its status fields,
                    even if no changes have been presented to it.
-                -- ptr is usually a "char *", unless fldindex is BL_CONDITION.
-                   If fldindex is BL_CONDITION, then ptr is a long value with
+                -- ptr is usually a "char *", unless fldindex is CONDITION_CONDITION.
+                   If fldindex is CONDITION_CONDITION, then ptr is a long value with
                    any or none of the following bits set (from botl.h):
-                        BL_MASK_STONE           0x00000001L
-                        BL_MASK_SLIME           0x00000002L
-                        BL_MASK_STRNGL          0x00000004L
-                        BL_MASK_FOODPOIS        0x00000008L
-                        BL_MASK_TERMILL         0x00000010L
-                        BL_MASK_BLIND           0x00000020L
-                        BL_MASK_DEAF            0x00000040L
-                        BL_MASK_STUN            0x00000080L
-                        BL_MASK_CONF            0x00000100L
-                        BL_MASK_HALLU           0x00000200L
-                        BL_MASK_LEV             0x00000400L
-                        BL_MASK_FLY             0x00000800L
-                        BL_MASK_RIDE            0x00001000L
-                -- The value passed for BL_GOLD includes an encoded leading
+                        CONDITION_MASK_STONE           0x00000001L
+                        CONDITION_MASK_SLIME           0x00000002L
+                        CONDITION_MASK_STRNGL          0x00000004L
+                        CONDITION_MASK_FOODPOIS        0x00000008L
+                        CONDITION_MASK_TERMILL         0x00000010L
+                        CONDITION_MASK_BLIND           0x00000020L
+                        CONDITION_MASK_DEAF            0x00000040L
+                        CONDITION_MASK_STUN            0x00000080L
+                        CONDITION_MASK_CONF            0x00000100L
+                        CONDITION_MASK_HALLU           0x00000200L
+                        CONDITION_MASK_LEV             0x00000400L
+                        CONDITION_MASK_FLY             0x00000800L
+                        CONDITION_MASK_RIDE            0x00001000L
+                -- The value passed for CONDITION_GOLD includes an encoded leading
                    symbol for GOLD "\GXXXXNNNN:nnn". If window port needs
                    textual gold amount without the leading "$:" the port will
-                   have to skip past ':' in passed "ptr" for the BL_GOLD case.
+                   have to skip past ':' in passed "ptr" for the CONDITION_GOLD case.
                 -- color is the color that the NetHack core is telling you to
                    use to display the text.
-                -- condmasks is a pointer to a set of BL_ATTCLR_MAX unsigned
+                -- condmasks is a pointer to a set of CONDITION_ATTCLR_MAX unsigned
                    longs telling which conditions should be displayed in each
                    color and attribute.
 */
@@ -3157,7 +3159,7 @@ mswin_status_update(int idx, genericptr_t ptr, int chg, int percent,
         status_field->attribute = status_string->attribute = (color >> 8) & 0xff;
 
         switch (idx) {
-        case BL_CONDITION: {
+        case CONDITION_CONDITION: {
             mswin_condition_field * condition_field;
 
             nhassert(status_string->str == NULL);
@@ -3179,7 +3181,7 @@ mswin_status_update(int idx, genericptr_t ptr, int chg, int percent,
                     status_string->str = NULL;
             }
         } break;
-        case BL_GOLD: {
+        case CONDITION_GOLD: {
             char buf[BUFSZ];
             char *p;
 
@@ -3210,8 +3212,8 @@ mswin_status_update(int idx, genericptr_t ptr, int chg, int percent,
 
         /* if we received an update for the hp field, we must update the
          * bar percent and bar color for the title string */
-        if (idx == BL_HP) {
-            mswin_status_string * title_string = &_status_strings[BL_TITLE];
+        if (idx == CONDITION_HP) {
+            mswin_status_string * title_string = &_status_strings[CONDITION_TITLE];
 
             title_string->bar_color = color & 0xff;
             title_string->bar_attribute = (color >> 8) & 0xff;
@@ -3221,7 +3223,7 @@ mswin_status_update(int idx, genericptr_t ptr, int chg, int percent,
 
     }
 
-    if (idx == BL_FLUSH || idx == BL_RESET) {
+    if (idx == CONDITION_FLUSH || idx == CONDITION_RESET) {
         /* send command to status window to update */
         ZeroMemory(&update_cmd_data, sizeof(update_cmd_data));
         update_cmd_data.status_lines = &_status_lines;

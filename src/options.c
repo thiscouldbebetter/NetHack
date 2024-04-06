@@ -423,11 +423,11 @@ ask_do_tutorial(void)
             any = cg.zeroany;
             any.a_char = 'y';
             add_menu(win, &nul_glyphinfo, &any, any.a_char, 0,
-                     ATR_NONE, COLOR_CODE_NONE,
+                     TEXT_ATTRIBUTE_NONE, COLOR_CODE_NONE,
                      "Yes, do a tutorial", MENU_ITEMFLAGS_NONE);
             any.a_char = 'n';
             add_menu(win, &nul_glyphinfo, &any, any.a_char, 0,
-                     ATR_NONE, COLOR_CODE_NONE,
+                     TEXT_ATTRIBUTE_NONE, COLOR_CODE_NONE,
                      "No, just start play", MENU_ITEMFLAGS_NONE);
 
             add_menu_str(win, "");
@@ -2144,7 +2144,7 @@ optfn_menu_headings(
         if (op == empty_optstr) {
             /* OPTIONS=menu_headings w/o value => no-color&inverse;
                OPTIONS=!menu_headings => no-color&none */
-            iflags.menu_headings.attr = negated ? ATR_NONE : ATR_INVERSE;
+            iflags.menu_headings.attr = negated ? TEXT_ATTRIBUTE_NONE : TEXT_ATTRIBUTE_INVERSE;
             iflags.menu_headings.color = COLOR_CODE_NONE;
             return optn_ok;
         } else if (negated) { /* 'op != empty_optstr' to get here */
@@ -2945,7 +2945,7 @@ optfn_perminv_mode(
                     || op[0] == i + '0') { /* also accept '0'..'8' */
 #if 1 /*#ifdef TTY_PERM_INVENT*/
                     if (strstri(pi0, "+grid") && !WINDOWPORT(tty)) {
-                        i &= ~InvSparse;
+                        i &= ~InventorySparse;
                         config_error_add(
                           "%s: unavailable perm_invent mode '%s', using '%s'",
                                          allopt[optidx].name, pi0,
@@ -2960,12 +2960,12 @@ optfn_perminv_mode(
             if (i == SIZE(perminv_modes)) {
                 config_error_add("Unknown %s parameter '%s'",
                                  allopt[optidx].name, op);
-                iflags.perminv_mode = InvOptNone;
+                iflags.perminv_mode = InventoryOptionNone;
                 iflags.perm_invent = FALSE;
                 retval = optn_silenterr;
             }
         } else if (negated) { /* "!perminv_mode" */
-            iflags.perminv_mode = InvOptNone;
+            iflags.perminv_mode = InventoryOptionNone;
             iflags.perm_invent = FALSE;
         }
         if (!go.opt_initial) {
@@ -2980,17 +2980,17 @@ optfn_perminv_mode(
         /* value shown when examining current option settings; exclosed
            within square brackets for 'O', shown as-is when setting value */
         Sprintf(opts, "%s", perminv_modes[iflags.perminv_mode][2]);
-        if (iflags.perminv_mode != InvOptNone && !iflags.perm_invent
+        if (iflags.perminv_mode != InventoryOptionNone && !iflags.perm_invent
             /* 'op' is Null when called by handler_perminv_mode() while
                setting, non-Null when 'm O' shows current option values */
             && op) {
             /* perminv_mode is set but isn't useful because perm_invent is
                Off; say so after squeezing out enough for it to barely fit */
-            if (iflags.perminv_mode == InvOptInUse)
+            if (iflags.perminv_mode == InventoryOptionInUse)
                 (void) strsubst(opts, " currently", "");
             else
                 (void) strsubst(opts, " inventory", " invent");
-            Strcat(opts, (((iflags.perminv_mode & InvSparse) != 0) ? " (Off)"
+            Strcat(opts, (((iflags.perminv_mode & InventorySparse) != 0) ? " (Off)"
                           : " ('perm_invent' is Off)"));
         }
     } else if (req == get_cnf_val) {
@@ -3027,13 +3027,13 @@ optfn_petattr(
             } else
                 iflags.wc2_petattr = itmp;
 #else
-            iflags.wc2_petattr = ATR_INVERSE;
+            iflags.wc2_petattr = TEXT_ATTRIBUTE_INVERSE;
 #endif
         } else if (negated) {
-            iflags.wc2_petattr = ATR_NONE;
+            iflags.wc2_petattr = TEXT_ATTRIBUTE_NONE;
         }
         if (retval != optn_err) {
-            iflags.hilite_pet = (iflags.wc2_petattr != ATR_NONE);
+            iflags.hilite_pet = (iflags.wc2_petattr != TEXT_ATTRIBUTE_NONE);
             if (!go.opt_initial)
                 go.opt_need_redraw = TRUE;
         }
@@ -5150,7 +5150,7 @@ optfn_boolean(
                    alone so that re-enabling will get current value back
                  */
                 if (iflags.hilite_pet && !iflags.wc2_petattr)
-                    iflags.wc2_petattr = ATR_INVERSE;
+                    iflags.wc2_petattr = TEXT_ATTRIBUTE_INVERSE;
             }
 #endif
             go.opt_need_redraw = TRUE;
@@ -5214,7 +5214,7 @@ optfn_boolean(
                 go.opt_need_redraw = TRUE;
 #ifdef QT_GRAPHICS
             } else if (WINDOWPORT(Qt)) {
-                /* Qt doesn't support HILITE_STATUS or FLUSH_STATUS so fails
+                /* Qt doesn't support HIGHLIGHT_STATUS or FLUSH_STATUS so fails
                    VIA_WINDOWPORT(), but it does support WC2_HITPOINTBAR */
                 disp.botlx = TRUE;
 #endif
@@ -5325,8 +5325,8 @@ can_set_perm_invent(void)
             return FALSE;
     }
 
-    if (iflags.perminv_mode == InvOptNone)
-        iflags.perminv_mode = InvOptOn;
+    if (iflags.perminv_mode == InventoryOptionNone)
+        iflags.perminv_mode = InventoryOptionOn;
 
 #ifdef TTY_PERM_INVENT
     if (WINDOWPORT(tty) && !go.opt_initial) {
@@ -5363,7 +5363,7 @@ handler_menustyle(void)
     for (i = 0; i < SIZE(menutype); i++) {
         Sprintf(buf, "%-12.12s%c%.60s", menutype[i][0], sep, menutype[i][1]);
         any.a_int = i + 1;
-        add_menu(tmpwin, &nul_glyphinfo, &any, *buf, 0, ATR_NONE, clr, buf,
+        add_menu(tmpwin, &nul_glyphinfo, &any, *buf, 0, TEXT_ATTRIBUTE_NONE, clr, buf,
                  (i == flags.menu_style) ? MENU_ITEMFLAGS_SELECTED
                                          : MENU_ITEMFLAGS_NONE);
         /* second line is prefixed by spaces that "c - " would use */
@@ -5401,16 +5401,16 @@ handler_align_misc(int optidx)
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
     any = cg.zeroany;
     any.a_int = ALIGN_TOP;
-    add_menu(tmpwin, &nul_glyphinfo, &any, 't', 0, ATR_NONE, clr, "top",
+    add_menu(tmpwin, &nul_glyphinfo, &any, 't', 0, TEXT_ATTRIBUTE_NONE, clr, "top",
              MENU_ITEMFLAGS_NONE);
     any.a_int = ALIGN_BOTTOM;
-    add_menu(tmpwin, &nul_glyphinfo, &any, 'b', 0, ATR_NONE, clr, "bottom",
+    add_menu(tmpwin, &nul_glyphinfo, &any, 'b', 0, TEXT_ATTRIBUTE_NONE, clr, "bottom",
              MENU_ITEMFLAGS_NONE);
     any.a_int = ALIGN_LEFT;
-    add_menu(tmpwin, &nul_glyphinfo, &any, 'l', 0, ATR_NONE, clr, "left",
+    add_menu(tmpwin, &nul_glyphinfo, &any, 'l', 0, TEXT_ATTRIBUTE_NONE, clr, "left",
              MENU_ITEMFLAGS_NONE);
     any.a_int = ALIGN_RIGHT;
-    add_menu(tmpwin, &nul_glyphinfo, &any, 'r', 0, ATR_NONE, clr, "right",
+    add_menu(tmpwin, &nul_glyphinfo, &any, 'r', 0, TEXT_ATTRIBUTE_NONE, clr, "right",
              MENU_ITEMFLAGS_NONE);
     Sprintf(abuf, "Select %s window placement relative to the map:",
             (optidx == opt_align_message) ? "message" : "status");
@@ -5448,7 +5448,7 @@ handler_autounlock(int optidx)
         presel = (flags.autounlock & (1 << i));
         any.a_int = i + 1;
         add_menu(tmpwin, &nul_glyphinfo, &any, *unlocktypes[i][0], 0,
-                 ATR_NONE, clr, buf,
+                 TEXT_ATTRIBUTE_NONE, clr, buf,
                  (presel ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE));
     }
     Sprintf(buf, "Select '%.20s' actions:", optname);
@@ -5504,7 +5504,7 @@ handler_disclose(void)
                 flags.end_disclose[i], disclosure_options[i]);
         any.a_int = i + 1;
         add_menu(tmpwin, &nul_glyphinfo, &any, disclosure_options[i],
-                 0, ATR_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
+                 0, TEXT_ATTRIBUTE_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
         disc_cat[i] = 0;
     }
     end_menu(tmpwin, "Change which disclosure options categories:");
@@ -5530,40 +5530,40 @@ handler_disclose(void)
             /* 'y','n',and '+' work as alternate selectors; '-' doesn't */
             any.a_char = DISCLOSE_NO_WITHOUT_PROMPT;
             add_menu(tmpwin, &nul_glyphinfo, &any, 0,
-                     any.a_char, ATR_NONE, clr,
+                     any.a_char, TEXT_ATTRIBUTE_NONE, clr,
                      "Never disclose, without prompting",
                      (c == any.a_char) ? MENU_ITEMFLAGS_SELECTED
                                        : MENU_ITEMFLAGS_NONE);
             any.a_char = DISCLOSE_YES_WITHOUT_PROMPT;
             add_menu(tmpwin, &nul_glyphinfo, &any, 0,
-                     any.a_char, ATR_NONE, clr,
+                     any.a_char, TEXT_ATTRIBUTE_NONE, clr,
                      "Always disclose, without prompting",
                      (c == any.a_char) ? MENU_ITEMFLAGS_SELECTED
                                        : MENU_ITEMFLAGS_NONE);
             if (*disclosure_names[i] == 'v' || *disclosure_names[i] == 'g') {
                 any.a_char = DISCLOSE_SPECIAL_WITHOUT_PROMPT; /* '#' */
                 add_menu(tmpwin, &nul_glyphinfo, &any, 0,
-                         any.a_char, ATR_NONE, clr,
+                         any.a_char, TEXT_ATTRIBUTE_NONE, clr,
                          "Always disclose, pick sort order from menu",
                          (c == any.a_char) ? MENU_ITEMFLAGS_SELECTED
                                            : MENU_ITEMFLAGS_NONE);
             }
             any.a_char = DISCLOSE_PROMPT_DEFAULT_NO;
             add_menu(tmpwin, &nul_glyphinfo, &any, 0,
-                     any.a_char, ATR_NONE, clr,
+                     any.a_char, TEXT_ATTRIBUTE_NONE, clr,
                      "Prompt, with default answer of \"No\"",
                      (c == any.a_char) ? MENU_ITEMFLAGS_SELECTED
                                        : MENU_ITEMFLAGS_NONE);
             any.a_char = DISCLOSE_PROMPT_DEFAULT_YES;
             add_menu(tmpwin, &nul_glyphinfo, &any, 0,
-                     any.a_char, ATR_NONE, clr,
+                     any.a_char, TEXT_ATTRIBUTE_NONE, clr,
                      "Prompt, with default answer of \"Yes\"",
                      (c == any.a_char) ? MENU_ITEMFLAGS_SELECTED
                                        : MENU_ITEMFLAGS_NONE);
             if (*disclosure_names[i] == 'v' || *disclosure_names[i] == 'g') {
                 any.a_char = DISCLOSE_PROMPT_DEFAULT_SPECIAL; /* '?' */
                 add_menu(tmpwin, &nul_glyphinfo, &any, 0,
-                         any.a_char, ATR_NONE, clr,
+                         any.a_char, TEXT_ATTRIBUTE_NONE, clr,
                 "Prompt, with default answer of \"Ask\" to request sort menu",
                          (c == any.a_char) ? MENU_ITEMFLAGS_SELECTED
                                            : MENU_ITEMFLAGS_NONE);
@@ -5624,7 +5624,7 @@ handler_msg_window(void)
                 continue;
             Sprintf(buf, "%-12.12s%c%.60s", msgwind[i][0], sep, msgwind[i][1]);
             any.a_char = c = *msgwind[i][0];
-            add_menu(tmpwin, &nul_glyphinfo, &any, *buf, 0, ATR_NONE, clr, buf,
+            add_menu(tmpwin, &nul_glyphinfo, &any, *buf, 0, TEXT_ATTRIBUTE_NONE, clr, buf,
                      (c == iflags.prevmsg_window) ? MENU_ITEMFLAGS_SELECTED
                                                   : MENU_ITEMFLAGS_NONE);
             /* second line is prefixed by spaces that "c - " would use */
@@ -5677,7 +5677,7 @@ handler_number_pad(void)
     for (i = 0; i < SIZE(npchoices); i++) {
         any.a_int = i + 1;
         add_menu(tmpwin, &nul_glyphinfo, &any, 'a' + i, '0' + i,
-                 ATR_NONE, clr, npchoices[i], MENU_ITEMFLAGS_NONE);
+                 TEXT_ATTRIBUTE_NONE, clr, npchoices[i], MENU_ITEMFLAGS_NONE);
     }
     end_menu(tmpwin, "Select number_pad mode:");
     if (select_menu(tmpwin, PICK_ONE, &mode_pick) > 0) {
@@ -5751,7 +5751,7 @@ handler_paranoid_confirmation(void)
         }
         any.a_int = paranoia[i].flagmask;
         add_menu(tmpwin, &nul_glyphinfo, &any, *paranoia[i].argname,
-                 0, ATR_NONE, clr, explain,
+                 0, TEXT_ATTRIBUTE_NONE, clr, explain,
                  (flags.paranoia_bits & paranoia[i].flagmask)
                      ? MENU_ITEMFLAGS_SELECTED
                      : MENU_ITEMFLAGS_NONE);
@@ -5805,10 +5805,10 @@ handler_perminv_mode(void)
             Strcpy(sepbuf, "\t");
         }
         Sprintf(buf, "%s%s%s", pi0, sepbuf, perminv_modes[i][2]);
-        let = ((i & (int) InvSparse) != 0) ? highc(pi1[0]) : pi0[0];
+        let = ((i & (int) InventorySparse) != 0) ? highc(pi1[0]) : pi0[0];
         any.a_int = i + 1;
         add_menu(tmpwin, &nul_glyphinfo, &any, let, '0' + i,
-                 ATR_NONE, COLOR_CODE_NONE,
+                 TEXT_ATTRIBUTE_NONE, COLOR_CODE_NONE,
                  buf, (i == old_pi) ? MENU_ITEMFLAGS_SELECTED
                                     : MENU_ITEMFLAGS_NONE);
     }
@@ -5828,9 +5828,9 @@ handler_perminv_mode(void)
         pline("'perminv_mode' %s '%s' (%s).",
               (new_pi != old_pi) ? "changed to" : "is still",
               perminv_modes[new_pi][0], buf);
-        if (new_pi != InvOptNone && !old_perm_invent)
+        if (new_pi != InventoryOptionNone && !old_perm_invent)
             iflags.perm_invent = can_set_perm_invent();
-        else if (new_pi == InvOptNone && old_perm_invent)
+        else if (new_pi == InventoryOptionNone && old_perm_invent)
             iflags.perm_invent = FALSE;
 
         if (new_pi != old_pi || iflags.perm_invent != old_perm_invent) {
@@ -5866,7 +5866,7 @@ handler_pickup_burden(void)
         burden_name = burdentype[i];
         any.a_int = i + 1;
         add_menu(tmpwin, &nul_glyphinfo, &any, burden_letters[i],
-                 0, ATR_NONE, clr, burden_name, MENU_ITEMFLAGS_NONE);
+                 0, TEXT_ATTRIBUTE_NONE, clr, burden_name, MENU_ITEMFLAGS_NONE);
     }
     end_menu(tmpwin, "Select encumbrance level:");
     if (select_menu(tmpwin, PICK_ONE, &burden_pick) > 0) {
@@ -5904,7 +5904,7 @@ handler_runmode(void)
         mode_name = runmodes[i];
         any.a_int = i + 1;
         add_menu(tmpwin, &nul_glyphinfo, &any, *mode_name,
-                 0, ATR_NONE, clr, mode_name, MENU_ITEMFLAGS_NONE);
+                 0, TEXT_ATTRIBUTE_NONE, clr, mode_name, MENU_ITEMFLAGS_NONE);
     }
     end_menu(tmpwin, "Select run/travel display mode:");
     if (select_menu(tmpwin, PICK_ONE, &mode_pick) > 0) {
@@ -5922,7 +5922,7 @@ handler_petattr(void)
 
     if (tmp != -1) {
         iflags.wc2_petattr = tmp;
-        iflags.hilite_pet = (iflags.wc2_petattr != ATR_NONE);
+        iflags.hilite_pet = (iflags.wc2_petattr != TEXT_ATTRIBUTE_NONE);
         if (!go.opt_initial)
             go.opt_need_redraw = TRUE;
     }
@@ -5946,7 +5946,7 @@ handler_sortloot(void)
         sortl_name = sortltype[i];
         any.a_char = *sortl_name;
         add_menu(tmpwin, &nul_glyphinfo, &any, *sortl_name,
-                 0, ATR_NONE, clr,
+                 0, TEXT_ATTRIBUTE_NONE, clr,
                  sortl_name, (flags.sortloot == *sortl_name)
                                 ? MENU_ITEMFLAGS_SELECTED
                                 : MENU_ITEMFLAGS_NONE);
@@ -5984,29 +5984,29 @@ handler_whatis_coord(void)
     any = cg.zeroany;
     any.a_char = GPCOORDS_COMPASS;
     add_menu(tmpwin, &nul_glyphinfo, &any, GPCOORDS_COMPASS,
-             0, ATR_NONE, clr,
+             0, TEXT_ATTRIBUTE_NONE, clr,
              "compass ('east' or '3s' or '2n,4w')",
              (gpc == GPCOORDS_COMPASS)
                 ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     any.a_char = GPCOORDS_COMFULL;
     add_menu(tmpwin, &nul_glyphinfo, &any, GPCOORDS_COMFULL,
-             0, ATR_NONE, clr,
+             0, TEXT_ATTRIBUTE_NONE, clr,
              "full compass ('east' or '3south' or '2north,4west')",
              (gpc == GPCOORDS_COMFULL)
                 ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     any.a_char = GPCOORDS_MAP;
     add_menu(tmpwin, &nul_glyphinfo, &any, GPCOORDS_MAP,
-             0, ATR_NONE, clr, "map <x,y>",
+             0, TEXT_ATTRIBUTE_NONE, clr, "map <x,y>",
              (gpc == GPCOORDS_MAP)
                 ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     any.a_char = GPCOORDS_SCREEN;
     add_menu(tmpwin, &nul_glyphinfo, &any, GPCOORDS_SCREEN,
-             0, ATR_NONE, clr, "screen [row,column]",
+             0, TEXT_ATTRIBUTE_NONE, clr, "screen [row,column]",
              (gpc == GPCOORDS_SCREEN)
                 ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     any.a_char = GPCOORDS_NONE;
     add_menu(tmpwin, &nul_glyphinfo, &any, GPCOORDS_NONE,
-             0, ATR_NONE, clr, "none (no coordinates displayed)",
+             0, TEXT_ATTRIBUTE_NONE, clr, "none (no coordinates displayed)",
              (gpc == GPCOORDS_NONE)
                 ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     add_menu_str(tmpwin, "");
@@ -6056,17 +6056,17 @@ handler_whatis_filter(void)
     any = cg.zeroany;
     any.a_char = (GFILTER_NONE + 1);
     add_menu(tmpwin, &nul_glyphinfo, &any, 'n',
-             0, ATR_NONE, clr, "no filtering",
+             0, TEXT_ATTRIBUTE_NONE, clr, "no filtering",
              (gfilt == GFILTER_NONE)
                 ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     any.a_char = (GFILTER_VIEW + 1);
     add_menu(tmpwin, &nul_glyphinfo, &any, 'v',
-             0, ATR_NONE, clr, "in view only",
+             0, TEXT_ATTRIBUTE_NONE, clr, "in view only",
              (gfilt == GFILTER_VIEW)
                 ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     any.a_char = (GFILTER_AREA + 1);
     add_menu(tmpwin, &nul_glyphinfo, &any, 'a',
-             0, ATR_NONE, clr, "in same area",
+             0, TEXT_ATTRIBUTE_NONE, clr, "in same area",
              (gfilt == GFILTER_AREA)
                 ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     end_menu(tmpwin,
@@ -6145,7 +6145,7 @@ handler_autopickup_exception(void)
                 Sprintf(apebuf, "\"%c%s\"", ape->grab ? '<' : '>',
                         ape->pattern);
                 add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                         ATR_NONE, clr, apebuf, MENU_ITEMFLAGS_NONE);
+                         TEXT_ATTRIBUTE_NONE, clr, apebuf, MENU_ITEMFLAGS_NONE);
                 ape = ape->next;
             }
         }
@@ -6203,7 +6203,7 @@ handler_menu_colors(void)
         if (*mcbuf
             && test_regex_pattern(mcbuf, "MENUCOLORS regex")
             && (mcclr = query_color((char *) 0, COLOR_CODE_NONE)) != -1
-                && (mcattr = query_attr((char *) 0, ATR_NONE)) != -1
+                && (mcattr = query_attr((char *) 0, TEXT_ATTRIBUTE_NONE)) != -1
             && !add_menu_coloring_parsed(mcbuf, mcclr, mcattr)) {
             pline("Error adding the menu color.");
             wait_synch();
@@ -6230,8 +6230,8 @@ handler_menu_colors(void)
             any.a_int = ++mc_idx;
             /* construct suffix */
             Sprintf(buf, "\"\"=%s%s%s", sclr,
-                    (tmp->attr != ATR_NONE) ? "&" : "",
-                    (tmp->attr != ATR_NONE) ? sattr : "");
+                    (tmp->attr != TEXT_ATTRIBUTE_NONE) ? "&" : "",
+                    (tmp->attr != TEXT_ATTRIBUTE_NONE) ? sattr : "");
             /* now main string */
             ln = sizeof buf - Strlen(buf) - 1; /* length available */
             Strcpy(mcbuf, "\"");
@@ -6242,7 +6242,7 @@ handler_menu_colors(void)
             /* combine main string and suffix */
             Strcat(mcbuf, &buf[1]); /* skip buf[]'s initial quote */
             add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                     ATR_NONE, clr, mcbuf, MENU_ITEMFLAGS_NONE);
+                     TEXT_ATTRIBUTE_NONE, clr, mcbuf, MENU_ITEMFLAGS_NONE);
             tmp = tmp->next;
         }
         Sprintf(mcbuf, "%s menu colors",
@@ -6313,7 +6313,7 @@ handler_msgtype(void)
             else
                 Strcat(strcat(mtbuf, tmp->pattern), "\"");
             add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                     ATR_NONE, clr, mtbuf, MENU_ITEMFLAGS_NONE);
+                     TEXT_ATTRIBUTE_NONE, clr, mtbuf, MENU_ITEMFLAGS_NONE);
             tmp = tmp->next;
         }
         Sprintf(mtbuf, "%s message types",
@@ -6350,15 +6350,15 @@ handler_versinfo(void)
     any = cg.zeroany;
 
     any.a_int = n = VI_NUMBER; /* 1 */
-    add_menu(tmpwin, &nul_glyphinfo, &any, 'n', n + '0', ATR_NONE, COLOR_CODE_NONE,
+    add_menu(tmpwin, &nul_glyphinfo, &any, 'n', n + '0', TEXT_ATTRIBUTE_NONE, COLOR_CODE_NONE,
              "version number",
              (vi & n) ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     any.a_int = n = VI_NAME; /* 2 */
-    add_menu(tmpwin, &nul_glyphinfo, &any, 'g', n + '0', ATR_NONE, COLOR_CODE_NONE,
+    add_menu(tmpwin, &nul_glyphinfo, &any, 'g', n + '0', TEXT_ATTRIBUTE_NONE, COLOR_CODE_NONE,
              "game name",
              (vi & n) ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     any.a_int = n = VI_BRANCH; /* 4 */
-    add_menu(tmpwin, &nul_glyphinfo, &any, 'b', n + '0', ATR_NONE, COLOR_CODE_NONE,
+    add_menu(tmpwin, &nul_glyphinfo, &any, 'b', n + '0', TEXT_ATTRIBUTE_NONE, COLOR_CODE_NONE,
              (have_branch ? "development branch"
 #if (NH_DEVEL_STATUS == NH_STATUS_RELEASED)
                           : "(not applicable)"
@@ -6409,7 +6409,7 @@ handler_windowborders(void)
         /* index 'i' matches the numeric setting for windowborders,
            so allow corresponding digit as group accelerator */
         add_menu(tmpwin, &nul_glyphinfo, &any, 'a' + i, '0' + i,
-                 ATR_NONE, clr, mode_name, MENU_ITEMFLAGS_NONE);
+                 TEXT_ATTRIBUTE_NONE, clr, mode_name, MENU_ITEMFLAGS_NONE);
     }
     end_menu(tmpwin, "Select window borders mode:");
     if (select_menu(tmpwin, PICK_ONE, &mode_pick) > 0) {
@@ -6961,7 +6961,7 @@ initoptions_init(void)
 #endif
 #endif
 
-    iflags.menu_headings.attr = ATR_INVERSE;
+    iflags.menu_headings.attr = TEXT_ATTRIBUTE_INVERSE;
     iflags.menu_headings.color = COLOR_CODE_NONE;
     iflags.getpos_coords = GPCOORDS_NONE;
 
@@ -7037,7 +7037,7 @@ initoptions_init(void)
     iflags.wc_align_status = ALIGN_BOTTOM;
     /* used by tty and curses */
     iflags.wc2_statuslines = 2;
-    iflags.wc2_petattr = ATR_INVERSE;
+    iflags.wc2_petattr = TEXT_ATTRIBUTE_INVERSE;
     /* only used by curses */
     iflags.wc2_windowborders = 2; /* 'Auto' */
 
@@ -7492,7 +7492,7 @@ query_msgtype(void)
         if (msgtype_names[i].descr) {
             any.a_int = msgtype_names[i].msgtyp + 1;
             add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                     ATR_NONE, clr,
+                     TEXT_ATTRIBUTE_NONE, clr,
                      msgtype_names[i].descr, MENU_ITEMFLAGS_NONE);
         }
     end_menu(tmpwin, "How to show the message");
@@ -8331,7 +8331,7 @@ doset_simple_menu(void)
     }
     any = cg.zeroany;
     any.a_int = -2 + 1;
-    add_menu(tmpwin, &nul_glyphinfo, &any, '?', 0, ATR_NONE, COLOR_CODE_NONE,
+    add_menu(tmpwin, &nul_glyphinfo, &any, '?', 0, TEXT_ATTRIBUTE_NONE, COLOR_CODE_NONE,
              gs.simple_options_help ? "hide help" : "show help",
              MENU_ITEMFLAGS_NONE);
 
@@ -8388,7 +8388,7 @@ doset_simple_menu(void)
                 || allopt[i].idx == opt_dropped_nopick)
                 Strcat(buf, "  (for autopickup)");
             add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                     ATR_NONE, COLOR_CODE_NONE, buf, MENU_ITEMFLAGS_NONE);
+                     TEXT_ATTRIBUTE_NONE, COLOR_CODE_NONE, buf, MENU_ITEMFLAGS_NONE);
             if (gs.simple_options_help && allopt[i].descr) {
                 Sprintf(buf, "    %s", allopt[i].descr);
                 add_menu_str(tmpwin, buf);
@@ -8580,7 +8580,7 @@ doset(void) /* changing options via menu by Per Liboriussen */
                 add_menu_str(tmpwin, buf);
             } else {
                 any.a_int = HELP_IDX + 1; /* processing pick_list subtracts 1 */
-                add_menu(tmpwin, &nul_glyphinfo, &any, '?', '?', ATR_NONE,
+                add_menu(tmpwin, &nul_glyphinfo, &any, '?', '?', TEXT_ATTRIBUTE_NONE,
                          clr, "view help for options menu",
                          MENU_ITEMFLAGS_SKIPINVERT);
             }
@@ -8634,7 +8634,7 @@ doset(void) /* changing options via menu by Per Liboriussen */
                     enhance_menu_text(buf, sizeof buf, pass, bool_p,
                                       &allopt[i]);
                 add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                         ATR_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
+                         TEXT_ATTRIBUTE_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
             }
 
     add_menu_str(tmpwin, "");
@@ -8821,7 +8821,7 @@ doset_add_menu(
     indent = !any.a_int ? "    " : "";
     Sprintf(buf, fmtstr, indent, option, value);
     add_menu(win, &nul_glyphinfo, &any, 0, 0,
-             ATR_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
+             TEXT_ATTRIBUTE_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
 }
 
 
@@ -8996,7 +8996,7 @@ handle_add_list_remove(const char *optname, int numtotal)
         Sprintf(tmpbuf, action_titles[i].desc,
                 (i == 1) ? makeplural(optname) : optname);
         add_menu(tmpwin, &nul_glyphinfo,&any, action_titles[i].letr,
-                 0, ATR_NONE, clr, tmpbuf,
+                 0, TEXT_ATTRIBUTE_NONE, clr, tmpbuf,
                  (i == 3) ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     }
     end_menu(tmpwin, "Do what?");
@@ -9353,8 +9353,8 @@ all_options_menucolors(strbuf_t *sbuf)
         Sprintf(buf, "MENUCOLOR=\"%s\"=%s%s%s\n",
                 tmp->origstr,
                 sclr,
-                (tmp->attr != ATR_NONE) ? "&" : "",
-                (tmp->attr != ATR_NONE) ? sattr : "");
+                (tmp->attr != TEXT_ATTRIBUTE_NONE) ? "&" : "",
+                (tmp->attr != TEXT_ATTRIBUTE_NONE) ? sattr : "");
         strbuf_append(sbuf, buf);
     }
 
@@ -9501,7 +9501,7 @@ static struct wc_Opt wc_options[] = {
     { "ascii_map", WC_ASCII_MAP },
     { "color", WC_COLOR },
     { "eight_bit_tty", WC_EIGHT_BIT_IN },
-    { "hilite_pet", WC_HILITE_PET },
+    { "hilite_pet", WC_HIGHLIGHT_PET },
     { "perm_invent", WC_PERM_INVENT },
     { "perminv_mode", WC_PERM_INVENT }, /* shares WC_PERM_INVENT */
     { "popup_dialog", WC_POPUP_DIALOG },
@@ -9536,15 +9536,15 @@ static struct wc_Opt wc_options[] = {
 static struct wc_Opt wc2_options[] = {
     { "fullscreen", WC2_FULLSCREEN },
     { "guicolor", WC2_GUICOLOR },
-    { "hilite_status", WC2_HILITE_STATUS },
+    { "hilite_status", WC2_HIGHLIGHT_STATUS },
     { "hitpointbar", WC2_HITPOINTBAR },
     { "menu_shift", WC2_MENU_SHIFT },
     { "petattr", WC2_PETATTR },
     { "softkeyboard", WC2_SOFTKEYBOARD },
     /* name shown in 'O' menu is different */
-    { "status hilite rules", WC2_HILITE_STATUS },
+    { "status hilite rules", WC2_HIGHLIGHT_STATUS },
     /* statushilites doesn't have its own bit */
-    { "statushilites", WC2_HILITE_STATUS },
+    { "statushilites", WC2_HIGHLIGHT_STATUS },
     { "statuslines", WC2_STATUSLINES },
     { "term_cols", WC2_TERM_SIZE },
     { "term_rows", WC2_TERM_SIZE },

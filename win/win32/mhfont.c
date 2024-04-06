@@ -83,7 +83,7 @@ mswin_get_font(int win_type, int attr, HDC hdc, BOOL replace)
 
     switch (win_type) {
     case NHW_STATUS:
-        font_size = (attr == ATR_BOLD) ? iflags.wc_fontsiz_status + 1
+        font_size = (attr == TEXT_ATTRIBUTE_BOLD) ? iflags.wc_fontsiz_status + 1
                                        : iflags.wc_fontsiz_status;
         lgfnt.lfHeight = -font_size * GetDeviceCaps(hdc, LOGPIXELSY)
                          / 72;   // height of font
@@ -91,9 +91,9 @@ mswin_get_font(int win_type, int attr, HDC hdc, BOOL replace)
         lgfnt.lfEscapement = 0;  // angle of escapement
         lgfnt.lfOrientation = 0; // base-line orientation angle
         lgfnt.lfWeight =
-            (attr == ATR_BOLD) ? FW_BOLD : FW_NORMAL; // font weight
+            (attr == TEXT_ATTRIBUTE_BOLD) ? FW_BOLD : FW_NORMAL; // font weight
         lgfnt.lfItalic = FALSE;            // italic attribute option
-        lgfnt.lfUnderline = (attr == ATR_ULINE); // underline attribute option
+        lgfnt.lfUnderline = (attr == TEXT_ATTRIBUTE_ULINE); // underline attribute option
         lgfnt.lfStrikeOut = FALSE;         // strikeout attribute option
         lgfnt.lfCharSet = mswin_charset(); // character set identifier
         lgfnt.lfOutPrecision = OUT_DEFAULT_PRECIS;   // output precision
@@ -114,13 +114,13 @@ mswin_get_font(int win_type, int attr, HDC hdc, BOOL replace)
         lgfnt.lfWidth = 0;       // average character width
         lgfnt.lfEscapement = 0;  // angle of escapement
         lgfnt.lfOrientation = 0; // base-line orientation angle
-        lgfnt.lfWeight = (attr == ATR_BOLD || attr == ATR_INVERSE)
+        lgfnt.lfWeight = (attr == TEXT_ATTRIBUTE_BOLD || attr == TEXT_ATTRIBUTE_INVERSE)
                              ? FW_BOLD
                              : FW_NORMAL; // font weight
         lgfnt.lfItalic =
-            (attr == ATR_BLINK) ? TRUE : FALSE; // italic attribute option
+            (attr == TEXT_ATTRIBUTE_BLINK) ? TRUE : FALSE; // italic attribute option
         lgfnt.lfUnderline =
-            (attr == ATR_ULINE) ? TRUE : FALSE; // underline attribute option
+            (attr == TEXT_ATTRIBUTE_ULINE) ? TRUE : FALSE; // underline attribute option
         lgfnt.lfStrikeOut = FALSE;              // strikeout attribute option
         lgfnt.lfCharSet = mswin_charset();      // character set identifier
         lgfnt.lfOutPrecision = OUT_DEFAULT_PRECIS;   // output precision
@@ -135,20 +135,20 @@ mswin_get_font(int win_type, int attr, HDC hdc, BOOL replace)
         break;
 
     case NHW_MESSAGE:
-        font_size = (attr == ATR_INVERSE) ? iflags.wc_fontsiz_message + 1
+        font_size = (attr == TEXT_ATTRIBUTE_INVERSE) ? iflags.wc_fontsiz_message + 1
                                           : iflags.wc_fontsiz_message;
         lgfnt.lfHeight = -font_size * GetDeviceCaps(hdc, LOGPIXELSY)
                          / 72;   // height of font
         lgfnt.lfWidth = 0;       // average character width
         lgfnt.lfEscapement = 0;  // angle of escapement
         lgfnt.lfOrientation = 0; // base-line orientation angle
-        lgfnt.lfWeight = (attr == ATR_BOLD || attr == ATR_INVERSE)
+        lgfnt.lfWeight = (attr == TEXT_ATTRIBUTE_BOLD || attr == TEXT_ATTRIBUTE_INVERSE)
                              ? FW_BOLD
                              : FW_NORMAL; // font weight
         lgfnt.lfItalic =
-            (attr == ATR_BLINK) ? TRUE : FALSE; // italic attribute option
+            (attr == TEXT_ATTRIBUTE_BLINK) ? TRUE : FALSE; // italic attribute option
         lgfnt.lfUnderline =
-            (attr == ATR_ULINE) ? TRUE : FALSE; // underline attribute option
+            (attr == TEXT_ATTRIBUTE_ULINE) ? TRUE : FALSE; // underline attribute option
         lgfnt.lfStrikeOut = FALSE;              // strikeout attribute option
         lgfnt.lfCharSet = mswin_charset();      // character set identifier
         lgfnt.lfOutPrecision = OUT_DEFAULT_PRECIS;   // output precision
@@ -169,13 +169,13 @@ mswin_get_font(int win_type, int attr, HDC hdc, BOOL replace)
         lgfnt.lfWidth = 0;       // average character width
         lgfnt.lfEscapement = 0;  // angle of escapement
         lgfnt.lfOrientation = 0; // base-line orientation angle
-        lgfnt.lfWeight = (attr == ATR_BOLD || attr == ATR_INVERSE)
+        lgfnt.lfWeight = (attr == TEXT_ATTRIBUTE_BOLD || attr == TEXT_ATTRIBUTE_INVERSE)
                              ? FW_BOLD
                              : FW_NORMAL; // font weight
         lgfnt.lfItalic =
-            (attr == ATR_BLINK) ? TRUE : FALSE; // italic attribute option
+            (attr == TEXT_ATTRIBUTE_BLINK) ? TRUE : FALSE; // italic attribute option
         lgfnt.lfUnderline =
-            (attr == ATR_ULINE) ? TRUE : FALSE; // underline attribute option
+            (attr == TEXT_ATTRIBUTE_ULINE) ? TRUE : FALSE; // underline attribute option
         lgfnt.lfStrikeOut = FALSE;              // strikeout attribute option
         lgfnt.lfCharSet = mswin_charset();      // character set identifier
         lgfnt.lfOutPrecision = OUT_DEFAULT_PRECIS;   // output precision

@@ -36,7 +36,7 @@ staticfn void
 kickdmg(struct monster *mon, boolean clumsy)
 {
     int mdx, mdy;
-    int dmg = (ATTRIBUTE_CURRENT_STRENGTH + ATTRIBUTE_CURRENT(A_DEX) + ATTRIBUTE_CURRENT(A_CON)) / 15;
+    int dmg = (ATTRIBUTE_CURRENT_STRENGTH + ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) + ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION)) / 15;
     int specialdmg, kick_skill = P_NONE;
     boolean trapkilled = FALSE;
 
@@ -84,10 +84,10 @@ kickdmg(struct monster *mon, boolean clumsy)
         if (martial()) {
             if (dmg > 1)
                 kick_skill = P_MARTIAL_ARTS;
-            dmg += random_integer_between_zero_and(ATTRIBUTE_CURRENT(A_DEX) / 2 + 1);
+            dmg += random_integer_between_zero_and(ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) / 2 + 1);
         }
         /* a good kick exercises your dex */
-        exercise(A_DEX, TRUE);
+        exercise(ATTRIBUTE_DEXTERITY, TRUE);
     }
     dmg += specialdmg; /* for blessed (or hypothetically, silver) boots */
     if (uarmf)
@@ -156,7 +156,7 @@ kick_monster(struct monster *mon, coordxy x, coordxy y)
     if (Levitation && !random_integer_between_zero_and(3) && verysmall(mon->data)
         && !is_flyer(mon->data)) {
         pline("Floating in the air, you miss wildly!");
-        exercise(A_DEX, FALSE);
+        exercise(ATTRIBUTE_DEXTERITY, FALSE);
         (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
         return;
     }
@@ -251,7 +251,7 @@ kick_monster(struct monster *mon, coordxy x, coordxy y)
     if (Fumbling)
         clumsy = TRUE;
 
-    else if (uarm && objects[uarm->otyp].oc_bulky && ATTRIBUTE_CURRENT(A_DEX) < random(25))
+    else if (uarm && objects[uarm->otyp].oc_bulky && ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) < random(25))
         clumsy = TRUE;
  doit:
     You("kick %s.", mon_nam(mon));
@@ -375,7 +375,7 @@ ghitm(struct monster *mtmp, struct obj *gold)
 
             if (goldreqd && random_integer_between_zero_and(3)) {
                 umoney = money_cnt(gi.invent);
-                goldreqd += (umoney + u.ulevel * random_integer_between_zero_and(5)) / ATTRIBUTE_CURRENT(A_CHA);
+                goldreqd += (umoney + u.ulevel * random_integer_between_zero_and(5)) / ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA);
                 if (value > goldreqd)
                     mtmp->mpeaceful = TRUE;
             }
@@ -608,7 +608,7 @@ really_kick_object(coordxy x, coordxy y)
           !isgold ? singular(gk.kickedobj, doname) : doname(gk.kickedobj));
 
     if (IS_ROCK(levl[x][y].typ) || closed_door(x, y)) {
-        if ((!martial() && random_integer_between_zero_and(20) > ATTRIBUTE_CURRENT(A_DEX))
+        if ((!martial() && random_integer_between_zero_and(20) > ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY))
             || IS_ROCK(levl[u.ux][u.uy].typ) || closed_door(u.ux, u.uy)) {
             if (Blind)
                 pline("It doesn't come loose.");
@@ -858,14 +858,14 @@ watchman_door_damage(struct monster *mtmp, coordxy x, coordxy y)
 staticfn void
 kick_dumb(coordxy x, coordxy y)
 {
-    exercise(A_DEX, FALSE);
-    if (martial() || ATTRIBUTE_CURRENT(A_DEX) >= 16 || random_integer_between_zero_and(3)) {
+    exercise(ATTRIBUTE_DEXTERITY, FALSE);
+    if (martial() || ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) >= 16 || random_integer_between_zero_and(3)) {
         You("kick at empty space.");
         if (Blind)
             feel_location(x, y);
     } else {
         pline("Dumb move!  You strain a muscle.");
-        exercise(A_STR, FALSE);
+        exercise(ATTRIBUTE_STRENGTH, FALSE);
         set_wounded_legs(RIGHT_SIDE, 5 + random(5));
     }
     if ((Is_airlevel(&u.uz) || Levitation) && random_integer_between_zero_and(2))
@@ -879,8 +879,8 @@ kick_ouch(coordxy x, coordxy y, const char *kickobjnam)
     char buf[BUFSZ];
 
     pline("Ouch!  That hurts!");
-    exercise(A_DEX, FALSE);
-    exercise(A_STR, FALSE);
+    exercise(ATTRIBUTE_DEXTERITY, FALSE);
+    exercise(ATTRIBUTE_STRENGTH, FALSE);
     if (isok(x, y)) {
         if (Blind)
             feel_location(x, y); /* we know we hit it */
@@ -894,7 +894,7 @@ kick_ouch(coordxy x, coordxy y, const char *kickobjnam)
     }
     if (!random_integer_between_zero_and(3))
         set_wounded_legs(RIGHT_SIDE, 5 + random(5));
-    dmg = random(ATTRIBUTE_CURRENT(A_CON) > 15 ? 3 : 5);
+    dmg = random(ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION) > 15 ? 3 : 5);
     losehp(Maybe_Half_Phys(dmg), kickstr(buf, kickobjnam), KILLED_BY);
     if (Is_airlevel(&u.uz) || Levitation)
         hurtle(-u.dx, -u.dy, rn1(2, 4), TRUE); /* assume it's heavy */
@@ -916,26 +916,26 @@ kick_door(coordxy x, coordxy y, int avrg_attrib)
         return;
     }
 
-    exercise(A_DEX, TRUE);
+    exercise(ATTRIBUTE_DEXTERITY, TRUE);
     /* door is known to be CLOSED or LOCKED */
-    if (rnl(35) < avrg_attrib + (!martial() ? 0 : ATTRIBUTE_CURRENT(A_DEX))) {
+    if (rnl(35) < avrg_attrib + (!martial() ? 0 : ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY))) {
         boolean shopdoor = *in_rooms(x, y, SHOPBASE) ? TRUE : FALSE;
         /* break the door */
         if (gm.maploc->doormask & D_TRAPPED) {
             if (flags.verbose)
                 You("kick the door.");
-            exercise(A_STR, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
             gm.maploc->doormask = D_NODOOR;
             b_trapped("door", FOOT);
-        } else if (ATTRIBUTE_CURRENT(A_STR) > 18 && !random_integer_between_zero_and(5) && !shopdoor) {
+        } else if (ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH) > 18 && !random_integer_between_zero_and(5) && !shopdoor) {
             Soundeffect(se_kick_door_it_shatters, 50);
             pline("As you kick the door, it shatters to pieces!");
-            exercise(A_STR, TRUE);
+            exercise(ATTRIBUTE_STRENGTH, TRUE);
             gm.maploc->doormask = D_NODOOR;
         } else {
             Soundeffect(se_kick_door_it_crashes_open, 50);
             pline("As you kick the door, it crashes open!");
-            exercise(A_STR, TRUE);
+            exercise(ATTRIBUTE_STRENGTH, TRUE);
             gm.maploc->doormask = D_BROKEN;
         }
         feel_newsym(x, y); /* we know we broke it */
@@ -949,7 +949,7 @@ kick_door(coordxy x, coordxy y, int avrg_attrib)
     } else {
         if (Blind)
             feel_location(x, y); /* we know we hit it */
-        exercise(A_STR, TRUE);
+        exercise(ATTRIBUTE_STRENGTH, TRUE);
         /* note: this used to be unconditional "WHAMMM!!!" but that has a
            fairly strong connotation of noise that a deaf hero shouldn't
            hear; we've kept the extra 'm's and one of the extra '!'s */
@@ -972,7 +972,7 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
                      unless it also happens to be trapped */
                   ((gm.maploc->doormask & (D_LOCKED | D_TRAPPED))
                    == D_LOCKED) ? "Your kick uncovers" : "You kick open");
-            exercise(A_DEX, TRUE);
+            exercise(ATTRIBUTE_DEXTERITY, TRUE);
             if (gm.maploc->doormask & D_TRAPPED) {
                 gm.maploc->doormask = D_NODOOR;
                 b_trapped("door", FOOT);
@@ -993,7 +993,7 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
         if (!Levitation && random_integer_between_zero_and(30) < avrg_attrib) {
             Soundeffect(se_crash_door, 40);
             pline("Crash!  You kick open a secret passage!");
-            exercise(A_DEX, TRUE);
+            exercise(ATTRIBUTE_DEXTERITY, TRUE);
             gm.maploc->typ = CORR;
             feel_newsym(x, y); /* we know it's gone */
             unblock_point(x, y); /* vision */
@@ -1020,7 +1020,7 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
                 pline("CRASH!  You destroy the throne.");
                 newsym(x, y);
             }
-            exercise(A_DEX, TRUE);
+            exercise(ATTRIBUTE_DEXTERITY, TRUE);
             return ECMD_TIME;
         } else if (Luck > 0 && !random_integer_between_zero_and(3) && !gm.maploc->looted) {
             (void) mkgold((long) rn1(201, 300), x, y);
@@ -1063,7 +1063,7 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
             kick_ouch(x, y, "");
             return ECMD_TIME;
         }
-        exercise(A_DEX, TRUE);
+        exercise(ATTRIBUTE_DEXTERITY, TRUE);
         return ECMD_TIME;
     }
     if (IS_FOUNTAIN(gm.maploc->typ)) {
@@ -1082,7 +1082,7 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
                 Your("boots get wet.");
                 /* could cause short-lived fumbling here */
             }
-        exercise(A_DEX, TRUE);
+        exercise(ATTRIBUTE_DEXTERITY, TRUE);
         return ECMD_TIME;
     }
     if (IS_GRAVE(gm.maploc->typ)) {
@@ -1099,7 +1099,7 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
             /* destroy the headstone, implicitly destroying any
                not-yet-created contents (including zombie or mummy);
                any already created contents will still be buried here */
-            exercise(A_WIS, FALSE);
+            exercise(ATTRIBUTE_WISDOM, FALSE);
             if (Role_if(PM_ARCHEOLOGIST) || Role_if(PM_SAMURAI)
                 || (u.alignment.type == A_LAWFUL && u.alignment.record > -10))
                 adjalign(-sgn(u.alignment.type));
@@ -1153,8 +1153,8 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
                       nfruit - nfall, xname(treefruit));
                 dealloc_obj(treefruit);
             }
-            exercise(A_DEX, TRUE);
-            exercise(A_WIS, TRUE); /* discovered a new food source! */
+            exercise(ATTRIBUTE_DEXTERITY, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE); /* discovered a new food source! */
             newsym(x, y);
             gm.maploc->looted |= TREE_LOOTED;
             return ECMD_TIME;
@@ -1194,7 +1194,7 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
                 pline("Klunk!  The pipes vibrate noisily.");
             else
                 pline("Klunk!");
-            exercise(A_DEX, TRUE);
+            exercise(ATTRIBUTE_DEXTERITY, TRUE);
             return ECMD_TIME;
         } else if (!(gm.maploc->looted & S_LPUDDING) && !random_integer_between_zero_and(3)
                    && !(gm.mvitals[PM_BLACK_PUDDING].mvflags & G_GONE)) {
@@ -1207,7 +1207,7 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
                       hcolor(NH_BLACK));
             }
             (void) makemon(&mons[PM_BLACK_PUDDING], x, y, MM_NOMSG);
-            exercise(A_DEX, TRUE);
+            exercise(ATTRIBUTE_DEXTERITY, TRUE);
             newsym(x, y);
             gm.maploc->looted |= S_LPUDDING;
             return ECMD_TIME;
@@ -1220,7 +1220,7 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
                                     ? MM_MALE : MM_FEMALE)))
                 newsym(x, y);
             gm.maploc->looted |= S_LDWASHER;
-            exercise(A_DEX, TRUE);
+            exercise(ATTRIBUTE_DEXTERITY, TRUE);
             return ECMD_TIME;
         } else if (!random_integer_between_zero_and(3)) {
             sink_backs_up(x, y);
@@ -1317,7 +1317,7 @@ dokick(void)
     if (uarmf && uarmf->otyp == KICKING_BOOTS)
         avrg_attrib = 99;
     else
-        avrg_attrib = (ATTRIBUTE_CURRENT_STRENGTH + ATTRIBUTE_CURRENT(A_DEX) + ATTRIBUTE_CURRENT(A_CON)) / 3;
+        avrg_attrib = (ATTRIBUTE_CURRENT_STRENGTH + ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) + ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION)) / 3;
 
     if (u.uswallow) {
         switch (random_integer_between_zero_and(3)) {

@@ -928,7 +928,7 @@ dotelecmd(void)
         for (i = 0; i < SIZE(tports); ++i) {
             any.a_int = (int) tports[i].menulet;
             add_menu(win, &nul_glyphinfo, &any, (char) any.a_int, 0,
-                     ATR_NONE, clr, tports[i].menudesc,
+                     TEXT_ATTRIBUTE_NONE, clr, tports[i].menudesc,
                      (tports[i].menulet == 'w') ? MENU_ITEMFLAGS_SELECTED
                                                 : MENU_ITEMFLAGS_NONE);
         }
@@ -1069,7 +1069,7 @@ dotele(
 #endif
         if (u.uhunger <= 10) {
             cantdoit = "are too weak from hunger";
-        } else if (ATTRIBUTE_CURRENT(A_STR) < 4) {
+        } else if (ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH) < 4) {
             cantdoit = "lack the strength";
         } else if (energy > u.energy) {
             cantdoit = "lack the energy";
@@ -1085,7 +1085,7 @@ dotele(
 
         if (castit) {
             /* energy cost is deducted in spelleffects() */
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
             if ((spelleffects(SPE_TELEPORT_AWAY, TRUE, FALSE) & ECMD_TIME))
                 return 1;
             else if (!break_the_rules)

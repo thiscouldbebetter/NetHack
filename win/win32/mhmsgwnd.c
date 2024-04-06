@@ -750,7 +750,7 @@ mswin_message_window_size(HWND hWnd, LPSIZE sz)
     /* -- Calculate the font size -- */
     /* Get the handle to the client area's device context. */
     hdc = GetDC(hWnd);
-    cached_font * font = mswin_get_font(NHW_MESSAGE, ATR_NONE, hdc, FALSE);
+    cached_font * font = mswin_get_font(NHW_MESSAGE, TEXT_ATTRIBUTE_NONE, hdc, FALSE);
     saveFont = SelectObject(hdc, font->hFont);
 
     /* Extract font dimensions from the text metrics. */
@@ -863,7 +863,7 @@ more_prompt_check(HWND hWnd)
     remaining_height = client_rt.bottom - client_rt.top;
 
     hdc = GetDC(hWnd);
-    cached_font * font = mswin_get_font(NHW_MESSAGE, ATR_NONE, hdc, FALSE);
+    cached_font * font = mswin_get_font(NHW_MESSAGE, TEXT_ATTRIBUTE_NONE, hdc, FALSE);
     saveFont = SelectObject(hdc, font->hFont);
     for (i = 0; i < data->lines_not_seen; i++) {
         /* we only need width for the DrawText */

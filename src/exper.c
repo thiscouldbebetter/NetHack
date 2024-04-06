@@ -55,7 +55,7 @@ newpw(void)
         if (gu.urace.enadv.inrnd > 0)
             en += random(gu.urace.enadv.inrnd);
     } else {
-        enrnd = (int) ATTRIBUTE_CURRENT(A_WIS) / 2;
+        enrnd = (int) ATTRIBUTE_CURRENT(ATTRIBUTE_WISDOM) / 2;
         if (u.ulevel < gu.urole.xlev) {
             enrnd += gu.urole.enadv.lornd + gu.urace.enadv.lornd;
             enfix = gu.urole.enadv.lofix + gu.urace.enadv.lofix;

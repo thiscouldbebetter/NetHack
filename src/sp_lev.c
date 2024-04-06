@@ -6351,7 +6351,7 @@ boolean
 load_special(const char *name)
 {
     boolean result = FALSE;
-    nhl_sandbox_info sbi = {NHL_SB_SAFE, 1*1024*1024, 0, 1*1024*1024};
+    nhl_sandbox_info sbi = {NHIGHLIGHT_SB_SAFE, 1*1024*1024, 0, 1*1024*1024};
 
     create_des_coder();
 

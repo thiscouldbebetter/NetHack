@@ -969,7 +969,7 @@ do_symset(boolean rogueflag)
         any.a_int = 1; /* -1 + 2 [see 'if (sl->name) {' below]*/
         if (!symset_name)
             defindx = any.a_int;
-        add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0, ATR_NONE,
+        add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0, TEXT_ATTRIBUTE_NONE,
                  clr, "Default Symbols",
                  (any.a_int == defindx) ? MENU_ITEMFLAGS_SELECTED
                                         : MENU_ITEMFLAGS_NONE);
@@ -995,7 +995,7 @@ do_symset(boolean rogueflag)
                     defindx = any.a_int;
                 Sprintf(buf, fmtstr, sl->name, sl->desc ? sl->desc : "");
                 add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                         ATR_NONE, clr, buf,
+                         TEXT_ATTRIBUTE_NONE, clr, buf,
                          (any.a_int == defindx) ? MENU_ITEMFLAGS_SELECTED
                                                 : MENU_ITEMFLAGS_NONE);
             }

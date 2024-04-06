@@ -1022,14 +1022,14 @@ drag_down(void)
             pline_The("iron ball smacks into you!");
             losehp(Maybe_Half_Phys(random(20)), "iron ball collision",
                    KILLED_BY_AN);
-            exercise(A_STR, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
             dragchance -= 2;
         }
         if ((int) dragchance >= random(6)) {
             pline_The("iron ball drags you downstairs!");
             losehp(Maybe_Half_Phys(random(3)),
                    "dragged downstairs by an iron ball", NO_KILLER_PREFIX);
-            exercise(A_STR, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
             litter();
         }
     }

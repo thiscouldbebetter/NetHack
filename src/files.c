@@ -203,7 +203,7 @@ staticfn boolean cnf_line_ACCESSIBILITY(char *);
 staticfn boolean cnf_line_PORTABLE_DEVICE_PATHS(char *);
 staticfn boolean cnf_line_BOULDER(char *);
 staticfn boolean cnf_line_MENUCOLOR(char *);
-staticfn boolean cnf_line_HILITE_STATUS(char *);
+staticfn boolean cnf_line_HIGHLIGHT_STATUS(char *);
 staticfn boolean cnf_line_WARNINGS(char *);
 staticfn boolean cnf_line_ROGUESYMBOLS(char *);
 staticfn boolean cnf_line_SYMBOLS(char *);
@@ -3135,7 +3135,7 @@ cnf_line_MENUCOLOR(char *bufp)
 }
 
 staticfn boolean
-cnf_line_HILITE_STATUS(char *bufp)
+cnf_line_HIGHLIGHT_STATUS(char *bufp)
 {
 #ifdef STATUS_HILITES
     return parse_status_hl1(bufp, TRUE);
@@ -3327,7 +3327,7 @@ static const struct match_config_line_stmt {
 #endif /*SYSCF*/
     CNFL_N(BOULDER, 3),
     CNFL_N(MENUCOLOR, 9),
-    CNFL_N(HILITE_STATUS, 6),
+    CNFL_N(HIGHLIGHT_STATUS, 6),
     CNFL_N(WARNINGS, 5),
     CNFL_N(ROGUESYMBOLS, 4),
     CNFL_N(SYMBOLS, 4),

@@ -1432,15 +1432,15 @@ restore_menu(
         for (k = 0; saved[k]; ++k) {
             any.a_int = k + 1;
             add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                     ATR_NONE, clr, saved[k], MENU_ITEMFLAGS_NONE);
+                     TEXT_ATTRIBUTE_NONE, clr, saved[k], MENU_ITEMFLAGS_NONE);
         }
         clet = (k <= 'n' - 'a') ? 'n' : 0; /* new game */
         any.a_int = -1;                    /* not >= 0 */
-        add_menu(tmpwin, &nul_glyphinfo, &any, clet, 0, ATR_NONE,
+        add_menu(tmpwin, &nul_glyphinfo, &any, clet, 0, TEXT_ATTRIBUTE_NONE,
                  clr, "Start a new character", MENU_ITEMFLAGS_NONE);
         clet = (k + 1 <= 'q' - 'a') ? 'q' : 0; /* quit */
         any.a_int = -2;
-        add_menu(tmpwin, &nul_glyphinfo, &any, clet, 0, ATR_NONE,
+        add_menu(tmpwin, &nul_glyphinfo, &any, clet, 0, TEXT_ATTRIBUTE_NONE,
                  clr, "Never mind (quit)", MENU_ITEMFLAGS_SELECTED);
         /* no prompt on end_menu, as we've done our own at the top */
         end_menu(tmpwin, (char *) 0);

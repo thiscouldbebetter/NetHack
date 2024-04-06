@@ -167,7 +167,7 @@ topten_print(const char *x)
     if (gt.toptenwin == WIN_ERR)
         raw_print(x);
     else
-        putstr(gt.toptenwin, ATR_NONE, x);
+        putstr(gt.toptenwin, TEXT_ATTRIBUTE_NONE, x);
 }
 
 staticfn void
@@ -176,7 +176,7 @@ topten_print_bold(const char *x)
     if (gt.toptenwin == WIN_ERR)
         raw_print_bold(x);
     else
-        putstr(gt.toptenwin, ATR_BOLD, x);
+        putstr(gt.toptenwin, TEXT_ATTRIBUTE_BOLD, x);
 }
 
 int

@@ -123,17 +123,17 @@ typedef struct gi {
 #define NHW_LAST_TYPE NHW_PERMINVENT
 
 /* attribute types for putstr; the same as the ANSI value, for convenience */
-#define ATR_NONE       0
-#define ATR_BOLD       1
-#define ATR_DIM        2
-#define ATR_ITALIC     3
-#define ATR_ULINE      4
-#define ATR_BLINK      5
-#define ATR_INVERSE    7
+#define TEXT_ATTRIBUTE_NONE       0
+#define TEXT_ATTRIBUTE_BOLD       1
+#define TEXT_ATTRIBUTE_DIM        2
+#define TEXT_ATTRIBUTE_ITALIC     3
+#define TEXT_ATTRIBUTE_ULINE      4
+#define TEXT_ATTRIBUTE_BLINK      5
+#define TEXT_ATTRIBUTE_INVERSE    7
 /* not a display attribute but passed to putstr() as an attribute;
    can be masked with one regular display attribute */
-#define ATR_URGENT    16
-#define ATR_NOHISTORY 32
+#define TEXT_ATTRIBUTE_URGENT    16
+#define TEXT_ATTRIBUTE_NOHISTORY 32
 
 /* nh_poskey() modifier types */
 #define CLICK_1 1
@@ -184,22 +184,22 @@ enum perm_invent_toggles {
 
 /* perm_invent modes */
 enum inv_mode_bits {
-    InvNormal   = 1,
-    InvShowGold = 2,
-    InvSparse   = 4, /* must be ORed with Normal or ShowGold to be valid */
-    InvInUse    = 8
+    InventoryNormal   = 1,
+    InventoryShowGold = 2,
+    InventorySparse   = 4, /* must be ORed with Normal or ShowGold to be valid */
+    InventoryInUse    = 8
 };
 enum inv_modes { /* 'perminv_mode' option settings */
-    InvOptNone       = 0,           /* no perm_invent */
-    InvOptOn         = InvNormal,   /* 1 */
-    InvOptFull       = InvShowGold, /* 2 */
+    InventoryOptionNone       = 0,           /* no perm_invent */
+    InventoryOptionOn         = InventoryNormal,   /* 1 */
+    InventoryOptionFull       = InventoryShowGold, /* 2 */
 #if 1 /*#ifdef TTY_PERM_INVENT*/
     /* confusingly-named "sparse mode" shows all inventory letters, even when
        their slots are empty; only meaningful for tty's perm_invent */
-    InvOptOn_grid    = InvNormal | InvSparse,   /* 5 */
-    InvOptFull_grid  = InvShowGold | InvSparse, /* 6 */
+    InventorOptionOn_grid    = InventoryNormal | InventorySparse,   /* 5 */
+    InventoryOptionFull_grid  = InventoryShowGold | InventorySparse, /* 6 */
 #endif
-    InvOptInUse      = InvInUse,    /* 8 */
+    InventoryOptionInUse      = InventoryInUse,    /* 8 */
 };
 
 enum to_core_flags {

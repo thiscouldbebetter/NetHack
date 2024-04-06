@@ -270,7 +270,6 @@
     <ClInclude Include="$(WinWin32Dir)winMS.h" />
     <ClInclude Include="$(IncDir)align.h" />
     <ClInclude Include="..\..\..\..\include\Artifact.h" />
-    <ClInclude Include="$(IncDir)attrib.h" />
     <ClInclude Include="$(IncDir)botl.h" />
     <ClInclude Include="$(IncDir)color.h" />
     <ClInclude Include="$(IncDir)config.h" />
@@ -349,6 +348,7 @@
     <ClInclude Include="$(IncDir)you.h" />
     <ClInclude Include="$(IncDir)youprop.h" />
     <ClInclude Include="..\..\..\..\include\ArtifactList.h" />
+    <ClInclude Include="..\..\..\..\include\Attributes.h" />
     <ClInclude Include="..\resource.h" />
   </ItemGroup>
   <ItemGroup>

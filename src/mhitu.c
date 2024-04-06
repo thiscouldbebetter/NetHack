@@ -164,7 +164,7 @@ u_slow_down(void)
         You("slow down.");
     else /* speed boots */
         Your("quickness feels less natural.");
-    exercise(A_DEX, FALSE);
+    exercise(ATTRIBUTE_DEXTERITY, FALSE);
 }
 
 /* monster attacked wrong location due to monster blindness, hero
@@ -963,7 +963,7 @@ diseasemu(struct permonst *mdat)
         You_feel("a slight illness.");
         return FALSE;
     } else {
-        make_sick(Sick ? Sick / 3L + 1L : (long) rn1(ATTRIBUTE_CURRENT(A_CON), 20),
+        make_sick(Sick ? Sick / 3L + 1L : (long) rn1(ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION), 20),
                   mdat->pmnames[NEUTRAL], TRUE, SICK_NONVOMITABLE);
         return TRUE;
     }
@@ -1310,7 +1310,7 @@ gulpmu(struct monster *mtmp, struct attack *mattk)
             /* having good armor & high constitution makes
                it take longer for you to be digested, but
                you'll end up trapped inside for longer too */
-            tim_tmp += -u.armor_class + 10 + (ATTRIBUTE_CURRENT(A_CON) / 3 - 1);
+            tim_tmp += -u.armor_class + 10 + (ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION) / 3 - 1);
         } else {
             /* higher level attacker takes longer to eject hero */
             tim_tmp = random((int) mtmp->m_lev + 10 / 2);
@@ -1353,7 +1353,7 @@ gulpmu(struct monster *mtmp, struct attack *mattk)
             pline("%s%s digests you!", Monnam(mtmp),
                   (u.uswldtim == 2) ? " thoroughly"
                                     : (u.uswldtim == 1) ? " utterly" : "");
-            exercise(A_STR, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
         }
         break;
     case AD_PHYS:
@@ -1371,7 +1371,7 @@ gulpmu(struct monster *mtmp, struct attack *mattk)
         } else {
             You("are %s!", enfolds(mtmp->data) ? "being squashed"
                                                : "pummeled with debris");
-            exercise(A_STR, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
         }
         break;
     case AD_ACID:
@@ -1386,7 +1386,7 @@ gulpmu(struct monster *mtmp, struct attack *mattk)
                 pline("Ouch!  You've been slimed!");
             else
                 You("are covered in slime!  It burns!");
-            exercise(A_STR, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
             monstunseesu(M_SEEN_ACID);
         }
         break;
@@ -1926,7 +1926,7 @@ doseduce(struct monster *mon)
                     continue; /* next ring might not be worn */
             }
             /* confirmation prompt when charisma is high bypassed if deaf */
-            if (!Deaf && random_integer_between_zero_and(20) < ATTRIBUTE_CURRENT(A_CHA)) {
+            if (!Deaf && random_integer_between_zero_and(20) < ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA)) {
                 (void) safe_qbuf(qbuf, "\"That ",
                                  " looks pretty.  May I have it?\"", ring,
                                  xname, simpleonames, "ring");
@@ -1957,7 +1957,7 @@ doseduce(struct monster *mon)
                     break; /* no point trying further rings */
             }
             /* confirmation prompt when charisma is high bypassed if deaf */
-            if (!Deaf && random_integer_between_zero_and(20) < ATTRIBUTE_CURRENT(A_CHA)) {
+            if (!Deaf && random_integer_between_zero_and(20) < ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA)) {
                 (void) safe_qbuf(qbuf, "\"That ",
                                  " looks pretty.  Would you wear it for me?\"",
                                  ring, xname, simpleonames, "ring");
@@ -2071,7 +2071,7 @@ doseduce(struct monster *mon)
        used to guarantee successful outcome; now total maxes out at 32
        as far as deciding what will happen; chance for bad outcome when
        Cha+Int is 32 or more is 2/35, a bit over 5.7% */
-    attr_tot = ATTRIBUTE_CURRENT(A_CHA) + ATTRIBUTE_CURRENT(A_INT);
+    attr_tot = ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA) + ATTRIBUTE_CURRENT(ATTRIBUTE_INTELLIGENCE);
     if (random_integer_between_zero_and(35) > min(attr_tot, 32)) {
         /* Don't bother with mspec_used here... it didn't get tired! */
         pline("%s seems to have enjoyed it more than you...",
@@ -2081,20 +2081,20 @@ doseduce(struct monster *mon)
             You_feel("drained of energy.");
             u.energy = 0;
             u.energy_max -= random(Half_physical_damage ? 5 : 10);
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             if (u.energy_max < 0)
                 u.energy_max = 0;
             break;
         case 1:
             You("are down in the dumps.");
-            (void) adjust_attribute(A_CON, -1, TRUE);
-            exercise(A_CON, FALSE);
+            (void) adjust_attribute(ATTRIBUTE_CONSTITUTION, -1, TRUE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             disp.botl = TRUE;
             break;
         case 2:
             Your("senses are dulled.");
-            (void) adjust_attribute(A_WIS, -1, TRUE);
-            exercise(A_WIS, FALSE);
+            (void) adjust_attribute(ATTRIBUTE_WISDOM, -1, TRUE);
+            exercise(ATTRIBUTE_WISDOM, FALSE);
             disp.botl = TRUE;
             break;
         case 3:
@@ -2104,15 +2104,15 @@ doseduce(struct monster *mon)
             } else {
                 You("have a curious feeling...");
             }
-            exercise(A_CON, FALSE);
-            exercise(A_DEX, FALSE);
-            exercise(A_WIS, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
+            exercise(ATTRIBUTE_DEXTERITY, FALSE);
+            exercise(ATTRIBUTE_WISDOM, FALSE);
             break;
         case 4: {
             int tmp;
 
             You_feel("exhausted.");
-            exercise(A_STR, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
             tmp = rn1(10, 6);
             losehp(Maybe_Half_Phys(tmp), "exhaustion", KILLED_BY);
             break;
@@ -2124,34 +2124,34 @@ doseduce(struct monster *mon)
         switch (random_integer_between_zero_and(5)) {
         case 0:
             You_feel("raised to your full potential.");
-            exercise(A_CON, TRUE);
+            exercise(ATTRIBUTE_CONSTITUTION, TRUE);
             u.energy = (u.energy_max += random(5));
             if (u.energy_max > u.energy_peak)
                 u.energy_peak = u.energy_max;
             break;
         case 1:
             You_feel("good enough to do it again.");
-            (void) adjust_attribute(A_CON, 1, TRUE);
-            exercise(A_CON, TRUE);
+            (void) adjust_attribute(ATTRIBUTE_CONSTITUTION, 1, TRUE);
+            exercise(ATTRIBUTE_CONSTITUTION, TRUE);
             disp.botl = TRUE;
             break;
         case 2:
             You("will always remember %s...", noit_mon_nam(mon));
-            (void) adjust_attribute(A_WIS, 1, TRUE);
-            exercise(A_WIS, TRUE);
+            (void) adjust_attribute(ATTRIBUTE_WISDOM, 1, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
             disp.botl = TRUE;
             break;
         case 3:
             pline("That was a very educational experience.");
             pluslvl(FALSE);
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
             break;
         case 4:
             You_feel("restored to health!");
             u.hit_points = u.hit_points_max;
             if (Upolyd)
                 u.mh = u.mhmax;
-            exercise(A_STR, TRUE);
+            exercise(ATTRIBUTE_STRENGTH, TRUE);
             disp.botl = TRUE;
             break;
         }
@@ -2159,7 +2159,7 @@ doseduce(struct monster *mon)
 
     if (mon->mtame) { /* don't charge */
         ;
-    } else if (random_integer_between_zero_and(20) < ATTRIBUTE_CURRENT(A_CHA)) {
+    } else if (random_integer_between_zero_and(20) < ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA)) {
         pline("%s demands that you pay %s, but you refuse...",
               noit_Monnam(mon), noit_mhim(mon));
     } else if (u.umonnum == PM_LEPRECHAUN) {
@@ -2214,7 +2214,7 @@ mayberem(struct monster *mon,
     /* being deaf overrides confirmation prompt for high charisma */
     if (Deaf) {
         pline("%s takes off your %s.", seducer, str);
-    } else if (random_integer_between_zero_and(20) < ATTRIBUTE_CURRENT(A_CHA)) {
+    } else if (random_integer_between_zero_and(20) < ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA)) {
         SetVoice(mon, 0, 80, 0); /* y_n a.k.a. yn_function is set up for this */
         Sprintf(qbuf, "\"Shall I remove your %s, %s?\"", str,
                 (!random_integer_between_zero_and(2) ? "lover" : !random_integer_between_zero_and(2) ? "dear" : "sweetheart"));

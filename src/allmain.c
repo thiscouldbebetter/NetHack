@@ -333,7 +333,7 @@ moveloop_core(void)
                 invault();
                 if (u.player_carrying_special_objects.amulet)
                     amulet();
-                if (!random_integer_between_zero_and(40 + (int) (ATTRIBUTE_CURRENT(A_DEX) * 3)))
+                if (!random_integer_between_zero_and(40 + (int) (ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) * 3)))
                     u_wipe_engr(random(3));
                 if (u.player_event_history.udemigod && !u.uinvulnerable) {
                     if (u.turnsAsDemigodSoFar)
@@ -565,7 +565,7 @@ regen_pw(int wtcap)
              && (!(gm.moves % ((MAXULEV + 8 - u.ulevel)
                               * (Role_if(PM_WIZARD) ? 3 : 4)
                               / 6)))) || Energy_regeneration)) {
-        int upper = (int) (ATTRIBUTE_CURRENT(A_WIS) + ATTRIBUTE_CURRENT(A_INT)) / 15 + 1;
+        int upper = (int) (ATTRIBUTE_CURRENT(ATTRIBUTE_WISDOM) + ATTRIBUTE_CURRENT(ATTRIBUTE_INTELLIGENCE)) / 15 + 1;
 
         u.energy += rn1(upper, 1);
         if (u.energy > u.energy_max)
@@ -614,7 +614,7 @@ regen_hp(int wtcap)
            once u.mh reached u.mhmax; that may have been convenient
            for the player, but it didn't make sense for gameplay...] */
         if (u.hit_points < u.hit_points_max && (encumbrance_ok || U_CAN_REGEN())) {
-            heal = (u.ulevel + (int)ATTRIBUTE_CURRENT(A_CON)) > random_integer_between_zero_and(100);
+            heal = (u.ulevel + (int)ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION)) > random_integer_between_zero_and(100);
 
             if (U_CAN_REGEN())
                 heal += 1;

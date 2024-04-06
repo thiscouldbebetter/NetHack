@@ -90,7 +90,7 @@ picklock(void)
 
     if (gx.xlock.usedtime++ >= 50 || nohands(gy.youmonst.data)) {
         You("give up your attempt at %s.", lock_action());
-        exercise(A_DEX, TRUE); /* even if you don't succeed */
+        exercise(ATTRIBUTE_DEXTERITY, TRUE); /* even if you don't succeed */
         return ((gx.xlock.usedtime = 0));
     }
 
@@ -123,10 +123,10 @@ picklock(void)
             }
             You("succeed in disarming the trap.  The %s is still %slocked.",
                 what, alreadyunlocked ? "un" : "");
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
         } else {
             You("stop %s.", lock_action());
-            exercise(A_WIS, FALSE);
+            exercise(ATTRIBUTE_WISDOM, FALSE);
         }
         return ((gx.xlock.usedtime = 0));
     }
@@ -150,7 +150,7 @@ picklock(void)
         if (gx.xlock.box->otrapped)
             (void) chest_trap(gx.xlock.box, FINGER, FALSE);
     }
-    exercise(A_DEX, TRUE);
+    exercise(ATTRIBUTE_DEXTERITY, TRUE);
     return ((gx.xlock.usedtime = 0));
 }
 
@@ -216,7 +216,7 @@ forcelock(void)
     if (gx.xlock.usedtime++ >= 50 || !uwep || nohands(gy.youmonst.data)) {
         You("give up your attempt to force the lock.");
         if (gx.xlock.usedtime >= 50) /* you made the effort */
-            exercise((gx.xlock.picktyp) ? A_DEX : A_STR, TRUE);
+            exercise((gx.xlock.picktyp) ? ATTRIBUTE_DEXTERITY : ATTRIBUTE_STRENGTH, TRUE);
         return ((gx.xlock.usedtime = 0));
     }
 
@@ -230,7 +230,7 @@ forcelock(void)
                   xname(uwep));
             useup(uwep);
             You("give up your attempt to force the lock.");
-            exercise(A_DEX, TRUE);
+            exercise(ATTRIBUTE_DEXTERITY, TRUE);
             return ((gx.xlock.usedtime = 0));
         }
     } else             /* blunt */
@@ -240,7 +240,7 @@ forcelock(void)
         return 1; /* still busy */
 
     You("succeed in forcing the lock.");
-    exercise(gx.xlock.picktyp ? A_DEX : A_STR, TRUE);
+    exercise(gx.xlock.picktyp ? ATTRIBUTE_DEXTERITY : ATTRIBUTE_STRENGTH, TRUE);
     /* breakchestlock() might destroy gx.xlock.box; if so, gx.xlock context will
        be cleared (delobj -> obfree -> maybe_reset_pick); but it might not,
        so explicitly clear that manually */
@@ -511,13 +511,13 @@ pick_lock(
                 }
                 switch (picktyp) {
                 case CREDIT_CARD:
-                    ch = ATTRIBUTE_CURRENT(A_DEX) + 20 * Role_if(PM_ROGUE);
+                    ch = ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) + 20 * Role_if(PM_ROGUE);
                     break;
                 case LOCK_PICK:
-                    ch = 4 * ATTRIBUTE_CURRENT(A_DEX) + 25 * Role_if(PM_ROGUE);
+                    ch = 4 * ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) + 25 * Role_if(PM_ROGUE);
                     break;
                 case SKELETON_KEY:
-                    ch = 75 + ATTRIBUTE_CURRENT(A_DEX);
+                    ch = 75 + ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY);
                     break;
                 default:
                     ch = 0;
@@ -623,13 +623,13 @@ pick_lock(
 
             switch (picktyp) {
             case CREDIT_CARD:
-                ch = 2 * ATTRIBUTE_CURRENT(A_DEX) + 20 * Role_if(PM_ROGUE);
+                ch = 2 * ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) + 20 * Role_if(PM_ROGUE);
                 break;
             case LOCK_PICK:
-                ch = 3 * ATTRIBUTE_CURRENT(A_DEX) + 30 * Role_if(PM_ROGUE);
+                ch = 3 * ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) + 30 * Role_if(PM_ROGUE);
                 break;
             case SKELETON_KEY:
-                ch = 70 + ATTRIBUTE_CURRENT(A_DEX);
+                ch = 70 + ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY);
                 break;
             default:
                 ch = 0;
@@ -887,7 +887,7 @@ doopen_indir(coordxy x, coordxy y)
     }
 
     /* door is known to be CLOSED */
-    if (rnl(20) < (ATTRIBUTE_CURRENT_STRENGTH + ATTRIBUTE_CURRENT(A_DEX) + ATTRIBUTE_CURRENT(A_CON)) / 3) {
+    if (rnl(20) < (ATTRIBUTE_CURRENT_STRENGTH + ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) + ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION)) / 3) {
         set_msg_xy(cc.x, cc.y);
         pline_The("door opens.");
         if (door->doormask & D_TRAPPED) {
@@ -900,7 +900,7 @@ doopen_indir(coordxy x, coordxy y)
         feel_newsym(cc.x, cc.y); /* the hero knows she opened it */
         unblock_point(cc.x, cc.y); /* vision: new see through there */
     } else {
-        exercise(A_STR, TRUE);
+        exercise(ATTRIBUTE_STRENGTH, TRUE);
         set_msg_xy(cc.x, cc.y);
         pline_The("door resists!");
     }
@@ -1021,13 +1021,13 @@ doclose(void)
             return res;
         }
         if (u.monster_being_ridden
-            || random_integer_between_zero_and(25) < (ATTRIBUTE_CURRENT_STRENGTH + ATTRIBUTE_CURRENT(A_DEX) + ATTRIBUTE_CURRENT(A_CON)) / 3) {
+            || random_integer_between_zero_and(25) < (ATTRIBUTE_CURRENT_STRENGTH + ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) + ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION)) / 3) {
             pline_The("door closes.");
             door->doormask = D_CLOSED;
             feel_newsym(x, y); /* the hero knows she closed it */
             block_point(x, y); /* vision:  no longer see there */
         } else {
-            exercise(A_STR, TRUE);
+            exercise(ATTRIBUTE_STRENGTH, TRUE);
             pline_The("door resists!");
         }
     }

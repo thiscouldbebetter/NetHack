@@ -53,7 +53,7 @@ initedog(struct monster *mtmp)
     mtmp->meating = 0;
     EDOG(mtmp)->droptime = 0;
     EDOG(mtmp)->dropdist = 10000;
-    EDOG(mtmp)->apport = ATTRIBUTE_CURRENT(A_CHA);
+    EDOG(mtmp)->apport = ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA);
     EDOG(mtmp)->whistletime = 0;
     EDOG(mtmp)->hungrytime = 1000 + gm.moves;
     EDOG(mtmp)->ogoal.x = -1; /* force error if used before set */

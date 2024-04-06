@@ -573,7 +573,7 @@ cast_wizard_spell(struct monster *mtmp, int dmg, int spellnum)
             make_stunned(1L, FALSE);
         } else {
             You(Stunned ? "struggle to keep your balance." : "reel...");
-            dmg = d(ATTRIBUTE_CURRENT(A_DEX) < 12 ? 6 : 4, 4);
+            dmg = d(ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) < 12 ? 6 : 4, 4);
             if (Half_spell_damage)
                 dmg = (dmg + 1) / 2;
             make_stunned((HStun & TIMEOUT) + (long) dmg, FALSE);

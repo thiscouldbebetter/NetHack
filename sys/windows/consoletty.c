@@ -173,7 +173,7 @@ struct console_t {
     int32 current_nhcolor;
     int32 current_nhbkcolor;
     int32 current_colorflags;
-    int current_nhattr[ATR_INVERSE+1];
+    int current_nhattr[TEXT_ATTRIBUTE_INVERSE+1];
     COORD cursor;
     HANDLE hConOut;
     HANDLE hConIn;
@@ -1328,10 +1328,10 @@ xputc_core(int ch)
             cell.utf8str[1] = 0;
         }
 #else /* VIRTUAL_TERMINAL_SEQUENCES */
-        inverse = (console.current_nhattr[ATR_INVERSE] && iflags.wc_inverse);
+        inverse = (console.current_nhattr[TEXT_ATTRIBUTE_INVERSE] && iflags.wc_inverse);
         console.attr = (inverse) ? ttycolors_inv[console.current_nhcolor]
                                  : ttycolors[console.current_nhcolor];
-        if (console.current_nhattr[ATR_BOLD])
+        if (console.current_nhattr[TEXT_ATTRIBUTE_BOLD])
             console.attr |=
                 (inverse) ? BACKGROUND_INTENSITY : FOREGROUND_INTENSITY;
 
@@ -1377,11 +1377,11 @@ g_putch(int in_ch)
     set_console_cursor(ttyDisplay->curx, ttyDisplay->cury);
 #ifndef VIRTUAL_TERMINAL_SEQUENCES
 
-    inverse = (console.current_nhattr[ATR_INVERSE] && iflags.wc_inverse);
-    console.attr = (console.current_nhattr[ATR_INVERSE] && iflags.wc_inverse) ?
+    inverse = (console.current_nhattr[TEXT_ATTRIBUTE_INVERSE] && iflags.wc_inverse);
+    console.attr = (console.current_nhattr[TEXT_ATTRIBUTE_INVERSE] && iflags.wc_inverse) ?
                     ttycolors_inv[console.current_nhcolor] :
                     ttycolors[console.current_nhcolor];
-    if (console.current_nhattr[ATR_BOLD])
+    if (console.current_nhattr[TEXT_ATTRIBUTE_BOLD])
         console.attr |= (inverse) ? BACKGROUND_INTENSITY : FOREGROUND_INTENSITY;
 
 #endif /* ! VIRTUAL_TERMINAL_SEQUENCES */
@@ -1674,22 +1674,22 @@ term_start_attr(int attrib)
 {
 #ifdef VIRTUAL_TERMINAL_SEQUENCES
     switch (attrib) {
-    case ATR_INVERSE:
+    case TEXT_ATTRIBUTE_INVERSE:
         console.attr |= atr_inverse;
         break;
-    case ATR_ULINE:
+    case TEXT_ATTRIBUTE_ULINE:
         console.attr |= atr_uline;
         break;
-    case ATR_BLINK:
+    case TEXT_ATTRIBUTE_BLINK:
         console.attr |= atr_blink;
         break;
-    case ATR_BOLD:
+    case TEXT_ATTRIBUTE_BOLD:
         console.attr |= atr_bold;
         break;
     }
 #endif /* VIRTUAL_TERMINAL_SEQUENCES */
     console.current_nhattr[attrib] = TRUE;
-    if (attrib) console.current_nhattr[ATR_NONE] = FALSE;
+    if (attrib) console.current_nhattr[TEXT_ATTRIBUTE_NONE] = FALSE;
 }
 
 void
@@ -1698,46 +1698,46 @@ term_end_attr(int attrib)
     int k;
 
     switch (attrib) {
-    case ATR_INVERSE:
+    case TEXT_ATTRIBUTE_INVERSE:
 #ifdef VIRTUAL_TERMINAL_SEQUENCES
         console.attr &= ~atr_inverse;
         break;
 #endif
-    case ATR_ULINE:
+    case TEXT_ATTRIBUTE_ULINE:
 #ifdef VIRTUAL_TERMINAL_SEQUENCES
         console.attr &= ~atr_uline;
         break;
 #endif
-    case ATR_BLINK:
+    case TEXT_ATTRIBUTE_BLINK:
 #ifdef VIRTUAL_TERMINAL_SEQUENCES
         console.attr &= ~atr_blink;
         break;
 #endif
-    case ATR_BOLD:
+    case TEXT_ATTRIBUTE_BOLD:
 #ifdef VIRTUAL_TERMINAL_SEQUENCES
         console.attr &= ~atr_bold;
 #endif
         break;
     }
     console.current_nhattr[attrib] = FALSE;
-    console.current_nhattr[ATR_NONE] = TRUE;
+    console.current_nhattr[TEXT_ATTRIBUTE_NONE] = TRUE;
     /* re-evaluate all attr now for performance at output time */
-    for (k=ATR_NONE; k <= ATR_INVERSE; ++k) {
+    for (k=TEXT_ATTRIBUTE_NONE; k <= TEXT_ATTRIBUTE_INVERSE; ++k) {
         if (console.current_nhattr[k])
-            console.current_nhattr[ATR_NONE] = FALSE;
+            console.current_nhattr[TEXT_ATTRIBUTE_NONE] = FALSE;
     }
 }
 
 void
 term_end_raw_bold(void)
 {
-    term_end_attr(ATR_BOLD);
+    term_end_attr(TEXT_ATTRIBUTE_BOLD);
 }
 
 void
 term_start_raw_bold(void)
 {
-    term_start_attr(ATR_BOLD);
+    term_start_attr(TEXT_ATTRIBUTE_BOLD);
 }
 
 void
@@ -1776,13 +1776,13 @@ term_end_color(void)
 void
 standoutbeg(void)
 {
-    term_start_attr(ATR_BOLD);
+    term_start_attr(TEXT_ATTRIBUTE_BOLD);
 }
 
 void
 standoutend(void)
 {
-    term_end_attr(ATR_BOLD);
+    term_end_attr(TEXT_ATTRIBUTE_BOLD);
 }
 
 #ifndef NO_MOUSE_ALLOWED
@@ -2860,7 +2860,7 @@ set_keyhandling_via_option(void)
     for (i = default_keyhandling; i < SIZE(legal_key_handling); i++) {
         any.a_int = i + 1;
         add_menu(tmpwin, &nul_glyphinfo, &any, 'a' + i,
-                 0, ATR_NONE, clr,
+                 0, TEXT_ATTRIBUTE_NONE, clr,
                  legal_key_handling[i], MENU_ITEMFLAGS_NONE);
     }
     end_menu(tmpwin, "Select windows console key handling:");

@@ -337,7 +337,7 @@ demon_talk(struct monster *mtmp)
             pline("%s vanishes, laughing about cowardly mortals.",
                   Amonnam(mtmp));
         } else if (offer > 0L
-                   && (long) random(5 * ATTRIBUTE_CURRENT(A_CHA)) > (demand - offer)) {
+                   && (long) random(5 * ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA)) > (demand - offer)) {
             pline("%s scowls at you menacingly, then vanishes.",
                   Amonnam(mtmp));
         } else {

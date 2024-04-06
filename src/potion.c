@@ -177,7 +177,7 @@ make_sick(long xtime,
 
     kptr = find_delayed_killer(SICK);
     if (Sick) {
-        exercise(A_CON, FALSE);
+        exercise(ATTRIBUTE_CONSTITUTION, FALSE);
         /* setting delayed_killer used to be unconditional, but that's
            not right when make_sick(0) is called to cure food poisoning
            if hero was also fatally ill; this is only approximate */
@@ -649,12 +649,12 @@ peffect_restore_ability(struct obj *otmp)
               (!otmp->blessed) ? "good"
               : unfixable_trouble_count(FALSE) ? "better"
                 : "great");
-        i = random_integer_between_zero_and(A_MAX); /* start at a random point */
-        for (ii = 0; ii < A_MAX; ii++) {
-            int lim = AMAX(i);
+        i = random_integer_between_zero_and(ATTRIBUTE_COUNT); /* start at a random point */
+        for (ii = 0; ii < ATTRIBUTE_COUNT; ii++) {
+            int lim = ATTRIBUTE_MAX(i);
 
-            /* this used to adjust 'lim' for A_STR when u.uhs was
-               WEAK or worse, but that's handled via ATEMP(A_STR) now */
+            /* this used to adjust 'lim' for ATTRIBUTE_STRENGTH when u.uhs was
+               WEAK or worse, but that's handled via ATEMP(ATTRIBUTE_STRENGTH) now */
             if (ATTRIBUTE_BASE(i) < lim) {
                 ATTRIBUTE_BASE(i) = lim;
                 disp.botl = TRUE;
@@ -662,7 +662,7 @@ peffect_restore_ability(struct obj *otmp)
                 if (!otmp->blessed)
                     break;
             }
-            if (++i >= A_MAX)
+            if (++i >= ATTRIBUTE_COUNT)
                 i = 0;
         }
 
@@ -696,7 +696,7 @@ peffect_hallucination(struct obj *otmp)
         display_nhwindow(WIN_MESSAGE, FALSE);
         enlightenment(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS);
         Your("awareness re-normalizes.");
-        exercise(A_WIS, TRUE);
+        exercise(ATTRIBUTE_WISDOM, TRUE);
     }
 }
 
@@ -714,7 +714,7 @@ peffect_water(struct obj *otmp)
         || u.alignment.type == A_CHAOTIC) {
         if (otmp->blessed) {
             pline("This burns like %s!", hliquid("acid"));
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
             if (ismnum(u.ulycn)) {
                 Your("affinity to %s disappears!",
                      makeplural(mons[u.ulycn].pmnames[NEUTRAL]));
@@ -729,14 +729,14 @@ peffect_water(struct obj *otmp)
             healup(d(2, 6), 0, 0, 0);
             if (ismnum(u.ulycn) && !Upolyd)
                 you_were();
-            exercise(A_CON, TRUE);
+            exercise(ATTRIBUTE_CONSTITUTION, TRUE);
         }
     } else {
         if (otmp->blessed) {
             You_feel("full of awe.");
             make_sick(0L, (char *) 0, TRUE, SICK_ALL);
-            exercise(A_WIS, TRUE);
-            exercise(A_CON, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
+            exercise(ATTRIBUTE_CONSTITUTION, TRUE);
             if (ismnum(u.ulycn))
                 you_unwere(TRUE); /* "Purified" */
             /* make_confused(0L, TRUE); */
@@ -749,7 +749,7 @@ peffect_water(struct obj *otmp)
                 You_feel("full of dread.");
             if (ismnum(u.ulycn) && !Upolyd)
                 you_were();
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
         }
     }
 }
@@ -770,7 +770,7 @@ peffect_booze(struct obj *otmp)
         healup(1, 0, FALSE, FALSE);
     u.uhunger += 10 * (2 + bcsign(otmp));
     newuhs(FALSE);
-    exercise(A_WIS, FALSE);
+    exercise(ATTRIBUTE_WISDOM, FALSE);
     if (otmp->cursed) {
         You("pass out.");
         gm.multi = -random(15);
@@ -784,11 +784,11 @@ peffect_enlightenment(struct obj *otmp)
     if (otmp->cursed) {
         gp.potion_unkn++;
         You("have an uneasy feeling...");
-        exercise(A_WIS, FALSE);
+        exercise(ATTRIBUTE_WISDOM, FALSE);
     } else {
         if (otmp->blessed) {
-            (void) adjust_attribute(A_INT, 1, FALSE);
-            (void) adjust_attribute(A_WIS, 1, FALSE);
+            (void) adjust_attribute(ATTRIBUTE_INTELLIGENCE, 1, FALSE);
+            (void) adjust_attribute(ATTRIBUTE_WISDOM, 1, FALSE);
         }
         do_enlightenment_effect();
     }
@@ -875,7 +875,7 @@ peffect_paralysis(struct obj *otmp)
         nomul(-(rn1(10, 25 - 12 * bcsign(otmp))));
         gm.multi_reason = "frozen by a potion";
         gn.nomovemsg = You_can_move_again;
-        exercise(A_DEX, FALSE);
+        exercise(ATTRIBUTE_DEXTERITY, FALSE);
     }
 }
 
@@ -929,7 +929,7 @@ peffect_monster_detection(struct obj *otmp)
     }
     if (monster_detect(otmp, 0))
         return 1; /* nothing detected */
-    exercise(A_WIS, TRUE);
+    exercise(ATTRIBUTE_WISDOM, TRUE);
     return 0;
 }
 
@@ -938,7 +938,7 @@ peffect_object_detection(struct obj *otmp)
 {
     if (object_detect(otmp, 0))
         return 1; /* nothing detected */
-    exercise(A_WIS, TRUE);
+    exercise(ATTRIBUTE_WISDOM, TRUE);
     return 0;
 }
 
@@ -960,7 +960,7 @@ peffect_sickness(struct obj *otmp)
             pline("Fortunately, you have been immunized.");
         } else {
             char contaminant[BUFSZ];
-            int typ = random_integer_between_zero_and(A_MAX);
+            int typ = random_integer_between_zero_and(ATTRIBUTE_COUNT);
 
             Sprintf(contaminant, "%s%s",
                     (Poison_resistance) ? "mildly " : "",
@@ -983,7 +983,7 @@ peffect_sickness(struct obj *otmp)
                 losehp(1 + random_integer_between_zero_and(2), contaminant,
                        (otmp->fromsink) ? KILLED_BY : KILLED_BY_AN);
             }
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
         }
     }
     if (Hallucination) {
@@ -1019,8 +1019,8 @@ peffect_gain_ability(struct obj *otmp)
     } else {      /* If blessed, increase all; if not, try up to */
         int itmp; /* 6 times to find one which can be increased. */
         int ii, i = -1;   /* increment to 0 */
-        for (ii = A_MAX; ii > 0; ii--) {
-            i = (otmp->blessed ? i + 1 : random_integer_between_zero_and(A_MAX));
+        for (ii = ATTRIBUTE_COUNT; ii > 0; ii--) {
+            i = (otmp->blessed ? i + 1 : random_integer_between_zero_and(ATTRIBUTE_COUNT));
             /* only give "your X is already as high as it can get"
                message on last attempt (except blessed potions) */
             itmp = (otmp->blessed || ii == 1) ? 0 : -1;
@@ -1103,7 +1103,7 @@ peffect_healing(struct obj *otmp)
     You_feel("better.");
     healup(8 + d(4 + 2 * bcsign(otmp), 4), !otmp->cursed ? 1 : 0,
            !!otmp->blessed, !otmp->cursed);
-    exercise(A_CON, TRUE);
+    exercise(ATTRIBUTE_CONSTITUTION, TRUE);
 }
 
 staticfn void
@@ -1114,8 +1114,8 @@ peffect_extra_healing(struct obj *otmp)
            otmp->blessed ? 5 : !otmp->cursed ? 2 : 0, !otmp->cursed,
            TRUE);
     (void) make_hallucinated(0L, TRUE, 0L);
-    exercise(A_CON, TRUE);
-    exercise(A_STR, TRUE);
+    exercise(ATTRIBUTE_CONSTITUTION, TRUE);
+    exercise(ATTRIBUTE_STRENGTH, TRUE);
     /* blessed potion also heals wounded legs unless riding (where leg
        wounds apply to the steed rather than to the hero) */
     if (Wounded_legs && (otmp->blessed && !u.monster_being_ridden))
@@ -1135,8 +1135,8 @@ peffect_full_healing(struct obj *otmp)
         pluslvl(FALSE);
     }
     (void) make_hallucinated(0L, TRUE, 0L);
-    exercise(A_STR, TRUE);
-    exercise(A_CON, TRUE);
+    exercise(ATTRIBUTE_STRENGTH, TRUE);
+    exercise(ATTRIBUTE_CONSTITUTION, TRUE);
     /* blessed potion heals wounded legs even when riding (so heals steed's
        legs--it's magic); uncursed potion heals hero's legs unless riding */
     if (Wounded_legs && (otmp->blessed || (!otmp->cursed && !u.monster_being_ridden)))
@@ -1235,7 +1235,7 @@ peffect_gain_energy(struct obj *otmp)
     else if (u.energy <= 0)
         u.energy = 0;
     disp.botl = TRUE;
-    exercise(A_WIS, TRUE);
+    exercise(ATTRIBUTE_WISDOM, TRUE);
 }
 
 staticfn void
@@ -1272,7 +1272,7 @@ peffect_oil(struct obj *otmp)
     } else {
         pline("That was smooth!");
     }
-    exercise(A_WIS, good_for_you);
+    exercise(ATTRIBUTE_WISDOM, good_for_you);
 }
 
 staticfn void
@@ -1289,7 +1289,7 @@ peffect_acid(struct obj *otmp)
                                                          : " like acid");
         dmg = d(otmp->cursed ? 2 : 1, otmp->blessed ? 4 : 8);
         losehp(Maybe_Half_Phys(dmg), "potion of acid", KILLED_BY_AN);
-        exercise(A_CON, FALSE);
+        exercise(ATTRIBUTE_CONSTITUTION, FALSE);
     }
     if (Stoned)
         fix_petrification();
@@ -1875,7 +1875,7 @@ potionhit(struct monster *mon, struct obj *obj, int how)
     }
 
     /* Note: potionbreathe() does its own docall() */
-    if ((distance == 0 || (distance < 3 && !random_integer_between_zero_and((1+ATTRIBUTE_CURRENT(A_DEX))/2)))
+    if ((distance == 0 || (distance < 3 && !random_integer_between_zero_and((1+ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY))/2)))
         && (!breathless(gy.youmonst.data) || haseyes(gy.youmonst.data)))
         potionbreathe(obj);
     else if (obj->dknown && cansee(tx, ty))
@@ -1932,15 +1932,15 @@ potionbreathe(struct obj *obj)
             }
             break;
         } else {
-            i = random_integer_between_zero_and(A_MAX); /* start at a random point */
-            for (isdone = ii = 0; !isdone && ii < A_MAX; ii++) {
-                if (ATTRIBUTE_BASE(i) < AMAX(i)) {
+            i = random_integer_between_zero_and(ATTRIBUTE_COUNT); /* start at a random point */
+            for (isdone = ii = 0; !isdone && ii < ATTRIBUTE_COUNT; ii++) {
+                if (ATTRIBUTE_BASE(i) < ATTRIBUTE_MAX(i)) {
                     ATTRIBUTE_BASE(i)++;
                     /* only first found if not blessed */
                     isdone = !(obj->blessed);
                     disp.botl = TRUE;
                 }
-                if (++i >= A_MAX)
+                if (++i >= ATTRIBUTE_COUNT)
                     i = 0;
             }
         }
@@ -1971,7 +1971,7 @@ potionbreathe(struct obj *obj)
             make_blinded(0L, !u.ucreamed);
             make_deaf(0L, TRUE);
         }
-        exercise(A_CON, TRUE);
+        exercise(ATTRIBUTE_CONSTITUTION, TRUE);
         break;
     case POT_SICKNESS:
         if (!Role_if(PM_HEALER)) {
@@ -1987,7 +1987,7 @@ potionbreathe(struct obj *obj)
                     u.hit_points -= 5;
             }
             disp.botl = TRUE;
-            exercise(A_CON, FALSE);
+            exercise(ATTRIBUTE_CONSTITUTION, FALSE);
         }
         break;
     case POT_HALLUCINATION:
@@ -2014,7 +2014,7 @@ potionbreathe(struct obj *obj)
             nomul(-random(5));
             gm.multi_reason = "frozen by a potion";
             gn.nomovemsg = You_can_move_again;
-            exercise(A_DEX, FALSE);
+            exercise(ATTRIBUTE_DEXTERITY, FALSE);
         } else
             You("stiffen momentarily.");
         break;
@@ -2025,7 +2025,7 @@ potionbreathe(struct obj *obj)
             nomul(-random(5));
             gm.multi_reason = "sleeping off a magical draught";
             gn.nomovemsg = You_can_move_again;
-            exercise(A_DEX, FALSE);
+            exercise(ATTRIBUTE_DEXTERITY, FALSE);
         } else {
             You("yawn.");
             monstseesu(M_SEEN_SLEEP);
@@ -2035,7 +2035,7 @@ potionbreathe(struct obj *obj)
         if (!Fast)
             Your("knees seem more flexible now.");
         incr_itimeout(&HFast, random(5));
-        exercise(A_DEX, TRUE);
+        exercise(ATTRIBUTE_DEXTERITY, TRUE);
         break;
     case POT_BLINDNESS:
         if (!Blind && !Unaware) {
@@ -2060,7 +2060,7 @@ potionbreathe(struct obj *obj)
         break;
     case POT_ACID:
     case POT_POLYMORPH:
-        exercise(A_CON, FALSE);
+        exercise(ATTRIBUTE_CONSTITUTION, FALSE);
         break;
     /*
     case POT_GAIN_LEVEL:
@@ -2477,7 +2477,7 @@ potion_dip(struct obj *obj, struct obj *potion)
             obj->in_use = 1;
             pline("%sThey explode!", !Deaf ? "BOOM!  " : "");
             wake_nearto(u.ux, u.uy, (BOLT_LIM + 1) * (BOLT_LIM + 1));
-            exercise(A_STR, FALSE);
+            exercise(ATTRIBUTE_STRENGTH, FALSE);
             if (!breathless(gy.youmonst.data) || haseyes(gy.youmonst.data))
                 potionbreathe(obj);
             useupall(obj);
@@ -2617,7 +2617,7 @@ potion_dip(struct obj *obj, struct obj *potion)
                 obj->oeroded2--;
             wisx = TRUE;
         }
-        exercise(A_WIS, wisx);
+        exercise(ATTRIBUTE_WISDOM, wisx);
         if (potion->dknown)
             makeknown(potion->otyp);
         useup(potion);
@@ -2632,7 +2632,7 @@ potion_dip(struct obj *obj, struct obj *potion)
         if (obj->lamplit || potion->lamplit) {
             useup(potion);
             explode(u.ux, u.uy, 11, d(6, 6), 0, EXPL_FIERY);
-            exercise(A_WIS, FALSE);
+            exercise(ATTRIBUTE_WISDOM, FALSE);
             return ECMD_TIME;
         }
         /* Adding oil to an empty magic lamp renders it into an oil lamp */
@@ -2653,7 +2653,7 @@ potion_dip(struct obj *obj, struct obj *potion)
             if (obj->age > 1500L)
                 obj->age = 1500L;
             useup(potion);
-            exercise(A_WIS, TRUE);
+            exercise(ATTRIBUTE_WISDOM, TRUE);
         }
         if (potion->dknown)
             makeknown(POT_OIL);
@@ -2857,7 +2857,7 @@ speed_up(long duration)
    else
        Your("%s get new energy.", makeplural(body_part(LEG)));
 
-   exercise(A_DEX, TRUE);
+   exercise(ATTRIBUTE_DEXTERITY, TRUE);
    incr_itimeout(&HFast, duration);
 }
 

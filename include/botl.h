@@ -33,15 +33,15 @@ struct condmap {
 };
 
 enum statusfields {
-    BL_CHARACTERISTICS = -3, /* alias for BL_STR..BL_CH */
-    BL_RESET = -2,           /* Force everything to redisplay */
-    BL_FLUSH = -1,           /* Finished cycling through bot fields */
-    BL_TITLE = 0,
-    BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,  /* 1..6 */
-    BL_ALIGN, BL_SCORE, BL_CAP, BL_GOLD, BL_ENE, BL_ENEMAX, /* 7..12 */
-    BL_XP, BL_AC, BL_HD, BL_TIME, BL_HUNGER, BL_HP, /* 13..18 */
-    BL_HPMAX, BL_LEVELDESC, BL_EXP, BL_CONDITION, /* 19..22 */
-    BL_VERS, /* 23 */
+    CONDITION_CHARACTERISTICS = -3, /* alias for CONDITION_STR..CONDITION_CH */
+    CONDITION_RESET = -2,           /* Force everything to redisplay */
+    CONDITION_FLUSH = -1,           /* Finished cycling through bot fields */
+    CONDITION_TITLE = 0,
+    CONDITION_STR, CONDITION_DX, CONDITION_CO, CONDITION_IN, CONDITION_WI, CONDITION_CH,  /* 1..6 */
+    CONDITION_ALIGN, CONDITION_SCORE, CONDITION_CAP, CONDITION_GOLD, CONDITION_ENE, CONDITION_ENEMAX, /* 7..12 */
+    CONDITION_XP, CONDITION_AC, CONDITION_HD, CONDITION_TIME, CONDITION_HUNGER, CONDITION_HP, /* 13..18 */
+    CONDITION_HPMAX, CONDITION_LEVELDESC, CONDITION_EXP, CONDITION_CONDITION, /* 19..22 */
+    CONDITION_VERS, /* 23 */
     MAXBLSTATS, /* [24] */
 };
 
@@ -89,37 +89,37 @@ enum blconditions {
 /* Boolean condition bits for the condition mask */
 
 /* clang-format off */
-#define BL_MASK_BAREH        0x00000001L
-#define BL_MASK_BLIND        0x00000002L
-#define BL_MASK_BUSY         0x00000004L
-#define BL_MASK_CONF         0x00000008L
-#define BL_MASK_DEAF         0x00000010L
-#define BL_MASK_ELF_IRON     0x00000020L
-#define BL_MASK_FLY          0x00000040L
-#define BL_MASK_FOODPOIS     0x00000080L
-#define BL_MASK_GLOWHANDS    0x00000100L
-#define BL_MASK_GRAB         0x00000200L
-#define BL_MASK_HALLU        0x00000400L
-#define BL_MASK_HELD         0x00000800L
-#define BL_MASK_ICY          0x00001000L
-#define BL_MASK_INLAVA       0x00002000L
-#define BL_MASK_LEV          0x00004000L
-#define BL_MASK_PARLYZ       0x00008000L
-#define BL_MASK_RIDE         0x00010000L
-#define BL_MASK_SLEEPING     0x00020000L
-#define BL_MASK_SLIME        0x00040000L
-#define BL_MASK_SLIPPERY     0x00080000L
-#define BL_MASK_STONE        0x00100000L
-#define BL_MASK_STRNGL       0x00200000L
-#define BL_MASK_STUN         0x00400000L
-#define BL_MASK_SUBMERGED    0x00800000L
-#define BL_MASK_TERMILL      0x01000000L
-#define BL_MASK_TETHERED     0x02000000L
-#define BL_MASK_TRAPPED      0x04000000L
-#define BL_MASK_UNCONSC      0x08000000L
-#define BL_MASK_WOUNDEDL     0x10000000L
-#define BL_MASK_HOLDING      0x20000000L
-#define BL_MASK_BITS            30 /* number of mask bits that can be set */
+#define CONDITION_MASK_BAREHANDED       0x00000001L
+#define CONDITION_MASK_BLIND            0x00000002L
+#define CONDITION_MASK_BUSY             0x00000004L
+#define CONDITION_MASK_CONFUSED         0x00000008L
+#define CONDITION_MASK_DEAF             0x00000010L
+#define CONDITION_MASK_ELF_IRON         0x00000020L
+#define CONDITION_MASK_FLYING           0x00000040L
+#define CONDITION_MASK_FOOD_POISONED    0x00000080L
+#define CONDITION_MASK_GLOWING_HANDS    0x00000100L
+#define CONDITION_MASK_GRAB             0x00000200L
+#define CONDITION_MASK_HALLUCINATING    0x00000400L
+#define CONDITION_MASK_HELD             0x00000800L
+#define CONDITION_MASK_ICY              0x00001000L
+#define CONDITION_MASK_INLAVA           0x00002000L
+#define CONDITION_MASK_LEVITATING       0x00004000L
+#define CONDITION_MASK_PARALYZED        0x00008000L
+#define CONDITION_MASK_RIDE             0x00010000L
+#define CONDITION_MASK_SLEEPING         0x00020000L
+#define CONDITION_MASK_SLIMED           0x00040000L
+#define CONDITION_MASK_SLIPPERY         0x00080000L
+#define CONDITION_MASK_PETRIFIED        0x00100000L
+#define CONDITION_MASK_STRANGLED        0x00200000L
+#define CONDITION_MASK_STUNNED          0x00400000L
+#define CONDITION_MASK_SUBMERGED        0x00800000L
+#define CONDITION_MASK_TERMINALLY_ILL   0x01000000L
+#define CONDITION_MASK_TETHERED         0x02000000L
+#define CONDITION_MASK_TRAPPED          0x04000000L
+#define CONDITION_MASK_UNCONSCIOUS      0x08000000L
+#define CONDITION_MASK_WOUNDED_LEG      0x10000000L
+#define CONDITION_MASK_HOLDING          0x20000000L
+#define CONDITION_MASK_BITS            30 /* number of mask bits that can be set */
 /* clang-format on */
 
 struct conditions_t {
@@ -196,51 +196,51 @@ extern int cond_idx[CONDITION_COUNT];
  */
 
 #define VIA_WINDOWPORT() \
-    ((windowprocs.wincap2 & (WC2_HILITE_STATUS | WC2_FLUSH_STATUS)) != 0)
+    ((windowprocs.wincap2 & (WC2_HIGHLIGHT_STATUS | WC2_FLUSH_STATUS)) != 0)
 
 #define REASSESS_ONLY TRUE
 
 /* #ifdef STATUS_HILITES */
 /* hilite status field behavior - coloridx values */
-#define BL_HILITE_NONE    -1    /* no hilite of this field */
+#define CONDITION_HIGHLIGHT_NONE    -1    /* no hilite of this field */
 
 #if 0
-#define BL_HILITE_BOLD    -2    /* bold hilite */
-#define BL_HILITE_DIM     -3    /* dim hilite */
-#define BL_HILITE_ITALIC  -4    /* italic hilite */
-#define BL_HILITE_ULINE   -5    /* underline hilite */
-#define BL_HILITE_BLINK   -6    /* blink hilite */
-#define BL_HILITE_INVERSE -7    /* inverse hilite */
+#define CONDITION_HIGHLIGHT_BOLD       -2    /* bold hilite */
+#define CONDITION_HIGHLIGHT_DIM        -3    /* dim hilite */
+#define CONDITION_HIGHLIGHT_ITALIC     -4    /* italic hilite */
+#define CONDITION_HIGHLIGHT_UNDERLINE  -5    /* underline hilite */
+#define CONDITION_HIGHLIGHT_BLINK      -6    /* blink hilite */
+#define CONDITION_HIGHLIGHT_INVERSE    -7    /* inverse hilite */
                                 /* or any CLR_ index (0 - 15) */
 #endif
 
-#define BL_THRESHOLD_NONE 0
-#define BL_THRESHOLD_VALUE_PERCENTAGE 100 /* threshold is percentage */
-#define BL_THRESHOLD_VALUE_ABSOLUTE 101   /* threshold is particular value */
-#define BL_THRESHOLD_UPDOWN 102         /* threshold is up or down change */
-#define BL_THRESHOLD_CONDITION 103      /* threshold is bitmask of conditions */
-#define BL_THRESHOLD_TEXTMATCH 104      /* threshold text value to match against */
-#define BL_THRESHOLD_ALWAYS_HILITE 105  /* highlight regardless of value */
-#define BL_THRESHOLD_CRITICALHP 106     /* highlight critically low HP */
+#define CONDITION_THRESHOLD_NONE 0
+#define CONDITION_THRESHOLD_VALUE_PERCENTAGE 100 /* threshold is percentage */
+#define CONDITION_THRESHOLD_VALUE_ABSOLUTE 101   /* threshold is particular value */
+#define CONDITION_THRESHOLD_UPDOWN 102           /* threshold is up or down change */
+#define CONDITION_THRESHOLD_CONDITION 103      /* threshold is bitmask of conditions */
+#define CONDITION_THRESHOLD_TEXTMATCH 104      /* threshold text value to match against */
+#define CONDITION_THRESHOLD_ALWAYS_HILITE 105  /* highlight regardless of value */
+#define CONDITION_THRESHOLD_CRITICALHP 106     /* highlight critically low HP */
 
-#define HL_ATTCLR_NONE    COLOR_CODE_MAX + 1
-#define HL_ATTCLR_BOLD    COLOR_CODE_MAX + 2
-#define HL_ATTCLR_DIM     COLOR_CODE_MAX + 3
-#define HL_ATTCLR_ITALIC  COLOR_CODE_MAX + 4
-#define HL_ATTCLR_ULINE   COLOR_CODE_MAX + 5
-#define HL_ATTCLR_BLINK   COLOR_CODE_MAX + 6
-#define HL_ATTCLR_INVERSE COLOR_CODE_MAX + 7
-#define BL_ATTCLR_MAX     COLOR_CODE_MAX + 8
+#define HIGHLIGHT_ATTRIBUTE_COLOR_NONE    COLOR_CODE_MAX + 1
+#define HIGHLIGHT_ATTRIBUTE_COLOR_BOLD    COLOR_CODE_MAX + 2
+#define HIGHLIGHT_ATTRIBUTE_COLOR_DIM     COLOR_CODE_MAX + 3
+#define HIGHLIGHT_ATTRIBUTE_COLOR_ITALIC  COLOR_CODE_MAX + 4
+#define HIGHLIGHT_ATTRIBUTE_COLOR_ULINE   COLOR_CODE_MAX + 5
+#define HIGHLIGHT_ATTRIBUTE_COLOR_BLINK   COLOR_CODE_MAX + 6
+#define HIGHLIGHT_ATTRIBUTE_COLOR_INVERSE COLOR_CODE_MAX + 7
+#define CONDITION_ATTRIBUTE_COLOR_MAX     COLOR_CODE_MAX + 8
 
 enum hlattribs {
-    HL_UNDEF   = 0x00,
-    HL_NONE    = 0x01,
-    HL_BOLD    = 0x02,
-    HL_DIM     = 0x04,
-    HL_ITALIC  = 0x08,
-    HL_ULINE   = 0x10,
-    HL_BLINK   = 0x20,
-    HL_INVERSE = 0x40
+    HIGHLIGHT_UNDEFINED = 0x00,
+    HIGHLIGHT_NONE      = 0x01,
+    HIGHLIGHT_BOLD      = 0x02,
+    HIGHLIGHT_DIM       = 0x04,
+    HIGHLIGHT_ITALIC    = 0x08,
+    HIGHLIGHT_UNDERLINE = 0x10,
+    HIGHLIGHT_BLINK     = 0x20,
+    HIGHLIGHT_INVERSE   = 0x40
 };
 
 #define MAXVALWIDTH 80 /* actually less, but was using 80 to allocate title

@@ -1507,7 +1507,7 @@ boolean
 resist_conflict(struct monster *mtmp)
 {
     /* always a small chance at 19 */
-    int resist_chance = min(19, (ATTRIBUTE_CURRENT(A_CHA) - mtmp->m_lev + u.ulevel));
+    int resist_chance = min(19, (ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA) - mtmp->m_lev + u.ulevel));
 
     return (random(20) > resist_chance);
 }

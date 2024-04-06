@@ -2385,7 +2385,7 @@ set_wounded_legs(long side, int timex)
      */
     disp.botl = TRUE;
     if (!Wounded_legs)
-        ATEMP(A_DEX)--;
+        ATTRIBUTE_TEMPORARY(ATTRIBUTE_DEXTERITY)--;
 
     if (!Wounded_legs || (HWounded_legs & TIMEOUT) < (long) timex)
         set_itimeout(&HWounded_legs, (long) timex);
@@ -2404,8 +2404,8 @@ heal_legs(
 {
     if (Wounded_legs) {
         disp.botl = TRUE;
-        if (ATEMP(A_DEX) < 0)
-            ATEMP(A_DEX)++;
+        if (ATTRIBUTE_TEMPORARY(ATTRIBUTE_DEXTERITY) < 0)
+            ATTRIBUTE_TEMPORARY(ATTRIBUTE_DEXTERITY)++;
 
         /* when mounted, wounded legs applies to the steed;
            during petrification countdown, "your limbs turn to stone"
