@@ -73,8 +73,6 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\Attributes.c" />
-    <ClCompile Include="..\..\..\..\src\BallAndChain.c" />
     <ClCompile Include="..\..\guitty.c" />
     <ClCompile Include="@(Lua)">
       <DisableSpecificWarnings>4701;4702;4244;4310;4774</DisableSpecificWarnings>
@@ -85,11 +83,13 @@
     <ClCompile Include="$(SrcDir)allmain.c" />
     <ClCompile Include="$(SrcDir)alloc.c" />
     <ClCompile Include="$(SrcDir)apply.c" />
-    <ClCompile Include="..\..\..\..\src\Artifact.c" />
+    <ClCompile Include="$(SrcDir)artifact.c" />
+    <ClCompile Include="$(SrcDir)attributes.c" />
+    <ClCompile Include="$(SrcDir)ball_and_chain.c" />
     <ClCompile Include="$(SrcDir)bones.c" />
-    <ClCompile Include="..\..\..\..\src\Conditions.c" />
+    <ClCompile Include="$(SrcDir)conditions.c" />
     <ClCompile Include="$(SrcDir)calendar.c" />
-    <ClCompile Include="..\..\..\..\src\Command.c" />
+    <ClCompile Include="$(SrcDir)command.c" />
     <ClCompile Include="$(SrcDir)coloratt.c" />
     <ClCompile Include="$(SrcDir)date.c" />
     <ClCompile Include="$(SrcDir)dbridge.c" />
@@ -269,8 +269,10 @@
     <ClInclude Include="$(WinWin32Dir)mhtext.h" />
     <ClInclude Include="$(WinWin32Dir)winMS.h" />
     <ClInclude Include="$(IncDir)align.h" />
-    <ClInclude Include="..\..\..\..\include\Artifact.h" />
-    <ClInclude Include="..\..\..\..\include\Conditions.h" />
+    <ClInclude Include="$(IncDir)artifact.h" />
+    <ClInclude Include="$(IncDir)artifact_list.h" />
+    <ClInclude Include="$(IncDir)attributes.h" />
+    <ClInclude Include="$(IncDir)conditions.h" />
     <ClInclude Include="$(IncDir)color.h" />
     <ClInclude Include="$(IncDir)config.h" />
     <ClInclude Include="$(IncDir)config1.h" />
@@ -347,8 +349,6 @@
     <ClInclude Include="$(IncDir)xwindowp.h" />
     <ClInclude Include="$(IncDir)you.h" />
     <ClInclude Include="$(IncDir)youprop.h" />
-    <ClInclude Include="..\..\..\..\include\ArtifactList.h" />
-    <ClInclude Include="..\..\..\..\include\Attributes.h" />
     <ClInclude Include="..\resource.h" />
   </ItemGroup>
   <ItemGroup>
