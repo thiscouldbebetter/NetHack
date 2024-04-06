@@ -46,7 +46,7 @@
     <ClCompile Include="$(SrcDir)command.c" />
     <ClCompile Include="$(SrcDir)coloratt.c" />
     <ClCompile Include="$(SrcDir)date.c" />
-    <ClCompile Include="$(SrcDir)dbridge.c" />
+    <ClCompile Include="$(SrcDir)drawbridge.c" />
     <ClCompile Include="$(SrcDir)decl.c" />
     <ClCompile Include="$(SrcDir)detect.c" />
     <ClCompile Include="$(SrcDir)dig.c" />

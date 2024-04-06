@@ -728,7 +728,7 @@ struct instance_globals_n {
 
 struct instance_globals_o {
 
-    /* dbridge.c */
+    /* drawbridge.c */
     struct entity occupants[ENTITIES];
 
     /* decl.c */
