@@ -1,9 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\..\guitty.c" />
     <ClCompile Include="$(SrcDir)allmain.c" />
-    <ClCompile Include="$(SrcDir)alloc.c" />
     <ClCompile Include="$(SrcDir)artifact.c" />
     <ClCompile Include="$(SrcDir)attributes.c" />
     <ClCompile Include="$(SrcDir)ball_and_chain.c" />
@@ -19,7 +17,6 @@
     <ClCompile Include="$(SrcDir)dlb.c" />
     <ClCompile Include="$(SrcDir)dog.c" />
     <ClCompile Include="$(SrcDir)dogmove.c" />
-    <ClCompile Include="$(SrcDir)drawbridge.c" />
     <ClCompile Include="$(SrcDir)drawing.c" />
     <ClCompile Include="$(SrcDir)dungeon.c" />
     <ClCompile Include="$(SrcDir)end.c" />
@@ -29,23 +26,16 @@
     <ClCompile Include="$(SrcDir)files.c" />
     <ClCompile Include="$(SrcDir)fountain.c" />
     <ClCompile Include="$(SrcDir)getpos.c" />
-    <ClCompile Include="$(SrcDir)glyphs.c" />
     <ClCompile Include="$(SrcDir)hack.c" />
     <ClCompile Include="$(SrcDir)invent.c" />
     <ClCompile Include="$(SrcDir)insight.c" />
-    <ClCompile Include="$(SrcDir)isaac64.c" />
     <ClCompile Include="$(SrcDir)light.c" />
     <ClCompile Include="$(SrcDir)lock.c" />
     <ClCompile Include="$(SrcDir)mail.c" />
-    <ClCompile Include="$(SrcDir)makemon.c" />
-    <ClCompile Include="$(SrcDir)mcastu.c" />
     <ClCompile Include="$(SrcDir)mdlib.c" />
     <ClCompile Include="$(SrcDir)minion.c" />
     <ClCompile Include="$(SrcDir)muse.c" />
     <ClCompile Include="$(SrcDir)music.c" />
-    <ClCompile Include="$(SrcDir)nhlobj.c" />
-    <ClCompile Include="$(SrcDir)nhlsel.c" />
-    <ClCompile Include="$(SrcDir)nhlua.c" />
     <ClCompile Include="$(SrcDir)objects.c" />
     <ClCompile Include="$(SrcDir)objnam.c" />
     <ClCompile Include="$(SrcDir)options.c" />
@@ -87,7 +77,6 @@
     <ClCompile Include="$(SrcDir)trap.c" />
     <ClCompile Include="$(SrcDir)uhitm.c" />
     <ClCompile Include="$(SrcDir)u_init.c" />
-    <ClCompile Include="$(SrcDir)utf8map.c" />
     <ClCompile Include="$(SrcDir)vault.c" />
     <ClCompile Include="$(SrcDir)version.c" />
     <ClCompile Include="$(SrcDir)vision.c" />
@@ -98,8 +87,6 @@
     <ClCompile Include="$(SrcDir)wizcmds.c" />
     <ClCompile Include="$(SrcDir)worm.c" />
     <ClCompile Include="$(SrcDir)worn.c" />
-    <ClCompile Include="$(SysShareDir)cppregex.cpp" />
-    <ClCompile Include="$(SysShareDir)random.c" />
     <ClCompile Include="$(SysWindDir)windmain.c" />
     <ClCompile Include="$(SysWindDir)windsys.c" />
     <ClCompile Include="$(SysWindDir)win10.c" />
@@ -107,7 +94,112 @@
     <ClCompile Include="$(WinShareDir)safeproc.c" />
     <ClCompile Include="$(WinWin32Dir)mswproc.c" />
     <ClCompile Include="$(WinWin32Dir)NetHackW.c" />
-
+    <ClCompile Include="$(WinCursDir)curses_dialog.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinCursDir)curses_initialize.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinCursDir)curses_inventory.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinCursDir)curses_main.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinCursDir)curses_messages.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinCursDir)curses_miscellaneous.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinCursDir)curses_status.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinCursDir)curses_windows.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="NetHackW.vcxproj.filters">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="NetHackW.vcxproj.user">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhaskyn.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhdlg.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhfont.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhinput.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mhitm.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mhitu.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhmain.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhmap.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhmenu.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhmsgwnd.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhrip.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhsplash.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhstatus.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhtext.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)drawbridge.c" />
+    <ClCompile Include="$(SrcDir)mon.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mondata.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)monmove.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)monster.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mthrowu.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mplayer.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mklev.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkmap.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkmaze.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkobj.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkroom.c">
+      <Filter>generators</Filter>
+    </ClCompile>
     <ClCompile Include="$(SrcDir)apply.c">
       <Filter>actions</Filter>
     </ClCompile>
@@ -156,110 +248,42 @@
     <ClCompile Include="$(SrcDir)pickup.c">
       <Filter>actions</Filter>
     </ClCompile>
-
-    <ClCompile Include="$(WinCursDir)curses_dialog.c">
+    <ClCompile Include="$(SrcDir)isaac64.c">
+      <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SysShareDir)random.c">
+      <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)utf8map.c">
+      <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SysShareDir)cppregex.cpp">
+      <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)glyphs.c">
+      <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\guitty.c">
       <Filter>curses</Filter>
     </ClCompile>
-    <ClCompile Include="$(WinCursDir)curses_initialize.c">
-      <Filter>curses</Filter>
+    <ClCompile Include="$(SrcDir)alloc.c">
+      <Filter>utility</Filter>
     </ClCompile>
-    <ClCompile Include="$(WinCursDir)curses_inventory.c">
-      <Filter>curses</Filter>
+    <ClCompile Include="$(SrcDir)nhlobj.c">
+      <Filter>lua</Filter>
     </ClCompile>
-    <ClCompile Include="$(WinCursDir)curses_main.c">
-      <Filter>curses</Filter>
+    <ClCompile Include="$(SrcDir)nhlsel.c">
+      <Filter>lua</Filter>
     </ClCompile>
-    <ClCompile Include="$(WinCursDir)curses_messages.c">
-      <Filter>curses</Filter>
+    <ClCompile Include="$(SrcDir)nhlua.c">
+      <Filter>lua</Filter>
     </ClCompile>
-    <ClCompile Include="$(WinCursDir)curses_miscellaneous.c">
-      <Filter>curses</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinCursDir)curses_status.c">
-      <Filter>curses</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinCursDir)curses_windows.c">
-      <Filter>curses</Filter>
-    </ClCompile>
-
-    <ClCompile Include="$(SrcDir)mklev.c">
-      <Filter>generators</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mkmap.c">
-      <Filter>generators</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mkmaze.c">
-      <Filter>generators</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mkobj.c">
-      <Filter>generators</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mkroom.c">
-      <Filter>generators</Filter>
-    </ClCompile>
-
-    <ClCompile Include="$(SrcDir)mon.c">
+    <ClCompile Include="$(SrcDir)makemon.c">
       <Filter>monsters</Filter>
     </ClCompile>
-    <ClCompile Include="$(SrcDir)mondata.c">
+    <ClCompile Include="$(SrcDir)mcastu.c">
       <Filter>monsters</Filter>
     </ClCompile>
-    <ClCompile Include="$(SrcDir)monmove.c">
-      <Filter>monsters</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)monster.c">
-      <Filter>monsters</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mthrowu.c">
-      <Filter>monsters</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mplayer.c">
-      <Filter>monsters</Filter>
-    </ClCompile>
-
-    <ClCompile Include="$(WinWin32Dir)mhaskyn.c">
-      <Filter>ms_windows</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinWin32Dir)mhdlg.c">
-      <Filter>ms_windows</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinWin32Dir)mhfont.c">
-      <Filter>ms_windows</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinWin32Dir)mhinput.c">
-      <Filter>ms_windows</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mhitm.c">
-      <Filter>ms_windows</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mhitu.c">
-      <Filter>ms_windows</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinWin32Dir)mhmain.c">
-      <Filter>ms_windows</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinWin32Dir)mhmap.c">
-      <Filter>ms_windows</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinWin32Dir)mhmenu.c">
-      <Filter>ms_windows</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinWin32Dir)mhmsgwnd.c">
-      <Filter>ms_windows</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinWin32Dir)mhrip.c">
-      <Filter>ms_windows</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinWin32Dir)mhsplash.c">
-      <Filter>ms_windows</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinWin32Dir)mhstatus.c">
-      <Filter>ms_windows</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinWin32Dir)mhtext.c">
-      <Filter>ms_windows</Filter>
-    </ClCompile>
-
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(WinWin32Dir)winMS.h" />
@@ -285,16 +309,9 @@
     <ClInclude Include="$(IncDir)fnamesiz.h" />
     <ClInclude Include="$(IncDir)func_tab.h" />
     <ClInclude Include="$(IncDir)global.h" />
-    <ClInclude Include="$(IncDir)hacklib.h" />
     <ClInclude Include="$(IncDir)hack.h" />
-    <ClInclude Include="$(IncDir)integer.h" />
-    <ClInclude Include="$(IncDir)isaac64.h" />
-    <ClInclude Include="$(IncDir)lint.h" />
     <ClInclude Include="$(IncDir)load_img.h" />
     <ClInclude Include="$(IncDir)mail.h" />
-    <ClInclude Include="$(IncDir)mextra.h" />
-    <ClInclude Include="$(IncDir)mfndpos.h" />
-    <ClInclude Include="$(IncDir)micro.h" />
     <ClInclude Include="$(IncDir)nhlua.h" />
     <ClInclude Include="$(IncDir)windconf.h" />
     <ClInclude Include="$(IncDir)obj.h" />
@@ -398,6 +415,27 @@
     <ClInclude Include="$(IncDir)engrave.h">
       <Filter>actions</Filter>
     </ClInclude>
+    <ClInclude Include="$(IncDir)integer.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)isaac64.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)hacklib.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)lint.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)micro.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)mextra.h">
+      <Filter>monsters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)mfndpos.h">
+      <Filter>monsters</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(WinWin32Dir)NetHackW.rc" />
@@ -431,6 +469,9 @@
     </Filter>
     <Filter Include="ms_windows">
       <UniqueIdentifier>{7f42083b-e1c0-4f26-8d50-fbc00bed77aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utility">
+      <UniqueIdentifier>{f40d11ca-064a-4b34-9b83-86331043552c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
