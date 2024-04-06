@@ -226,7 +226,7 @@
     <ClInclude Include="$(IncDir)color.h" />
     <ClInclude Include="$(IncDir)config.h" />
     <ClInclude Include="$(IncDir)config1.h" />
-    <ClInclude Include="$(IncDir)Conditions.h" />
+    <ClInclude Include="$(IncDir)conditions.h" />
     <ClInclude Include="$(IncDir)context.h" />
     <ClInclude Include="$(IncDir)coord.h" />
     <ClInclude Include="$(IncDir)cstd.h" />
