@@ -362,6 +362,9 @@
     <Image Include="$(WinWin32Dir)splash.bmp" />
     <Image Include="$(WinWin32Dir)tiles.bmp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Lua-Readme.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Target Name="AfterBuild">
     <MSBuild Projects="$(vsDir)NetHack\afternethack.proj" Targets="Build" Properties="Configuration=$(Configuration)" />

@@ -109,63 +109,6 @@
     <ClCompile Include="$(WinTtyDir)getline.c" />
     <ClCompile Include="$(WinTtyDir)topl.c" />
     <ClCompile Include="$(WinTtyDir)wintty.c" />
-    <ClCompile Include="$(WinCursDir)curses_dialog.c">
-      <Filter>curses</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinCursDir)curses_initialize.c">
-      <Filter>curses</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinCursDir)curses_inventory.c">
-      <Filter>curses</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinCursDir)curses_main.c">
-      <Filter>curses</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinCursDir)curses_messages.c">
-      <Filter>curses</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinCursDir)curses_miscellaneous.c">
-      <Filter>curses</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinCursDir)curses_status.c">
-      <Filter>curses</Filter>
-    </ClCompile>
-    <ClCompile Include="$(WinCursDir)curses_windows.c">
-      <Filter>curses</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mon.c">
-      <Filter>monsters</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mondata.c">
-      <Filter>monsters</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)monmove.c">
-      <Filter>monsters</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)monster.c">
-      <Filter>monsters</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mplayer.c">
-      <Filter>monsters</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mthrowu.c">
-      <Filter>monsters</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mklev.c">
-      <Filter>generators</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mkmap.c">
-      <Filter>generators</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mkmaze.c">
-      <Filter>generators</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mkobj.c">
-      <Filter>generators</Filter>
-    </ClCompile>
-    <ClCompile Include="$(SrcDir)mkroom.c">
-      <Filter>generators</Filter>
-    </ClCompile>
     <ClCompile Include="$(SrcDir)apply.c">
       <Filter>actions</Filter>
     </ClCompile>
@@ -210,6 +153,72 @@
     </ClCompile>
     <ClCompile Include="$(SrcDir)write.c">
       <Filter>actions</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinCursDir)curses_dialog.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinCursDir)curses_initialize.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinCursDir)curses_inventory.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinCursDir)curses_main.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinCursDir)curses_messages.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinCursDir)curses_miscellaneous.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinCursDir)curses_status.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinCursDir)curses_windows.c">
+      <Filter>curses</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mklev.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkmap.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkmaze.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkobj.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkroom.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="NetHack.vcxproj">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="NetHack.vcxproj.filters">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="NetHack.vcxproj.user">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mon.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mondata.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)monmove.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)monster.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mplayer.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mthrowu.c">
+      <Filter>monsters</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -321,17 +330,25 @@
     <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
+    <Filter Include="actions">
+      <UniqueIdentifier>{e7a89314-09b3-4f45-a5b0-c22e43f9c1cc}</UniqueIdentifier>
+    </Filter>
     <Filter Include="curses">
       <UniqueIdentifier>{2f27db2e-f0e1-4194-8a51-6be5e36e66d3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="monsters">
-      <UniqueIdentifier>{9c49af0f-bcc1-4c3b-b6ec-21a854374a6f}</UniqueIdentifier>
     </Filter>
     <Filter Include="generators">
       <UniqueIdentifier>{7a8b8b86-ae88-4ee1-8498-bc8231a61b61}</UniqueIdentifier>
     </Filter>
-    <Filter Include="actions">
-      <UniqueIdentifier>{e7a89314-09b3-4f45-a5b0-c22e43f9c1cc}</UniqueIdentifier>
+    <Filter Include="lua">
+      <UniqueIdentifier>{38744c73-d6e0-4855-bc17-f58b8c16a2d2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="monsters">
+      <UniqueIdentifier>{9c49af0f-bcc1-4c3b-b6ec-21a854374a6f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Lua-Readme.txt">
+      <Filter>lua</Filter>
+    </Text>
   </ItemGroup>
 </Project>
