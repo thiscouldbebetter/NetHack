@@ -83,17 +83,6 @@
     <ClCompile Include="$(SrcDir)mhitm.c" />
     <ClCompile Include="$(SrcDir)mhitu.c" />
     <ClCompile Include="$(SrcDir)minion.c" />
-    <ClCompile Include="$(SrcDir)mklev.c" />
-    <ClCompile Include="$(SrcDir)mkmap.c" />
-    <ClCompile Include="$(SrcDir)mkmaze.c" />
-    <ClCompile Include="$(SrcDir)mkobj.c" />
-    <ClCompile Include="$(SrcDir)mkroom.c" />
-    <ClCompile Include="$(SrcDir)mon.c" />
-    <ClCompile Include="$(SrcDir)mondata.c" />
-    <ClCompile Include="$(SrcDir)monmove.c" />
-    <ClCompile Include="$(SrcDir)monster.c" />
-    <ClCompile Include="$(SrcDir)mplayer.c" />
-    <ClCompile Include="$(SrcDir)mthrowu.c" />
     <ClCompile Include="$(SrcDir)muse.c" />
     <ClCompile Include="$(SrcDir)music.c" />
     <ClCompile Include="$(SrcDir)nhlobj.c" />
@@ -191,6 +180,71 @@
     <ClCompile Include="$(WinCursDir)curses_windows.c">
       <Filter>curses</Filter>
     </ClCompile>
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="$(SrcDir)mon.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mondata.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)monmove.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)monster.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mplayer.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mthrowu.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mklev.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkmap.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkmaze.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkobj.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkroom.c">
+      <Filter>generators</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(IncDir)align.h" />
@@ -219,12 +273,6 @@
     <ClInclude Include="$(IncDir)isaac64.h" />
     <ClInclude Include="$(IncDir)mextra.h" />
     <ClInclude Include="$(IncDir)mfndpos.h" />
-    <ClInclude Include="$(IncDir)mkroom.h" />
-    <ClInclude Include="$(IncDir)monattk.h" />
-    <ClInclude Include="$(IncDir)mondata.h" />
-    <ClInclude Include="$(IncDir)monflag.h" />
-    <ClInclude Include="$(IncDir)monsters.h" />
-    <ClInclude Include="$(IncDir)monster.h" />
     <ClInclude Include="$(IncDir)nhlua.h" />
     <ClInclude Include="$(IncDir)windconf.h" />
     <ClInclude Include="$(IncDir)obj.h" />
@@ -276,6 +324,24 @@
     <ClInclude Include="$(WinCursDir)curses_windows.h">
       <Filter>curses</Filter>
     </ClInclude>
+    <ClInclude Include="$(IncDir)monattk.h">
+      <Filter>monsters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)mondata.h">
+      <Filter>monsters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)monflag.h">
+      <Filter>monsters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)monster.h">
+      <Filter>monsters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)monsters.h">
+      <Filter>monsters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)mkroom.h">
+      <Filter>generators</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(WinWin32Dir)NetHack.rc" />
@@ -289,6 +355,12 @@
   <ItemGroup>
     <Filter Include="curses">
       <UniqueIdentifier>{2f27db2e-f0e1-4194-8a51-6be5e36e66d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="monsters">
+      <UniqueIdentifier>{9c49af0f-bcc1-4c3b-b6ec-21a854374a6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="generators">
+      <UniqueIdentifier>{7a8b8b86-ae88-4ee1-8498-bc8231a61b61}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

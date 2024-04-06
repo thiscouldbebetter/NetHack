@@ -46,7 +46,6 @@
     <ClCompile Include="$(SrcDir)command.c" />
     <ClCompile Include="$(SrcDir)coloratt.c" />
     <ClCompile Include="$(SrcDir)date.c" />
-    <ClCompile Include="$(SrcDir)drawbridge.c" />
     <ClCompile Include="$(SrcDir)decl.c" />
     <ClCompile Include="$(SrcDir)detect.c" />
     <ClCompile Include="$(SrcDir)dig.c" />
@@ -82,17 +81,6 @@
     <ClCompile Include="$(SrcDir)mcastu.c" />
     <ClCompile Include="$(SrcDir)mdlib.c" />
     <ClCompile Include="$(SrcDir)minion.c" />
-    <ClCompile Include="$(SrcDir)mklev.c" />
-    <ClCompile Include="$(SrcDir)mkmap.c" />
-    <ClCompile Include="$(SrcDir)mkmaze.c" />
-    <ClCompile Include="$(SrcDir)mkobj.c" />
-    <ClCompile Include="$(SrcDir)mkroom.c" />
-    <ClCompile Include="$(SrcDir)mon.c" />
-    <ClCompile Include="$(SrcDir)mondata.c" />
-    <ClCompile Include="$(SrcDir)monmove.c" />
-    <ClCompile Include="$(SrcDir)monster.c" />
-    <ClCompile Include="$(SrcDir)mplayer.c" />
-    <ClCompile Include="$(SrcDir)mthrowu.c" />
     <ClCompile Include="$(SrcDir)muse.c" />
     <ClCompile Include="$(SrcDir)music.c" />
     <ClCompile Include="$(SrcDir)nhlobj.c" />
@@ -232,6 +220,72 @@
     <ClCompile Include="$(WinWin32Dir)mhtext.c">
       <Filter>ms_windows</Filter>
     </ClCompile>
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="@(Lua)" />
+    <ClCompile Include="$(SrcDir)drawbridge.c" />
+    <ClCompile Include="$(SrcDir)mon.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mondata.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)monmove.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)monster.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mthrowu.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mplayer.c">
+      <Filter>monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mklev.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkmap.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkmaze.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkobj.c">
+      <Filter>generators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mkroom.c">
+      <Filter>generators</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(WinWin32Dir)winMS.h" />
@@ -268,12 +322,6 @@
     <ClInclude Include="$(IncDir)mextra.h" />
     <ClInclude Include="$(IncDir)mfndpos.h" />
     <ClInclude Include="$(IncDir)micro.h" />
-    <ClInclude Include="$(IncDir)mkroom.h" />
-    <ClInclude Include="$(IncDir)monattk.h" />
-    <ClInclude Include="$(IncDir)mondata.h" />
-    <ClInclude Include="$(IncDir)monflag.h" />
-    <ClInclude Include="$(IncDir)monster.h" />
-    <ClInclude Include="$(IncDir)monsters.h" />
     <ClInclude Include="$(IncDir)nhlua.h" />
     <ClInclude Include="$(IncDir)windconf.h" />
     <ClInclude Include="$(IncDir)obj.h" />
@@ -356,6 +404,24 @@
     <ClInclude Include="$(WinWin32Dir)mhtext.h">
       <Filter>ms_windows</Filter>
     </ClInclude>
+    <ClInclude Include="$(IncDir)monattk.h">
+      <Filter>monsters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)mondata.h">
+      <Filter>monsters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)monflag.h">
+      <Filter>monsters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)monster.h">
+      <Filter>monsters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)monsters.h">
+      <Filter>monsters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(IncDir)mkroom.h">
+      <Filter>generators</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(WinWin32Dir)NetHackW.rc" />
@@ -377,6 +443,12 @@
     </Filter>
     <Filter Include="ms_windows">
       <UniqueIdentifier>{7f42083b-e1c0-4f26-8d50-fbc00bed77aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="monsters">
+      <UniqueIdentifier>{ab4c1444-468f-435f-aebf-5c0a8779d272}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="generators">
+      <UniqueIdentifier>{d031cbc7-af42-4e28-9dab-d7bb6a48723a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
