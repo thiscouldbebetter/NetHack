@@ -729,7 +729,7 @@ really_kick_object(coordxy x, coordxy y)
     (void) snuff_candle(gk.kickedobj);
     newsym(x, y);
     mon = bhit(u.dx, u.dy, range, KICKED_WEAPON,
-               (int (*) (struct monst *, struct obj *)) 0,
+               (int (*) (struct monster *, struct obj *)) 0,
                (int (*) (struct obj *, struct obj *)) 0, &gk.kickedobj);
     if (!gk.kickedobj)
         return 1; /* object broken */

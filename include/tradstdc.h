@@ -289,7 +289,7 @@ typedef genericptr genericptr_t; /* (void *) or (char *) */
 #define MONST_P void *
 #else
 #define OBJ_P struct obj *
-#define MONST_P struct monst *
+#define MONST_P struct monster *
 #endif
 
 #if 0
