@@ -1,7 +1,9 @@
-/* NetHack 3.7  artilist.h      $NHDT-Date: 1710957374 2024/03/20 17:56:14 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.30 $ */
+/* NetHack 3.7  artifact_list.h      $NHDT-Date: 1710957374 2024/03/20 17:56:14 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.30 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
+
+/* Modified by This Could Be Better, 2024. */
 
 #if defined(MAKEDEFS_C) || defined (MDLIB_C)
 /* in makedefs.c, all we care about is the list of names */
@@ -295,4 +297,4 @@ static NEARDATA struct artifact artilist[] = {
 #undef STUN
 #endif
 
-/*artilist.h*/
+/*artifact_list.h*/

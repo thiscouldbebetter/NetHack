@@ -6,8 +6,8 @@
 /* Modified by This Could Be Better, 2024. */
 
 #include "hack.h"
-#include "Artifact.h"
-#include "ArtifactList.h"
+#include "artifact.h"
+#include "artifact_list.h"
 
 /*
  * Note:  both artilist[] and artiexist[] have a dummy element #0,

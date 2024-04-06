@@ -20,7 +20,7 @@
 #include "objclass.h"
 #include "wintype.h"
 #include "sym.h"
-#include "ArtifactList.h"
+#include "artifact_list.h"
 #include "dungeon.h"
 #include "sndprocs.h"
 #include "obj.h"
