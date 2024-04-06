@@ -3015,12 +3015,12 @@ status_enablefield(int fldindex, char fldname, char fieldfmt, boolean enable)
                 -- This may be called at any time, and is used
                    to disable as well as enable fields, depending on the
                    value of the final argument (TRUE = enable).
-                -- fldindex could be one of the following from botl.h:
+                -- fldindex could be one of the following from Condition.h:
                    CONDITION_TITLE, CONDITION_STR, CONDITION_DX, CONDITION_CO, CONDITION_IN, CONDITION_WI, CONDITION_CH,
                    CONDITION_ALIGN, CONDITION_SCORE, CONDITION_CAP, CONDITION_GOLD, CONDITION_ENE, CONDITION_ENEMAX,
                    CONDITION_XP, CONDITION_AC, CONDITION_HD, CONDITION_TIME, CONDITION_HUNGER, CONDITION_HP, CONDITION_HPMAX,
                    CONDITION_LEVELDESC, CONDITION_EXP, CONDITION_CONDITION
-                -- There are MAXBLSTATS status fields (from botl.h)
+                -- There are MAXBLSTATS status fields (from Condition.h)
 */
 void
 mswin_status_enablefield(int fieldidx, const char *nm, const char *fmt,
@@ -3086,8 +3086,8 @@ mswin_condattr(long bm, unsigned long *bmarray)
 status_update(int fldindex, genericptr_t ptr, int chg, int percent, int color, unsigned long *colormasks)
                 -- update the value of a status field.
                 -- the fldindex identifies which field is changing and
-                   is an integer index value from botl.h
-                -- fldindex could be any one of the following from botl.h:
+                   is an integer index value from Condition.h
+                -- fldindex could be any one of the following from Condition.h:
                    CONDITION_TITLE, CONDITION_STR, CONDITION_DX, CONDITION_CO, CONDITION_IN, CONDITION_WI, CONDITION_CH,
                    CONDITION_ALIGN, CONDITION_SCORE, CONDITION_CAP, CONDITION_GOLD, CONDITION_ENE, CONDITION_ENEMAX,
                    CONDITION_XP, CONDITION_AC, CONDITION_HD, CONDITION_TIME, CONDITION_HUNGER, CONDITION_HP, CONDITION_HPMAX,
@@ -3102,7 +3102,7 @@ status_update(int fldindex, genericptr_t ptr, int chg, int percent, int color, u
                    even if no changes have been presented to it.
                 -- ptr is usually a "char *", unless fldindex is CONDITION_CONDITION.
                    If fldindex is CONDITION_CONDITION, then ptr is a long value with
-                   any or none of the following bits set (from botl.h):
+                   any or none of the following bits set (from Condition.h):
                         CONDITION_MASK_STONE           0x00000001L
                         CONDITION_MASK_SLIME           0x00000002L
                         CONDITION_MASK_STRNGL          0x00000004L

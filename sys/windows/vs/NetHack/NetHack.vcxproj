@@ -66,6 +66,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\Command.c" />
+    <ClCompile Include="..\..\..\..\src\Conditions.c" />
     <ClCompile Include="@(Lua)">
       <DisableSpecificWarnings>4701;4702;4244;4310;4774</DisableSpecificWarnings>
       <AdditionalOptions>%(AdditionalOptions) /wd4774</AdditionalOptions>
@@ -79,7 +80,6 @@
     <ClCompile Include="..\..\..\..\src\Attributes.c" />
     <ClCompile Include="..\..\..\..\src\BallAndChain.c" />
     <ClCompile Include="$(SrcDir)bones.c" />
-    <ClCompile Include="$(SrcDir)botl.c" />
     <ClCompile Include="$(SrcDir)calendar.c" />
     <ClCompile Include="$(SrcDir)coloratt.c" />
     <ClCompile Include="$(SrcDir)dbridge.c" />
@@ -223,7 +223,6 @@
     <ClInclude Include="..\..\..\..\include\Artifact.h" />
     <ClInclude Include="..\..\..\..\include\ArtifactList.h" />
     <ClInclude Include="..\..\..\..\include\Attributes.h" />
-    <ClInclude Include="$(IncDir)botl.h" />
     <ClInclude Include="$(IncDir)color.h" />
     <ClInclude Include="$(IncDir)config.h" />
     <ClInclude Include="$(IncDir)config1.h" />
@@ -288,6 +287,7 @@
     <ClInclude Include="$(WinCursDir)cursmisc.h" />
     <ClInclude Include="$(WinCursDir)cursstat.h" />
     <ClInclude Include="$(WinCursDir)curswins.h" />
+    <ClInclude Include="..\..\..\..\include\Conditions.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(WinWin32Dir)NetHack.rc" />

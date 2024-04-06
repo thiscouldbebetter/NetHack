@@ -5,7 +5,7 @@
 #ifndef WINPROCS_H
 #define WINPROCS_H
 
-#include "botl.h"
+#include "Conditions.h"
 #ifndef COLOR_CODE_MAX
 #include "color.h"
 #endif

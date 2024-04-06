@@ -87,7 +87,7 @@
     <ClCompile Include="$(SrcDir)apply.c" />
     <ClCompile Include="..\..\..\..\src\Artifact.c" />
     <ClCompile Include="$(SrcDir)bones.c" />
-    <ClCompile Include="$(SrcDir)botl.c" />
+    <ClCompile Include="..\..\..\..\src\Conditions.c" />
     <ClCompile Include="$(SrcDir)calendar.c" />
     <ClCompile Include="..\..\..\..\src\Command.c" />
     <ClCompile Include="$(SrcDir)coloratt.c" />
@@ -270,7 +270,7 @@
     <ClInclude Include="$(WinWin32Dir)winMS.h" />
     <ClInclude Include="$(IncDir)align.h" />
     <ClInclude Include="..\..\..\..\include\Artifact.h" />
-    <ClInclude Include="$(IncDir)botl.h" />
+    <ClInclude Include="..\..\..\..\include\Conditions.h" />
     <ClInclude Include="$(IncDir)color.h" />
     <ClInclude Include="$(IncDir)config.h" />
     <ClInclude Include="$(IncDir)config1.h" />

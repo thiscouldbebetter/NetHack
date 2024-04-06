@@ -25,7 +25,7 @@
 #include "youprop.h"
 #include "display.h"
 
-#include "botl.h"
+#include "Conditions.h"
 #include "context.h"
 #include "engrave.h"
 #include "mkroom.h"

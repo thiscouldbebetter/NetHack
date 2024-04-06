@@ -4313,8 +4313,8 @@ tty_status_enablefield(
  *  *_status_update()
  *      -- update the value of a status field.
  *      -- the fldindex identifies which field is changing and
- *         is an integer index value from botl.h
- *      -- fldindex could be any one of the following from botl.h:
+ *         is an integer index value from Conditions.h
+ *      -- fldindex could be any one of the following from Conditions.h:
  *         CONDITION_TITLE, CONDITION_STR, CONDITION_DX, CONDITION_CO, CONDITION_IN, CONDITION_WI, CONDITION_CH,
  *         CONDITION_ALIGN, CONDITION_SCORE, CONDITION_CAP, CONDITION_GOLD, CONDITION_ENE, CONDITION_ENEMAX,
  *         CONDITION_XP, CONDITION_AC, CONDITION_HD, CONDITION_TIME, CONDITION_HUNGER, CONDITION_HP, CONDITION_HPMAX,
@@ -4329,37 +4329,37 @@ tty_status_enablefield(
  *         even if no changes have been presented to it.
  *      -- ptr is usually a "char *", unless fldindex is CONDITION_CONDITION.
  *         If fldindex is CONDITION_CONDITION, then ptr is a long value with
- *         any or none of the following bits set (from botl.h):
- *               CONDITION_MASK_BAREHANDED        0x00000001L
- *               CONDITION_MASK_BLIND        0x00000002L
- *               CONDITION_MASK_BUSY         0x00000004L
- *               CONDITION_MASK_CONF         0x00000008L
- *               CONDITION_MASK_DEAF         0x00000010L
- *               CONDITION_MASK_ELF_IRON     0x00000020L
- *               CONDITION_MASK_FLY          0x00000040L
- *               CONDITION_MASK_FOODPOIS     0x00000080L
- *               CONDITION_MASK_GLOWHANDS    0x00000100L
- *               CONDITION_MASK_GRAB         0x00000200L
- *               CONDITION_MASK_HALLU        0x00000400L
- *               CONDITION_MASK_HELD         0x00000800L
- *               CONDITION_MASK_ICY          0x00001000L
- *               CONDITION_MASK_INLAVA       0x00002000L
- *               CONDITION_MASK_LEV          0x00004000L
- *               CONDITION_MASK_PARLYZ       0x00008000L
- *               CONDITION_MASK_RIDE         0x00010000L
- *               CONDITION_MASK_SLEEPING     0x00020000L
- *               CONDITION_MASK_SLIME        0x00040000L
- *               CONDITION_MASK_SLIPPERY     0x00080000L
- *               CONDITION_MASK_STONE        0x00100000L
- *               CONDITION_MASK_STRNGL       0x00200000L
- *               CONDITION_MASK_STUN         0x00400000L
- *               CONDITION_MASK_SUBMERGED    0x00800000L
- *               CONDITION_MASK_TERMILL      0x01000000L
- *               CONDITION_MASK_TETHERED     0x02000000L
- *               CONDITION_MASK_TRAPPED      0x04000000L
- *               CONDITION_MASK_UNCONSC      0x08000000L
- *               CONDITION_MASK_WOUNDEDL     0x10000000L
- *               CONDITION_MASK_HOLDING      0x20000000L
+ *         any or none of the following bits set (from Condition.h):
+ *               CONDITION_MASK_BAREHANDED      0x00000001L
+ *               CONDITION_MASK_BLIND           0x00000002L
+ *               CONDITION_MASK_BUSY            0x00000004L
+ *               CONDITION_MASK_CONF            0x00000008L
+ *               CONDITION_MASK_DEAF            0x00000010L
+ *               CONDITION_MASK_ELF_IRON        0x00000020L
+ *               CONDITION_MASK_FLY             0x00000040L
+ *               CONDITION_MASK_FOOD_POISONED   0x00000080L
+ *               CONDITION_MASK_GLOWING_HANDS   0x00000100L
+ *               CONDITION_MASK_GRAB            0x00000200L
+ *               CONDITION_MASK_HALLUCINATING   0x00000400L
+ *               CONDITION_MASK_HELD            0x00000800L
+ *               CONDITION_MASK_ICY             0x00001000L
+ *               CONDITION_MASK_INLAVA          0x00002000L
+ *               CONDITION_MASK_LEV             0x00004000L
+ *               CONDITION_MASK_PARALYZED       0x00008000L
+ *               CONDITION_MASK_RIDE            0x00010000L
+ *               CONDITION_MASK_SLEEPING        0x00020000L
+ *               CONDITION_MASK_SLIME           0x00040000L
+ *               CONDITION_MASK_SLIPPERY        0x00080000L
+ *               CONDITION_MASK_PETRIFIED       0x00100000L
+ *               CONDITION_MASK_STRANGLED       0x00200000L
+ *               CONDITION_MASK_STUNNED         0x00400000L
+ *               CONDITION_MASK_SUBMERGED       0x00800000L
+ *               CONDITION_MASK_TERMINALLY_ILL  0x01000000L
+ *               CONDITION_MASK_TETHERED        0x02000000L
+ *               CONDITION_MASK_TRAPPED         0x04000000L
+ *               CONDITION_MASK_UNCONSCIOUS     0x08000000L
+ *               CONDITION_MASK_WOUNDED_LEG     0x10000000L
+ *               CONDITION_MASK_HOLDING         0x20000000L
  *
  *      -- The value passed for CONDITION_GOLD usually includes an encoded leading
  *         symbol for GOLD "\GXXXXNNNN:nnn". If the window port needs to use

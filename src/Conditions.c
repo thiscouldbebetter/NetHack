@@ -106,7 +106,7 @@ do_statusline1(void)
 char *
 do_statusline2(void)
 {
-    static char newbot2[BUFSZ], /* MAXCO: botl.h */
+    static char newbot2[BUFSZ], /* MAXCO: Conditions.h */
          /* dungeon location (and gold), hero health (HP, PW, AC),
             experience (HD if poly'd, else Exp level and maybe Exp points),
             time (in moves), varying number of status conditions */
@@ -122,7 +122,7 @@ do_statusline2(void)
 
     /*
      * Various min(x,9999)'s are to avoid having excessive values
-     * violate the field width assumptions in botl.h and should not
+     * violate the field width assumptions in Conditions.h and should not
      * impact normal play.  Particularly 64-bit long for gold which
      * could require many more digits if someone figures out a way
      * to get and carry a really large (or negative) amount of it.
@@ -553,7 +553,7 @@ staticfn void status_hilites_viewall(void);
       { (genericptr_t) 0 }, { (genericptr_t) 0 }, (char *) 0,           \
       wid, maxfld, fld  INIT_THRESH }
 
-/* If entries are added to this, botl.h will require updating too.
+/* If entries are added to this, Conditions.h will require updating too.
    'max' value of CONDITION_EXP gets special handling since the percentage
    involved isn't a direct 100*current/maximum calculation. */
 static struct istat_s initblstats[MAXBLSTATS] = {
