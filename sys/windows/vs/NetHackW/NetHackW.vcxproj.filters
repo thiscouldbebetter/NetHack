@@ -2,41 +2,8 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\..\guitty.c" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
     <ClCompile Include="$(SrcDir)allmain.c" />
     <ClCompile Include="$(SrcDir)alloc.c" />
-    <ClCompile Include="$(SrcDir)apply.c" />
     <ClCompile Include="$(SrcDir)artifact.c" />
     <ClCompile Include="$(SrcDir)attributes.c" />
     <ClCompile Include="$(SrcDir)ball_and_chain.c" />
@@ -48,21 +15,13 @@
     <ClCompile Include="$(SrcDir)date.c" />
     <ClCompile Include="$(SrcDir)decl.c" />
     <ClCompile Include="$(SrcDir)detect.c" />
-    <ClCompile Include="$(SrcDir)dig.c" />
     <ClCompile Include="$(SrcDir)display.c" />
     <ClCompile Include="$(SrcDir)dlb.c" />
-    <ClCompile Include="$(SrcDir)do.c" />
     <ClCompile Include="$(SrcDir)dog.c" />
     <ClCompile Include="$(SrcDir)dogmove.c" />
-    <ClCompile Include="$(SrcDir)dokick.c" />
-    <ClCompile Include="$(SrcDir)dothrow.c" />
-    <ClCompile Include="$(SrcDir)do_name.c" />
-    <ClCompile Include="$(SrcDir)do_wear.c" />
     <ClCompile Include="$(SrcDir)drawing.c" />
     <ClCompile Include="$(SrcDir)dungeon.c" />
-    <ClCompile Include="$(SrcDir)eat.c" />
     <ClCompile Include="$(SrcDir)end.c" />
-    <ClCompile Include="$(SrcDir)engrave.c" />
     <ClCompile Include="$(SrcDir)exper.c" />
     <ClCompile Include="$(SrcDir)explode.c" />
     <ClCompile Include="$(SrcDir)extralev.c" />
@@ -95,11 +54,9 @@
     <ClCompile Include="$(SrcDir)pline.c" />
     <ClCompile Include="$(SrcDir)polyself.c" />
     <ClCompile Include="$(SrcDir)potion.c" />
-    <ClCompile Include="$(SrcDir)pray.c" />
     <ClCompile Include="$(SrcDir)priest.c" />
     <ClCompile Include="$(SrcDir)quest.c" />
     <ClCompile Include="$(SrcDir)questpgr.c" />
-    <ClCompile Include="$(SrcDir)read.c" />
     <ClCompile Include="$(SrcDir)rect.c" />
     <ClCompile Include="$(SrcDir)region.c" />
     <ClCompile Include="$(SrcDir)report.c" />
@@ -113,7 +70,6 @@
     <ClCompile Include="$(SrcDir)sfstruct.c" />
     <ClCompile Include="$(SrcDir)shk.c" />
     <ClCompile Include="$(SrcDir)shknam.c" />
-    <ClCompile Include="$(SrcDir)sit.c" />
     <ClCompile Include="$(SrcDir)sounds.c" />
     <ClCompile Include="$(SrcDir)spell.c" />
     <ClCompile Include="$(SrcDir)sp_lev.c" />
@@ -137,14 +93,11 @@
     <ClCompile Include="$(SrcDir)vision.c" />
     <ClCompile Include="$(SrcDir)weapon.c" />
     <ClCompile Include="$(SrcDir)were.c" />
-    <ClCompile Include="$(SrcDir)wield.c" />
     <ClCompile Include="$(SrcDir)windows.c" />
     <ClCompile Include="$(SrcDir)wizard.c" />
     <ClCompile Include="$(SrcDir)wizcmds.c" />
     <ClCompile Include="$(SrcDir)worm.c" />
     <ClCompile Include="$(SrcDir)worn.c" />
-    <ClCompile Include="$(SrcDir)write.c" />
-    <ClCompile Include="$(SrcDir)zap.c" />
     <ClCompile Include="$(SysShareDir)cppregex.cpp" />
     <ClCompile Include="$(SysShareDir)random.c" />
     <ClCompile Include="$(SysWindDir)windmain.c" />
@@ -220,38 +173,6 @@
     <ClCompile Include="$(WinWin32Dir)mhtext.c">
       <Filter>ms_windows</Filter>
     </ClCompile>
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
-    <ClCompile Include="@(Lua)" />
     <ClCompile Include="$(SrcDir)drawbridge.c" />
     <ClCompile Include="$(SrcDir)mon.c">
       <Filter>monsters</Filter>
@@ -286,6 +207,51 @@
     <ClCompile Include="$(SrcDir)mkroom.c">
       <Filter>generators</Filter>
     </ClCompile>
+    <ClCompile Include="$(SrcDir)apply.c">
+      <Filter>actions</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)dig.c">
+      <Filter>actions</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)do.c">
+      <Filter>actions</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)do_name.c">
+      <Filter>actions</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)do_wear.c">
+      <Filter>actions</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)dokick.c">
+      <Filter>actions</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)dothrow.c">
+      <Filter>actions</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)eat.c">
+      <Filter>actions</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)engrave.c">
+      <Filter>actions</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)pray.c">
+      <Filter>actions</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)read.c">
+      <Filter>actions</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)sit.c">
+      <Filter>actions</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)wield.c">
+      <Filter>actions</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)write.c">
+      <Filter>actions</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)zap.c">
+      <Filter>actions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(WinWin32Dir)winMS.h" />
@@ -306,7 +272,6 @@
     <ClInclude Include="$(IncDir)display.h" />
     <ClInclude Include="$(IncDir)dlb.h" />
     <ClInclude Include="$(IncDir)dungeon.h" />
-    <ClInclude Include="$(IncDir)engrave.h" />
     <ClInclude Include="$(IncDir)extern.h" />
     <ClInclude Include="$(IncDir)flag.h" />
     <ClInclude Include="$(IncDir)fnamesiz.h" />
@@ -422,6 +387,9 @@
     <ClInclude Include="$(IncDir)mkroom.h">
       <Filter>generators</Filter>
     </ClInclude>
+    <ClInclude Include="$(IncDir)engrave.h">
+      <Filter>actions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(WinWin32Dir)NetHackW.rc" />
@@ -449,6 +417,9 @@
     </Filter>
     <Filter Include="generators">
       <UniqueIdentifier>{d031cbc7-af42-4e28-9dab-d7bb6a48723a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="actions">
+      <UniqueIdentifier>{90348259-5810-4843-b6e3-b44c11fe77d3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
