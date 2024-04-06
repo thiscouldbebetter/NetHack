@@ -81,8 +81,6 @@
     <ClCompile Include="$(SrcDir)makemon.c" />
     <ClCompile Include="$(SrcDir)mcastu.c" />
     <ClCompile Include="$(SrcDir)mdlib.c" />
-    <ClCompile Include="$(SrcDir)mhitm.c" />
-    <ClCompile Include="$(SrcDir)mhitu.c" />
     <ClCompile Include="$(SrcDir)minion.c" />
     <ClCompile Include="$(SrcDir)mklev.c" />
     <ClCompile Include="$(SrcDir)mkmap.c" />
@@ -166,18 +164,6 @@
     <ClCompile Include="$(SysWindDir)win10.c" />
     <ClCompile Include="$(SndWindDir)windsound.c" />
     <ClCompile Include="$(WinShareDir)safeproc.c" />
-    <ClCompile Include="$(WinWin32Dir)mhaskyn.c" />
-    <ClCompile Include="$(WinWin32Dir)mhdlg.c" />
-    <ClCompile Include="$(WinWin32Dir)mhfont.c" />
-    <ClCompile Include="$(WinWin32Dir)mhinput.c" />
-    <ClCompile Include="$(WinWin32Dir)mhmain.c" />
-    <ClCompile Include="$(WinWin32Dir)mhmap.c" />
-    <ClCompile Include="$(WinWin32Dir)mhmenu.c" />
-    <ClCompile Include="$(WinWin32Dir)mhmsgwnd.c" />
-    <ClCompile Include="$(WinWin32Dir)mhrip.c" />
-    <ClCompile Include="$(WinWin32Dir)mhsplash.c" />
-    <ClCompile Include="$(WinWin32Dir)mhstatus.c" />
-    <ClCompile Include="$(WinWin32Dir)mhtext.c" />
     <ClCompile Include="$(WinWin32Dir)mswproc.c" />
     <ClCompile Include="$(WinWin32Dir)NetHackW.c" />
     <ClCompile Include="$(WinCursDir)curses_dialog.c">
@@ -204,21 +190,50 @@
     <ClCompile Include="$(WinCursDir)curses_windows.c">
       <Filter>curses</Filter>
     </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhaskyn.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhdlg.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhfont.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhinput.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mhitm.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SrcDir)mhitu.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhmain.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhmap.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhmenu.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhmsgwnd.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhrip.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhsplash.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhstatus.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(WinWin32Dir)mhtext.c">
+      <Filter>ms_windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(WinWin32Dir)mhaskyn.h" />
-    <ClInclude Include="$(WinWin32Dir)mhdlg.h" />
-    <ClInclude Include="$(WinWin32Dir)mhfont.h" />
-    <ClInclude Include="$(WinWin32Dir)mhinput.h" />
-    <ClInclude Include="$(WinWin32Dir)mhmain.h" />
-    <ClInclude Include="$(WinWin32Dir)mhmap.h" />
-    <ClInclude Include="$(WinWin32Dir)mhmenu.h" />
-    <ClInclude Include="$(WinWin32Dir)mhmsg.h" />
-    <ClInclude Include="$(WinWin32Dir)mhmsgwnd.h" />
-    <ClInclude Include="$(WinWin32Dir)mhrip.h" />
-    <ClInclude Include="$(WinWin32Dir)mhsplash.h" />
-    <ClInclude Include="$(WinWin32Dir)mhstatus.h" />
-    <ClInclude Include="$(WinWin32Dir)mhtext.h" />
     <ClInclude Include="$(WinWin32Dir)winMS.h" />
     <ClInclude Include="$(IncDir)align.h" />
     <ClInclude Include="$(IncDir)artifact.h" />
@@ -302,6 +317,45 @@
     <ClInclude Include="$(IncDir)you.h" />
     <ClInclude Include="$(IncDir)youprop.h" />
     <ClInclude Include="..\resource.h" />
+    <ClInclude Include="$(WinWin32Dir)mhaskyn.h">
+      <Filter>ms_windows</Filter>
+    </ClInclude>
+    <ClInclude Include="$(WinWin32Dir)mhdlg.h">
+      <Filter>ms_windows</Filter>
+    </ClInclude>
+    <ClInclude Include="$(WinWin32Dir)mhfont.h">
+      <Filter>ms_windows</Filter>
+    </ClInclude>
+    <ClInclude Include="$(WinWin32Dir)mhinput.h">
+      <Filter>ms_windows</Filter>
+    </ClInclude>
+    <ClInclude Include="$(WinWin32Dir)mhmain.h">
+      <Filter>ms_windows</Filter>
+    </ClInclude>
+    <ClInclude Include="$(WinWin32Dir)mhmap.h">
+      <Filter>ms_windows</Filter>
+    </ClInclude>
+    <ClInclude Include="$(WinWin32Dir)mhmenu.h">
+      <Filter>ms_windows</Filter>
+    </ClInclude>
+    <ClInclude Include="$(WinWin32Dir)mhmsg.h">
+      <Filter>ms_windows</Filter>
+    </ClInclude>
+    <ClInclude Include="$(WinWin32Dir)mhmsgwnd.h">
+      <Filter>ms_windows</Filter>
+    </ClInclude>
+    <ClInclude Include="$(WinWin32Dir)mhrip.h">
+      <Filter>ms_windows</Filter>
+    </ClInclude>
+    <ClInclude Include="$(WinWin32Dir)mhsplash.h">
+      <Filter>ms_windows</Filter>
+    </ClInclude>
+    <ClInclude Include="$(WinWin32Dir)mhstatus.h">
+      <Filter>ms_windows</Filter>
+    </ClInclude>
+    <ClInclude Include="$(WinWin32Dir)mhtext.h">
+      <Filter>ms_windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(WinWin32Dir)NetHackW.rc" />
@@ -320,6 +374,9 @@
   <ItemGroup>
     <Filter Include="curses">
       <UniqueIdentifier>{7cf98f9b-383c-4940-8830-9a6ee6c5444f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ms_windows">
+      <UniqueIdentifier>{7f42083b-e1c0-4f26-8d50-fbc00bed77aa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
