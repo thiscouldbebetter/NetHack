@@ -127,7 +127,7 @@ sanity_check_single_mon(
         const char *ns, *nt = !mtmp->mtame ? "not tame" : 0;
 
         ns = !m_carrying(mtmp, SADDLE) ? "no saddle"
-             : !which_armor(mtmp, W_SADDLE) ? "saddle not worn"
+             : !which_armor(mtmp, WEARING_SADDLE) ? "saddle not worn"
                : 0;
         if (ns || nt)
             impossible("steed: %s%s%s (%s)",
@@ -1503,27 +1503,27 @@ mon_give_prop(struct monster *mtmp, int prop)
        the same intrinsics. If it happens to choose strength gain or teleport
        control or whatever, ignore it. */
     switch (prop) {
-    case FIRE_RES:
+    case FIRE_RESISTANCE:
         intrinsic = MR_FIRE;
         msg = "%s shivers slightly.";
         break;
-    case COLD_RES:
+    case COLD_RESISTANCE:
         intrinsic = MR_COLD;
         msg = "%s looks quite warm.";
         break;
-    case SLEEP_RES:
+    case SLEEP_RESISTANCE:
         intrinsic = MR_SLEEP;
         msg = "%s looks wide awake.";
         break;
-    case DISINT_RES:
+    case DISINTEGRATION_RESISTANCE:
         intrinsic = MR_DISINT;
         msg = "%s looks very firm.";
         break;
-    case SHOCK_RES:
+    case SHOCK_RESISTANCE:
         intrinsic = MR_ELEC;
         msg = "%s crackles with static electricity.";
         break;
-    case POISON_RES:
+    case POISON_RESISTANCE:
         intrinsic = MR_POISON;
         msg = "%s looks healthy.";
         break;
@@ -1735,7 +1735,7 @@ can_touch_safely(struct monster *mtmp, struct obj *otmp)
     struct permonst *mdat = mtmp->data;
 
     if (otyp == CORPSE && touch_petrifies(&mons[otmp->corpsenm])
-        && !(mtmp->misc_worn_check & W_ARMG) && !resists_ston(mtmp))
+        && !(mtmp->misc_worn_check & WEARING_ARMOR_GLOVES) && !resists_ston(mtmp))
         return FALSE;
     if (otyp == CORPSE && is_rider(&mons[otmp->corpsenm]))
         return FALSE;
@@ -1961,9 +1961,9 @@ mfndpos(
         } else {
             rockok = (m_carrying(mon, PICK_AXE)
                       || (m_carrying(mon, DWARVISH_MATTOCK)
-                          && !which_armor(mon, W_ARMS)));
+                          && !which_armor(mon, WEARING_ARMOR_SHIELD)));
             treeok = (m_carrying(mon, AXE) || (m_carrying(mon, BATTLE_AXE)
-                                               && !which_armor(mon, W_ARMS)));
+                                               && !which_armor(mon, WEARING_ARMOR_SHIELD)));
         }
         if (rockok || treeok)
             thrudoor = TRUE;
@@ -2562,7 +2562,7 @@ struct obj *
 mlifesaver(struct monster *mon)
 {
     if (!nonliving(mon->data) || is_vampshifter(mon)) {
-        struct obj *otmp = which_armor(mon, W_AMUL);
+        struct obj *otmp = which_armor(mon, WEARING_AMULET);
 
         if (otmp && otmp->otyp == AMULET_OF_LIFE_SAVING)
             return otmp;
@@ -4790,7 +4790,7 @@ select_newcham_form(struct monster *mon)
         break;
     case NON_PM: /* ordinary */
       {
-        struct obj *m_armr = which_armor(mon, W_ARM);
+        struct obj *m_armr = which_armor(mon, WEARING_ARMOR_BODY);
 
         if (m_armr && Is_dragon_scales(m_armr))
             mndx = (int) (Dragon_scales_to_pm(m_armr) - mons);
@@ -5069,7 +5069,7 @@ newcham(
 
     possibly_unwield(mtmp, polyspot); /* might lose use of weapon */
     mon_break_armor(mtmp, polyspot);
-    if (!(mtmp->misc_worn_check & W_ARMG))
+    if (!(mtmp->misc_worn_check & WEARING_ARMOR_GLOVES))
         mselftouch(mtmp, "No longer petrify-resistant, ",
                    !gc.context.mon_moving);
     check_gear_next_turn(mtmp);

@@ -476,10 +476,10 @@ eating_dangerous_corpse(int res)
         && (mnum = food->corpsenm) >= LOW_PM
         && (carried(food) || obj_here(food, u.ux, u.uy))) {
 
-        if (res == ACID_RES && acidic(&mons[mnum]))
+        if (res == ACID_RESISTANCE && acidic(&mons[mnum]))
             return TRUE;
         /* flesh_petrifies() includes Medusa as well as touch_petrifies() */
-        if (res == STONE_RES && flesh_petrifies(&mons[mnum]))
+        if (res == STONE_RESISTANCE && flesh_petrifies(&mons[mnum]))
             return TRUE;
     }
     return FALSE;
@@ -883,35 +883,35 @@ intrinsic_possible(int type, struct permonst *ptr)
 #define ifdebugresist(Msg) /*empty*/
 #endif
     switch (type) {
-    case FIRE_RES:
+    case FIRE_RESISTANCE:
         res = (ptr->mconveys & MR_FIRE) != 0;
         ifdebugresist("can get fire resistance");
         break;
-    case SLEEP_RES:
+    case SLEEP_RESISTANCE:
         res = (ptr->mconveys & MR_SLEEP) != 0;
         ifdebugresist("can get sleep resistance");
         break;
-    case COLD_RES:
+    case COLD_RESISTANCE:
         res = (ptr->mconveys & MR_COLD) != 0;
         ifdebugresist("can get cold resistance");
         break;
-    case DISINT_RES:
+    case DISINTEGRATION_RESISTANCE:
         res = (ptr->mconveys & MR_DISINT) != 0;
         ifdebugresist("can get disintegration resistance");
         break;
-    case SHOCK_RES: /* shock (electricity) resistance */
+    case SHOCK_RESISTANCE: /* shock (electricity) resistance */
         res = (ptr->mconveys & MR_ELEC) != 0;
         ifdebugresist("can get shock resistance");
         break;
-    case POISON_RES:
+    case POISON_RESISTANCE:
         res = (ptr->mconveys & MR_POISON) != 0;
         ifdebugresist("can get poison resistance");
         break;
-    case ACID_RES:
+    case ACID_RESISTANCE:
         res = (ptr->mconveys & MR_ACID) != 0;
         ifdebugresist("can get acid resistance temporarily");
         break;
-    case STONE_RES:
+    case STONE_RESISTANCE:
         res = (ptr->mconveys & MR_STONE) != 0;
         ifdebugresist("can get stoning resistance temporarily");
         break;
@@ -923,7 +923,7 @@ intrinsic_possible(int type, struct permonst *ptr)
         res = control_teleport(ptr);
         ifdebugresist("can get teleport control");
         break;
-    case TELEPAT:
+    case TELEPATHIC:
         res = telepathic(ptr);
         ifdebugresist("can get telepathy");
         break;
@@ -946,7 +946,7 @@ should_givit(int type, struct permonst *ptr)
 
     /* some intrinsics are easier to get than others */
     switch (type) {
-    case POISON_RES:
+    case POISON_RESISTANCE:
         if ((ptr == &mons[PM_KILLER_BEE] || ptr == &mons[PM_SCORPION])
             && !random_integer_between_zero_and(4))
             chance = 1;
@@ -959,7 +959,7 @@ should_givit(int type, struct permonst *ptr)
     case TELEPORT_CONTROL:
         chance = 12;
         break;
-    case TELEPAT:
+    case TELEPATHIC:
         chance = 1;
         break;
     default:
@@ -973,7 +973,7 @@ should_givit(int type, struct permonst *ptr)
 staticfn boolean
 temp_givit(int type, struct permonst *ptr)
 {
-    int chance = (type == STONE_RES) ? 6 : (type == ACID_RES) ? 3 : 0;
+    int chance = (type == STONE_RESISTANCE) ? 6 : (type == ACID_RESISTANCE) ? 3 : 0;
 
     return chance ? (ptr->mlevel > random_integer_between_zero_and(chance)) : FALSE;
 }
@@ -990,35 +990,35 @@ givit(int type, struct permonst *ptr)
         return;
 
     switch (type) {
-    case FIRE_RES:
+    case FIRE_RESISTANCE:
         debugpline0("Trying to give fire resistance");
         if (!(HFire_resistance & FROMOUTSIDE)) {
             You(Hallucination ? "be chillin'." : "feel a momentary chill.");
             HFire_resistance |= FROMOUTSIDE;
         }
         break;
-    case SLEEP_RES:
+    case SLEEP_RESISTANCE:
         debugpline0("Trying to give sleep resistance");
         if (!(HSleep_resistance & FROMOUTSIDE)) {
             You_feel("wide awake.");
             HSleep_resistance |= FROMOUTSIDE;
         }
         break;
-    case COLD_RES:
+    case COLD_RESISTANCE:
         debugpline0("Trying to give cold resistance");
         if (!(HCold_resistance & FROMOUTSIDE)) {
             You_feel("full of hot air.");
             HCold_resistance |= FROMOUTSIDE;
         }
         break;
-    case DISINT_RES:
+    case DISINTEGRATION_RESISTANCE:
         debugpline0("Trying to give disintegration resistance");
         if (!(HDisint_resistance & FROMOUTSIDE)) {
             You_feel(Hallucination ? "totally together, man." : "very firm.");
             HDisint_resistance |= FROMOUTSIDE;
         }
         break;
-    case SHOCK_RES: /* shock (electricity) resistance */
+    case SHOCK_RESISTANCE: /* shock (electricity) resistance */
         debugpline0("Trying to give shock resistance");
         if (!(HShock_resistance & FROMOUTSIDE)) {
             if (Hallucination)
@@ -1028,7 +1028,7 @@ givit(int type, struct permonst *ptr)
             HShock_resistance |= FROMOUTSIDE;
         }
         break;
-    case POISON_RES:
+    case POISON_RESISTANCE:
         debugpline0("Trying to give poison resistance");
         if (!(HPoison_resistance & FROMOUTSIDE)) {
             You_feel(Poison_resistance ? "especially healthy." : "healthy.");
@@ -1050,7 +1050,7 @@ givit(int type, struct permonst *ptr)
             HTeleport_control |= FROMOUTSIDE;
         }
         break;
-    case TELEPAT:
+    case TELEPATHIC:
         debugpline0("Trying to give telepathy");
         if (!(HTelepat & FROMOUTSIDE)) {
             You_feel(Hallucination ? "in touch with the cosmos."
@@ -1061,14 +1061,14 @@ givit(int type, struct permonst *ptr)
                 see_monsters();
         }
         break;
-    case ACID_RES:
+    case ACID_RESISTANCE:
         debugpline0("Giving timed acid resistance");
         if (!Acid_resistance)
             You_feel("%s.", Hallucination ? "secure from flashbacks"
                             : "less concerned about being harmed by acid");
         incr_itimeout(&HAcid_resistance, d(3, 6));
         break;
-    case STONE_RES:
+    case STONE_RESISTANCE:
         debugpline0("Giving timed stoning resistance");
         if (!Stone_resistance)
             You_feel("%s.", Hallucination ? "unusually limber"
@@ -2767,7 +2767,7 @@ doeat(void)
     if (!is_edible(otmp)) {
         You("cannot eat that!");
         return ECMD_OK;
-    } else if ((otmp->owornmask & (W_ARMOR | W_TOOL | W_AMUL | W_SADDLE))
+    } else if ((otmp->owornmask & (WEARING_ARMOR | WEARING_TOOL | WEARING_AMULET | WEARING_SADDLE))
                != 0) {
         /* let them eat rings */
         You_cant("eat %s you're wearing.", something);
@@ -2794,7 +2794,7 @@ doeat(void)
          * or wearing cursed rings which were rustproofed, but guard
          * against the possibility just in case.
          */
-        if (welded(otmp) || (otmp->cursed && (otmp->owornmask & W_RING))) {
+        if (welded(otmp) || (otmp->cursed && (otmp->owornmask & WEARING_RING))) {
             set_bknown(otmp, 1); /* for ring; welded() does this for weapon */
             You("spit out %s.", the(xname(otmp)));
         } else {
@@ -3080,7 +3080,7 @@ gethungry(void)
     if (accessorytime % 2) { /* odd */
         /* Regeneration uses up food, unless due to an artifact */
         if ((HRegeneration & ~FROMFORM)
-            || (ERegeneration & ~(W_ARTI | W_WEP)))
+            || (ERegeneration & ~(WEARING_ARTIFACT_INVOKED | WEARING_WEAPON)))
             u.uhunger--;
         if (near_capacity() > SLIGHTLY_ENCUMBERED)
             u.uhunger--;
@@ -3088,7 +3088,7 @@ gethungry(void)
         if (Hunger)
             u.uhunger--;
         /* Conflict uses up food too */
-        if (HConflict || (EConflict & (~W_ARTI)))
+        if (HConflict || (EConflict & (~WEARING_ARTIFACT_INVOKED)))
             u.uhunger--;
         /*
          * +0 charged rings don't do anything, so don't affect hunger.
@@ -3135,8 +3135,8 @@ gethungry(void)
                 && (uleft->spe
                     || !objects[uleft->otyp].oc_charged
                     || (uleft->otyp == RIN_PROTECTION
-                        && ((EProtection & ~W_RINGL) == 0L
-                            || ((EProtection & ~W_RINGL) == W_RINGR
+                        && ((EProtection & ~WEARING_RING_LEFT) == 0L
+                            || ((EProtection & ~WEARING_RING_LEFT) == WEARING_RING_RIGHT
                                 && uright && uright->otyp == RIN_PROTECTION
                                 && !uright->spe)))))
                 u.uhunger--;
@@ -3150,7 +3150,7 @@ gethungry(void)
                 && (uright->spe
                     || !objects[uright->otyp].oc_charged
                     || (uright->otyp == RIN_PROTECTION
-                        && (EProtection & ~W_RINGR) == 0L)))
+                        && (EProtection & ~WEARING_RING_RIGHT) == 0L)))
                 u.uhunger--;
             break;
         case 16:

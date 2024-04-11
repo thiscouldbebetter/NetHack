@@ -816,7 +816,7 @@ dosinkfall(void)
     }
 
     /* remove worn levitation items */
-    ELevitation &= ~W_ARTI;
+    ELevitation &= ~WEARING_ARTIFACT_INVOKED;
     HLevitation &= ~(I_SPECIAL | TIMEOUT);
     HLevitation++;
     if (uleft && uleft->otyp == RIN_LEVITATION) {
@@ -3919,9 +3919,9 @@ unmul(const char *msg_override)
 staticfn void
 maybe_wail(void)
 {
-    static short powers[] = { TELEPORT, SEE_INVIS, POISON_RES, COLD_RES,
-                              SHOCK_RES, FIRE_RES, SLEEP_RES, DISINT_RES,
-                              TELEPORT_CONTROL, STEALTH, FAST, INVIS };
+    static short powers[] = { TELEPORT, SEE_INVISIBLE, POISON_RESISTANCE, COLD_RESISTANCE,
+                              SHOCK_RESISTANCE, FIRE_RESISTANCE, SLEEP_RESISTANCE, DISINTEGRATION_RESISTANCE,
+                              TELEPORT_CONTROL, STEALTH, FAST, INVISIBLE };
 
     if (gm.moves <= gw.wailmsg + 50)
         return;
@@ -4028,8 +4028,8 @@ weight_cap(void)
        confer are enabled at the start rather than the end; that
        causes message sequencing issues for boots of levitation
        so defer their encumbrance benefit until they're fully worn */
-    if (ga.afternmv == Boots_on && (ELevitation & W_ARMF) != 0L) {
-        ELevitation &= ~W_ARMF;
+    if (ga.afternmv == Boots_on && (ELevitation & WEARING_ARMOR_FOOTWEAR) != 0L) {
+        ELevitation &= ~WEARING_ARMOR_FOOTWEAR;
         float_vs_flight(); /* in case Levitation is blocking Flying */
     }
     /* levitation is blocked by being trapped in the floor, but it still

@@ -116,7 +116,7 @@ defended(struct monster *mon, int adtyp)
         o = &otemp;
     } else {
         /* ordinary case: not an adult dragon */
-        o = is_you ? uarm : which_armor(mon, W_ARM);
+        o = is_you ? uarm : which_armor(mon, WEARING_ARMOR_BODY);
     }
     /* is 'mon' wearing dragon scales that protect against 'adtyp'? */
     if (o && Is_dragon_armor(o) && defends(adtyp, o))
@@ -158,12 +158,12 @@ resists_magm(struct monster *mon)
         return TRUE;
     /* check for magic resistance granted by worn or carried items */
     o = is_you ? gi.invent : mon->minvent;
-    slotmask = W_ARMOR | W_ACCESSORY;
+    slotmask = WEARING_ARMOR | WEARING_ACCESSORY;
     if (!is_you /* assumes monsters don't wield non-weapons */
         || (uwep && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))))
-        slotmask |= W_WEP;
+        slotmask |= WEARING_WEAPON;
     if (is_you && u.using_two_weapons)
-        slotmask |= W_SWAPWEP;
+        slotmask |= WEARING_SECONDARY_WEAPON;
     for (; o; o = o->nobj)
         if (((o->owornmask & slotmask) != 0L
              && objects[o->otyp].oc_oprop == ANTIMAGIC)
@@ -195,12 +195,12 @@ resists_blnd(struct monster *mon)
     if (o && o->oartifact && defends(AD_BLND, o))
         return TRUE;
     o = is_you ? gi.invent : mon->minvent;
-    slotmask = W_ARMOR | W_ACCESSORY;
+    slotmask = WEARING_ARMOR | WEARING_ACCESSORY;
     if (!is_you /* assumes monsters don't wield non-weapons */
         || (uwep && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))))
-        slotmask |= W_WEP;
+        slotmask |= WEARING_WEAPON;
     if (is_you && u.using_two_weapons)
-        slotmask |= W_SWAPWEP;
+        slotmask |= WEARING_SECONDARY_WEAPON;
     for (; o; o = o->nobj)
         if (((o->owornmask & slotmask) != 0L
              && objects[o->otyp].oc_oprop == BLINDED)
@@ -301,7 +301,7 @@ can_blnd(
     if (check_visor) {
         o = (mdef == &gy.youmonst) ? gi.invent : mdef->minvent;
         for (; o; o = o->nobj)
-            if ((o->owornmask & W_ARMH)
+            if ((o->owornmask & WEARING_ARMOR_HELMET)
                 && objdescr_is(o, "visored helmet"))
                 return FALSE;
     }
@@ -518,7 +518,7 @@ can_be_strangled(struct monster *mon)
         /* monsters don't wear amulets of magical breathing,
            so second part doesn't achieve anything useful... */
         nonbreathing = (breathless(mon->data)
-                        || ((mamul = which_armor(mon, W_AMUL)) != 0
+                        || ((mamul = which_armor(mon, WEARING_AMULET)) != 0
                             && (mamul->otyp == AMULET_OF_MAGICAL_BREATHING)));
     }
     return (boolean) (!nobrainer || !nonbreathing);
@@ -1444,13 +1444,13 @@ cvt_prop_to_mseenres(uchar prop)
 {
     switch (prop) {
     case ANTIMAGIC: return M_SEEN_MAGR;
-    case FIRE_RES: return M_SEEN_FIRE;
-    case COLD_RES: return M_SEEN_COLD;
-    case SLEEP_RES: return M_SEEN_SLEEP;
-    case DISINT_RES: return M_SEEN_DISINT;
-    case POISON_RES: return M_SEEN_POISON;
-    case SHOCK_RES: return M_SEEN_ELEC;
-    case ACID_RES: return M_SEEN_ACID;
+    case FIRE_RESISTANCE: return M_SEEN_FIRE;
+    case COLD_RESISTANCE: return M_SEEN_COLD;
+    case SLEEP_RESISTANCE: return M_SEEN_SLEEP;
+    case DISINTEGRATION_RESISTANCE: return M_SEEN_DISINT;
+    case POISON_RESISTANCE: return M_SEEN_POISON;
+    case SHOCK_RESISTANCE: return M_SEEN_ELEC;
+    case ACID_RESISTANCE: return M_SEEN_ACID;
     case REFLECTING: return M_SEEN_REFL;
     default: return M_SEEN_NOTHING;
     }
@@ -1488,7 +1488,7 @@ monstunseesu(unsigned long seenres)
 void
 give_u_to_m_resistances(struct monster *mtmp)
 {
-    const int u_intrins[] = { FIRE_RES, COLD_RES, SLEEP_RES, DISINT_RES, SHOCK_RES, POISON_RES, ACID_RES, STONE_RES };
+    const int u_intrins[] = { FIRE_RESISTANCE, COLD_RESISTANCE, SLEEP_RESISTANCE, DISINTEGRATION_RESISTANCE, SHOCK_RESISTANCE, POISON_RESISTANCE, ACID_RESISTANCE, STONE_RESISTANCE };
     const int m_intrins[] = { MR_FIRE,  MR_COLD,  MR_SLEEP,  MR_DISINT,  MR_ELEC,   MR_POISON,  MR_ACID,  MR_STONE };
     int i;
 

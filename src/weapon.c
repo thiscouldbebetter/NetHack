@@ -365,26 +365,26 @@ special_dmgval(
     long *silverhit_p)  /* output flag mask for silver bonus */
 {
     struct obj *obj;
-    boolean left_ring = (armask & W_RINGL) ? TRUE : FALSE,
-            right_ring = (armask & W_RINGR) ? TRUE : FALSE;
+    boolean left_ring = (armask & WEARING_RING_LEFT) ? TRUE : FALSE,
+            right_ring = (armask & WEARING_RING_RIGHT) ? TRUE : FALSE;
     long silverhit = 0L;
     int bonus = 0;
 
     obj = 0;
-    if (armask & (W_ARMC | W_ARM | W_ARMU)) {
-        if ((armask & W_ARMC) != 0L
-            && (obj = which_armor(magr, W_ARMC)) != 0)
-            armask = W_ARMC;
-        else if ((armask & W_ARM) != 0L
-                 && (obj = which_armor(magr, W_ARM)) != 0)
-            armask = W_ARM;
-        else if ((armask & W_ARMU) != 0L
-                 && (obj = which_armor(magr, W_ARMU)) != 0)
-            armask = W_ARMU;
+    if (armask & (WEARING_ARMOR_CLOAK | WEARING_ARMOR_BODY | WEARING_ARMOR_UNDERSHIRT)) {
+        if ((armask & WEARING_ARMOR_CLOAK) != 0L
+            && (obj = which_armor(magr, WEARING_ARMOR_CLOAK)) != 0)
+            armask = WEARING_ARMOR_CLOAK;
+        else if ((armask & WEARING_ARMOR_BODY) != 0L
+                 && (obj = which_armor(magr, WEARING_ARMOR_BODY)) != 0)
+            armask = WEARING_ARMOR_BODY;
+        else if ((armask & WEARING_ARMOR_UNDERSHIRT) != 0L
+                 && (obj = which_armor(magr, WEARING_ARMOR_UNDERSHIRT)) != 0)
+            armask = WEARING_ARMOR_UNDERSHIRT;
         else
             armask = 0L;
-    } else if (armask & (W_ARMG | W_RINGL | W_RINGR)) {
-        armask = ((obj = which_armor(magr, W_ARMG)) != 0) ?  W_ARMG : 0L;
+    } else if (armask & (WEARING_ARMOR_GLOVES | WEARING_RING_LEFT | WEARING_RING_RIGHT)) {
+        armask = ((obj = which_armor(magr, WEARING_ARMOR_GLOVES)) != 0) ?  WEARING_ARMOR_GLOVES : 0L;
     } else {
         obj = which_armor(magr, armask);
     }
@@ -408,7 +408,7 @@ special_dmgval(
             if (objects[uleft->otyp].oc_material == SILVER
                 && mon_hates_silver(mdef)) {
                 bonus += random(20);
-                silverhit |= W_RINGL;
+                silverhit |= WEARING_RING_LEFT;
             }
         }
         if (right_ring && uright) {
@@ -416,9 +416,9 @@ special_dmgval(
                 && mon_hates_silver(mdef)) {
                 /* two silver rings don't give double silver damage
                    but 'silverhit' messages might be adjusted for them */
-                if (!(silverhit & W_RINGL))
+                if (!(silverhit & WEARING_RING_LEFT))
                     bonus += random(20);
-                silverhit |= W_RINGR;
+                silverhit |= WEARING_RING_RIGHT;
             }
         }
     }
@@ -435,9 +435,9 @@ silver_sears(struct monster *magr UNUSED, struct monster *mdef,
              long silverhit)
 {
     char rings[20]; /* plenty of room for "rings" */
-    int ltyp = ((uleft && (silverhit & W_RINGL) != 0L)
+    int ltyp = ((uleft && (silverhit & WEARING_RING_LEFT) != 0L)
                 ? uleft->otyp : STRANGE_OBJECT),
-        rtyp = ((uright && (silverhit & W_RINGR) != 0L)
+        rtyp = ((uright && (silverhit & WEARING_RING_RIGHT) != 0L)
                 ? uright->otyp : STRANGE_OBJECT);
     boolean both,
         l_dknown = (uleft && uleft->dknown),
@@ -445,7 +445,7 @@ silver_sears(struct monster *magr UNUSED, struct monster *mdef,
         l_ag = (objects[ltyp].oc_material == SILVER && l_dknown),
         r_ag = (objects[rtyp].oc_material == SILVER && r_dknown);
 
-    if ((silverhit & (W_RINGL | W_RINGR)) != 0L) {
+    if ((silverhit & (WEARING_RING_LEFT | WEARING_RING_RIGHT)) != 0L) {
         /* plural if both the same type (so not multi_claw and both rings
            are non-Null) and either both known or neither known, or both
            silver (in case there is ever more than one type of silver ring)
@@ -457,7 +457,7 @@ silver_sears(struct monster *magr UNUSED, struct monster *mdef,
         Your("%s%s %s %s!",
              (l_ag || r_ag) ? "silver "
              : both ? ""
-               : ((silverhit & W_RINGL) != 0L) ? "left "
+               : ((silverhit & WEARING_RING_LEFT) != 0L) ? "left "
                  : "right ",
              rings, vtense(rings, "sear"), mon_nam(mdef));
     }
@@ -545,7 +545,7 @@ select_rwep(struct monster *mtmp)
              * All monsters can wield the remaining weapons.
              */
             if (((strongmonst(mtmp->data)
-                  && (mtmp->misc_worn_check & W_ARMS) == 0)
+                  && (mtmp->misc_worn_check & WEARING_ARMOR_SHIELD) == 0)
                  || !objects[pwep[i]].oc_bimanual)
                 && (objects[pwep[i]].oc_material != SILVER
                     || !mon_hates_silver(mtmp))) {
@@ -660,7 +660,7 @@ select_hwep(struct monster *mtmp)
     struct obj *otmp;
     int i;
     boolean strong = strongmonst(mtmp->data);
-    boolean wearing_shield = (mtmp->misc_worn_check & W_ARMS) != 0;
+    boolean wearing_shield = (mtmp->misc_worn_check & WEARING_ARMOR_SHIELD) != 0;
 
     /* prefer artifacts to everything else */
     for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
@@ -680,7 +680,7 @@ select_hwep(struct monster *mtmp)
     /* big weapon is basically the same as bimanual */
     /* all monsters can wield the remaining weapons */
     for (i = 0; i < SIZE(hwep); i++) {
-        if (hwep[i] == CORPSE && !(mtmp->misc_worn_check & W_ARMG)
+        if (hwep[i] == CORPSE && !(mtmp->misc_worn_check & WEARING_ARMOR_GLOVES)
             && !resists_ston(mtmp))
             continue;
         if (((strong && !wearing_shield) || !objects[hwep[i]].oc_bimanual)
@@ -770,14 +770,14 @@ mon_wield_item(struct monster *mon)
     case NEED_PICK_AXE:
         obj = m_carrying(mon, PICK_AXE);
         /* KMH -- allow other picks */
-        if (!obj && !which_armor(mon, W_ARMS))
+        if (!obj && !which_armor(mon, WEARING_ARMOR_SHIELD))
             obj = m_carrying(mon, DWARVISH_MATTOCK);
         exclaim = FALSE; /* mon is just planning to dig */
         break;
     case NEED_AXE:
         /* currently, only 2 types of axe */
         obj = m_carrying(mon, BATTLE_AXE);
-        if (!obj || which_armor(mon, W_ARMS))
+        if (!obj || which_armor(mon, WEARING_ARMOR_SHIELD))
             obj = m_carrying(mon, AXE);
         exclaim = FALSE;
         break;
@@ -786,7 +786,7 @@ mon_wield_item(struct monster *mon)
         obj = m_carrying(mon, DWARVISH_MATTOCK);
         if (!obj)
             obj = m_carrying(mon, BATTLE_AXE);
-        if (!obj || which_armor(mon, W_ARMS)) {
+        if (!obj || which_armor(mon, WEARING_ARMOR_SHIELD)) {
             obj = m_carrying(mon, PICK_AXE);
             if (!obj)
                 obj = m_carrying(mon, AXE);
@@ -849,9 +849,9 @@ mon_wield_item(struct monster *mon)
                artifact_light don't want that because they'd have '(weapon
                in hand/claw)' appended; so we set it for the mwelded test
                and then clear it, until finally setting it for good below */
-            obj->owornmask |= W_WEP;
+            obj->owornmask |= WEARING_WEAPON;
             newly_welded = mwelded(obj);
-            obj->owornmask &= ~W_WEP;
+            obj->owornmask &= ~WEARING_WEAPON;
             if (newly_welded) {
                 const char *mon_hand = mbodypart(mon, HAND);
 
@@ -874,7 +874,7 @@ mon_wield_item(struct monster *mon)
                 pline("Light begins shining %s.",
                       (mdistu(mon) <= 5 * 5) ? "nearby" : "in the distance");
         }
-        obj->owornmask = W_WEP;
+        obj->owornmask = WEARING_WEAPON;
         return 1;
     }
     mon->weapon_check = NEED_WEAPON;
@@ -1722,7 +1722,7 @@ setmnotwielded(struct monster *mon, struct obj *obj)
     }
     if (MON_WEP(mon) == obj)
         MON_NOWEP(mon);
-    obj->owornmask &= ~W_WEP;
+    obj->owornmask &= ~WEARING_WEAPON;
 }
 
 /*weapon.c*/

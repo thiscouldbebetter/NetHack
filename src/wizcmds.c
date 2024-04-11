@@ -964,14 +964,14 @@ wiz_intrinsic(void)
             add_menu_str(win, buf);
         }
         for (i = 0; (propname = property_by_index(i, &p)) != 0; ++i) {
-            if (p == HALLUC_RES) {
+            if (p == HALLUCINATION_RESISTANCE) {
                 /* Grayswandir vs hallucination; ought to be redone to
                    use u.uprops[HALLUC].blocked instead of being treated
                    as a separate property; letting in be manually toggled
                    even only in wizard mode would be asking for trouble... */
                 continue;
             }
-            if (p == FIRE_RES) {
+            if (p == FIRE_RESISTANCE) {
                 /* FIRE_RES and properties beyond it (in the propertynames[]
                    ordering, not their numerical PROP values), can only be
                    set to timed values here so show a separator */
@@ -1022,7 +1022,7 @@ wiz_intrinsic(void)
             case DEAF:
                 make_deaf(newtimeout, TRUE);
                 break;
-            case HALLUC:
+            case HALLUCINATING:
                 make_hallucinated(newtimeout, TRUE, 0L);
                 break;
             case SICK:
@@ -1047,7 +1047,7 @@ wiz_intrinsic(void)
                 make_vomiting(newtimeout, FALSE);
                 pline1(buf);
                 break;
-            case WARN_OF_MON:
+            case WARNED_OF_MONSTERS:
                 if (!Warn_of_mon) {
                     gc.context.warntype.speciesidx = PM_GRID_BUG;
                     gc.context.warntype.species
@@ -1072,7 +1072,7 @@ wiz_intrinsic(void)
             /* this has to be after incr_itimeout() */
             if (p == LEVITATION || p == FLYING)
                 float_vs_flight();
-            else if (p == PROT_FROM_SHAPE_CHANGERS)
+            else if (p == PROTECTION_FROM_SHAPE_CHANGERS)
                 rescham();
         }
         if (n >= 1)

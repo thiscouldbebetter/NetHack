@@ -25,32 +25,32 @@
 
 /*** Resistances to troubles ***/
 /* With intrinsics and extrinsics */
-#define HFire_resistance u.uprops[FIRE_RES].intrinsic
-#define EFire_resistance u.uprops[FIRE_RES].extrinsic
+#define HFire_resistance u.uprops[FIRE_RESISTANCE].intrinsic
+#define EFire_resistance u.uprops[FIRE_RESISTANCE].extrinsic
 #define Fire_resistance (HFire_resistance || EFire_resistance)
 
-#define HCold_resistance u.uprops[COLD_RES].intrinsic
-#define ECold_resistance u.uprops[COLD_RES].extrinsic
+#define HCold_resistance u.uprops[COLD_RESISTANCE].intrinsic
+#define ECold_resistance u.uprops[COLD_RESISTANCE].extrinsic
 #define Cold_resistance (HCold_resistance || ECold_resistance)
 
-#define HSleep_resistance u.uprops[SLEEP_RES].intrinsic
-#define ESleep_resistance u.uprops[SLEEP_RES].extrinsic
+#define HSleep_resistance u.uprops[SLEEP_RESISTANCE].intrinsic
+#define ESleep_resistance u.uprops[SLEEP_RESISTANCE].extrinsic
 #define Sleep_resistance (HSleep_resistance || ESleep_resistance)
 
-#define HDisint_resistance u.uprops[DISINT_RES].intrinsic
-#define EDisint_resistance u.uprops[DISINT_RES].extrinsic
+#define HDisint_resistance u.uprops[DISINTEGRATION_RESISTANCE].intrinsic
+#define EDisint_resistance u.uprops[DISINTEGRATION_RESISTANCE].extrinsic
 #define Disint_resistance (HDisint_resistance || EDisint_resistance)
 
-#define HShock_resistance u.uprops[SHOCK_RES].intrinsic
-#define EShock_resistance u.uprops[SHOCK_RES].extrinsic
+#define HShock_resistance u.uprops[SHOCK_RESISTANCE].intrinsic
+#define EShock_resistance u.uprops[SHOCK_RESISTANCE].extrinsic
 #define Shock_resistance (HShock_resistance || EShock_resistance)
 
-#define HPoison_resistance u.uprops[POISON_RES].intrinsic
-#define EPoison_resistance u.uprops[POISON_RES].extrinsic
+#define HPoison_resistance u.uprops[POISON_RESISTANCE].intrinsic
+#define EPoison_resistance u.uprops[POISON_RESISTANCE].extrinsic
 #define Poison_resistance (HPoison_resistance || EPoison_resistance)
 
-#define HDrain_resistance u.uprops[DRAIN_RES].intrinsic
-#define EDrain_resistance u.uprops[DRAIN_RES].extrinsic
+#define HDrain_resistance u.uprops[DRAIN_RESISTANCE].intrinsic
+#define EDrain_resistance u.uprops[DRAIN_RESISTANCE].extrinsic
 #define Drain_resistance (HDrain_resistance || EDrain_resistance)
 
 /* Hxxx due to FROMFORM only */
@@ -58,16 +58,16 @@
 #define EAntimagic u.uprops[ANTIMAGIC].extrinsic
 #define Antimagic (HAntimagic || EAntimagic)
 
-#define HAcid_resistance u.uprops[ACID_RES].intrinsic
-#define EAcid_resistance u.uprops[ACID_RES].extrinsic
+#define HAcid_resistance u.uprops[ACID_RESISTANCE].intrinsic
+#define EAcid_resistance u.uprops[ACID_RESISTANCE].extrinsic
 #define Acid_resistance (HAcid_resistance || EAcid_resistance)
 
-#define HStone_resistance u.uprops[STONE_RES].intrinsic
-#define EStone_resistance u.uprops[STONE_RES].extrinsic
+#define HStone_resistance u.uprops[STONE_RESISTANCE].intrinsic
+#define EStone_resistance u.uprops[STONE_RESISTANCE].extrinsic
 #define Stone_resistance (HStone_resistance || EStone_resistance)
 
-#define HSick_resistance u.uprops[SICK_RES].intrinsic
-#define ESick_resistance u.uprops[SICK_RES].extrinsic
+#define HSick_resistance u.uprops[SICK_RESISTANCE].intrinsic
+#define ESick_resistance u.uprops[SICK_RESISTANCE].extrinsic
 #define Sick_resistance (HSick_resistance || ESick_resistance \
                          || defended(&gy.youmonst, AD_DISE))
 
@@ -115,9 +115,9 @@
 #define Slimed u.uprops[SLIMED].intrinsic /* [Tom] */
 
 /* Hallucination is solely a timeout */
-#define HHallucination u.uprops[HALLUC].intrinsic
-#define HHalluc_resistance u.uprops[HALLUC_RES].intrinsic
-#define EHalluc_resistance u.uprops[HALLUC_RES].extrinsic
+#define HHallucination u.uprops[HALLUCINATING].intrinsic
+#define HHalluc_resistance u.uprops[HALLUCINATION_RESISTANCE].intrinsic
+#define EHalluc_resistance u.uprops[HALLUCINATION_RESISTANCE].extrinsic
 #define Halluc_resistance (HHalluc_resistance || EHalluc_resistance)
 #define Hallucination (HHallucination && !Halluc_resistance)
 
@@ -148,12 +148,12 @@
 #define Hunger (HHunger || EHunger)
 
 /*** Vision and senses ***/
-#define HSee_invisible u.uprops[SEE_INVIS].intrinsic
-#define ESee_invisible u.uprops[SEE_INVIS].extrinsic
+#define HSee_invisible u.uprops[SEE_INVISIBLE].intrinsic
+#define ESee_invisible u.uprops[SEE_INVISIBLE].extrinsic
 #define See_invisible (HSee_invisible || ESee_invisible)
 
-#define HTelepat u.uprops[TELEPAT].intrinsic
-#define ETelepat u.uprops[TELEPAT].extrinsic
+#define HTelepat u.uprops[TELEPATHIC].intrinsic
+#define ETelepat u.uprops[TELEPATHIC].extrinsic
 #define Blind_telepat (HTelepat || ETelepat)
 #define Unblind_telepat (ETelepat)
 
@@ -162,11 +162,11 @@
 #define Warning (HWarning || EWarning)
 
 /* Warning for a specific type of monster */
-#define HWarn_of_mon u.uprops[WARN_OF_MON].intrinsic
-#define EWarn_of_mon u.uprops[WARN_OF_MON].extrinsic
+#define HWarn_of_mon u.uprops[WARNED_OF_MONSTERS].intrinsic
+#define EWarn_of_mon u.uprops[WARNED_OF_MONSTERS].extrinsic
 #define Warn_of_mon (HWarn_of_mon || EWarn_of_mon)
 
-#define HUndead_warning u.uprops[WARN_UNDEAD].intrinsic
+#define HUndead_warning u.uprops[WARNED_OF_UNDEAD].intrinsic
 #define Undead_warning (HUndead_warning)
 
 #define HSearching u.uprops[SEARCHING].intrinsic
@@ -189,9 +189,9 @@
 /*** Appearance and behavior ***/
 #define Adornment u.uprops[ADORNED].extrinsic
 
-#define HInvis u.uprops[INVIS].intrinsic
-#define EInvis u.uprops[INVIS].extrinsic
-#define BInvis u.uprops[INVIS].blocked
+#define HInvis u.uprops[INVISIBLE].intrinsic
+#define EInvis u.uprops[INVISIBLE].extrinsic
+#define BInvis u.uprops[INVISIBLE].blocked
 #define Invis ((HInvis || EInvis) && !BInvis)
 #define Invisible (Invis && !See_invisible)
 /* Note: invisibility also hides inventory and steed */
@@ -237,9 +237,9 @@
 #define Levitation ((HLevitation || ELevitation) && !BLevitation)
 /* Can't touch surface, can't go under water; overrides all others */
 #define Lev_at_will                                                    \
-    (((HLevitation & I_SPECIAL) != 0L || (ELevitation & W_ARTI) != 0L) \
+    (((HLevitation & I_SPECIAL) != 0L || (ELevitation & WEARING_ARTIFACT_INVOKED) != 0L) \
      && (HLevitation & ~(I_SPECIAL | TIMEOUT)) == 0L                   \
-     && (ELevitation & ~W_ARTI) == 0L)
+     && (ELevitation & ~WEARING_ARTIFACT_INVOKED) == 0L)
 
 /* Flying is overridden by Levitation */
 #define HFlying u.uprops[FLYING].intrinsic
@@ -287,8 +287,8 @@
 #define ESlow_digestion u.uprops[SLOW_DIGESTION].extrinsic
 #define Slow_digestion (HSlow_digestion || ESlow_digestion) /* KMH */
 
-#define HHalf_spell_damage u.uprops[HALF_SPDAM].intrinsic
-#define EHalf_spell_damage u.uprops[HALF_SPDAM].extrinsic
+#define HHalf_spell_damage u.uprops[HALF_DAMAGE_SPELLS].intrinsic
+#define EHalf_spell_damage u.uprops[HALF_DAMAGE_SPELLS].extrinsic
 #define Half_spell_damage (HHalf_spell_damage || EHalf_spell_damage)
 
 /*
@@ -333,8 +333,8 @@
  *   Any passive attack                              [most don't qualify]
  */
 
-#define HHalf_physical_damage u.uprops[HALF_PHDAM].intrinsic
-#define EHalf_physical_damage u.uprops[HALF_PHDAM].extrinsic
+#define HHalf_physical_damage u.uprops[HALF_DAMAGE_PHYSICAL].intrinsic
+#define EHalf_physical_damage u.uprops[HALF_DAMAGE_PHYSICAL].extrinsic
 #define Half_physical_damage (HHalf_physical_damage || EHalf_physical_damage)
 
 #define HRegeneration u.uprops[REGENERATION].intrinsic
@@ -350,9 +350,9 @@
 #define Protection (HProtection || EProtection)
 
 #define HProtection_from_shape_changers \
-    u.uprops[PROT_FROM_SHAPE_CHANGERS].intrinsic
+    u.uprops[PROTECTION_FROM_SHAPE_CHANGERS].intrinsic
 #define EProtection_from_shape_changers \
-    u.uprops[PROT_FROM_SHAPE_CHANGERS].extrinsic
+    u.uprops[PROTECTION_FROM_SHAPE_CHANGERS].extrinsic
 #define Protection_from_shape_changers \
     (HProtection_from_shape_changers || EProtection_from_shape_changers)
 
@@ -379,7 +379,7 @@
 
 #define Free_action u.uprops[FREE_ACTION].extrinsic /* [Tom] */
 
-#define Fixed_abil u.uprops[FIXED_ABIL].extrinsic /* KMH */
+#define Fixed_abil u.uprops[FIXED_ABILITY].extrinsic /* KMH */
 
 #define Lifesaved u.uprops[LIFESAVED].extrinsic
 

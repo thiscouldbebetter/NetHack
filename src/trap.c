@@ -110,7 +110,7 @@ burnarmor(struct monster *victim)
     while (1) {
         switch (random_integer_between_zero_and(5)) {
         case 0:
-            item = hitting_u ? uarmh : which_armor(victim, W_ARMH);
+            item = hitting_u ? uarmh : which_armor(victim, WEARING_ARMOR_HELMET);
             if (item) {
                 mat_idx = objects[item->otyp].oc_material;
                 Sprintf(buf, "%s %s", material_names[mat_idx],
@@ -120,32 +120,32 @@ burnarmor(struct monster *victim)
                 continue;
             break;
         case 1:
-            item = hitting_u ? uarmc : which_armor(victim, W_ARMC);
+            item = hitting_u ? uarmc : which_armor(victim, WEARING_ARMOR_CLOAK);
             if (item) {
                 (void) burn_dmg(item, cloak_simple_name(item));
                 return TRUE;
             }
-            item = hitting_u ? uarm : which_armor(victim, W_ARM);
+            item = hitting_u ? uarm : which_armor(victim, WEARING_ARMOR_BODY);
             if (item) {
                 (void) burn_dmg(item, xname(item));
                 return TRUE;
             }
-            item = hitting_u ? uarmu : which_armor(victim, W_ARMU);
+            item = hitting_u ? uarmu : which_armor(victim, WEARING_ARMOR_UNDERSHIRT);
             if (item)
                 (void) burn_dmg(item, "shirt");
             return TRUE;
         case 2:
-            item = hitting_u ? uarms : which_armor(victim, W_ARMS);
+            item = hitting_u ? uarms : which_armor(victim, WEARING_ARMOR_SHIELD);
             if (!burn_dmg(item, "wooden shield"))
                 continue;
             break;
         case 3:
-            item = hitting_u ? uarmg : which_armor(victim, W_ARMG);
+            item = hitting_u ? uarmg : which_armor(victim, WEARING_ARMOR_GLOVES);
             if (!burn_dmg(item, "gloves"))
                 continue;
             break;
         case 4:
-            item = hitting_u ? uarmf : which_armor(victim, W_ARMF);
+            item = hitting_u ? uarmf : which_armor(victim, WEARING_ARMOR_FOOTWEAR);
             if (!burn_dmg(item, "boots"))
                 continue;
             break;
@@ -1595,21 +1595,21 @@ trapeffect_rust_trap(
             if (in_sight)
                 pline("%s %s on the %s!", A_gush_of_water_hits,
                       mon_nam(mtmp), mbodypart(mtmp, HEAD));
-            target = which_armor(mtmp, W_ARMH);
+            target = which_armor(mtmp, WEARING_ARMOR_HELMET);
             (void) water_damage(target, helm_simple_name(target), TRUE);
             break;
         case 1:
             if (in_sight)
                 pline("%s %s's left %s!", A_gush_of_water_hits,
                       mon_nam(mtmp), mbodypart(mtmp, ARM));
-            target = which_armor(mtmp, W_ARMS);
+            target = which_armor(mtmp, WEARING_ARMOR_SHIELD);
             if (water_damage(target, "shield", TRUE) != ER_NOTHING)
                 break;
             target = MON_WEP(mtmp);
             if (target && bimanual(target))
                 (void) water_damage(target, 0, TRUE);
  mglovecheck:
-            target = which_armor(mtmp, W_ARMG);
+            target = which_armor(mtmp, WEARING_ARMOR_GLOVES);
             (void) water_damage(target, gloves_simple_name(target), TRUE);
             break;
         case 2:
@@ -1624,15 +1624,15 @@ trapeffect_rust_trap(
             for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
                 if (otmp->lamplit
                     /* exclude weapon(s) because cases 1 and 2 do them */
-                    && (otmp->owornmask & (W_WEP | W_SWAPWEP)) == 0)
+                    && (otmp->owornmask & (WEARING_WEAPON | WEARING_SECONDARY_WEAPON)) == 0)
                     (void) splash_lit(otmp);
-            if ((target = which_armor(mtmp, W_ARMC)) != 0)
+            if ((target = which_armor(mtmp, WEARING_ARMOR_CLOAK)) != 0)
                 (void) water_damage(target, cloak_simple_name(target),
                                     TRUE);
-            else if ((target = which_armor(mtmp, W_ARM)) != 0)
+            else if ((target = which_armor(mtmp, WEARING_ARMOR_BODY)) != 0)
                 (void) water_damage(target, suit_simple_name(target),
                                     TRUE);
-            else if ((target = which_armor(mtmp, W_ARMU)) != 0)
+            else if ((target = which_armor(mtmp, WEARING_ARMOR_UNDERSHIRT)) != 0)
                 (void) water_damage(target, "shirt", TRUE);
         }
 
@@ -3732,7 +3732,7 @@ mselftouch(
         minstapetrify(mon, byplayer);
         /* if life-saved, might not be able to continue wielding */
         if (!DEADMONSTER(mon)
-            && !which_armor(mon, W_ARMG) && !resists_ston(mon))
+            && !which_armor(mon, WEARING_ARMOR_GLOVES) && !resists_ston(mon))
             mwepgone(mon);
     }
 }
@@ -3920,7 +3920,7 @@ float_down(
             You_feel("heavier.");
         /* u.uinwater msgs already in spoteffects()/drown() */
         } else if (!u.uinwater && !no_msg) {
-            if (!(emask & W_SADDLE)) {
+            if (!(emask & WEARING_SADDLE)) {
                 if (Sokoban && trap) {
                     /* Justification elsewhere for Sokoban traps is based
                      * on air currents.  This is consistent with that.
@@ -4384,7 +4384,7 @@ lava_damage(struct obj *obj, coordxy x, coordxy y)
        note: potions are glass so fall through to fire_damage() and boil */
     if (objects[otyp].oc_material < DRAGON_HIDE
         && ocls != SCROLL_CLASS && ocls != SPBOOK_CLASS
-        && objects[otyp].oc_oprop != FIRE_RES
+        && objects[otyp].oc_oprop != FIRE_RESISTANCE
         && otyp != WAN_FIRE && otyp != FIRE_HORN
         /* assumes oerodeproof isn't overloaded for some other purpose on
            non-eroding items */
@@ -6559,7 +6559,7 @@ lava_effects(void)
             /* set obj->in_use for items which will be destroyed below */
             if ((is_organic(obj) || obj->oclass == POTION_CLASS)
                 && !obj->oerodeproof
-                && objects[obj->otyp].oc_oprop != FIRE_RES
+                && objects[obj->otyp].oc_oprop != FIRE_RESISTANCE
                 && obj->otyp != SCR_FIRE && obj->otyp != SPE_FIREBALL
                 && !obj_resists(obj, 0, 0)) /* for invocation items */
                 obj->in_use = 1;

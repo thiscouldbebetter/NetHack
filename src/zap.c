@@ -393,7 +393,7 @@ bhitm(struct monster *mtmp, struct obj *otmp)
                 wakeup(mtmp, !mindless(mtmp->data));
                 abuse_dog(mtmp);
             }
-        } else if ((obj = which_armor(mtmp, W_SADDLE)) != 0) {
+        } else if ((obj = which_armor(mtmp, WEARING_SADDLE)) != 0) {
             char buf[BUFSZ];
 
             Sprintf(buf, "%s %s", s_suffix(Monnam(mtmp)),
@@ -1201,50 +1201,50 @@ cancel_item(struct obj *obj)
         /* handle items being worn by hero */
         switch (otyp) {
         case RIN_GAIN_STRENGTH:
-            if ((obj->owornmask & W_RING) != 0L) {
+            if ((obj->owornmask & WEARING_RING) != 0L) {
                 ATTRIBUTE_BONUS(ATTRIBUTE_STRENGTH) -= obj->spe;
                 disp.botl = TRUE;
             }
             break;
         case RIN_GAIN_CONSTITUTION:
-            if ((obj->owornmask & W_RING) != 0L) {
+            if ((obj->owornmask & WEARING_RING) != 0L) {
                 ATTRIBUTE_BONUS(ATTRIBUTE_CONSTITUTION) -= obj->spe;
                 disp.botl = TRUE;
             }
             break;
         case RIN_ADORNMENT:
-            if ((obj->owornmask & W_RING) != 0L) {
+            if ((obj->owornmask & WEARING_RING) != 0L) {
                 ATTRIBUTE_BONUS(ATTRIBUTE_CHARISMA) -= obj->spe;
                 disp.botl = TRUE;
             }
             break;
         case RIN_INCREASE_ACCURACY:
-            if ((obj->owornmask & W_RING) != 0L)
+            if ((obj->owornmask & WEARING_RING) != 0L)
                 u.hit_increment -= obj->spe;
             break;
         case RIN_INCREASE_DAMAGE:
-            if ((obj->owornmask & W_RING) != 0L)
+            if ((obj->owornmask & WEARING_RING) != 0L)
                 u.damage_increment -= obj->spe;
             break;
         case RIN_PROTECTION:
-            if ((obj->owornmask & W_RING) != 0L)
+            if ((obj->owornmask & WEARING_RING) != 0L)
                 disp.botl = TRUE;
             break;
         case GAUNTLETS_OF_DEXTERITY:
-            if ((obj->owornmask & W_ARMG) != 0L) {
+            if ((obj->owornmask & WEARING_ARMOR_GLOVES) != 0L) {
                 ATTRIBUTE_BONUS(ATTRIBUTE_DEXTERITY) -= obj->spe;
                 disp.botl = TRUE;
             }
             break;
         case HELM_OF_BRILLIANCE:
-            if ((obj->owornmask & W_ARMH) != 0L) {
+            if ((obj->owornmask & WEARING_ARMOR_HELMET) != 0L) {
                 ATTRIBUTE_BONUS(ATTRIBUTE_INTELLIGENCE) -= obj->spe;
                 ATTRIBUTE_BONUS(ATTRIBUTE_WISDOM) -= obj->spe;
                 disp.botl = TRUE;
             }
             break;
         default:
-            if ((obj->owornmask & W_ARMOR) != 0L) /* AC */
+            if ((obj->owornmask & WEARING_ARMOR) != 0L) /* AC */
                 disp.botl = TRUE;
             break;
         }
@@ -1359,29 +1359,29 @@ drain_item(struct obj *obj, boolean by_you)
     u_ring = (obj == uleft) || (obj == uright);
     switch (obj->otyp) {
     case RIN_GAIN_STRENGTH:
-        if ((obj->owornmask & W_RING) && u_ring) {
+        if ((obj->owornmask & WEARING_RING) && u_ring) {
             ATTRIBUTE_BONUS(ATTRIBUTE_STRENGTH)--;
             disp.botl = TRUE;
         }
         break;
     case RIN_GAIN_CONSTITUTION:
-        if ((obj->owornmask & W_RING) && u_ring) {
+        if ((obj->owornmask & WEARING_RING) && u_ring) {
             ATTRIBUTE_BONUS(ATTRIBUTE_CONSTITUTION)--;
             disp.botl = TRUE;
         }
         break;
     case RIN_ADORNMENT:
-        if ((obj->owornmask & W_RING) && u_ring) {
+        if ((obj->owornmask & WEARING_RING) && u_ring) {
             ATTRIBUTE_BONUS(ATTRIBUTE_CHARISMA)--;
             disp.botl = TRUE;
         }
         break;
     case RIN_INCREASE_ACCURACY:
-        if ((obj->owornmask & W_RING) && u_ring)
+        if ((obj->owornmask & WEARING_RING) && u_ring)
             u.hit_increment--;
         break;
     case RIN_INCREASE_DAMAGE:
-        if ((obj->owornmask & W_RING) && u_ring)
+        if ((obj->owornmask & WEARING_RING) && u_ring)
             u.damage_increment--;
         break;
     case RIN_PROTECTION:
@@ -1389,14 +1389,14 @@ drain_item(struct obj *obj, boolean by_you)
             disp.botl = TRUE; /* bot() will recalc u.uac */
         break;
     case HELM_OF_BRILLIANCE:
-        if ((obj->owornmask & W_ARMH) && (obj == uarmh)) {
+        if ((obj->owornmask & WEARING_ARMOR_HELMET) && (obj == uarmh)) {
             ATTRIBUTE_BONUS(ATTRIBUTE_INTELLIGENCE)--;
             ATTRIBUTE_BONUS(ATTRIBUTE_WISDOM)--;
             disp.botl = TRUE;
         }
         break;
     case GAUNTLETS_OF_DEXTERITY:
-        if ((obj->owornmask & W_ARMG) && (obj == uarmg)) {
+        if ((obj->owornmask & WEARING_ARMOR_GLOVES) && (obj == uarmg)) {
             ATTRIBUTE_BONUS(ATTRIBUTE_DEXTERITY)--;
             disp.botl = TRUE;
         }
@@ -1846,7 +1846,7 @@ poly_obj(struct obj *obj, int id)
      */
 
     (void) get_obj_location(obj, &ox, &oy, BURIED_TOO | CONTAINED_TOO);
-    old_wornmask = obj->owornmask & ~(W_ART | W_ARTI);
+    old_wornmask = obj->owornmask & ~(WEARING_ARTIFACT | WEARING_ARTIFACT_INVOKED);
     /* swap otmp for obj */
     replace_object(obj, otmp);
     if (obj_location == OBJ_INVENT) {
@@ -1873,21 +1873,21 @@ poly_obj(struct obj *obj, int id)
                items in case they're not weapons; for other slots it might
                return multiple bits (ring left|right); narrow that down to
                the bit(s) currently in use */
-            new_wornmask = ((old_wornmask & W_WEAPONS) != 0L) ? old_wornmask
+            new_wornmask = ((old_wornmask & WEARING_WEAPONS) != 0L) ? old_wornmask
                            : (wearslot(otmp) & old_wornmask);
             remove_worn_item(obj, TRUE);
             /* if the new form can be worn in the same slot, make it so */
-            if ((new_wornmask & W_WEP) != 0L) {
+            if ((new_wornmask & WEARING_WEAPON) != 0L) {
                 if (was_twohanded || !bimanual(otmp) || !uarms)
                     setuwep(otmp);
                 if (was_twoweap && uwep && !bimanual(uwep))
                     set_twoweap(TRUE); /* u.twoweap = TRUE */
-            } else if ((new_wornmask & W_SWAPWEP) != 0L) {
+            } else if ((new_wornmask & WEARING_SECONDARY_WEAPON) != 0L) {
                 if (was_twohanded || !bimanual(otmp))
                     setuswapwep(otmp);
                 if (was_twoweap && uswapwep)
                     set_twoweap(TRUE); /* u.twoweap = TRUE */
-            } else if ((new_wornmask & W_QUIVER) != 0L) {
+            } else if ((new_wornmask & WEARING_QUIVER) != 0L) {
                 setuqwep(otmp);
             } else if (new_wornmask) {
                 setworn(otmp, new_wornmask);
@@ -4194,21 +4194,21 @@ zhitm(
 
             if (resists_disint(mon) || defended(mon, AD_DISN)) {
                 sho_shieldeff = TRUE;
-            } else if (mon->misc_worn_check & W_ARMS) {
+            } else if (mon->misc_worn_check & WEARING_ARMOR_SHIELD) {
                 /* destroy shield; victim survives */
-                *ootmp = which_armor(mon, W_ARMS);
-            } else if (mon->misc_worn_check & W_ARM) {
+                *ootmp = which_armor(mon, WEARING_ARMOR_SHIELD);
+            } else if (mon->misc_worn_check & WEARING_ARMOR_BODY) {
                 /* destroy suit, also cloak if present */
-                *ootmp = which_armor(mon, W_ARM);
-                if ((otmp2 = which_armor(mon, W_ARMC)) != 0)
+                *ootmp = which_armor(mon, WEARING_ARMOR_BODY);
+                if ((otmp2 = which_armor(mon, WEARING_ARMOR_CLOAK)) != 0)
                     m_useup(mon, otmp2);
             } else {
                 /* no suit, victim dies; destroy cloak
                    and shirt now in case target gets life-saved */
                 tmp = MAGIC_COOKIE;
-                if ((otmp2 = which_armor(mon, W_ARMC)) != 0)
+                if ((otmp2 = which_armor(mon, WEARING_ARMOR_CLOAK)) != 0)
                     m_useup(mon, otmp2);
-                if ((otmp2 = which_armor(mon, W_ARMU)) != 0)
+                if ((otmp2 = which_armor(mon, WEARING_ARMOR_UNDERSHIRT)) != 0)
                     m_useup(mon, otmp2);
             }
             type = -1; /* no saving throw wanted */
@@ -4567,7 +4567,7 @@ disintegrate_mon(
 
 /* note: worn amulet of life saving must be preserved in order to operate */
 #define oresist_disintegration(obj)                                       \
-    (objects[obj->otyp].oc_oprop == DISINT_RES || obj_resists(obj, 5, 50) \
+    (objects[obj->otyp].oc_oprop == DISINTEGRATION_RESISTANCE || obj_resists(obj, 5, 50) \
      || is_quest_artifact(obj) || obj == m_amulet)
 
     for (otmp = mon->minvent; otmp; otmp = otmp2) {
@@ -5494,15 +5494,15 @@ adtyp_to_prop(int dmgtyp)
 {
     switch (dmgtyp) {
     case AD_COLD:
-        return COLD_RES;
+        return COLD_RESISTANCE;
     case AD_FIRE:
-        return FIRE_RES;
+        return FIRE_RESISTANCE;
     case AD_ELEC:
-        return SHOCK_RES;
+        return SHOCK_RESISTANCE;
     case AD_ACID:
-        return ACID_RES;
+        return ACID_RESISTANCE;
     case AD_DISN:
-        return DISINT_RES;
+        return DISINTEGRATION_RESISTANCE;
     default:
         break;
     }
@@ -5521,7 +5521,7 @@ u_adtyp_resistance_obj(int dmgtyp)
 
     /* Items that give an extrinsic resistance give 99% protection to
        your items */
-    if ((u.uprops[prop].extrinsic & (W_ARMOR | W_ACCESSORY | W_WEP)) != 0)
+    if ((u.uprops[prop].extrinsic & (WEARING_ARMOR | WEARING_ACCESSORY | WEARING_WEAPON)) != 0)
         return 99;
 
     /* Dwarvish cloaks give a 90% protection to items against heat and cold */
@@ -5565,28 +5565,28 @@ item_what(int dmgtyp)
     if (wizard) {
         if (!prop || !xtrinsic) {
             ; /* 'what' stays Null */
-        } else if (xtrinsic & W_ARMC) {
+        } else if (xtrinsic & WEARING_ARMOR_CLOAK) {
             what = cloak_simple_name(uarmc);
-        } else if (xtrinsic & W_ARM) {
+        } else if (xtrinsic & WEARING_ARMOR_BODY) {
             what = suit_simple_name(uarm); /* "dragon {scales,mail}" */
-        } else if (xtrinsic & W_ARMU) {
+        } else if (xtrinsic & WEARING_ARMOR_UNDERSHIRT) {
             what = shirt_simple_name(uarmu);
-        } else if (xtrinsic & W_ARMH) {
+        } else if (xtrinsic & WEARING_ARMOR_HELMET) {
             what = helm_simple_name(uarmh);
-        } else if (xtrinsic & W_ARMG) {
+        } else if (xtrinsic & WEARING_ARMOR_GLOVES) {
             what = gloves_simple_name(uarmg);
-        } else if (xtrinsic & W_ARMF) {
+        } else if (xtrinsic & WEARING_ARMOR_FOOTWEAR) {
             what = boots_simple_name(uarmf);
-        } else if (xtrinsic & W_ARMS) {
+        } else if (xtrinsic & WEARING_ARMOR_SHIELD) {
             what = shield_simple_name(uarms);
-        } else if (xtrinsic & (W_AMUL | W_TOOL)) {
-            what = simpleonames((xtrinsic & W_AMUL) ? uamul : ublindf);
-        } else if (xtrinsic & W_RING) {
-            if ((xtrinsic & W_RING) == W_RING) /* both */
+        } else if (xtrinsic & (WEARING_AMULET | WEARING_TOOL)) {
+            what = simpleonames((xtrinsic & WEARING_AMULET) ? uamul : ublindf);
+        } else if (xtrinsic & WEARING_RING) {
+            if ((xtrinsic & WEARING_RING) == WEARING_RING) /* both */
                 what = "rings";
             else
-                what = simpleonames((xtrinsic & W_RINGL) ? uleft : uright);
-        } else if (xtrinsic & W_WEP) {
+                what = simpleonames((xtrinsic & WEARING_RING_LEFT) ? uleft : uright);
+        } else if (xtrinsic & WEARING_WEAPON) {
             what = simpleonames(uwep);
         }
         /* format the output to be ready for enl_msg() to append it to
@@ -5696,7 +5696,7 @@ maybe_destroy_item(
         quan = obj->quan;
         switch (obj->oclass) {
         case RING_CLASS:
-            if (((obj->owornmask & W_RING) && uarmg && !is_metallic(uarmg))
+            if (((obj->owornmask & WEARING_RING) && uarmg && !is_metallic(uarmg))
                 || obj->otyp == RIN_SHOCK_RESISTANCE) {
                 skip++;
                 break;
@@ -5752,7 +5752,7 @@ maybe_destroy_item(
                 potionbreathe(obj);
             }
             if (obj->owornmask) { /* m_useup handles these for monster */
-                if (obj->owornmask & W_RING) /* ring being worn */
+                if (obj->owornmask & WEARING_RING) /* ring being worn */
                     Ring_gone(obj);
                 else
                     setnotworn(obj);

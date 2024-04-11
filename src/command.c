@@ -4171,7 +4171,7 @@ there_cmd_menu_next2u(
     mtmp = m_at(x, y);
     if (mtmp && !canspotmon(mtmp))
         mtmp = 0;
-    if (mtmp && which_armor(mtmp, W_SADDLE)) {
+    if (mtmp && which_armor(mtmp, WEARING_SADDLE)) {
         char *mnam = x_monnam(mtmp, ARTICLE_THE, (char *) 0,
                               SUPPRESS_SADDLE, FALSE);
 
@@ -4182,7 +4182,7 @@ there_cmd_menu_next2u(
         Sprintf(buf, "Remove saddle from %s", mnam);
         mcmd_addmenu(win, MCMD_REMOVE_SADDLE, buf), ++K;
     }
-    if (mtmp && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE)
+    if (mtmp && can_saddle(mtmp) && !which_armor(mtmp, WEARING_SADDLE)
         && carrying(SADDLE)) {
         Sprintf(buf, "Put saddle on %s", mon_nam(mtmp));
         mcmd_addmenu(win, MCMD_APPLY_SADDLE, buf), ++K;

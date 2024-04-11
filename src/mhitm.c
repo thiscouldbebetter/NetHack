@@ -224,7 +224,7 @@ mdisplacem(
     gv.vis = (canspotmon(magr) && canspotmon(mdef));
 
     if (touch_petrifies(pd) && !resists_ston(magr)) {
-        if (!which_armor(magr, W_ARMG)) {
+        if (!which_armor(magr, WEARING_ARMOR_GLOVES)) {
             if (poly_when_stoned(pa)) {
                 mon_to_stone(magr);
                 return M_ATTK_HIT; /* no damage during the polymorph */
@@ -1026,7 +1026,7 @@ mdamagem(
 
         /* wielded weapon gives same protection as gloves here */
         if (mwep)
-            wornitems |= W_ARMG;
+            wornitems |= WEARING_ARMOR_GLOVES;
 
         if (protector == 0L
             || (protector != ~0L && (wornitems & protector) != protector)) {
@@ -1470,16 +1470,16 @@ attk_protection(int aatyp)
     case AT_CLAW:
     case AT_TUCH:
     case AT_WEAP:
-        w_mask = W_ARMG; /* caller needs to check for weapon */
+        w_mask = WEARING_ARMOR_GLOVES; /* caller needs to check for weapon */
         break;
     case AT_KICK:
-        w_mask = W_ARMF;
+        w_mask = WEARING_ARMOR_FOOTWEAR;
         break;
     case AT_BUTT:
-        w_mask = W_ARMH;
+        w_mask = WEARING_ARMOR_HELMET;
         break;
     case AT_HUGS:
-        w_mask = (W_ARMC | W_ARMG); /* attacker needs both to be protected */
+        w_mask = (WEARING_ARMOR_CLOAK | WEARING_ARMOR_GLOVES); /* attacker needs both to be protected */
         break;
     case AT_BITE:
     case AT_STNG:

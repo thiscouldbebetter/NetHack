@@ -1024,11 +1024,11 @@ magic_negation(struct monster *mon)
 
     for (o = is_you ? gi.invent : mon->minvent; o; o = o->nobj) {
         /* a_can field is only applicable for armor (which must be worn) */
-        if ((o->owornmask & W_ARMOR) != 0L) {
+        if ((o->owornmask & WEARING_ARMOR) != 0L) {
             armpro = objects[o->otyp].a_can;
             if (armpro > mc)
                 mc = armpro;
-        } else if ((o->owornmask & W_AMUL) != 0L) {
+        } else if ((o->owornmask & WEARING_AMULET) != 0L) {
             via_amul = (o->otyp == AMULET_OF_GUARDING);
         }
         /* if we've already confirmed Protection, skip additional checks */
@@ -1036,9 +1036,9 @@ magic_negation(struct monster *mon)
             continue;
 
         /* omit W_SWAPWEP+W_QUIVER; W_ART+W_ARTI handled by protects() */
-        wearmask = W_ARMOR | W_ACCESSORY;
+        wearmask = WEARING_ARMOR | WEARING_ACCESSORY;
         if (o->oclass == WEAPON_CLASS || is_weptool(o))
-            wearmask |= W_WEP;
+            wearmask |= WEARING_WEAPON;
         if (protects(o, ((o->owornmask & wearmask) != 0L) ? TRUE : FALSE))
             gotprot = TRUE;
     }
@@ -2305,7 +2305,7 @@ passiveum(
 
         /* wielded weapon gives same protection as gloves here */
         if (MON_WEP(mtmp) != 0)
-            wornitems |= W_ARMG;
+            wornitems |= WEARING_ARMOR_GLOVES;
 
         if (!resists_ston(mtmp)
             && (protector == 0L

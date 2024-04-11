@@ -267,7 +267,7 @@ priestini(
             (void) mpickobj(priest, mkobj(SPBOOK_no_NOVEL, FALSE));
         }
         /* robe [via makemon()] */
-        if (random_integer_between_zero_and(2) && (otmp = which_armor(priest, W_ARMC)) != 0) {
+        if (random_integer_between_zero_and(2) && (otmp = which_armor(priest, WEARING_ARMOR_CLOAK)) != 0) {
             if (p_coaligned(priest))
                 uncurse(otmp);
             else

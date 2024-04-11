@@ -60,8 +60,8 @@ use_saddle(struct obj *otmp)
     }
 
     /* Is this a valid monster? */
-    if ((mtmp->misc_worn_check & W_SADDLE) != 0L
-        || which_armor(mtmp, W_SADDLE)) {
+    if ((mtmp->misc_worn_check & WEARING_SADDLE) != 0L
+        || which_armor(mtmp, WEARING_SADDLE)) {
         pline("%s doesn't need another one.", Monnam(mtmp));
         return ECMD_TIME;
     }
@@ -142,12 +142,12 @@ use_saddle(struct obj *otmp)
 void
 put_saddle_on_mon(struct obj *saddle, struct monster *mtmp)
 {
-    if (!can_saddle(mtmp) || which_armor(mtmp, W_SADDLE))
+    if (!can_saddle(mtmp) || which_armor(mtmp, WEARING_SADDLE))
         return;
     if (mpickobj(mtmp, saddle))
         panic("merged saddle?");
-    mtmp->misc_worn_check |= W_SADDLE;
-    saddle->owornmask = W_SADDLE;
+    mtmp->misc_worn_check |= WEARING_SADDLE;
+    saddle->owornmask = WEARING_SADDLE;
     saddle->leashmon = mtmp->m_id;
     update_mon_extrinsics(mtmp, saddle, TRUE, FALSE);
 }
@@ -268,7 +268,7 @@ mount_steed(
     }
 
     /* Is this a valid monster? */
-    otmp = which_armor(mtmp, W_SADDLE);
+    otmp = which_armor(mtmp, WEARING_SADDLE);
     if (!otmp) {
         pline("%s is not saddled.", Monnam(mtmp));
         return (FALSE);
@@ -587,7 +587,7 @@ dismount_steed(
     u.monster_being_ridden = mtmp;
 
     /* Check the reason for dismounting */
-    otmp = which_armor(mtmp, W_SADDLE);
+    otmp = which_armor(mtmp, WEARING_SADDLE);
     switch (reason) {
     case DISMOUNT_THROWN:
         verb = "are thrown";
@@ -797,7 +797,7 @@ dismount_steed(
     /* usually return the hero to the surface */
     if (reason != DISMOUNT_ENGULFED && reason != DISMOUNT_BONES) {
         gi.in_steed_dismounting = TRUE;
-        (void) float_down(0L, W_SADDLE);
+        (void) float_down(0L, WEARING_SADDLE);
         gi.in_steed_dismounting = FALSE;
         disp.botl = TRUE;
         (void) encumbered_message();

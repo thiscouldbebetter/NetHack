@@ -103,7 +103,7 @@ find_lev_obj(void)
            is on, rather than just an arbitrary one */
         if (u.uz.level_number) { /* 0 during full restore until current level */
             /* handle uchain and uball when they're on the floor */
-            if (otmp->owornmask & (W_BALL | W_CHAIN))
+            if (otmp->owornmask & (WEARING_BALL | WEARING_CHAIN))
                 setworn(otmp, otmp->owornmask);
         }
     }
@@ -425,7 +425,7 @@ restmonchn(NHFILE *nhfp)
             struct obj *obj;
 
             for (obj = mtmp->minvent; obj; obj = obj->nobj)
-                if (obj->owornmask & W_WEP)
+                if (obj->owornmask & WEARING_WEAPON)
                     break;
             if (obj)
                 mtmp->mw = obj;
@@ -843,8 +843,8 @@ dorecover(NHFILE *nhfp)
     if ((uball && !uchain) || (uchain && !uball)) {
         impossible("restgamestate: lost ball & chain");
         /* poor man's unpunish() */
-        setworn((struct obj *) 0, W_CHAIN);
-        setworn((struct obj *) 0, W_BALL);
+        setworn((struct obj *) 0, WEARING_CHAIN);
+        setworn((struct obj *) 0, WEARING_BALL);
     }
 
     /* in_use processing must be after:

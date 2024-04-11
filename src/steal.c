@@ -253,7 +253,7 @@ remove_worn_item(
     oldinuse = obj->in_use;
     obj->in_use = 1;
 
-    if (obj->owornmask & W_ARMOR) {
+    if (obj->owornmask & WEARING_ARMOR) {
         if (obj == uskin) {
             impossible("Removing embedded scales?");
             skinback(TRUE); /* uarm = uskin; uskin = 0; */
@@ -274,14 +274,14 @@ remove_worn_item(
             (void) Shirt_off();
         /* catchall -- should never happen */
         else
-            setworn((struct obj *) 0, obj->owornmask & W_ARMOR);
-    } else if (obj->owornmask & W_AMUL) {
+            setworn((struct obj *) 0, obj->owornmask & WEARING_ARMOR);
+    } else if (obj->owornmask & WEARING_AMULET) {
         Amulet_off();
-    } else if (obj->owornmask & W_RING) {
+    } else if (obj->owornmask & WEARING_RING) {
         Ring_gone(obj);
-    } else if (obj->owornmask & W_TOOL) {
+    } else if (obj->owornmask & WEARING_TOOL) {
         Blindf_off(obj);
-    } else if (obj->owornmask & W_WEAPONS) {
+    } else if (obj->owornmask & WEARING_WEAPONS) {
         if (obj == uwep)
             uwepgone();
         if (obj == uswapwep)
@@ -290,7 +290,7 @@ remove_worn_item(
             uqwepgone();
     }
 
-    if (obj->owornmask & (W_BALL | W_CHAIN)) {
+    if (obj->owornmask & (WEARING_BALL | WEARING_CHAIN)) {
         if (unchain_ball)
             unpunish();
     } else if (obj->owornmask) {
@@ -433,14 +433,14 @@ steal(struct monster *mtmp, char *objnambuf)
     for (otmp = gi.invent; otmp; otmp = otmp->nobj)
         if ((!uarm || otmp != uarmc) && otmp != uskin
             && otmp->oclass != COIN_CLASS)
-            tmp += (otmp->owornmask & (W_ARMOR | W_ACCESSORY)) ? 5 : 1;
+            tmp += (otmp->owornmask & (WEARING_ARMOR | WEARING_ACCESSORY)) ? 5 : 1;
     if (!tmp)
         goto nothing_to_steal;
     tmp = random_integer_between_zero_and(tmp);
     for (otmp = gi.invent; otmp; otmp = otmp->nobj)
         if ((!uarm || otmp != uarmc) && otmp != uskin
             && otmp->oclass != COIN_CLASS) {
-            tmp -= (otmp->owornmask & (W_ARMOR | W_ACCESSORY)) ? 5 : 1;
+            tmp -= (otmp->owornmask & (WEARING_ARMOR | WEARING_ACCESSORY)) ? 5 : 1;
             if (tmp < 0)
                 break;
         }
@@ -497,8 +497,8 @@ steal(struct monster *mtmp, char *objnambuf)
  cant_take:
             pline("%s tries to %s %s%s but gives up.", Monnambuf,
                   ROLL_FROM(how),
-                  (otmp->owornmask & W_ARMOR) ? "your " : "",
-                  (otmp->owornmask & W_ARMOR) ? equipname(otmp)
+                  (otmp->owornmask & WEARING_ARMOR) ? "your " : "",
+                  (otmp->owornmask & WEARING_ARMOR) ? equipname(otmp)
                                               : yname(otmp));
             /* the fewer items you have, the less likely the thief
                is going to stick around to try again (0) instead of
@@ -520,7 +520,7 @@ steal(struct monster *mtmp, char *objnambuf)
     /* you're going to notice the theft... */
     stop_occupation();
 
-    if (otmp->owornmask & (W_ARMOR | W_ACCESSORY)) {
+    if (otmp->owornmask & (WEARING_ARMOR | WEARING_ACCESSORY)) {
         switch (otmp->oclass) {
         case TOOL_CLASS:
         case AMULET_CLASS:
@@ -594,7 +594,7 @@ steal(struct monster *mtmp, char *objnambuf)
            present though and 'otmp' is still valid; if uball was also
            wielded or quivered, the corresponding weapon pointer hasn't
            been cleared yet; do that, with no preface message this time */
-        if ((otmp->owornmask & W_WEAPONS) != 0L)
+        if ((otmp->owornmask & WEARING_WEAPONS) != 0L)
             remove_worn_item(otmp, FALSE);
     }
 
@@ -621,7 +621,7 @@ steal(struct monster *mtmp, char *objnambuf)
                      && touch_petrifies(&mons[otmp->corpsenm]));
     otmp->how_lost = LOST_STOLEN;
     (void) mpickobj(mtmp, otmp); /* may free otmp */
-    if (could_petrify && !(mtmp->misc_worn_check & W_ARMG)) {
+    if (could_petrify && !(mtmp->misc_worn_check & WEARING_ARMOR_GLOVES)) {
         minstapetrify(mtmp, TRUE);
         return -1;
     }
@@ -840,7 +840,7 @@ mdrop_obj(
     extract_from_minvent(mon, obj, FALSE, TRUE);
     /* don't charge for an owned saddle on dead steed (provided
         that the hero is within the same shop at the time) */
-    if (unwornmask && mon->mtame && (unwornmask & W_SADDLE) != 0L
+    if (unwornmask && mon->mtame && (unwornmask & WEARING_SADDLE) != 0L
         && !obj->unpaid && costly_spot(omx, omy)
         /* being at costly_spot guarantees lev->roomno is not 0 */
         && strchr(in_rooms(u.ux, u.uy, SHOPBASE), levl[omx][omy].roomno)) {

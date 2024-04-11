@@ -135,44 +135,44 @@ erode_armor(struct monster *mdef, int hurt)
     while (1) {
         switch (random_integer_between_zero_and(5)) {
         case 0:
-            target = which_armor(mdef, W_ARMH);
+            target = which_armor(mdef, WEARING_ARMOR_HELMET);
             if (!target
                 || erode_obj(target, xname(target), hurt, EF_GREASE)
                        == ER_NOTHING)
                 continue;
             break;
         case 1:
-            target = which_armor(mdef, W_ARMC);
+            target = which_armor(mdef, WEARING_ARMOR_CLOAK);
             if (target) {
                 (void) erode_obj(target, xname(target), hurt,
                                  EF_GREASE | EF_VERBOSE);
                 break;
             }
-            if ((target = which_armor(mdef, W_ARM)) != (struct obj *) 0) {
+            if ((target = which_armor(mdef, WEARING_ARMOR_BODY)) != (struct obj *) 0) {
                 (void) erode_obj(target, xname(target), hurt,
                                  EF_GREASE | EF_VERBOSE);
-            } else if ((target = which_armor(mdef, W_ARMU))
+            } else if ((target = which_armor(mdef, WEARING_ARMOR_UNDERSHIRT))
                        != (struct obj *) 0) {
                 (void) erode_obj(target, xname(target), hurt,
                                  EF_GREASE | EF_VERBOSE);
             }
             break;
         case 2:
-            target = which_armor(mdef, W_ARMS);
+            target = which_armor(mdef, WEARING_ARMOR_SHIELD);
             if (!target
                 || erode_obj(target, xname(target), hurt, EF_GREASE)
                        == ER_NOTHING)
                 continue;
             break;
         case 3:
-            target = which_armor(mdef, W_ARMG);
+            target = which_armor(mdef, WEARING_ARMOR_GLOVES);
             if (!target
                 || erode_obj(target, xname(target), hurt, EF_GREASE)
                        == ER_NOTHING)
                 continue;
             break;
         case 4:
-            target = which_armor(mdef, W_ARMF);
+            target = which_armor(mdef, WEARING_ARMOR_FOOTWEAR);
             if (!target
                 || erode_obj(target, xname(target), hurt, EF_GREASE)
                        == ER_NOTHING)
@@ -853,22 +853,22 @@ hmon_hitmon_barehands(struct _hitmon_data *hmd, struct monster *mon)
        When making only one hit, both rings are checked (backwards
        compatibility => playability), but when making two hits, only the
        ring on the hand making the attack is checked. */
-    spcdmgflg = uarmg ? W_ARMG
-              : (((hmd->twohits == 0 || hmd->twohits == 1) ? W_RINGR : 0L)
-                 | ((hmd->twohits == 0 || hmd->twohits == 2) ? W_RINGL : 0L));
+    spcdmgflg = uarmg ? WEARING_ARMOR_GLOVES
+              : (((hmd->twohits == 0 || hmd->twohits == 1) ? WEARING_RING_RIGHT : 0L)
+                 | ((hmd->twohits == 0 || hmd->twohits == 2) ? WEARING_RING_LEFT : 0L));
     hmd->damage += special_dmgval(&gy.youmonst, mon, spcdmgflg, &silverhit);
 
     /* copy silverhit info back into struct _hitmon_data *hmd */
     switch (hmd->twohits) {
     case 0: /* only one hit being attempted; a silver ring on either hand
              * applies but having silver rings on both is same as just one */
-        hmd->barehand_silver_rings = (silverhit & (W_RINGR | W_RINGL)) ? 1 : 0;
+        hmd->barehand_silver_rings = (silverhit & (WEARING_RING_RIGHT | WEARING_RING_LEFT)) ? 1 : 0;
         break;
     case 1: /* first of two or more hit attempts; right ring applies */
-        hmd->barehand_silver_rings = (silverhit & W_RINGR) ? 1 : 0;
+        hmd->barehand_silver_rings = (silverhit & WEARING_RING_RIGHT) ? 1 : 0;
         break;
     case 2: /* second of two or more hit attempts; left ring applies */
-        hmd->barehand_silver_rings = (silverhit & W_RINGL) ? 1 : 0;
+        hmd->barehand_silver_rings = (silverhit & WEARING_RING_LEFT) ? 1 : 0;
         break;
     default: /* third or later of more than two hit attempts (poly'd hero);
               * rings were applied on first and second hits */
@@ -1987,14 +1987,14 @@ m_slips_free(struct monster *mdef, struct attack *mattk)
 
     if (mattk->adtyp == AD_DRIN) {
         /* intelligence drain attacks the head */
-        obj = which_armor(mdef, W_ARMH);
+        obj = which_armor(mdef, WEARING_ARMOR_HELMET);
     } else {
         /* grabbing attacks the body */
-        obj = which_armor(mdef, W_ARMC); /* cloak */
+        obj = which_armor(mdef, WEARING_ARMOR_CLOAK); /* cloak */
         if (!obj)
-            obj = which_armor(mdef, W_ARM); /* suit */
+            obj = which_armor(mdef, WEARING_ARMOR_BODY); /* suit */
         if (!obj)
-            obj = which_armor(mdef, W_ARMU); /* shirt */
+            obj = which_armor(mdef, WEARING_ARMOR_UNDERSHIRT); /* shirt */
     }
 
     /* if monster's cloak/armor is greased, your grab slips off; this
@@ -2109,7 +2109,7 @@ steal_it(struct monster *mdef, struct attack *mattk)
         /* find armor, and move it to end of inventory in the process */
         minvent_ptr = &mdef->minvent;
         while ((otmp = *minvent_ptr) != 0)
-            if (otmp->owornmask & W_ARM) {
+            if (otmp->owornmask & WEARING_ARMOR_BODY) {
                 if (ustealo)
                     panic("steal_it: multiple worn suits");
                 *minvent_ptr = otmp->nobj; /* take armor out of minvent */
@@ -2174,9 +2174,9 @@ steal_it(struct monster *mdef, struct attack *mattk)
         if (theft_petrifies(otmp))
             break; /* stop thieving even though hero survived */
         /* more take-away handling, after theft message */
-        if (unwornmask & W_WEP) { /* stole wielded weapon */
+        if (unwornmask & WEARING_WEAPON) { /* stole wielded weapon */
             possibly_unwield(mdef, FALSE);
-        } else if (unwornmask & W_ARMG) { /* stole worn gloves */
+        } else if (unwornmask & WEARING_ARMOR_GLOVES) { /* stole worn gloves */
             mselftouch(mdef, (const char *) 0, TRUE);
             if (DEADMONSTER(mdef)) /* it's now a statue */
                 break; /* can't continue stealing */
@@ -3119,19 +3119,19 @@ mhitm_ad_drin(
         if (m_slips_free(mdef, mattk))
             return;
 
-        if ((helmet = which_armor(mdef, W_ARMH)) != 0 && random_integer_between_zero_and(8)) {
+        if ((helmet = which_armor(mdef, WEARING_ARMOR_HELMET)) != 0 && random_integer_between_zero_and(8)) {
             pline("%s %s blocks your attack to %s head.",
                   s_suffix(Monnam(mdef)), helm_simple_name(helmet),
                   mhis(mdef));
             return;
         }
-        amu = which_armor(mdef, W_AMUL);
+        amu = which_armor(mdef, WEARING_AMULET);
         lifsav = amu && amu->otyp == AMULET_OF_LIFE_SAVING;
 
         (void) eat_brains(&gy.youmonst, mdef, TRUE, &mhm->damage);
 
         /* skip further AD_DRIN if amulet of life-saving got used up */
-        if (lifsav && !which_armor(mdef, W_AMUL))
+        if (lifsav && !which_armor(mdef, WEARING_AMULET))
             gs.skipdrin = TRUE;
 
     } else if (mdef == &gy.youmonst) {
@@ -3191,7 +3191,7 @@ mhitm_ad_drin(
             gs.skipdrin = TRUE; /* affects mattackm()'s attack loop */
             return;
         }
-        if ((mdef->misc_worn_check & W_ARMH) && random_integer_between_zero_and(8)) {
+        if ((mdef->misc_worn_check & WEARING_ARMOR_HELMET) && random_integer_between_zero_and(8)) {
             if (gv.vis && canspotmon(magr) && canseemon(mdef)) {
                 Strcpy(buf, s_suffix(Monnam(mdef)));
                 pline("%s helmet blocks %s attack to %s head.", buf,
@@ -3199,13 +3199,13 @@ mhitm_ad_drin(
             }
             return;
         }
-        amu = which_armor(mdef, W_AMUL);
+        amu = which_armor(mdef, WEARING_AMULET);
         lifsav = amu && amu->otyp == AMULET_OF_LIFE_SAVING;
 
         mhm->hitflags = eat_brains(magr, mdef, gv.vis, &mhm->damage);
 
         /* skip further AD_DRIN if amulet of life-saving got used up */
-        if (lifsav && !which_armor(mdef, W_AMUL))
+        if (lifsav && !which_armor(mdef, WEARING_AMULET))
             gs.skipdrin = TRUE;
     }
 }
@@ -3959,7 +3959,7 @@ mhitm_ad_phys(
                     }
                 }
                 mhm->damage += dmgval(otmp, mdef);
-                if ((marmg = which_armor(magr, W_ARMG)) != 0
+                if ((marmg = which_armor(magr, WEARING_ARMOR_GLOVES)) != 0
                     && marmg->otyp == GAUNTLETS_OF_POWER)
                     mhm->damage += rn1(4, 3); /* 3..6 */
                 if (mhm->damage <= 0)
@@ -4032,7 +4032,7 @@ mhitm_ad_phys(
             }
 
             mhm->damage += dmgval(mwep, mdef);
-            if ((marmg = which_armor(magr, W_ARMG)) != 0
+            if ((marmg = which_armor(magr, WEARING_ARMOR_GLOVES)) != 0
                 && marmg->otyp == GAUNTLETS_OF_POWER)
                 mhm->damage += rn1(4, 3); /* 3..6 */
             if (mhm->damage < 1) /* is this necessary?  mhitu.c has it... */
@@ -4584,7 +4584,7 @@ mhitm_ad_sedu(
             Strcpy(mdefnambuf,
                    x_monnam(mdef, ARTICLE_THE, (char *) 0, 0, FALSE));
 
-            if (u.monster_being_ridden == mdef && obj == which_armor(mdef, W_SADDLE))
+            if (u.monster_being_ridden == mdef && obj == which_armor(mdef, WEARING_SADDLE))
                 /* "You can no longer ride <steed>." */
                 dismount_steed(DISMOUNT_POLY);
             extract_from_minvent(mdef, obj, TRUE, FALSE);
@@ -5137,7 +5137,7 @@ mhitm_knockback(
 
     /* if hero is stuck to a cursed saddle, knock the steed back */
     if (u_def && u.monster_being_ridden) {
-        if ((otmp = which_armor(u.monster_being_ridden, W_SADDLE)) != 0 && otmp->cursed) {
+        if ((otmp = which_armor(u.monster_being_ridden, WEARING_SADDLE)) != 0 && otmp->cursed) {
             mdef = u.monster_being_ridden;
             was_u = TRUE;
             u_def = FALSE;
@@ -5432,11 +5432,11 @@ hmonas(struct monster *mon)
                        make poly'd hero mysteriously switch handedness */
                     odd_claw = !odd_claw;
                     specialdmg = special_dmgval(&gy.youmonst, mon,
-                                                W_ARMG
+                                                WEARING_ARMOR_GLOVES
                                                 | ((odd_claw || !multi_claw)
-                                                   ? W_RINGL : 0L)
+                                                   ? WEARING_RING_LEFT : 0L)
                                                 | ((!odd_claw || !multi_claw)
-                                                   ? W_RINGR : 0L),
+                                                   ? WEARING_RING_RIGHT : 0L),
                                                 &silverhit);
                     break;
                 case AT_TENT:
@@ -5446,7 +5446,7 @@ hmonas(struct monster *mon)
                     break;
                 case AT_KICK:
                     verb = "kick";
-                    specialdmg = special_dmgval(&gy.youmonst, mon, W_ARMF,
+                    specialdmg = special_dmgval(&gy.youmonst, mon, WEARING_ARMOR_FOOTWEAR,
                                                 &silverhit);
                     break;
                 case AT_BUTT:
@@ -5454,7 +5454,7 @@ hmonas(struct monster *mon)
                     /* hypothetical; if any form with a head-butt attack
                        could wear a helmet, it would hit shades when
                        wearing a blessed (or silver) one */
-                    specialdmg = special_dmgval(&gy.youmonst, mon, W_ARMH,
+                    specialdmg = special_dmgval(&gy.youmonst, mon, WEARING_ARMOR_HELMET,
                                                 &silverhit);
                     break;
                 case AT_BITE:
@@ -5522,8 +5522,8 @@ hmonas(struct monster *mon)
             /* choking hug/throttling grab uses hands (gloves or rings);
                normal hug uses outermost of cloak/suit/shirt */
             specialdmg = special_dmgval(&gy.youmonst, mon,
-                                        byhand ? (W_ARMG | W_RINGL | W_RINGR)
-                                               : (W_ARMC | W_ARM | W_ARMU),
+                                        byhand ? (WEARING_ARMOR_GLOVES | WEARING_RING_LEFT | WEARING_RING_RIGHT)
+                                               : (WEARING_ARMOR_CLOAK | WEARING_ARMOR_BODY | WEARING_ARMOR_UNDERSHIRT),
                                         &silverhit);
             if (unconcerned) {
                 /* strangling something which can't be strangled */
@@ -5764,14 +5764,14 @@ passive(
             /* hero using monsters' AT_MAGC attack is hitting hand to
                hand rather than casting a spell */
             if (aatyp == AT_MAGC)
-                protector = W_ARMG;
+                protector = WEARING_ARMOR_GLOVES;
 
             if (protector == 0L /* no protection */
-                || (protector == W_ARMG && !uarmg
+                || (protector == WEARING_ARMOR_GLOVES && !uarmg
                     && !uwep && !wep_was_destroyed)
-                || (protector == W_ARMF && !uarmf)
-                || (protector == W_ARMH && !uarmh)
-                || (protector == (W_ARMC | W_ARMG) && (!uarmc || !uarmg))) {
+                || (protector == WEARING_ARMOR_FOOTWEAR && !uarmf)
+                || (protector == WEARING_ARMOR_HELMET && !uarmh)
+                || (protector == (WEARING_ARMOR_CLOAK | WEARING_ARMOR_GLOVES) && (!uarmc || !uarmg))) {
                 if (!Stone_resistance
                     && !(poly_when_stoned(gy.youmonst.data)
                          && polymon(PM_STONE_GOLEM))) {

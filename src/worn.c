@@ -16,32 +16,32 @@ static const struct worn {
     long w_mask;
     struct obj **w_obj;
     const char *w_what; /* for failing sanity check's feedback */
-} worn[] = { { W_ARM, &uarm, "suit" },
-             { W_ARMC, &uarmc, "cloak" },
-             { W_ARMH, &uarmh, "helmet" },
-             { W_ARMS, &uarms, "shield" },
-             { W_ARMG, &uarmg, "gloves" },
-             { W_ARMF, &uarmf, "boots" },
-             { W_ARMU, &uarmu, "shirt" },
-             { W_RINGL, &uleft, "left ring" },
-             { W_RINGR, &uright, "right ring" },
-             { W_WEP, &uwep, "weapon" },
-             { W_SWAPWEP, &uswapwep, "alternate weapon" },
-             { W_QUIVER, &uquiver, "quiver" },
-             { W_AMUL, &uamul, "amulet" },
-             { W_TOOL, &ublindf, "facewear" }, /* blindfold|towel|lenses */
-             { W_BALL, &uball, "chained ball" },
-             { W_CHAIN, &uchain, "attached chain" },
+} worn[] = { { WEARING_ARMOR_BODY, &uarm, "suit" },
+             { WEARING_ARMOR_CLOAK, &uarmc, "cloak" },
+             { WEARING_ARMOR_HELMET, &uarmh, "helmet" },
+             { WEARING_ARMOR_SHIELD, &uarms, "shield" },
+             { WEARING_ARMOR_GLOVES, &uarmg, "gloves" },
+             { WEARING_ARMOR_FOOTWEAR, &uarmf, "boots" },
+             { WEARING_ARMOR_UNDERSHIRT, &uarmu, "shirt" },
+             { WEARING_RING_LEFT, &uleft, "left ring" },
+             { WEARING_RING_RIGHT, &uright, "right ring" },
+             { WEARING_WEAPON, &uwep, "weapon" },
+             { WEARING_SECONDARY_WEAPON, &uswapwep, "alternate weapon" },
+             { WEARING_QUIVER, &uquiver, "quiver" },
+             { WEARING_AMULET, &uamul, "amulet" },
+             { WEARING_TOOL, &ublindf, "facewear" }, /* blindfold|towel|lenses */
+             { WEARING_BALL, &uball, "chained ball" },
+             { WEARING_CHAIN, &uchain, "attached chain" },
              { 0, 0, (char *) 0 }
 };
 
 /* This only allows for one blocking item per property */
 #define w_blocks(o, m) \
-    ((o->otyp == MUMMY_WRAPPING && ((m) & W_ARMC) != 0L) ? INVIS        \
-     : (o->otyp == CORNUTHAUM && ((m) & W_ARMH) != 0L                   \
+    ((o->otyp == MUMMY_WRAPPING && ((m) & WEARING_ARMOR_CLOAK) != 0L) ? INVISIBLE        \
+     : (o->otyp == CORNUTHAUM && ((m) & WEARING_ARMOR_HELMET) != 0L                   \
         && !Role_if(PM_WIZARD)) ? CLAIRVOYANT                           \
        : (is_art(o, ART_EYES_OF_THE_OVERWORLD)                          \
-          && ((m) & W_TOOL) != 0L) ? BLINDED                            \
+          && ((m) & WEARING_TOOL) != 0L) ? BLINDED                            \
          : 0)
 /* note: monsters don't have clairvoyance, so dependency on hero's role here
    has no significant effect on their use of w_blocks() */
@@ -54,7 +54,7 @@ setworn(struct obj *obj, long mask)
     struct obj *oobj;
     int p;
 
-    if ((mask & (W_ARM | I_SPECIAL)) == (W_ARM | I_SPECIAL)) {
+    if ((mask & (WEARING_ARMOR_BODY | I_SPECIAL)) == (WEARING_ARMOR_BODY | I_SPECIAL)) {
         /* restoring saved game; no properties are conferred via skin */
         uskin = obj;
         /* assert( !uarm ); */
@@ -65,10 +65,10 @@ setworn(struct obj *obj, long mask)
                 if (oobj && !(oobj->owornmask & wp->w_mask))
                     impossible("Setworn: mask=0x%08lx.", wp->w_mask);
                 if (oobj) {
-                    if (u.using_two_weapons && (oobj->owornmask & (W_WEP | W_SWAPWEP)))
+                    if (u.using_two_weapons && (oobj->owornmask & (WEARING_WEAPON | WEARING_SECONDARY_WEAPON)))
                         set_twoweap(FALSE); /* u.twoweap = FALSE */
                     oobj->owornmask &= ~wp->w_mask;
-                    if (wp->w_mask & ~(W_SWAPWEP | W_QUIVER)) {
+                    if (wp->w_mask & ~(WEARING_SECONDARY_WEAPON | WEARING_QUIVER)) {
                         /* leave as "x = x <op> y", here and below, for broken
                          * compilers */
                         p = objects[oobj->otyp].oc_oprop;
@@ -95,9 +95,9 @@ setworn(struct obj *obj, long mask)
                      * Allow weapon-tools, too.
                      * wp_mask should be same as mask at this point.
                      */
-                    if (wp->w_mask & ~(W_SWAPWEP | W_QUIVER)) {
+                    if (wp->w_mask & ~(WEARING_SECONDARY_WEAPON | WEARING_QUIVER)) {
                         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
-                            || mask != W_WEP) {
+                            || mask != WEARING_WEAPON) {
                             p = objects[obj->otyp].oc_oprop;
                             u.uprops[p].extrinsic =
                                 u.uprops[p].extrinsic | wp->w_mask;
@@ -110,7 +110,7 @@ setworn(struct obj *obj, long mask)
                 }
             }
         }
-        if (obj && (obj->owornmask & W_ARMOR) != 0L)
+        if (obj && (obj->owornmask & WEARING_ARMOR) != 0L)
             u.uroleplay.nudist = FALSE;
         /* tux -> tuxedo -> "monkey suit" -> monk's suit */
         iflags.tux_penalty = (uarm && Role_if(PM_MONK) && gu.urole.spelarmr);
@@ -192,61 +192,61 @@ wearslot(struct obj *obj)
 
     switch (obj->oclass) {
     case AMULET_CLASS:
-        res = W_AMUL; /* WORN_AMUL */
+        res = WEARING_AMULET; /* WORN_AMUL */
         break;
     case RING_CLASS:
-        res = W_RINGL | W_RINGR; /* W_RING, BOTH_SIDES */
+        res = WEARING_RING_LEFT | WEARING_RING_RIGHT; /* W_RING, BOTH_SIDES */
         break;
     case ARMOR_CLASS:
         switch (objects[otyp].oc_armcat) {
         case ARM_SUIT:
-            res = W_ARM;
+            res = WEARING_ARMOR_BODY;
             break; /* WORN_ARMOR */
         case ARM_SHIELD:
-            res = W_ARMS;
+            res = WEARING_ARMOR_SHIELD;
             break; /* WORN_SHIELD */
         case ARM_HELM:
-            res = W_ARMH;
+            res = WEARING_ARMOR_HELMET;
             break; /* WORN_HELMET */
         case ARM_GLOVES:
-            res = W_ARMG;
+            res = WEARING_ARMOR_GLOVES;
             break; /* WORN_GLOVES */
         case ARM_BOOTS:
-            res = W_ARMF;
+            res = WEARING_ARMOR_FOOTWEAR;
             break; /* WORN_BOOTS */
         case ARM_CLOAK:
-            res = W_ARMC;
+            res = WEARING_ARMOR_CLOAK;
             break; /* WORN_CLOAK */
         case ARM_SHIRT:
-            res = W_ARMU;
+            res = WEARING_ARMOR_UNDERSHIRT;
             break; /* WORN_SHIRT */
         }
         break;
     case WEAPON_CLASS:
-        res = W_WEP | W_SWAPWEP;
+        res = WEARING_WEAPON | WEARING_SECONDARY_WEAPON;
         if (objects[otyp].oc_merge)
-            res |= W_QUIVER;
+            res |= WEARING_QUIVER;
         break;
     case TOOL_CLASS:
         if (otyp == BLINDFOLD || otyp == TOWEL || otyp == LENSES)
-            res = W_TOOL; /* WORN_BLINDF */
+            res = WEARING_TOOL; /* WORN_BLINDF */
         else if (is_weptool(obj) || otyp == TIN_OPENER)
-            res = W_WEP | W_SWAPWEP;
+            res = WEARING_WEAPON | WEARING_SECONDARY_WEAPON;
         else if (otyp == SADDLE)
-            res = W_SADDLE;
+            res = WEARING_SADDLE;
         break;
     case FOOD_CLASS:
         if (obj->otyp == MEAT_RING)
-            res = W_RINGL | W_RINGR;
+            res = WEARING_RING_LEFT | WEARING_RING_RIGHT;
         break;
     case GEM_CLASS:
-        res = W_QUIVER;
+        res = WEARING_QUIVER;
         break;
     case BALL_CLASS:
-        res = W_BALL;
+        res = WEARING_BALL;
         break;
     case CHAIN_CLASS:
-        res = W_CHAIN;
+        res = WEARING_CHAIN;
         break;
     default:
         break;
@@ -259,7 +259,7 @@ void
 check_wornmask_slots(void)
 {
     /* we'll skip ball and chain here--they warrant separate sanity check */
-#define IGNORE_SLOTS (W_ART | W_ARTI | W_SADDLE | W_BALL| W_CHAIN)
+#define IGNORE_SLOTS (WEARING_ARTIFACT | WEARING_ARTIFACT_INVOKED | WEARING_SADDLE | WEARING_BALL| WEARING_CHAIN)
     char whybuf[BUFSZ];
     const struct worn *wp;
     struct obj *o, *otmp;
@@ -298,7 +298,7 @@ check_wornmask_slots(void)
                 /* embedded scales owornmask is W_ARM|I_SPECIAL so would
                    give a false complaint about item other than uarm having
                    W_ARM bit set if we didn't screen it out here */
-                && (m != W_ARM || otmp != uskin
+                && (m != WEARING_ARMOR_BODY || otmp != uskin
                     || (otmp->owornmask & I_SPECIAL) == 0L)) {
                 Sprintf(whybuf, "%s [0x%08lx] has %s mask 0x%08lx bit set",
                         simpleonames(otmp), otmp->owornmask, wp->w_what, m);
@@ -312,7 +312,7 @@ check_wornmask_slots(void)
         const char *what = "embedded scales";
 
         o = uskin;
-        m = W_ARM | I_SPECIAL;
+        m = WEARING_ARMOR_BODY | I_SPECIAL;
         whybuf[0] = '\0';
         for (otmp = gi.invent; otmp; otmp = otmp->nobj)
             if (otmp == o)
@@ -471,7 +471,7 @@ mon_adjust_speed(
    [TODO: handle alternate properties conferred by dragon scales/mail] */
 #define altprop(o) \
     (((o)->otyp == ALCHEMY_SMOCK)                               \
-     ? (POISON_RES + ACID_RES - objects[(o)->otyp].oc_oprop)    \
+     ? (POISON_RESISTANCE + ACID_RESISTANCE - objects[(o)->otyp].oc_oprop)    \
      : 0)
 
 /* armor put on or taken off; might be magical variety */
@@ -495,7 +495,7 @@ update_mon_extrinsics(
  again:
     if (on) {
         switch (which) {
-        case INVIS:
+        case INVISIBLE:
             mon->minvis = !mon->invis_blkd;
             break;
         case FAST: {
@@ -514,7 +514,7 @@ update_mon_extrinsics(
         /* properties which have no effect for monsters */
         case CLAIRVOYANT:
         case STEALTH:
-        case TELEPAT:
+        case TELEPATHIC:
             break;
         /* properties which should have an effect but aren't implemented */
         case LEVITATION:
@@ -537,7 +537,7 @@ update_mon_extrinsics(
         }
     } else { /* off */
         switch (which) {
-        case INVIS:
+        case INVISIBLE:
             mon->minvis = mon->perminvis;
             break;
         case FAST: {
@@ -548,14 +548,14 @@ update_mon_extrinsics(
             gi.in_mklev = save_in_mklev;
             break;
         }
-        case FIRE_RES:
-        case COLD_RES:
-        case SLEEP_RES:
-        case DISINT_RES:
-        case SHOCK_RES:
-        case POISON_RES:
-        case ACID_RES:
-        case STONE_RES:
+        case FIRE_RESISTANCE:
+        case COLD_RESISTANCE:
+        case SLEEP_RESISTANCE:
+        case DISINTEGRATION_RESISTANCE:
+        case SHOCK_RESISTANCE:
+        case POISON_RESISTANCE:
+        case ACID_RESISTANCE:
+        case STONE_RESISTANCE:
             /*
              * Update monster's extrinsics (for worn objects only;
              * 'obj' itself might still be worn or already unworn).
@@ -600,7 +600,7 @@ update_mon_extrinsics(
        However, since monsters don't wield armor, we don't have to guard
        against that and can get away with a blanket worn-mask value. */
     switch (w_blocks(obj, ~0L)) {
-    case INVIS:
+    case INVISIBLE:
         mon->invis_blkd = on ? 1 : 0;
         mon->minvis = on ? 0 : mon->perminvis;
         break;
@@ -677,27 +677,27 @@ m_dowear(struct monster *mon, boolean creation)
                           && mon->data != &mons[PM_SKELETON])))
         return;
 
-    m_dowear_type(mon, W_AMUL, creation, FALSE);
+    m_dowear_type(mon, WEARING_AMULET, creation, FALSE);
     can_wear_armor = !cantweararm(mon->data); /* for suit, cloak, shirt */
     /* can't put on shirt if already wearing suit */
-    if (can_wear_armor && !(mon->misc_worn_check & W_ARM))
-        m_dowear_type(mon, W_ARMU, creation, FALSE);
+    if (can_wear_armor && !(mon->misc_worn_check & WEARING_ARMOR_BODY))
+        m_dowear_type(mon, WEARING_ARMOR_UNDERSHIRT, creation, FALSE);
     /* WrappingAllowed() makes any size between small and huge eligible;
        treating small as a special case allows hobbits, gnomes, and
        kobolds to wear all cloaks; large and huge allows giants and such
        to wear mummy wrappings but not other cloaks */
     if (can_wear_armor || WrappingAllowed(mon->data))
-        m_dowear_type(mon, W_ARMC, creation, FALSE);
-    m_dowear_type(mon, W_ARMH, creation, FALSE);
+        m_dowear_type(mon, WEARING_ARMOR_CLOAK, creation, FALSE);
+    m_dowear_type(mon, WEARING_ARMOR_HELMET, creation, FALSE);
     if (!MON_WEP(mon) || !bimanual(MON_WEP(mon)))
-        m_dowear_type(mon, W_ARMS, creation, FALSE);
-    m_dowear_type(mon, W_ARMG, creation, FALSE);
+        m_dowear_type(mon, WEARING_ARMOR_SHIELD, creation, FALSE);
+    m_dowear_type(mon, WEARING_ARMOR_GLOVES, creation, FALSE);
     if (!slithy(mon->data) && mon->data->mlet != S_CENTAUR)
-        m_dowear_type(mon, W_ARMF, creation, FALSE);
+        m_dowear_type(mon, WEARING_ARMOR_FOOTWEAR, creation, FALSE);
     if (can_wear_armor)
-        m_dowear_type(mon, W_ARM, creation, FALSE);
+        m_dowear_type(mon, WEARING_ARMOR_BODY, creation, FALSE);
     else
-        m_dowear_type(mon, W_ARM, creation, RACE_EXCEPTION);
+        m_dowear_type(mon, WEARING_ARMOR_BODY, creation, RACE_EXCEPTION);
 }
 
 staticfn void
@@ -724,13 +724,13 @@ m_dowear_type(
     old = which_armor(mon, flag);
     if (old && old->cursed)
         return;
-    if (old && flag == W_AMUL && old->otyp != AMULET_OF_GUARDING)
+    if (old && flag == WEARING_AMULET && old->otyp != AMULET_OF_GUARDING)
         return; /* no amulet better than life-saving or reflection */
     best = old;
 
     for (obj = mon->minvent; obj; obj = obj->nobj) {
         switch (flag) {
-        case W_AMUL:
+        case WEARING_AMULET:
             if (obj->oclass != AMULET_CLASS
                 || (obj->otyp != AMULET_OF_LIFE_SAVING
                     && obj->otyp != AMULET_OF_REFLECTION
@@ -745,11 +745,11 @@ m_dowear_type(
                     goto outer_break; /* life-saving or reflection; use it */
             }
             continue; /* skip post-switch armor handling */
-        case W_ARMU:
+        case WEARING_ARMOR_UNDERSHIRT:
             if (!is_shirt(obj))
                 continue;
             break;
-        case W_ARMC:
+        case WEARING_ARMOR_CLOAK:
             if (!is_cloak(obj))
                 continue;
             /* mummy wrapping is only cloak allowed when bigger than human */
@@ -757,11 +757,11 @@ m_dowear_type(
                 continue;
             /* avoid mummy wrapping if it will allow hero to see mon (unless
                this is a new mummy; an invisible one is feasible via ^G) */
-            if (mon->minvis && w_blocks(obj, W_ARMC) == INVIS
+            if (mon->minvis && w_blocks(obj, WEARING_ARMOR_CLOAK) == INVISIBLE
                 && !See_invisible && !creation)
                 continue;
             break;
-        case W_ARMH:
+        case WEARING_ARMOR_HELMET:
             if (!is_helmet(obj))
                 continue;
             /* changing alignment is not implemented for monsters;
@@ -774,19 +774,19 @@ m_dowear_type(
             if (has_horns(mon->data) && !is_flimsy(obj))
                 continue;
             break;
-        case W_ARMS:
+        case WEARING_ARMOR_SHIELD:
             if (!is_shield(obj))
                 continue;
             break;
-        case W_ARMG:
+        case WEARING_ARMOR_GLOVES:
             if (!is_gloves(obj))
                 continue;
             break;
-        case W_ARMF:
+        case WEARING_ARMOR_FOOTWEAR:
             if (!is_boots(obj))
                 continue;
             break;
-        case W_ARM:
+        case WEARING_ARMOR_BODY:
             if (!is_suit(obj))
                 continue;
             if (racialexception && (racial_exception(mon, obj) < 1))
@@ -815,7 +815,7 @@ m_dowear_type(
                   || best->otyp == DUNCE_CAP) && !best->cursed);
     /* if wearing a cloak, account for the time spent removing
        and re-wearing it when putting on a suit or shirt */
-    if ((flag == W_ARM || flag == W_ARMU) && (mon->misc_worn_check & W_ARMC))
+    if ((flag == WEARING_ARMOR_BODY || flag == WEARING_ARMOR_UNDERSHIRT) && (mon->misc_worn_check & WEARING_ARMOR_CLOAK))
         m_delay += 2;
     /* when upgrading a piece of armor, account for time spent
        taking off current one */
@@ -895,19 +895,19 @@ which_armor(struct monster *mon, long flag)
 {
     if (mon == &gy.youmonst) {
         switch (flag) {
-        case W_ARM:
+        case WEARING_ARMOR_BODY:
             return uarm;
-        case W_ARMC:
+        case WEARING_ARMOR_CLOAK:
             return uarmc;
-        case W_ARMH:
+        case WEARING_ARMOR_HELMET:
             return uarmh;
-        case W_ARMS:
+        case WEARING_ARMOR_SHIELD:
             return uarms;
-        case W_ARMG:
+        case WEARING_ARMOR_GLOVES:
             return uarmg;
-        case W_ARMF:
+        case WEARING_ARMOR_FOOTWEAR:
             return uarmf;
-        case W_ARMU:
+        case WEARING_ARMOR_UNDERSHIRT:
             return uarmu;
         default:
             impossible("bad flag in which_armor");
@@ -1071,7 +1071,7 @@ mon_break_armor(struct monster *mon, boolean polyspot)
     const char *pronoun = mhim(mon), *ppronoun = mhis(mon);
 
     if (breakarm(mdat)) {
-        if ((otmp = which_armor(mon, W_ARM)) != 0) {
+        if ((otmp = which_armor(mon, WEARING_ARMOR_BODY)) != 0) {
             if ((Is_dragon_scales(otmp) && mdat == Dragon_scales_to_pm(otmp))
                 || (Is_dragon_mail(otmp) && mdat == Dragon_mail_to_pm(otmp))) {
                 ; /* no message here;
@@ -1086,7 +1086,7 @@ mon_break_armor(struct monster *mon, boolean polyspot)
             }
             m_useup(mon, otmp);
         }
-        if ((otmp = which_armor(mon, W_ARMC)) != 0
+        if ((otmp = which_armor(mon, WEARING_ARMOR_CLOAK)) != 0
             /* mummy wrapping adapts to small and very big sizes */
             && (otmp->otyp != MUMMY_WRAPPING || !WrappingAllowed(mdat))) {
             if (otmp->oartifact) {
@@ -1104,7 +1104,7 @@ mon_break_armor(struct monster *mon, boolean polyspot)
                 m_useup(mon, otmp);
             }
         }
-        if ((otmp = which_armor(mon, W_ARMU)) != 0) {
+        if ((otmp = which_armor(mon, WEARING_ARMOR_UNDERSHIRT)) != 0) {
             if (vis)
                 pline("%s shirt rips to shreds!", s_suffix(Monnam(mon)));
             else
@@ -1115,7 +1115,7 @@ mon_break_armor(struct monster *mon, boolean polyspot)
         /* sliparm checks whirly, noncorporeal, and small or under */
         boolean passes_thru_clothes = !(mdat->msize <= MZ_SMALL);
 
-        if ((otmp = which_armor(mon, W_ARM)) != 0) {
+        if ((otmp = which_armor(mon, WEARING_ARMOR_BODY)) != 0) {
             Soundeffect(se_thud, 50);
             if (vis)
                 pline("%s armor falls around %s!", s_suffix(Monnam(mon)),
@@ -1124,7 +1124,7 @@ mon_break_armor(struct monster *mon, boolean polyspot)
                 You_hear("a thud.");
             m_lose_armor(mon, otmp, polyspot);
         }
-        if ((otmp = which_armor(mon, W_ARMC)) != 0
+        if ((otmp = which_armor(mon, WEARING_ARMOR_CLOAK)) != 0
             /* mummy wrapping adapts to small and very big sizes */
             && (otmp->otyp != MUMMY_WRAPPING || !WrappingAllowed(mdat))) {
             if (vis) {
@@ -1137,7 +1137,7 @@ mon_break_armor(struct monster *mon, boolean polyspot)
             }
             m_lose_armor(mon, otmp, polyspot);
         }
-        if ((otmp = which_armor(mon, W_ARMU)) != 0) {
+        if ((otmp = which_armor(mon, WEARING_ARMOR_UNDERSHIRT)) != 0) {
             if (vis) {
                 if (passes_thru_clothes)
                     pline("%s seeps right through %s shirt!", Monnam(mon),
@@ -1151,13 +1151,13 @@ mon_break_armor(struct monster *mon, boolean polyspot)
     }
     if (handless_or_tiny) {
         /* [caller needs to handle weapon checks] */
-        if ((otmp = which_armor(mon, W_ARMG)) != 0) {
+        if ((otmp = which_armor(mon, WEARING_ARMOR_GLOVES)) != 0) {
             if (vis)
                 pline("%s drops %s gloves%s!", Monnam(mon), ppronoun,
                       MON_WEP(mon) ? " and weapon" : "");
             m_lose_armor(mon, otmp, polyspot);
         }
-        if ((otmp = which_armor(mon, W_ARMS)) != 0) {
+        if ((otmp = which_armor(mon, WEARING_ARMOR_SHIELD)) != 0) {
             Soundeffect(se_clank, 50);
             if (vis)
                 pline("%s can no longer hold %s shield!", Monnam(mon),
@@ -1168,7 +1168,7 @@ mon_break_armor(struct monster *mon, boolean polyspot)
         }
     }
     if (handless_or_tiny || has_horns(mdat)) {
-        if ((otmp = which_armor(mon, W_ARMH)) != 0
+        if ((otmp = which_armor(mon, WEARING_ARMOR_HELMET)) != 0
             /* flimsy test for horns matches polyself handling */
             && (handless_or_tiny || !is_flimsy(otmp))) {
             if (vis)
@@ -1180,7 +1180,7 @@ mon_break_armor(struct monster *mon, boolean polyspot)
         }
     }
     if (handless_or_tiny || slithy(mdat) || mdat->mlet == S_CENTAUR) {
-        if ((otmp = which_armor(mon, W_ARMF)) != 0) {
+        if ((otmp = which_armor(mon, WEARING_ARMOR_FOOTWEAR)) != 0) {
             if (vis) {
                 if (is_whirly(mon->data))
                     pline("%s boots fall away!", s_suffix(Monnam(mon)));
@@ -1192,7 +1192,7 @@ mon_break_armor(struct monster *mon, boolean polyspot)
         }
     }
     if (!can_saddle(mon)) {
-        if ((otmp = which_armor(mon, W_SADDLE)) != 0) {
+        if ((otmp = which_armor(mon, WEARING_SADDLE)) != 0) {
             m_lose_armor(mon, otmp, polyspot);
             if (vis)
                 pline("%s saddle falls off.", s_suffix(Monnam(mon)));
@@ -1277,7 +1277,7 @@ extract_from_minvent(
     }
     /* handle gold dragon scales/scale-mail (lit when worn) before clearing
        obj->owornmask because artifact_light() expects that to be W_ARM */
-    if ((unwornmask & W_ARM) != 0 && obj->lamplit && artifact_light(obj))
+    if ((unwornmask & WEARING_ARMOR_BODY) != 0 && obj->lamplit && artifact_light(obj))
         end_burn(obj, FALSE);
 
     obj_extract_self(obj);
@@ -1292,7 +1292,7 @@ extract_from_minvent(
         check_gear_next_turn(mon);
     }
     obj_no_longer_held(obj);
-    if (unwornmask & W_WEP) {
+    if (unwornmask & WEARING_WEAPON) {
         mwepgone(mon); /* unwields and sets weapon_check to NEED_WEAPON */
     }
 }

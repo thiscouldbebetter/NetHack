@@ -335,7 +335,7 @@ make_blinded(long xtime, boolean talk)
 void
 toggle_blindness(void)
 {
-    boolean Stinging = (uwep && (EWarn_of_mon & W_WEP) != 0L);
+    boolean Stinging = (uwep && (EWarn_of_mon & WEARING_WEAPON) != 0L);
 
     /* blindness has just been toggled */
     disp.botl = TRUE; /* status conditions need update */
@@ -1624,8 +1624,8 @@ potionhit(struct monster *mon, struct obj *obj, int how)
     } else {
         tx = mon->mx, ty = mon->my;
         /* sometimes it hits the saddle */
-        if (((mon->misc_worn_check & W_SADDLE)
-             && (saddle = which_armor(mon, W_SADDLE)))
+        if (((mon->misc_worn_check & WEARING_SADDLE)
+             && (saddle = which_armor(mon, WEARING_SADDLE)))
             && (!random_integer_between_zero_and(10)
                 || (obj->otyp == POT_WATER
                     && ((rnl(10) > 7 && obj->cursed)

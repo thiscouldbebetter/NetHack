@@ -2202,7 +2202,7 @@ is_flammable(struct obj *otmp)
     if (Is_candle(otmp))
         return FALSE;
 
-    if (objects[otyp].oc_oprop == FIRE_RES || otyp == WAN_FIRE)
+    if (objects[otyp].oc_oprop == FIRE_RESISTANCE || otyp == WAN_FIRE)
         return FALSE;
 
     return (boolean) ((omat <= WOOD && omat != LIQUID) || omat == PLASTIC);
@@ -3260,9 +3260,9 @@ sanity_check_worn(struct obj *obj)
 {
 #if (NH_DEVEL_STATUS != NH_STATUS_RELEASED) || defined(DEBUG)
     static unsigned long wearbits[] = {
-        W_ARM,    W_ARMC,   W_ARMH,    W_ARMS, W_ARMG,  W_ARMF,  W_ARMU,
-        W_WEP,    W_QUIVER, W_SWAPWEP, W_AMUL, W_RINGL, W_RINGR, W_TOOL,
-        W_SADDLE, W_BALL,   W_CHAIN,   0
+        WEARING_ARMOR_BODY,    WEARING_ARMOR_CLOAK,   WEARING_ARMOR_HELMET,    WEARING_ARMOR_SHIELD, WEARING_ARMOR_GLOVES,  WEARING_ARMOR_FOOTWEAR,  WEARING_ARMOR_UNDERSHIRT,
+        WEARING_WEAPON,    WEARING_QUIVER, WEARING_SECONDARY_WEAPON, WEARING_AMULET, WEARING_RING_LEFT, WEARING_RING_RIGHT, WEARING_TOOL,
+        WEARING_SADDLE, WEARING_BALL,   WEARING_CHAIN,   0
         /* [W_ART,W_ARTI are property bits for items which aren't worn] */
     };
     char maskbuf[60];
@@ -3284,19 +3284,19 @@ sanity_check_worn(struct obj *obj)
         /* embedded dragon scales have an extra bit set;
            make sure it's set, then suppress it */
         embedded = TRUE;
-        if ((owornmask & (W_ARM | I_SPECIAL)) == (W_ARM | I_SPECIAL))
+        if ((owornmask & (WEARING_ARMOR_BODY | I_SPECIAL)) == (WEARING_ARMOR_BODY | I_SPECIAL))
             owornmask &= ~I_SPECIAL;
         else
             n = 0,  owornmask = ~0; /* force insane_object("bogus") below */
     }
     if (n == 2 && carried(obj)
-        && obj == uball && (owornmask & W_BALL) != 0L
-        && (owornmask & W_WEAPONS) != 0L) {
+        && obj == uball && (owornmask & WEARING_BALL) != 0L
+        && (owornmask & WEARING_WEAPONS) != 0L) {
         /* chained ball can be wielded/alt-wielded/quivered; if so,
           pretend it's not chained in order to check the weapon pointer
           (we've already verified the ball pointer by successfully passing
           the if-condition to get here...) */
-        owornmask &= ~W_BALL;
+        owornmask &= ~WEARING_BALL;
         n = 1;
     }
     if (n > 1) {
@@ -3305,78 +3305,78 @@ sanity_check_worn(struct obj *obj)
         insane_object(obj, ofmt0, maskbuf, (struct monster *) 0);
     }
     if ((owornmask & ~allmask) != 0L
-        || (carried(obj) && (owornmask & W_SADDLE) != 0L)) {
+        || (carried(obj) && (owornmask & WEARING_SADDLE) != 0L)) {
         /* non-wearable bit(s) set */
         Sprintf(maskbuf, "worn mask (bogus)) 0x%08lx", obj->owornmask);
         insane_object(obj, ofmt0, maskbuf, (struct monster *) 0);
     }
-    if (n == 1 && (carried(obj) || (owornmask & (W_BALL | W_CHAIN)) != 0L)) {
+    if (n == 1 && (carried(obj) || (owornmask & (WEARING_BALL | WEARING_CHAIN)) != 0L)) {
         what = 0;
         /* verify that obj in hero's invent (or ball/chain elsewhere)
            with owornmask of W_foo is the object pointed to by ufoo */
         switch (owornmask) {
-        case W_ARM:
+        case WEARING_ARMOR_BODY:
             if (obj != (embedded ? uskin : uarm))
                 what = embedded ? "skin" : "suit";
             break;
-        case W_ARMC:
+        case WEARING_ARMOR_CLOAK:
             if (obj != uarmc)
                 what = "cloak";
             break;
-        case W_ARMH:
+        case WEARING_ARMOR_HELMET:
             if (obj != uarmh)
                 what = "helm";
             break;
-        case W_ARMS:
+        case WEARING_ARMOR_SHIELD:
             if (obj != uarms)
                 what = "shield";
             break;
-        case W_ARMG:
+        case WEARING_ARMOR_GLOVES:
             if (obj != uarmg)
                 what = "gloves";
             break;
-        case W_ARMF:
+        case WEARING_ARMOR_FOOTWEAR:
             if (obj != uarmf)
                 what = "boots";
             break;
-        case W_ARMU:
+        case WEARING_ARMOR_UNDERSHIRT:
             if (obj != uarmu)
                 what = "shirt";
             break;
-        case W_WEP:
+        case WEARING_WEAPON:
             if (obj != uwep)
                 what = "primary weapon";
             break;
-        case W_QUIVER:
+        case WEARING_QUIVER:
             if (obj != uquiver)
                 what = "quiver";
             break;
-        case W_SWAPWEP:
+        case WEARING_SECONDARY_WEAPON:
             if (obj != uswapwep)
                 what = u.using_two_weapons ? "secondary weapon" : "alternate weapon";
             break;
-        case W_AMUL:
+        case WEARING_AMULET:
             if (obj != uamul)
                 what = "amulet";
             break;
-        case W_RINGL:
+        case WEARING_RING_LEFT:
             if (obj != uleft)
                 what = "left ring";
             break;
-        case W_RINGR:
+        case WEARING_RING_RIGHT:
             if (obj != uright)
                 what = "right ring";
             break;
-        case W_TOOL:
+        case WEARING_TOOL:
             if (obj != ublindf)
                 what = "blindfold";
             break;
         /* case W_SADDLE: */
-        case W_BALL:
+        case WEARING_BALL:
             if (obj != uball)
                 what = "ball";
             break;
-        case W_CHAIN:
+        case WEARING_CHAIN:
             if (obj != uchain)
                 what = "chain";
             break;
@@ -3388,45 +3388,45 @@ sanity_check_worn(struct obj *obj)
             insane_object(obj, ofmt0, maskbuf, (struct monster *) 0);
         }
     }
-    if (n == 1 && (carried(obj) || (owornmask & (W_BALL | W_CHAIN)) != 0L
+    if (n == 1 && (carried(obj) || (owornmask & (WEARING_BALL | WEARING_CHAIN)) != 0L
                    || mcarried(obj))) {
         /* check for items worn in invalid slots; practically anything can
            be wielded/alt-wielded/quivered, so tests on those are limited */
         what = 0;
-        if (owornmask & W_ARMOR) {
+        if (owornmask & WEARING_ARMOR) {
             if (obj->oclass != ARMOR_CLASS)
                 what = "armor";
             /* 3.6: dragon scale mail reverts to dragon scales when
                becoming embedded in poly'd hero's skin */
             if (embedded && !Is_dragon_scales(obj))
                 what = "skin";
-        } else if (owornmask & W_WEAPONS) {
+        } else if (owornmask & WEARING_WEAPONS) {
             /* monsters don't maintain alternate weapon or quiver */
-            if (mcarried(obj) && (owornmask & (W_SWAPWEP | W_QUIVER)) != 0L)
-                what = (owornmask & W_SWAPWEP) != 0L ? "monst alt weapon?"
+            if (mcarried(obj) && (owornmask & (WEARING_SECONDARY_WEAPON | WEARING_QUIVER)) != 0L)
+                what = (owornmask & WEARING_SECONDARY_WEAPON) != 0L ? "monst alt weapon?"
                                                      : "monst quiver?";
             /* hero can quiver gold but not wield it (hence not alt-wield
                it either); also catches monster wielding gold */
             else if (obj->oclass == COIN_CLASS
-                     && (owornmask & (W_WEP | W_SWAPWEP)) != 0L)
-                what = (owornmask & W_WEP) != 0L ? "weapon" : "alt weapon";
-        } else if (owornmask & W_AMUL) {
+                     && (owornmask & (WEARING_WEAPON | WEARING_SECONDARY_WEAPON)) != 0L)
+                what = (owornmask & WEARING_WEAPON) != 0L ? "weapon" : "alt weapon";
+        } else if (owornmask & WEARING_AMULET) {
             if (obj->oclass != AMULET_CLASS)
                 what = "amulet";
-        } else if (owornmask & W_RING) {
+        } else if (owornmask & WEARING_RING) {
             if (obj->oclass != RING_CLASS && obj->otyp != MEAT_RING)
                 what = "ring";
-        } else if (owornmask & W_TOOL) {
+        } else if (owornmask & WEARING_TOOL) {
             if (obj->otyp != BLINDFOLD && obj->otyp != TOWEL
                 && obj->otyp != LENSES)
                 what = "blindfold";
-        } else if (owornmask & W_BALL) {
+        } else if (owornmask & WEARING_BALL) {
             if (obj->oclass != BALL_CLASS)
                 what = "chained ball";
-        } else if (owornmask & W_CHAIN) {
+        } else if (owornmask & WEARING_CHAIN) {
             if (obj->oclass != CHAIN_CLASS)
                 what = "chain";
-        } else if (owornmask & W_SADDLE) {
+        } else if (owornmask & WEARING_SADDLE) {
             if (obj->otyp != SADDLE)
                 what = "saddle";
         }

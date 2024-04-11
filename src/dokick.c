@@ -55,7 +55,7 @@ kickdmg(struct monster *mon, boolean clumsy)
     if (mon->data == &mons[PM_SHADE])
         dmg = 0;
 
-    specialdmg = special_dmgval(&gy.youmonst, mon, W_ARMF, (long *) 0);
+    specialdmg = special_dmgval(&gy.youmonst, mon, WEARING_ARMOR_FOOTWEAR, (long *) 0);
 
     if (mon->data == &mons[PM_SHADE] && !specialdmg) {
         pline_The("%s.", kick_passes_thru);
@@ -202,7 +202,7 @@ kick_monster(struct monster *mon, coordxy x, coordxy y)
                 continue;
 
             kickdieroll = random(20);
-            specialdmg = special_dmgval(&gy.youmonst, mon, W_ARMF, (long *) 0);
+            specialdmg = special_dmgval(&gy.youmonst, mon, WEARING_ARMOR_FOOTWEAR, (long *) 0);
             if (mon->data == &mons[PM_SHADE] && !specialdmg) {
                 /* doesn't matter whether it would have hit or missed,
                    and shades have no passive counterattack */

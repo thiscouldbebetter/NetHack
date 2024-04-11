@@ -657,7 +657,7 @@ dosinkring(struct obj *obj)
 boolean
 canletgo(struct obj *obj, const char *word)
 {
-    if (obj->owornmask & (W_ARMOR | W_ACCESSORY)) {
+    if (obj->owornmask & (WEARING_ARMOR | WEARING_ACCESSORY)) {
         if (*word)
             Norep("You cannot %s %s you are wearing.", word, something);
         return FALSE;
@@ -695,7 +695,7 @@ canletgo(struct obj *obj, const char *word)
             pline_The("leash is tied around your %s.", body_part(HAND));
         return FALSE;
     }
-    if (obj->owornmask & W_SADDLE) {
+    if (obj->owornmask & WEARING_SADDLE) {
         if (*word)
             You("cannot %s %s you are sitting on.", word, something);
         return FALSE;
@@ -753,13 +753,13 @@ drop(struct obj *obj)
             boolean levhack = finesse_ahriman(obj);
 
             if (levhack)
-                ELevitation = W_ART; /* other than W_ARTI */
+                ELevitation = WEARING_ARTIFACT; /* other than W_ARTI */
             if (flags.verbose)
                 You("drop %s.", doname(obj));
             freeinv(obj);
             hitfloor(obj, TRUE);
             if (levhack)
-                float_down(I_SPECIAL | TIMEOUT, W_ARTI | W_ART);
+                float_down(I_SPECIAL | TIMEOUT, WEARING_ARTIFACT_INVOKED | WEARING_ARTIFACT);
             return ECMD_TIME;
         }
         if (!IS_ALTAR(levl[u.ux][u.uy].typ) && flags.verbose)
@@ -1126,9 +1126,9 @@ dodown(void)
     /* Levitation might be blocked, but player can still use '>' to
        turn off controlled levitation */
     if (HLevitation || ELevitation) {
-        if ((HLevitation & I_SPECIAL) || (ELevitation & W_ARTI)) {
+        if ((HLevitation & I_SPECIAL) || (ELevitation & WEARING_ARTIFACT_INVOKED)) {
             /* end controlled levitation */
-            if (ELevitation & W_ARTI) {
+            if (ELevitation & WEARING_ARTIFACT_INVOKED) {
                 struct obj *obj;
 
                 for (obj = gi.invent; obj; obj = obj->nobj) {
@@ -1140,7 +1140,7 @@ dodown(void)
                     }
                 }
             }
-            if (float_down(I_SPECIAL | TIMEOUT, W_ARTI)) {
+            if (float_down(I_SPECIAL | TIMEOUT, WEARING_ARTIFACT_INVOKED)) {
                 return ECMD_TIME; /* came down, so moved */
             } else if (!HLevitation && !ELevitation) {
                 Your("latent levitation ceases.");

@@ -1360,11 +1360,11 @@ doname_base(
 
     switch (is_weptool(obj) ? WEAPON_CLASS : obj->oclass) {
     case AMULET_CLASS:
-        if (obj->owornmask & W_AMUL)
+        if (obj->owornmask & WEARING_AMULET)
             Concat(bp, 0, " (being worn)");
         break;
     case ARMOR_CLASS:
-        if (obj->owornmask & W_ARMOR) {
+        if (obj->owornmask & WEARING_ARMOR) {
             Concat(bp, 0,
                    (obj == uskin) ? " (embedded in your skin)"
                    /* in case of perm_invent update while Wear/Takeoff
@@ -1402,7 +1402,7 @@ doname_base(
         }
         break;
     case TOOL_CLASS:
-        if (obj->owornmask & (W_TOOL | W_SADDLE)) { /* blindfold */
+        if (obj->owornmask & (WEARING_TOOL | WEARING_SADDLE)) { /* blindfold */
             Concat(bp, 0, " (being worn)");
             break;
         }
@@ -1464,11 +1464,11 @@ doname_base(
         break;
     case RING_CLASS:
  ring:  /* normal rings reach here 'naturally'; meat ring jumps here */
-        if (obj->owornmask & W_RINGR)
+        if (obj->owornmask & WEARING_RING_RIGHT)
             Concat(bp, 0, " (on right ");
-        if (obj->owornmask & W_RINGL)
+        if (obj->owornmask & WEARING_RING_LEFT)
             Concat(bp, 0, " (on left ");
-        if (obj->owornmask & W_RING) /* either left or right */
+        if (obj->owornmask & WEARING_RING) /* either left or right */
             ConcatF1(bp, 0,"%s)", body_part(HAND));
         if (known && objects[obj->otyp].oc_charged) {
             Sprintf(eos(prefix), "%+d ", obj->spe); /* sitoa(obj->spe)+" " */
@@ -1513,9 +1513,9 @@ doname_base(
     case BALL_CLASS:
     case CHAIN_CLASS:
         add_erosion_words(obj, prefix);
-        if (obj->owornmask & (W_BALL | W_CHAIN))
+        if (obj->owornmask & (WEARING_BALL | WEARING_CHAIN))
             ConcatF1(bp, 0, " (%s to you)",
-                     (obj->owornmask & W_BALL) ? "chained" : "attached");
+                     (obj->owornmask & WEARING_BALL) ? "chained" : "attached");
         break;
     }
 
@@ -1531,7 +1531,7 @@ doname_base(
                                             : "unspecified gender");
     }
 
-    if ((obj->owornmask & W_WEP) && !gm.mrg_to_wielded) {
+    if ((obj->owornmask & WEARING_WEAPON) && !gm.mrg_to_wielded) {
         boolean twoweap_primary = (obj == uwep && u.using_two_weapons),
                 tethered = (obj->otyp == AKLYS);
 
@@ -1571,7 +1571,7 @@ doname_base(
                might be absent if the appended string got truncated */
             if (!Blind && bpspaceleft && bp_eos[-1] == ')') {
                 if (gw.warn_obj_cnt && obj == uwep
-                    && (EWarn_of_mon & W_WEP) != 0L)
+                    && (EWarn_of_mon & WEARING_WEAPON) != 0L)
                     /* we know bp[] ends with ')'; overwrite that */
                     ConcatF2(bp, 1, ", %s %s)",
                              glow_verb(gw.warn_obj_cnt, TRUE),
@@ -1583,7 +1583,7 @@ doname_base(
             }
         }
     }
-    if (obj->owornmask & W_SWAPWEP) {
+    if (obj->owornmask & WEARING_SECONDARY_WEAPON) {
         if (u.using_two_weapons)
             ConcatF2(bp, 0, " (wielded in %s %s)",
                      URIGHTY ? "left" : "right", body_part(HAND));
@@ -1592,7 +1592,7 @@ doname_base(
             ConcatF1(bp, 0, " (alternate weapon%s; not wielded)",
                      plur(obj->quan));
     }
-    if (obj->owornmask & W_QUIVER) {
+    if (obj->owornmask & WEARING_QUIVER) {
         int Qtyp;
 
         switch (obj->oclass) {

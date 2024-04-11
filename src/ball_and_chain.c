@@ -1064,8 +1064,8 @@ bc_sanity_check(void)
                       && uball->where != OBJ_INVENT
                       && uball->where != OBJ_FREE)
                   || (freeball ^ freechain)
-                  || (uball->owornmask & W_BALL) == 0L
-                  || (uball->owornmask & ~(W_BALL | W_WEAPONS)) != 0L)) {
+                  || (uball->owornmask & WEARING_BALL) == 0L
+                  || (uball->owornmask & ~(WEARING_BALL | WEARING_WEAPONS)) != 0L)) {
         otyp = uball->otyp;
         onam = safe_typename(otyp);
         impossible("uball: type %d (%s), where %d, wornmask=0x%08lx",
@@ -1077,8 +1077,8 @@ bc_sanity_check(void)
                        && uchain->where != OBJ_FREE)
                    || (freechain ^ freeball)
                    /* [could simplify this to owornmask != W_CHAIN] */
-                   || (uchain->owornmask & W_CHAIN) == 0L
-                   || (uchain->owornmask & ~W_CHAIN) != 0L)) {
+                   || (uchain->owornmask & WEARING_CHAIN) == 0L
+                   || (uchain->owornmask & ~WEARING_CHAIN) != 0L)) {
         otyp = uchain->otyp;
         onam = safe_typename(otyp);
         impossible("uchain: type %d (%s), where %d, wornmask=0x%08lx",

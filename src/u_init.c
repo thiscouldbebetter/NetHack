@@ -1170,24 +1170,24 @@ ini_inv_use_obj(struct obj *obj)
 
     if (obj->oclass == ARMOR_CLASS) {
         if (is_shield(obj) && !uarms && !(uwep && bimanual(uwep))) {
-            setworn(obj, W_ARMS);
+            setworn(obj, WEARING_ARMOR_SHIELD);
             /* Prior to 3.6.2 this used to unset uswapwep if it was set,
                but wearing a shield doesn't prevent having an alternate
                weapon ready to swap with the primary; just make sure we
                aren't two-weaponing (academic; no one starts that way) */
             set_twoweap(FALSE); /* u.twoweap = FALSE */
         } else if (is_helmet(obj) && !uarmh)
-            setworn(obj, W_ARMH);
+            setworn(obj, WEARING_ARMOR_HELMET);
         else if (is_gloves(obj) && !uarmg)
-            setworn(obj, W_ARMG);
+            setworn(obj, WEARING_ARMOR_GLOVES);
         else if (is_shirt(obj) && !uarmu)
-            setworn(obj, W_ARMU);
+            setworn(obj, WEARING_ARMOR_UNDERSHIRT);
         else if (is_cloak(obj) && !uarmc)
-            setworn(obj, W_ARMC);
+            setworn(obj, WEARING_ARMOR_CLOAK);
         else if (is_boots(obj) && !uarmf)
-            setworn(obj, W_ARMF);
+            setworn(obj, WEARING_ARMOR_FOOTWEAR);
         else if (is_suit(obj) && !uarm)
-            setworn(obj, W_ARM);
+            setworn(obj, WEARING_ARMOR_BODY);
     }
 
     if (obj->oclass == WEAPON_CLASS || is_weptool(obj)

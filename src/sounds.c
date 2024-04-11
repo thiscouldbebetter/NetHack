@@ -1500,7 +1500,7 @@ tiphat(void)
         mtmp->mstrategy &= ~STRAT_WAITMASK;
 
         if (vismon && humanoid(mtmp->data) && mtmp->mpeaceful && !Conflict) {
-            if ((otmp = which_armor(mtmp, W_ARMH)) == 0) {
+            if ((otmp = which_armor(mtmp, WEARING_ARMOR_HELMET)) == 0) {
                 pline("%s waves.", Monnam(mtmp));
             } else if (otmp->cursed) {
                 pline("%s grasps %s %s but can't remove it.", Monnam(mtmp),

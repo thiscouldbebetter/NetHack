@@ -200,10 +200,10 @@ enlght_halfdmg(int category, int final)
     char buf[BUFSZ];
 
     switch (category) {
-    case HALF_PHDAM:
+    case HALF_DAMAGE_PHYSICAL:
         category_name = "physical";
         break;
-    case HALF_SPDAM:
+    case HALF_DAMAGE_SPELLS:
         category_name = "spell";
         break;
     default:
@@ -264,7 +264,7 @@ cause_known(
     int propindx) /* index of a property which can be conveyed by worn item */
 {
     struct obj *o;
-    long mask = W_ARMOR | W_AMUL | W_RING | W_TOOL;
+    long mask = WEARING_ARMOR | WEARING_AMULET | WEARING_RING | WEARING_TOOL;
 
     /* simpler than from_what()/what_gives(); we don't attempt to
        handle artifacts and we deliberately ignore wielded items */
@@ -1099,7 +1099,7 @@ status_enlightenment(int mode, int final)
         you_are(buf, "");
     }
     if (Riding) {
-        struct obj *saddle = which_armor(u.monster_being_ridden, W_SADDLE);
+        struct obj *saddle = which_armor(u.monster_being_ridden, WEARING_SADDLE);
 
         if (saddle && saddle->cursed) {
             Sprintf(buf, "stuck to %s %s", s_suffix(steedname),
@@ -1491,41 +1491,41 @@ attributes_enlightenment(
     if (Antimagic)
         you_are("magic-protected", from_what(ANTIMAGIC));
     if (Fire_resistance)
-        you_are("fire resistant", from_what(FIRE_RES));
+        you_are("fire resistant", from_what(FIRE_RESISTANCE));
     item_resistance_message(AD_FIRE, " protected from fire", final);
     if (Cold_resistance)
-        you_are("cold resistant", from_what(COLD_RES));
+        you_are("cold resistant", from_what(COLD_RESISTANCE));
     item_resistance_message(AD_COLD, " protected from cold", final);
     if (Sleep_resistance)
-        you_are("sleep resistant", from_what(SLEEP_RES));
+        you_are("sleep resistant", from_what(SLEEP_RESISTANCE));
     if (Disint_resistance)
-        you_are("disintegration resistant", from_what(DISINT_RES));
+        you_are("disintegration resistant", from_what(DISINTEGRATION_RESISTANCE));
     item_resistance_message(AD_DISN, " protected from disintegration", final);
     if (Shock_resistance)
-        you_are("shock resistant", from_what(SHOCK_RES));
+        you_are("shock resistant", from_what(SHOCK_RESISTANCE));
     item_resistance_message(AD_ELEC, " protected from electric shocks", final);
     if (Poison_resistance)
-        you_are("poison resistant", from_what(POISON_RES));
+        you_are("poison resistant", from_what(POISON_RESISTANCE));
     if (Acid_resistance) {
         Sprintf(buf, "%.20s%.30s",
-                temp_resist(ACID_RES) ? "temporarily " : "",
+                temp_resist(ACID_RESISTANCE) ? "temporarily " : "",
                 "acid resistant");
-        you_are(buf, from_what(ACID_RES));
+        you_are(buf, from_what(ACID_RESISTANCE));
     }
     item_resistance_message(AD_ACID, " protected from acid", final);
     if (Drain_resistance)
-        you_are("level-drain resistant", from_what(DRAIN_RES));
+        you_are("level-drain resistant", from_what(DRAIN_RESISTANCE));
     if (Sick_resistance)
-        you_are("immune to sickness", from_what(SICK_RES));
+        you_are("immune to sickness", from_what(SICK_RESISTANCE));
     if (Stone_resistance) {
         Sprintf(buf, "%.20s%.30s",
-                temp_resist(STONE_RES) ? "temporarily " : "",
+                temp_resist(STONE_RESISTANCE) ? "temporarily " : "",
                 "petrification resistant");
-        you_are(buf, from_what(STONE_RES));
+        you_are(buf, from_what(STONE_RESISTANCE));
     }
     if (Halluc_resistance)
         enl_msg(You_, "resist", "resisted", " hallucinations",
-                from_what(HALLUC_RES));
+                from_what(HALLUCINATION_RESISTANCE));
     if (u.uedibility)
         you_can("recognize detrimental food", "");
 
@@ -1534,7 +1534,7 @@ attributes_enlightenment(
         you_can("see", from_what(-BLINDED)); /* Eyes of the Overworld */
     if (See_invisible) {
         if (!Blind)
-            enl_msg(You_, "see", "saw", " invisible", from_what(SEE_INVIS));
+            enl_msg(You_, "see", "saw", " invisible", from_what(SEE_INVISIBLE));
         else if (!PermaBlind)
             enl_msg(You_, "will see", "would have seen",
                     " invisible when not blind", "");
@@ -1543,7 +1543,7 @@ attributes_enlightenment(
                     " invisible if not blind", "");
     }
     if (Blind_telepat)
-        you_are("telepathic", from_what(TELEPAT));
+        you_are("telepathic", from_what(TELEPATHIC));
     if (Warning)
         you_are("warned", from_what(WARNING));
     if (Warn_of_mon && gc.context.warntype.obj) {
@@ -1551,7 +1551,7 @@ attributes_enlightenment(
                 (gc.context.warntype.obj & M2_ORC) ? "orcs"
                 : (gc.context.warntype.obj & M2_ELF) ? "elves"
                 : (gc.context.warntype.obj & M2_DEMON) ? "demons" : something);
-        you_are(buf, from_what(WARN_OF_MON));
+        you_are(buf, from_what(WARNED_OF_MONSTERS));
     }
     if (Warn_of_mon && gc.context.warntype.polyd) {
         Sprintf(buf, "aware of the presence of %s",
@@ -1573,10 +1573,10 @@ attributes_enlightenment(
     if (Warn_of_mon && ismnum(warnspecies)) {
         Sprintf(buf, "aware of the presence of %s",
                 makeplural(mons[warnspecies].pmnames[NEUTRAL]));
-        you_are(buf, from_what(WARN_OF_MON));
+        you_are(buf, from_what(WARNED_OF_MONSTERS));
     }
     if (Undead_warning)
-        you_are("warned of undead", from_what(WARN_UNDEAD));
+        you_are("warned of undead", from_what(WARNED_OF_UNDEAD));
     if (Searching)
         you_have("automatic searching", from_what(SEARCHING));
     if (Clairvoyant) {
@@ -1625,13 +1625,13 @@ attributes_enlightenment(
         you_are(buf, from_what(ADORNED));
     }
     if (Invisible)
-        you_are("invisible", from_what(INVIS));
+        you_are("invisible", from_what(INVISIBLE));
     else if (Invis)
-        you_are("invisible to others", from_what(INVIS));
+        you_are("invisible to others", from_what(INVISIBLE));
     /* ordinarily "visible" is redundant; this is a special case for
        the situation when invisibility would be an expected attribute */
     else if ((HInvis || EInvis) && BInvis)
-        you_are("visible", from_what(-INVIS));
+        you_are("visible", from_what(-INVISIBLE));
     if (Displaced)
         you_are("displaced", from_what(DISPLACED));
     if (Stealth) {
@@ -1776,15 +1776,15 @@ attributes_enlightenment(
         you_are(mc_types[armpro], "");
     }
     if (Half_physical_damage)
-        enlght_halfdmg(HALF_PHDAM, final);
+        enlght_halfdmg(HALF_DAMAGE_PHYSICAL, final);
     if (Half_spell_damage)
-        enlght_halfdmg(HALF_SPDAM, final);
+        enlght_halfdmg(HALF_DAMAGE_SPELLS, final);
     if (Half_gas_damage)
         enl_msg(You_, "take", "took", " reduced poison gas damage", "");
     /* polymorph and other shape change */
     if (Protection_from_shape_changers)
         you_are("protected from shape changers",
-                from_what(PROT_FROM_SHAPE_CHANGERS));
+                from_what(PROTECTION_FROM_SHAPE_CHANGERS));
     if (Unchanging) {
         const char *what = 0;
 
@@ -1852,7 +1852,7 @@ attributes_enlightenment(
     if (Free_action)
         you_have("free action", from_what(FREE_ACTION));
     if (Fixed_abil)
-        you_have("fixed abilities", from_what(FIXED_ABIL));
+        you_have("fixed abilities", from_what(FIXED_ABILITY));
     if (Lifesaved)
         enl_msg("Your life ", "will be", "would have been", " saved", "");
 

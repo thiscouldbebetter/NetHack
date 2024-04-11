@@ -445,7 +445,7 @@ rndcurse(void)
     }
 
     /* treat steed's saddle as extended part of hero's inventory */
-    if (u.monster_being_ridden && !random_integer_between_zero_and(4) && (otmp = which_armor(u.monster_being_ridden, W_SADDLE)) != 0
+    if (u.monster_being_ridden && !random_integer_between_zero_and(4) && (otmp = which_armor(u.monster_being_ridden, WEARING_SADDLE)) != 0
         && !otmp->cursed) { /* skip if already cursed */
         if (otmp->blessed)
             unbless(otmp);
@@ -474,7 +474,7 @@ attrcurse(void)
         if (HFire_resistance & INTRINSIC) {
             HFire_resistance &= ~INTRINSIC;
             You_feel("warmer.");
-            ret = FIRE_RES;
+            ret = FIRE_RESISTANCE;
             break;
         }
         /*FALLTHRU*/
@@ -490,7 +490,7 @@ attrcurse(void)
         if (HPoison_resistance & INTRINSIC) {
             HPoison_resistance &= ~INTRINSIC;
             You_feel("a little sick!");
-            ret = POISON_RES;
+            ret = POISON_RESISTANCE;
             break;
         }
         /*FALLTHRU*/
@@ -500,7 +500,7 @@ attrcurse(void)
             if (Blind && !Blind_telepat)
                 see_monsters(); /* Can't sense mons anymore! */
             Your("senses fail!");
-            ret = TELEPAT;
+            ret = TELEPATHIC;
             break;
         }
         /*FALLTHRU*/
@@ -508,7 +508,7 @@ attrcurse(void)
         if (HCold_resistance & INTRINSIC) {
             HCold_resistance &= ~INTRINSIC;
             You_feel("cooler.");
-            ret = COLD_RES;
+            ret = COLD_RESISTANCE;
             break;
         }
         /*FALLTHRU*/
@@ -516,7 +516,7 @@ attrcurse(void)
         if (HInvis & INTRINSIC) {
             HInvis &= ~INTRINSIC;
             You_feel("paranoid.");
-            ret = INVIS;
+            ret = INVISIBLE;
             break;
         }
         /*FALLTHRU*/
@@ -531,7 +531,7 @@ attrcurse(void)
             }
             You("%s!", Hallucination ? "tawt you taw a puttie tat"
                                      : "thought you saw something");
-            ret = SEE_INVIS;
+            ret = SEE_INVISIBLE;
             break;
         }
         /*FALLTHRU*/

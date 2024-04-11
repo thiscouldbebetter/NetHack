@@ -3716,17 +3716,17 @@ corpsenm_price_adj(struct obj *obj)
             int trinsic;
             int cost;
         } const icost[] = {
-            { FIRE_RES,   2 },
-            { SLEEP_RES,  3 },
-            { COLD_RES,   2 },
-            { DISINT_RES, 5 },
-            { SHOCK_RES,  4 },
-            { POISON_RES, 2 },
-            { ACID_RES,   1 },
-            { STONE_RES,  3 },
+            { FIRE_RESISTANCE,   2 },
+            { SLEEP_RESISTANCE,  3 },
+            { COLD_RESISTANCE,   2 },
+            { DISINTEGRATION_RESISTANCE, 5 },
+            { SHOCK_RESISTANCE,  4 },
+            { POISON_RESISTANCE, 2 },
+            { ACID_RESISTANCE,   1 },
+            { STONE_RESISTANCE,  3 },
             { TELEPORT,   2 },
             { TELEPORT_CONTROL,  3 },
-            { TELEPAT,  5 }
+            { TELEPATHIC,  5 }
         };
 
         for (i = 0; i < SIZE(icost); i++)
@@ -4526,7 +4526,7 @@ shopdig(int fall)
 
         for (obj = gi.invent; obj; obj = obj2) {
             obj2 = obj->nobj;
-            if ((obj->owornmask & ~(W_SWAPWEP | W_QUIVER)) != 0
+            if ((obj->owornmask & ~(WEARING_SECONDARY_WEAPON | WEARING_QUIVER)) != 0
                 || (obj == uswapwep && u.using_two_weapons)
                 || (obj->otyp == LEASH && obj->leashmon))
                 continue;

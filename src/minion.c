@@ -554,7 +554,7 @@ gain_guardian_angel(void)
             bless(otmp);
             if (otmp->spe < 4)
                 otmp->spe += random(4);
-            if ((otmp = which_armor(mtmp, W_ARMS)) == 0
+            if ((otmp = which_armor(mtmp, WEARING_ARMOR_SHIELD)) == 0
                 || otmp->otyp != SHIELD_OF_REFLECTION) {
                 (void) mongets(mtmp, AMULET_OF_REFLECTION);
                 m_dowear(mtmp, TRUE);

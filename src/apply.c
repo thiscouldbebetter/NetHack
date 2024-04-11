@@ -2295,7 +2295,7 @@ use_unicorn_horn(struct obj **optr)
              && attacktype_fordmg(u.monster_stuck_to->data, AT_ENGL, AD_BLND)))
         prop_trouble(BLINDED);
     if (TimedTrouble(HHallucination))
-        prop_trouble(HALLUC);
+        prop_trouble(HALLUCINATING);
     if (TimedTrouble(Vomiting))
         prop_trouble(VOMITING);
     if (TimedTrouble(HConfusion))
@@ -2334,7 +2334,7 @@ use_unicorn_horn(struct obj **optr)
             make_blinded((long) u.ucreamed, TRUE);
             did_prop++;
             break;
-        case HALLUC:
+        case HALLUCINATING:
             (void) make_hallucinated(0L, TRUE, 0L);
             did_prop++;
             break;

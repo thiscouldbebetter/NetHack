@@ -28,7 +28,7 @@ staticfn boolean mhurtle_step(genericptr_t, coordxy, coordxy);
 /* uwep might already be removed from inventory so test for W_WEP instead;
    for Valk+Mjollnir, caller needs to validate the strength requirement */
 #define AutoReturn(o,wmsk) \
-    ((((wmsk) & W_WEP) != 0                                             \
+    ((((wmsk) & WEARING_WEAPON) != 0                                             \
       && ((o)->otyp == AKLYS                                            \
           || ((o)->oartifact == ART_MJOLLNIR && Role_if(PM_VALKYRIE)))) \
      || (o)->otyp == BOOMERANG)
@@ -525,9 +525,9 @@ dofire(void)
             obj = uquiver;
             if (obj) {
                 /* give feedback if quiver has now been filled */
-                uquiver->owornmask &= ~W_QUIVER; /* less verbose */
+                uquiver->owornmask &= ~WEARING_QUIVER; /* less verbose */
                 prinv("You ready:", obj, 0L);
-                uquiver->owornmask |= W_QUIVER;
+                uquiver->owornmask |= WEARING_QUIVER;
             } else {
                 You("have nothing appropriate for your quiver.");
             }
@@ -880,7 +880,7 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
             instapetrify(gk.killer.name);
         }
         if (touch_petrifies(gy.youmonst.data)
-            && !which_armor(mon, W_ARMU | W_ARM | W_ARMC)) {
+            && !which_armor(mon, WEARING_ARMOR_UNDERSHIRT | WEARING_ARMOR_BODY | WEARING_ARMOR_CLOAK)) {
             minstapetrify(mon, TRUE);
         }
         wake_nearto(x, y, 10);
@@ -1036,13 +1036,13 @@ mhurtle_step(genericptr_t arg, coordxy x, coordxy y)
         wakeup(mtmp, !gc.context.mon_moving);
         /* check whether 'mon' is turned to stone by touching 'mtmp' */
         if (touch_petrifies(mtmp->data)
-            && !which_armor(mon, W_ARMU | W_ARM | W_ARMC)) {
+            && !which_armor(mon, WEARING_ARMOR_UNDERSHIRT | WEARING_ARMOR_BODY | WEARING_ARMOR_CLOAK)) {
             minstapetrify(mon, !gc.context.mon_moving);
             newsym(mon->mx, mon->my);
         }
         /* and whether 'mtmp' is turned to stone by being touched by 'mon' */
         if (touch_petrifies(mon->data)
-            && !which_armor(mtmp, W_ARMU | W_ARM | W_ARMC)) {
+            && !which_armor(mtmp, WEARING_ARMOR_UNDERSHIRT | WEARING_ARMOR_BODY | WEARING_ARMOR_CLOAK)) {
             minstapetrify(mtmp, !gc.context.mon_moving);
             newsym(mtmp->mx, mtmp->my);
         }
@@ -1052,7 +1052,7 @@ mhurtle_step(genericptr_t arg, coordxy x, coordxy y)
         stop_occupation();
         /* check whether 'mon' is turned to stone by touching poly'd hero */
         if (Upolyd && touch_petrifies(gy.youmonst.data)
-            && !which_armor(mon, W_ARMU | W_ARM | W_ARMC)) {
+            && !which_armor(mon, WEARING_ARMOR_UNDERSHIRT | WEARING_ARMOR_BODY | WEARING_ARMOR_CLOAK)) {
             /* give poly'd hero credit/blame despite a monster causing it */
             minstapetrify(mon, TRUE);
             newsym(mon->mx, mon->my);
@@ -1465,7 +1465,7 @@ throwit(struct obj *obj,
     boolean crossbowing, clear_thrownobj = FALSE,
             impaired = (Confusion || Stunned || Blind
                         || Hallucination || Fumbling),
-            tethered_weapon = (obj->otyp == AKLYS && (wep_mask & W_WEP) != 0);
+            tethered_weapon = (obj->otyp == AKLYS && (wep_mask & WEARING_WEAPON) != 0);
 
     gn.notonhead = FALSE; /* reset potentially stale value */
     if ((obj->cursed || obj->greased) && (u.dx || u.dy) && !random_integer_between_zero_and(7)) {
@@ -1681,7 +1681,7 @@ throwit(struct obj *obj,
                     (void) encumbered_message();
                     /* addinv autoquivers an aklys if quiver is empty;
                        if obj is quivered, remove it before wielding */
-                    if (obj->owornmask & W_QUIVER)
+                    if (obj->owornmask & WEARING_QUIVER)
                         setuqwep((struct obj *) 0);
                     setuwep(obj);
                     set_twoweap(twoweap); /* u.twoweap = twoweap */
@@ -1845,15 +1845,15 @@ return_throw_to_inv(
         obj->nomerge = 0;
 
         /* in case addinv() autoquivered */
-        if ((obj->owornmask & W_QUIVER) != 0
-            && ((obj->owornmask | wep_mask) & (W_WEP | W_SWAPWEP)) != 0)
+        if ((obj->owornmask & WEARING_QUIVER) != 0
+            && ((obj->owornmask | wep_mask) & (WEARING_WEAPON | WEARING_SECONDARY_WEAPON)) != 0)
             setuqwep((struct obj *) 0);
 
-        if ((wep_mask & W_WEP) && !uwep)
+        if ((wep_mask & WEARING_WEAPON) && !uwep)
             setuwep(obj);
-        else if ((wep_mask & W_SWAPWEP) && !uswapwep)
+        else if ((wep_mask & WEARING_SECONDARY_WEAPON) && !uswapwep)
             setuswapwep(obj);
-        else if ((wep_mask & W_QUIVER) && !uquiver)
+        else if ((wep_mask & WEARING_QUIVER) && !uquiver)
             setuqwep(obj);
 
         /* in case the throw ended dual-wielding, reinstate it after

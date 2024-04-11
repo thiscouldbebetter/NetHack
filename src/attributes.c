@@ -870,7 +870,7 @@ is_innate(int propidx)
     int innateness;
 
     /* innately() would report FROM_FORM for this; caller wants specificity */
-    if (propidx == DRAIN_RES && ismnum(u.ulycn))
+    if (propidx == DRAIN_RESISTANCE && ismnum(u.ulycn))
         return FROM_LYCN;
     if (propidx == FAST && Very_fast)
         return FROM_NONE; /* can't become very fast innately */
@@ -935,7 +935,7 @@ from_what(int propidx) /* special cases can have negative values */
             else if (propidx == FAST && Very_fast)
                 Sprintf(buf, because_of,
                         ((HFast & TIMEOUT) != 0L) ? "a potion or spell"
-                          : ((EFast & W_ARMF) != 0L && uarmf->dknown
+                          : ((EFast & WEARING_ARMOR_FOOTWEAR) != 0L && uarmf->dknown
                              && objects[uarmf->otyp].oc_name_known)
                               ? ysimple_name(uarmf) /* speed boots */
                                 : EFast ? "worn equipment"
@@ -969,13 +969,13 @@ from_what(int propidx) /* special cases can have negative values */
                 if (BBlinded && is_art(ublindf, ART_EYES_OF_THE_OVERWORLD))
                     Sprintf(buf, because_of, bare_artifactname(ublindf));
                 break;
-            case INVIS:
-                if (u.uprops[INVIS].blocked & W_ARMC)
+            case INVISIBLE:
+                if (u.uprops[INVISIBLE].blocked & WEARING_ARMOR_CLOAK)
                     Sprintf(buf, because_of,
                             ysimple_name(uarmc)); /* mummy wrapping */
                 break;
             case CLAIRVOYANT:
-                if (wizard && (u.uprops[CLAIRVOYANT].blocked & W_ARMH))
+                if (wizard && (u.uprops[CLAIRVOYANT].blocked & WEARING_ARMOR_HELMET))
                     Sprintf(buf, because_of,
                             ysimple_name(uarmh)); /* cornuthaum */
                 break;

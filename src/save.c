@@ -759,7 +759,7 @@ save_bc(NHFILE *nhfp)
         gl.loosechain->nobj = bc_objs; /* uchain */
         bc_objs = gl.loosechain;
         if (nhfp->mode & FREEING) {
-            setworn((struct obj *) 0, W_CHAIN); /* sets 'uchain' to Null */
+            setworn((struct obj *) 0, WEARING_CHAIN); /* sets 'uchain' to Null */
             gl.loosechain = (struct obj *) 0;
         }
     }
@@ -767,7 +767,7 @@ save_bc(NHFILE *nhfp)
         gl.looseball->nobj = bc_objs;
         bc_objs = gl.looseball;
         if (nhfp->mode & FREEING) {
-            setworn((struct obj *) 0, W_BALL); /* sets 'uball' to Null */
+            setworn((struct obj *) 0, WEARING_BALL); /* sets 'uball' to Null */
             gl.looseball = (struct obj *) 0;
         }
     }
@@ -864,9 +864,9 @@ saveobjchn(NHFILE *nhfp, struct obj **obj_p)
                                      * until after the monster is saved */
             /* clear 'uball' and 'uchain' pointers if resetting their mask;
                could also do same for other worn items but don't need to */
-            if ((otmp->owornmask & (W_BALL | W_CHAIN)) != 0)
+            if ((otmp->owornmask & (WEARING_BALL | WEARING_CHAIN)) != 0)
                 setworn((struct obj *) 0,
-                        otmp->owornmask & (W_BALL | W_CHAIN));
+                        otmp->owornmask & (WEARING_BALL | WEARING_CHAIN));
             otmp->owornmask = 0L;   /* no longer care */
             dealloc_obj(otmp);
         }

@@ -81,7 +81,7 @@ static const char *inuse_headers[] = { /* [4] shown first, [1] last */
 staticfn void
 inuse_classify(Loot *sort_item, struct obj *obj)
 {
-    long w_mask = (obj->owornmask & (W_ACCESSORY | W_WEAPONS | W_ARMOR));
+    long w_mask = (obj->owornmask & (WEARING_ACCESSORY | WEARING_WEAPONS | WEARING_ARMOR));
     int rating = 0, altclass = 0;
 
 #define USE_RATING(test) \
@@ -124,15 +124,15 @@ inuse_classify(Loot *sort_item, struct obj *obj)
     USE_RATING(w_mask & WORN_HELMET);
     USE_RATING(w_mask & WORN_SHIELD);
     USE_RATING(w_mask & WORN_CLOAK);
-    USE_RATING(w_mask & WORN_ARMOR);
+    USE_RATING(w_mask & WEARING_ARMOR_BODY);
     /* "Weapons" */
     ++altclass; /* 3 */
     /* could get more complicated:  if uswapwep is just alternate weapon
        rather than wielded secondary, swap order with quiver (unless
        quiver is ammo for uswapwep without also being ammo for uwep) */
-    USE_RATING(w_mask & W_QUIVER);
-    USE_RATING(w_mask & W_SWAPWEP);
-    USE_RATING(w_mask & W_WEP);
+    USE_RATING(w_mask & WEARING_QUIVER);
+    USE_RATING(w_mask & WEARING_SECONDARY_WEAPON);
+    USE_RATING(w_mask & WEARING_WEAPON);
     /* "Accessories" */
     ++altclass; /* 4 */
     USE_RATING(w_mask & WORN_BLINDF);
@@ -897,12 +897,12 @@ merged(struct obj **potmp, struct obj **pobj)
                (Prior to 3.3.0, it was not possible for the two
                stacks to be worn in different slots and `obj'
                didn't need to be unworn when merging.) */
-            if ((wmask & W_WEP) != 0L) {
-                wmask = W_WEP;
-            } else if ((wmask & W_SWAPWEP) != 0L) {
-                wmask = W_SWAPWEP;
-            } else if ((wmask & W_QUIVER) != 0L) {
-                wmask = W_QUIVER;
+            if ((wmask & WEARING_WEAPON) != 0L) {
+                wmask = WEARING_WEAPON;
+            } else if ((wmask & WEARING_SECONDARY_WEAPON) != 0L) {
+                wmask = WEARING_SECONDARY_WEAPON;
+            } else if ((wmask & WEARING_QUIVER) != 0L) {
+                wmask = WEARING_QUIVER;
             } else {
                 impossible("merging strangely worn items (%lx)", wmask);
                 wmask = otmp->owornmask;
@@ -1001,7 +1001,7 @@ addinv_core1(struct obj *obj)
             u.player_carrying_special_objects.questart = 1;
             artitouch(obj);
         }
-        set_artifact_intrinsic(obj, 1, W_ART);
+        set_artifact_intrinsic(obj, 1, WEARING_ARTIFACT);
     }
 
     /* "special achievements"; revealed in end of game disclosure and
@@ -1357,7 +1357,7 @@ freeinv_core(struct obj *obj)
                 impossible("don't have quest artifact?");
             u.player_carrying_special_objects.questart = 0;
         }
-        set_artifact_intrinsic(obj, 0, W_ART);
+        set_artifact_intrinsic(obj, 0, WEARING_ARTIFACT);
     }
 
     if (obj->otyp == LOADSTONE) {
@@ -2113,7 +2113,7 @@ wearing_armor(void)
 boolean
 is_worn(struct obj *otmp)
 {
-    return (otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE | W_WEAPONS))
+    return (otmp->owornmask & (WEARING_ARMOR | WEARING_ACCESSORY | WEARING_SADDLE | WEARING_WEAPONS))
             ? TRUE
             : FALSE;
 }
@@ -3090,7 +3090,7 @@ itemactions(struct obj *otmp)
     menu_item *selected;
     struct monster *mtmp;
     const char *light = otmp->lamplit ? "Extinguish" : "Light";
-    boolean already_worn = (otmp->owornmask & (W_ARMOR | W_ACCESSORY)) != 0;
+    boolean already_worn = (otmp->owornmask & (WEARING_ARMOR | WEARING_ACCESSORY)) != 0;
 
     win = create_nhwindow(NHW_MENU);
     start_menu(win, MENU_BEHAVE_STANDARD);
@@ -3288,7 +3288,7 @@ itemactions(struct obj *otmp)
         ia_addmenu(win, IA_READ_OBJ, 'r', buf);
 
     /* R: remove accessory or rub item */
-    if (otmp->owornmask & W_ACCESSORY)
+    if (otmp->owornmask & WEARING_ACCESSORY)
         ia_addmenu(win, IA_TAKEOFF_OBJ, 'R', "Remove this accessory");
     if (otmp->otyp == OIL_LAMP || otmp->otyp == MAGIC_LAMP
         || otmp->otyp == BRASS_LANTERN) {
@@ -3317,7 +3317,7 @@ itemactions(struct obj *otmp)
     }
 
     /* T: take off armor, tip carried container */
-    if (otmp->owornmask & W_ARMOR)
+    if (otmp->owornmask & WEARING_ARMOR)
         ia_addmenu(win, IA_TAKEOFF_OBJ, 'T', "Take off this armor");
     if ((Is_container(otmp) && (Has_contents(otmp) || !otmp->cknown))
         || (otmp->otyp == HORN_OF_PLENTY && (otmp->spe > 0 || !otmp->known)))
@@ -3654,7 +3654,7 @@ display_pickinv(
              */
             inuse_fakeobj = cg.zeroobj; /* STRANGE_OBJECT, ILLOBJ_CLASS */
             inuse_fakeobj.invlet = HANDS_SYM; /* '-' */
-            inuse_fakeobj.owornmask = W_WEP;  /* inuse_classify needs this */
+            inuse_fakeobj.owornmask = WEARING_WEAPON;  /* inuse_classify needs this */
             inuse_fakeobj.where = OBJ_INVENT; /* is_inuse filter needs this */
             inuse_fakeobj.nobj = gi.invent;
             gi.invent = &inuse_fakeobj;
@@ -5120,7 +5120,7 @@ tool_being_used(struct obj *obj)
      * [Should this also include lit potions of oil?  They're not tools
      *  but they are "in use" without being noticeable via obj->owornmask.]
      */
-    if ((obj->owornmask & (W_TOOL | W_SADDLE)) != 0L)
+    if ((obj->owornmask & (WEARING_TOOL | WEARING_SADDLE)) != 0L)
         return TRUE;
     if (obj->oclass != TOOL_CLASS)
         return FALSE;

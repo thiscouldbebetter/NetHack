@@ -1184,7 +1184,7 @@ seffect_enchant_armor(struct obj **sobjp)
 
         /* dragon scales get turned into dragon scale mail */
         pline("%s merges and hardens!", Yname2(otmp));
-        setworn((struct obj *) 0, W_ARM);
+        setworn((struct obj *) 0, WEARING_ARMOR_BODY);
         /* assumes same order */
         otmp->otyp += GRAY_DRAGON_SCALE_MAIL - GRAY_DRAGON_SCALES;
         otmp->lamplit = 0; /* don't want bless() or uncurse() to adjust
@@ -1198,7 +1198,7 @@ seffect_enchant_armor(struct obj **sobjp)
         } else if (otmp->cursed)
             uncurse(otmp);
         otmp->known = 1;
-        setworn(otmp, W_ARM);
+        setworn(otmp, WEARING_ARMOR_BODY);
         if (otmp->unpaid)
             alter_cost(otmp, 0L); /* shop bill */
         otmp->lamplit = was_lit;
@@ -1418,7 +1418,7 @@ seffect_remove_curse(struct obj **sobjp)
                show known blessed scroll losing bknown when confused */
             if (obj == sobj && obj->quan == 1L)
                 continue;
-            wornmask = (obj->owornmask & ~(W_BALL | W_ART | W_ARTI));
+            wornmask = (obj->owornmask & ~(WEARING_BALL | WEARING_ARTIFACT | WEARING_ARTIFACT_INVOKED));
             if (wornmask && !sblessed) {
                 /* handle a couple of special cases; we don't
                    allow auxiliary weapon slots to be used to
@@ -1475,7 +1475,7 @@ seffect_remove_curse(struct obj **sobjp)
             }
         }
         /* if riding, treat steed's saddle as if part of hero's invent */
-        if (u.monster_being_ridden && (obj = which_armor(u.monster_being_ridden, W_SADDLE)) != 0) {
+        if (u.monster_being_ridden && (obj = which_armor(u.monster_being_ridden, WEARING_SADDLE)) != 0) {
             if (confused) {
                 blessorcurse(obj, 2);
                 obj->bknown = 0; /* skip set_bknown() */
@@ -2246,7 +2246,7 @@ drop_boulder_on_monster(coordxy x, coordxy y, boolean confused, boolean byu)
     mtmp = m_at(x, y);
     if (mtmp && !amorphous(mtmp->data) && !passes_walls(mtmp->data)
         && !noncorporeal(mtmp->data) && !unsolid(mtmp->data)) {
-        struct obj *helmet = which_armor(mtmp, W_ARMH);
+        struct obj *helmet = which_armor(mtmp, WEARING_ARMOR_HELMET);
         long mdmg;
 
         if (cansee(mtmp->mx, mtmp->my)) {
@@ -2917,11 +2917,11 @@ punish(struct obj *sobj)
         }
         return;
     }
-    setworn(mkobj(CHAIN_CLASS, TRUE), W_CHAIN);
+    setworn(mkobj(CHAIN_CLASS, TRUE), WEARING_CHAIN);
     if (!reuse_ball)
-        setworn(mkobj(BALL_CLASS, TRUE), W_BALL);
+        setworn(mkobj(BALL_CLASS, TRUE), WEARING_BALL);
     else
-        setworn(reuse_ball, W_BALL);
+        setworn(reuse_ball, WEARING_BALL);
 
     /*
      *  Place ball & chain if not swallowed.  If swallowed, the ball & chain
@@ -2942,12 +2942,12 @@ unpunish(void)
     struct obj *savechain = uchain;
 
     /* chain goes away */
-    setworn((struct obj *) 0, W_CHAIN); /* sets 'uchain' to Null */
+    setworn((struct obj *) 0, WEARING_CHAIN); /* sets 'uchain' to Null */
     /* for floor, unhides monster hidden under chain, calls newsym() */
     delobj(savechain);
 
     /* the chain is gone but the no longer attached ball persists */
-    setworn((struct obj *) 0, W_BALL); /* sets 'uball' to Null */
+    setworn((struct obj *) 0, WEARING_BALL); /* sets 'uball' to Null */
 }
 
 /* prompt the player to create a stinking cloud and then create it if they
@@ -3202,7 +3202,7 @@ create_particular_creation(
             mtmp->mpeaceful = d->makepeaceful ? 1 : 0;
             set_malign(mtmp);
         }
-        if (d->saddled && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE)) {
+        if (d->saddled && can_saddle(mtmp) && !which_armor(mtmp, WEARING_SADDLE)) {
             struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
 
             put_saddle_on_mon(otmp, mtmp);

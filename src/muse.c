@@ -1354,7 +1354,7 @@ find_offensive(struct monster *mtmp)
     struct obj *obj;
     boolean reflection_skip = m_seenres(mtmp, M_SEEN_REFL) != 0
         || monnear(mtmp, mtmp->mux, mtmp->muy);
-    struct obj *helmet = which_armor(mtmp, W_ARMH);
+    struct obj *helmet = which_armor(mtmp, WEARING_ARMOR_HELMET);
 
     gm.m.offensive = (struct obj *) 0;
     gm.m.has_offense = 0;
@@ -1955,7 +1955,7 @@ rnd_offensive_item(struct monster *mtmp)
         return WAN_DEATH;
     switch (random_integer_between_zero_and(9 - (difficulty < 4) + 4 * (difficulty > 6))) {
     case 0: {
-        struct obj *helmet = which_armor(mtmp, W_ARMH);
+        struct obj *helmet = which_armor(mtmp, WEARING_ARMOR_HELMET);
 
         if (hard_helmet(helmet) || amorphous(pm)
             || passes_walls(pm) || noncorporeal(pm) || unsolid(pm))
@@ -2158,7 +2158,7 @@ muse_newcham_mon(struct monster *mon)
 {
     struct obj *m_armr;
 
-    if ((m_armr = which_armor(mon, W_ARM)) != 0) {
+    if ((m_armr = which_armor(mon, WEARING_ARMOR_BODY)) != 0) {
         if (Is_dragon_scales(m_armr))
             return Dragon_scales_to_pm(m_armr);
         else if (Is_dragon_mail(m_armr))
@@ -2649,7 +2649,7 @@ searches_for_item(struct monster *mon, struct obj *obj)
         break;
     case FOOD_CLASS:
         if (typ == CORPSE)
-            return (boolean) (((mon->misc_worn_check & W_ARMG) != 0L
+            return (boolean) (((mon->misc_worn_check & WEARING_ARMOR_GLOVES) != 0L
                                && touch_petrifies(&mons[obj->corpsenm]))
                               || (!resists_ston(mon)
                                   && cures_stoning(mon, obj, FALSE)));
@@ -2672,7 +2672,7 @@ DISABLE_WARNING_FORMAT_NONLITERAL
 boolean
 mon_reflects(struct monster *mon, const char *str)
 {
-    struct obj *orefl = which_armor(mon, W_ARMS);
+    struct obj *orefl = which_armor(mon, WEARING_ARMOR_SHIELD);
 
     if (orefl && orefl->otyp == SHIELD_OF_REFLECTION) {
         if (str) {
@@ -2685,14 +2685,14 @@ mon_reflects(struct monster *mon, const char *str)
         if (str)
             pline(str, s_suffix(mon_nam(mon)), "weapon");
         return TRUE;
-    } else if ((orefl = which_armor(mon, W_AMUL))
+    } else if ((orefl = which_armor(mon, WEARING_AMULET))
                && orefl->otyp == AMULET_OF_REFLECTION) {
         if (str) {
             pline(str, s_suffix(mon_nam(mon)), "amulet");
             makeknown(AMULET_OF_REFLECTION);
         }
         return TRUE;
-    } else if ((orefl = which_armor(mon, W_ARM))
+    } else if ((orefl = which_armor(mon, WEARING_ARMOR_BODY))
                && (orefl->otyp == SILVER_DRAGON_SCALES
                    || orefl->otyp == SILVER_DRAGON_SCALE_MAIL)) {
         if (str)
@@ -2712,24 +2712,24 @@ boolean
 ureflects(const char *fmt, const char *str)
 {
     /* Check from outermost to innermost objects */
-    if (EReflecting & W_ARMS) {
+    if (EReflecting & WEARING_ARMOR_SHIELD) {
         if (fmt && str) {
             pline(fmt, str, "shield");
             makeknown(SHIELD_OF_REFLECTION);
         }
         return TRUE;
-    } else if (EReflecting & W_WEP) {
+    } else if (EReflecting & WEARING_WEAPON) {
         /* Due to wielded artifact weapon */
         if (fmt && str)
             pline(fmt, str, "weapon");
         return TRUE;
-    } else if (EReflecting & W_AMUL) {
+    } else if (EReflecting & WEARING_AMULET) {
         if (fmt && str) {
             pline(fmt, str, "medallion");
             makeknown(AMULET_OF_REFLECTION);
         }
         return TRUE;
-    } else if (EReflecting & W_ARM) {
+    } else if (EReflecting & WEARING_ARMOR_BODY) {
         if (fmt && str)
             pline(fmt, str, uskin ? "luster" : "armor");
         return TRUE;

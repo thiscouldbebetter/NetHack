@@ -406,7 +406,7 @@ oname(
             untwoweapon();
         /* activate warning if you've just named your weapon "Sting" */
         if (obj == uwep)
-            set_artifact_intrinsic(obj, TRUE, W_WEP);
+            set_artifact_intrinsic(obj, TRUE, WEARING_WEAPON);
         /* if obj is owned by a shop, increase your bill */
         if (obj->unpaid)
             alter_cost(obj, 0L);
@@ -918,7 +918,7 @@ x_monnam(
         Strcat(strcat(buf, adjective), " ");
     if (do_invis)
         Strcat(buf, "invisible ");
-    if (do_saddle && (mtmp->misc_worn_check & W_SADDLE) && !Blind
+    if (do_saddle && (mtmp->misc_worn_check & WEARING_SADDLE) && !Blind
         && !Hallucination)
         Strcat(buf, "saddled ");
     has_adjectives = (buf[0] != '\0');

@@ -107,7 +107,7 @@ setuwep(struct obj *obj)
     /* This message isn't printed in the caller because it happens
      * *whenever* Sunsword is unwielded, from whatever cause.
      */
-    setworn(obj, W_WEP);
+    setworn(obj, WEARING_WEAPON);
     if (uwep == obj && artifact_light(olduwep) && olduwep->lamplit) {
         end_burn(olduwep, FALSE);
         if (!Blind)
@@ -216,8 +216,8 @@ ready_weapon(struct obj *wep)
              */
             long dummy = wep->owornmask;
 
-            wep->owornmask |= W_WEP;
-            if (wep->otyp == AKLYS && (wep->owornmask & W_WEP) != 0)
+            wep->owornmask |= WEARING_WEAPON;
+            if (wep->otyp == AKLYS && (wep->owornmask & WEARING_WEAPON) != 0)
                 You("secure the tether.");
             prinv((char *) 0, wep, 0L);
             wep->owornmask = dummy;
@@ -271,7 +271,7 @@ ready_weapon(struct obj *wep)
 void
 setuqwep(struct obj *obj)
 {
-    setworn(obj, W_QUIVER);
+    setworn(obj, WEARING_QUIVER);
     /* no extra handling needed; this used to include a call to
        update_inventory() but that's already performed by setworn() */
     return;
@@ -280,7 +280,7 @@ setuqwep(struct obj *obj)
 void
 setuswapwep(struct obj *obj)
 {
-    setworn(obj, W_SWAPWEP);
+    setworn(obj, WEARING_SECONDARY_WEAPON);
     return;
 }
 
@@ -429,7 +429,7 @@ dowield(void)
         }
         /* wielding whole readied stack, so no longer quivered */
         setuqwep((struct obj *) 0);
-    } else if (wep->owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE)) {
+    } else if (wep->owornmask & (WEARING_ARMOR | WEARING_ACCESSORY | WEARING_SADDLE)) {
         You("cannot wield that!");
         return ECMD_FAIL;
     }
@@ -558,7 +558,7 @@ doquiver_core(const char *verb) /* "ready" or "fire" */
  already_quivered:
         pline("That ammunition is already readied!");
         return ECMD_OK;
-    } else if (newquiver->owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE)) {
+    } else if (newquiver->owornmask & (WEARING_ARMOR | WEARING_ACCESSORY | WEARING_SADDLE)) {
         You("cannot %s that!", verb);
         return ECMD_OK;
     } else if (newquiver == uwep) {
@@ -696,7 +696,7 @@ wield_tool(struct obj *obj,
     more_than_1 = (obj->quan > 1L || strstri(what, "pair of ") != 0
                    || strstri(what, "s of ") != 0);
 
-    if (obj->owornmask & (W_ARMOR | W_ACCESSORY)) {
+    if (obj->owornmask & (WEARING_ARMOR | WEARING_ACCESSORY)) {
         You_cant("%s %s while wearing %s.", verb, yname(obj),
                  more_than_1 ? "them" : "it");
         return FALSE;
@@ -875,7 +875,7 @@ uwepgone(void)
             if (!Blind)
                 pline("%s shining.", Tobjnam(uwep, "stop"));
         }
-        setworn((struct obj *) 0, W_WEP);
+        setworn((struct obj *) 0, WEARING_WEAPON);
         gu.unweapon = TRUE;
         update_inventory();
     }
@@ -885,7 +885,7 @@ void
 uswapwepgone(void)
 {
     if (uswapwep) {
-        setworn((struct obj *) 0, W_SWAPWEP);
+        setworn((struct obj *) 0, WEARING_SECONDARY_WEAPON);
         update_inventory();
     }
 }
@@ -894,7 +894,7 @@ void
 uqwepgone(void)
 {
     if (uquiver) {
-        setworn((struct obj *) 0, W_QUIVER);
+        setworn((struct obj *) 0, WEARING_QUIVER);
         update_inventory();
     }
 }
@@ -1075,7 +1075,7 @@ boolean
 mwelded(struct obj *obj)
 {
     /* caller is responsible for making sure this is a monster's item */
-    if (obj && (obj->owornmask & W_WEP) && will_weld(obj))
+    if (obj && (obj->owornmask & WEARING_WEAPON) && will_weld(obj))
         return TRUE;
     return FALSE;
 }

@@ -35,7 +35,7 @@ static const struct propname {
     { SICK, "fatally sick" },
     { STUNNED, "stunned" },
     { CONFUSION, "confused" },
-    { HALLUC, "hallucinating" },
+    { HALLUCINATING, "hallucinating" },
     { BLINDED, "blinded" },
     { DEAF, "deafness" },
     { VOMITING, "vomiting" },
@@ -48,11 +48,11 @@ static const struct propname {
     { FAST, "very fast" }, /* timed 'FAST' is very fast */
     { CLAIRVOYANT, "clairvoyant" },
     { DETECT_MONSTERS, "monster detection" },
-    { SEE_INVIS, "see invisible" },
-    { INVIS, "invisible" },
+    { SEE_INVISIBLE, "see invisible" },
+    { INVISIBLE, "invisible" },
     /* temporary acid resistance and stone resistance can come from eating */
-    { ACID_RES, "acid resistance" },
-    { STONE_RES, "stoning resistance" },
+    { ACID_RESISTANCE, "acid resistance" },
+    { STONE_RESISTANCE, "stoning resistance" },
     /* timed displacement is possible via eating a displacer beast corpse */
     { DISPLACED, "displaced" },
     /* timed pass-walls is a potential prayer result if surrounded by stone
@@ -62,28 +62,28 @@ static const struct propname {
        (as well as in wizard mode) after life-saving in lava if it fails to
        teleport the hero to safety and player declines to die */
     { WWALKING, "water walking" },
-    { FIRE_RES, "fire resistance" },
+    { FIRE_RESISTANCE, "fire resistance" },
     /*
      * Properties beyond here don't have timed values during normal play,
      * so there's not much point in trying to order them sensibly.
      * They're either on or off based on equipment, role, actions, &c,
      * but in wizard mode, #wizintrinsic can give them as timed effects.
      */
-    { COLD_RES, "cold resistance" },
-    { SLEEP_RES, "sleep resistance" },
-    { DISINT_RES, "disintegration resistance" },
-    { SHOCK_RES, "shock resistance" },
-    { POISON_RES, "poison resistance" },
-    { DRAIN_RES, "drain resistance" },
-    { SICK_RES, "sickness resistance" },
+    { COLD_RESISTANCE, "cold resistance" },
+    { SLEEP_RESISTANCE, "sleep resistance" },
+    { DISINTEGRATION_RESISTANCE, "disintegration resistance" },
+    { SHOCK_RESISTANCE, "shock resistance" },
+    { POISON_RESISTANCE, "poison resistance" },
+    { DRAIN_RESISTANCE, "drain resistance" },
+    { SICK_RESISTANCE, "sickness resistance" },
     { ANTIMAGIC, "magic resistance" },
-    { HALLUC_RES, "hallucination resistance" },
+    { HALLUCINATION_RESISTANCE, "hallucination resistance" },
     { FUMBLING, "fumbling" },
     { HUNGER, "voracious hunger" },
-    { TELEPAT, "telepathic" },
+    { TELEPATHIC, "telepathic" },
     { WARNING, "warning" },
-    { WARN_OF_MON, "warn: monster type or class" },
-    { WARN_UNDEAD, "warn: undead" },
+    { WARNED_OF_MONSTERS, "warn: monster type or class" },
+    { WARNED_OF_UNDEAD, "warn: undead" },
     { SEARCHING, "searching" },
     { INFRAVISION, "infravision" },
     { ADORNED, "adorned (+/- Cha)" },
@@ -96,17 +96,17 @@ static const struct propname {
     { SWIMMING, "swimming" },
     { MAGICAL_BREATHING, "magical breathing" },
     { SLOW_DIGESTION, "slow digestion" },
-    { HALF_SPDAM, "half spell damage" },
-    { HALF_PHDAM, "half physical damage" },
+    { HALF_DAMAGE_SPELLS, "half spell damage" },
+    { HALF_DAMAGE_PHYSICAL, "half physical damage" },
     { REGENERATION, "HP regeneration" },
     { ENERGY_REGENERATION, "energy regeneration" },
     { PROTECTION, "extra protection" },
-    { PROT_FROM_SHAPE_CHANGERS, "protection from shape changers" },
+    { PROTECTION_FROM_SHAPE_CHANGERS, "protection from shape changers" },
     { POLYMORPH_CONTROL, "polymorph control" },
     { UNCHANGING, "unchanging" },
     { REFLECTING, "reflecting" },
     { FREE_ACTION, "free action" },
-    { FIXED_ABIL, "fixed abilities" },
+    { FIXED_ABILITY, "fixed abilities" },
     { LIFESAVED, "life will be saved" },
     {  0, 0 },
 };
@@ -722,7 +722,7 @@ nh_timeout(void)
                 if (!Deaf)
                     stop_occupation();
                 break;
-            case INVIS:
+            case INVISIBLE:
                 newsym(u.ux, u.uy);
                 if (!Invis && !BInvis && !Blind) {
                     You(!See_invisible
@@ -731,7 +731,7 @@ nh_timeout(void)
                     stop_occupation();
                 }
                 break;
-            case SEE_INVIS:
+            case SEE_INVISIBLE:
                 set_mimic_blocking(); /* do special mimic handling */
                 see_monsters();       /* make invis mons appear */
                 newsym(u.ux, u.uy);   /* make self appear */
@@ -741,7 +741,7 @@ nh_timeout(void)
                 heal_legs(0);
                 stop_occupation();
                 break;
-            case HALLUC:
+            case HALLUCINATING:
                 set_itimeout(&HHallucination, 1L);
                 (void) make_hallucinated(0L, TRUE, 0L);
                 if (!Hallucination)
@@ -776,26 +776,26 @@ nh_timeout(void)
                     spoteffects(TRUE);
                 }
                 break;
-            case ACID_RES:
+            case ACID_RESISTANCE:
                 if (!Acid_resistance) {
-                    if (eating_dangerous_corpse(ACID_RES)) {
+                    if (eating_dangerous_corpse(ACID_RESISTANCE)) {
                         /* extend temporary acid resistance if in midst
                            of eating an acidic corpse; this will repeat
                            until eating is finished or interrupted */
-                        set_itimeout(&u.uprops[ACID_RES].intrinsic, 1L);
+                        set_itimeout(&u.uprops[ACID_RESISTANCE].intrinsic, 1L);
                         break;
                     }
                     if (!Unaware)
                         You("no longer feel safe from acid.");
                 }
                 break;
-            case STONE_RES:
+            case STONE_RESISTANCE:
                 if (!Stone_resistance) {
-                    if (eating_dangerous_corpse(STONE_RES)) {
+                    if (eating_dangerous_corpse(STONE_RESISTANCE)) {
                         /* extend temporary stoning resistance if in midst
                            of eating a stoning corpse; this will repeat
                            until eating is finished or interrupted */
-                        set_itimeout(&u.uprops[STONE_RES].intrinsic, 1L);
+                        set_itimeout(&u.uprops[STONE_RESISTANCE].intrinsic, 1L);
                         break;
                     }
                     if (!Unaware)
@@ -808,7 +808,7 @@ nh_timeout(void)
                     wielding_corpse(uswapwep, (struct obj *) 0, FALSE);
                 }
                 break;
-            case FIRE_RES:
+            case FIRE_RESISTANCE:
                 /* timed fire resistance and timed water walking combine
                    as a way to survive lava after multiple life-saving
                    attempts fail to relocate hero; skip timeout message
@@ -825,7 +825,7 @@ nh_timeout(void)
                 if (!Displaced) /* give a message */
                     toggle_displacement((struct obj *) 0, 0L, FALSE);
                 break;
-            case WARN_OF_MON:
+            case WARNED_OF_MONSTERS:
                 /* timed Warn_of_mon is via #wizintrinsic only */
                 if (!Warn_of_mon) {
                     struct permonst *wptr = gc.context.warntype.species;
@@ -1232,7 +1232,7 @@ slip_or_trip(void)
            counterintuitive effect where ice makes riding _less_ hazardous,
            unconditionally dismount if fumbling is from a non-ice source */
         if (!on_foot
-            && ((saddle = which_armor(u.monster_being_ridden, W_SADDLE)) == 0
+            && ((saddle = which_armor(u.monster_being_ridden, WEARING_SADDLE)) == 0
                 || !saddle->cursed)
             && (!ice_only || !random_integer_between_zero_and(3))) {
             You("lose your balance.");
@@ -1271,7 +1271,7 @@ slip_or_trip(void)
 
         /* mounted; saddle should never end up being Null here;
            don't fall off when it happens to be cursed */
-        } else if ((saddle = which_armor(u.monster_being_ridden, W_SADDLE)) == 0
+        } else if ((saddle = which_armor(u.monster_being_ridden, WEARING_SADDLE)) == 0
                    || !saddle->cursed) {
             switch (random_integer_between_zero_and(4)) {
             case 1:
@@ -2016,7 +2016,7 @@ wiz_timeout_queue(void)
             if ((ln = (int) strlen(propname)) > longestlen)
                 longestlen = ln;
         }
-        if (specindx == 0 && p == COLD_RES) /* was FIRE_RES but has changed */
+        if (specindx == 0 && p == COLD_RESISTANCE) /* was FIRE_RES but has changed */
             specindx = i;
     }
     putstr(win, 0, "");

@@ -456,7 +456,7 @@ arti_reflects(struct obj *obj)
 
     if (arti != &artilist[ART_NONARTIFACT]) {
         /* while being worn */
-        if ((obj->owornmask & ~W_ART) && (arti->spfx & SPFX_REFLECT))
+        if ((obj->owornmask & ~WEARING_ARTIFACT) && (arti->spfx & SPFX_REFLECT))
             return TRUE;
         /* just being carried */
         if (arti->cspfx & SPFX_REFLECT)
@@ -641,7 +641,7 @@ set_artifact_intrinsic(struct obj *otmp, boolean on, long wp_mask)
         return;
 
     /* effects from the defn field */
-    dtyp = (wp_mask != W_ART) ? oart->defn.adtyp : oart->cary.adtyp;
+    dtyp = (wp_mask != WEARING_ARTIFACT) ? oart->defn.adtyp : oart->cary.adtyp;
 
     if (dtyp == AD_FIRE)
         mask = &EFire_resistance;
@@ -658,7 +658,7 @@ set_artifact_intrinsic(struct obj *otmp, boolean on, long wp_mask)
     else if (dtyp == AD_DRLI)
         mask = &EDrain_resistance;
 
-    if (mask && wp_mask == W_ART && !on) {
+    if (mask && wp_mask == WEARING_ARTIFACT && !on) {
         /* find out if some other artifact also confers this intrinsic;
            if so, leave the mask alone */
         for (obj = gi.invent; obj; obj = obj->nobj) {
@@ -680,8 +680,8 @@ set_artifact_intrinsic(struct obj *otmp, boolean on, long wp_mask)
     }
 
     /* intrinsics from the spfx field; there could be more than one */
-    spfx = (wp_mask != W_ART) ? oart->spfx : oart->cspfx;
-    if (spfx && wp_mask == W_ART && !on) {
+    spfx = (wp_mask != WEARING_ARTIFACT) ? oart->spfx : oart->cspfx;
+    if (spfx && wp_mask == WEARING_ARTIFACT && !on) {
         /* don't change any spfx also conferred by other artifacts */
         for (obj = gi.invent; obj; obj = obj->nobj)
             if (obj != otmp && obj->oartifact) {
@@ -776,7 +776,7 @@ set_artifact_intrinsic(struct obj *otmp, boolean on, long wp_mask)
             u.xray_range = -1;
         gv.vision_full_recalc = 1;
     }
-    if ((spfx & SPFX_REFLECT) && (wp_mask & W_WEP)) {
+    if ((spfx & SPFX_REFLECT) && (wp_mask & WEARING_WEAPON)) {
         if (on)
             EReflecting |= wp_mask;
         else
@@ -789,10 +789,10 @@ set_artifact_intrinsic(struct obj *otmp, boolean on, long wp_mask)
             EProtection &= ~wp_mask;
     }
 
-    if (wp_mask == W_ART && !on && oart->inv_prop) {
+    if (wp_mask == WEARING_ARTIFACT && !on && oart->inv_prop) {
         /* might have to turn off invoked power too */
         if (oart->inv_prop <= LAST_PROP
-            && (u.uprops[oart->inv_prop].extrinsic & W_ARTI))
+            && (u.uprops[oart->inv_prop].extrinsic & WEARING_ARTIFACT_INVOKED))
             (void) arti_invoke(otmp);
     }
 }
@@ -1957,13 +1957,13 @@ arti_invoke(struct obj *obj)
             break;
         }
     } else {
-        long eprop = (u.uprops[oart->inv_prop].extrinsic ^= W_ARTI),
+        long eprop = (u.uprops[oart->inv_prop].extrinsic ^= WEARING_ARTIFACT_INVOKED),
              iprop = u.uprops[oart->inv_prop].intrinsic;
-        boolean on = (eprop & W_ARTI) != 0; /* true if prop just set */
+        boolean on = (eprop & WEARING_ARTIFACT_INVOKED) != 0; /* true if prop just set */
 
         if (on && obj->age > gm.moves) {
             /* the artifact is tired :-) */
-            u.uprops[oart->inv_prop].extrinsic ^= W_ARTI;
+            u.uprops[oart->inv_prop].extrinsic ^= WEARING_ARTIFACT_INVOKED;
             You_feel("that %s %s ignoring you.", the(xname(obj)),
                      otense(obj, "are"));
             /* can't just keep repeatedly trying */
@@ -1975,7 +1975,7 @@ arti_invoke(struct obj *obj)
             obj->age = gm.moves + rnz(100);
         }
 
-        if ((eprop & ~W_ARTI) || iprop) {
+        if ((eprop & ~WEARING_ARTIFACT_INVOKED) || iprop) {
  nothing_special:
             /* you had the property from some other source too */
             if (carried(obj))
@@ -1994,9 +1994,9 @@ arti_invoke(struct obj *obj)
                 float_up();
                 spoteffects(FALSE);
             } else
-                (void) float_down(I_SPECIAL | TIMEOUT, W_ARTI);
+                (void) float_down(I_SPECIAL | TIMEOUT, WEARING_ARTIFACT_INVOKED);
             break;
-        case INVIS:
+        case INVISIBLE:
             if (BInvis || Blind)
                 goto nothing_special;
             newsym(u.ux, u.uy);
@@ -2023,7 +2023,7 @@ finesse_ahriman(struct obj *obj)
     /* if we aren't levitating or this isn't an artifact which confers
        levitation via #invoke then freeinv() won't toggle levitation */
     if (!Levitation || (oart = get_artifact(obj)) == &artilist[ART_NONARTIFACT]
-        || oart->inv_prop != LEVITATION || !(ELevitation & W_ARTI))
+        || oart->inv_prop != LEVITATION || !(ELevitation & WEARING_ARTIFACT_INVOKED))
         return FALSE;
 
     /* arti_invoke(off) -> float_down() clears I_SPECIAL|TIMEOUT & W_ARTI;
@@ -2033,7 +2033,7 @@ finesse_ahriman(struct obj *obj)
        invoking the 2nd would negate the 1st rather than stack with it) */
     save_Lev = u.uprops[LEVITATION];
     HLevitation &= ~(I_SPECIAL | TIMEOUT);
-    ELevitation &= ~W_ARTI;
+    ELevitation &= ~WEARING_ARTIFACT_INVOKED;
     result = (boolean) !Levitation;
     u.uprops[LEVITATION] = save_Lev;
     return result;
@@ -2047,7 +2047,7 @@ artifact_light(struct obj *obj)
        light without burning */
     if (obj && (obj->otyp == GOLD_DRAGON_SCALE_MAIL
                 || obj->otyp == GOLD_DRAGON_SCALES)
-        && (obj->owornmask & W_ARM) != 0L)
+        && (obj->owornmask & WEARING_ARMOR_BODY) != 0L)
         return TRUE;
 
     return (boolean) ((get_artifact(obj) != &artilist[ART_NONARTIFACT])
@@ -2159,13 +2159,13 @@ what_gives(long *abil)
     uchar dtyp;
     unsigned long spfx;
     long wornbits;
-    long wornmask = (W_ARM | W_ARMC | W_ARMH | W_ARMS
-                     | W_ARMG | W_ARMF | W_ARMU
-                     | W_AMUL | W_RINGL | W_RINGR | W_TOOL
-                     | W_ART | W_ARTI);
+    long wornmask = (WEARING_ARMOR_BODY | WEARING_ARMOR_CLOAK | WEARING_ARMOR_HELMET | WEARING_ARMOR_SHIELD
+                     | WEARING_ARMOR_GLOVES | WEARING_ARMOR_FOOTWEAR | WEARING_ARMOR_UNDERSHIRT
+                     | WEARING_AMULET | WEARING_RING_LEFT | WEARING_RING_RIGHT | WEARING_TOOL
+                     | WEARING_ARTIFACT | WEARING_ARTIFACT_INVOKED);
 
     if (u.using_two_weapons)
-        wornmask |= W_SWAPWEP;
+        wornmask |= WEARING_SECONDARY_WEAPON;
     dtyp = abil_to_adtyp(abil);
     spfx = abil_to_spfx(abil);
     wornbits = (wornmask & *abil);
@@ -2179,7 +2179,7 @@ what_gives(long *abil)
                 if (dtyp) {
                     if (art->cary.adtyp == dtyp /* carried */
                         || (art->defn.adtyp == dtyp /* defends while worn */
-                            && (obj->owornmask & ~(W_ART | W_ARTI))))
+                            && (obj->owornmask & ~(WEARING_ARTIFACT | WEARING_ARTIFACT_INVOKED))))
                         return obj;
                 }
                 if (spfx) {
@@ -2375,7 +2375,7 @@ untouchable(
 {
     struct artifact *art;
     boolean beingworn, carryeffect, invoked;
-    long wearmask = ~(W_QUIVER | (u.using_two_weapons ? 0L : W_SWAPWEP) | W_BALL);
+    long wearmask = ~(WEARING_QUIVER | (u.using_two_weapons ? 0L : WEARING_SECONDARY_WEAPON) | WEARING_BALL);
 
     beingworn = (obj /* never Null; this pacifies static analysis when
                       * the get_artifact() macro tests 'obj' for Null */
@@ -2389,7 +2389,7 @@ untouchable(
     if ((art = get_artifact(obj)) != &artilist[ART_NONARTIFACT]) {
         carryeffect = (art->cary.adtyp || art->cspfx);
         invoked = (art->inv_prop > 0 && art->inv_prop <= LAST_PROP
-                   && (u.uprops[art->inv_prop].extrinsic & W_ARTI) != 0L);
+                   && (u.uprops[art->inv_prop].extrinsic & WEARING_ARTIFACT_INVOKED) != 0L);
     } else {
         carryeffect = invoked = FALSE;
     }
@@ -2446,7 +2446,7 @@ retouch_equipment(
     }
 
     /* in case someone is daft enough to add artifact or silver saddle */
-    if (u.monster_being_ridden && (obj = which_armor(u.monster_being_ridden, W_SADDLE)) != 0) {
+    if (u.monster_being_ridden && (obj = which_armor(u.monster_being_ridden, WEARING_SADDLE)) != 0) {
         /* untouchable() calls retouch_object() which expects an object in
            hero's inventory, but remove_worn_item() will be harmless for
            saddle and we're suppressing drop, so this works as intended */

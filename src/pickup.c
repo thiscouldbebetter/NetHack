@@ -1501,7 +1501,7 @@ count_categories(struct obj *olist, int qflags)
         for (curr = olist; curr; curr = FOLLOW(curr, qflags)) {
             if (curr->oclass == *pack) {
                 if (do_worn && !(curr->owornmask
-                                 & (W_ARMOR | W_ACCESSORY | W_WEAPONS)))
+                                 & (WEARING_ARMOR | WEARING_ACCESSORY | WEARING_WEAPONS)))
                     continue;
                 if (!counted_category) {
                     ccount++;
@@ -2418,7 +2418,7 @@ loot_mon(struct monster *mtmp, int *passed_info, boolean *prev_loot)
      *  *passed_info is set to TRUE if a loot query was given.
      *  *prev_loot is set to TRUE if something was actually acquired in here.
      */
-    if (mtmp && mtmp != u.monster_being_ridden && (otmp = which_armor(mtmp, W_SADDLE))) {
+    if (mtmp && mtmp != u.monster_being_ridden && (otmp = which_armor(mtmp, WEARING_SADDLE))) {
         if (passed_info)
             *passed_info = 1;
         Sprintf(qbuf, "Do you want to remove the saddle from %s?",
@@ -2549,7 +2549,7 @@ in_container(struct obj *obj)
     } else if (obj == gc.current_container) {
         pline("That would be an interesting topological exercise.");
         return 0;
-    } else if (obj->owornmask & (W_ARMOR | W_ACCESSORY)) {
+    } else if (obj->owornmask & (WEARING_ARMOR | WEARING_ACCESSORY)) {
         Norep("You cannot %s %s you are wearing.",
               Icebox ? "refrigerate" : "stash", something);
         return 0;

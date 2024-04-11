@@ -61,20 +61,20 @@ set_uasmon(void)
             u.uprops[PropIndx].intrinsic &= ~FROMFORM; \
     } while (0)
 
-    PROPSET(FIRE_RES, resists_fire(&gy.youmonst));
-    PROPSET(COLD_RES, resists_cold(&gy.youmonst));
-    PROPSET(SLEEP_RES, resists_sleep(&gy.youmonst));
-    PROPSET(DISINT_RES, resists_disint(&gy.youmonst));
-    PROPSET(SHOCK_RES, resists_elec(&gy.youmonst));
-    PROPSET(POISON_RES, resists_poison(&gy.youmonst));
-    PROPSET(ACID_RES, resists_acid(&gy.youmonst));
-    PROPSET(STONE_RES, resists_ston(&gy.youmonst));
+    PROPSET(FIRE_RESISTANCE, resists_fire(&gy.youmonst));
+    PROPSET(COLD_RESISTANCE, resists_cold(&gy.youmonst));
+    PROPSET(SLEEP_RESISTANCE, resists_sleep(&gy.youmonst));
+    PROPSET(DISINTEGRATION_RESISTANCE, resists_disint(&gy.youmonst));
+    PROPSET(SHOCK_RESISTANCE, resists_elec(&gy.youmonst));
+    PROPSET(POISON_RESISTANCE, resists_poison(&gy.youmonst));
+    PROPSET(ACID_RESISTANCE, resists_acid(&gy.youmonst));
+    PROPSET(STONE_RESISTANCE, resists_ston(&gy.youmonst));
     {
         /* resists_drli() takes wielded weapon into account; suppress it */
         struct obj *save_uwep = uwep;
 
         uwep = 0;
-        PROPSET(DRAIN_RES, resists_drli(&gy.youmonst));
+        PROPSET(DRAIN_RESISTANCE, resists_drli(&gy.youmonst));
         uwep = save_uwep;
     }
     /* resists_magm() takes wielded, worn, and carried equipment into
@@ -82,15 +82,15 @@ set_uasmon(void)
     PROPSET(ANTIMAGIC, (dmgtype(mdat, AD_MAGM)
                         || mdat == &mons[PM_BABY_GRAY_DRAGON]
                         || dmgtype(mdat, AD_RBRE)));
-    PROPSET(SICK_RES, (mdat->mlet == S_FUNGUS || mdat == &mons[PM_GHOUL]));
+    PROPSET(SICK_RESISTANCE, (mdat->mlet == S_FUNGUS || mdat == &mons[PM_GHOUL]));
 
     PROPSET(STUNNED, (mdat == &mons[PM_STALKER] || is_bat(mdat)));
-    PROPSET(HALLUC_RES, dmgtype(mdat, AD_HALU));
-    PROPSET(SEE_INVIS, perceives(mdat));
-    PROPSET(TELEPAT, telepathic(mdat));
+    PROPSET(HALLUCINATION_RESISTANCE, dmgtype(mdat, AD_HALU));
+    PROPSET(SEE_INVISIBLE, perceives(mdat));
+    PROPSET(TELEPATHIC, telepathic(mdat));
     /* note that Infravision uses mons[race] rather than usual mons[role] */
     PROPSET(INFRAVISION, infravision(Upolyd ? mdat : &mons[gu.urace.mnum]));
-    PROPSET(INVIS, pm_invisible(mdat));
+    PROPSET(INVISIBLE, pm_invisible(mdat));
     PROPSET(TELEPORT, can_teleport(mdat));
     PROPSET(TELEPORT_CONTROL, control_teleport(mdat));
     PROPSET(LEVITATION, is_floater(mdat));
@@ -1199,7 +1199,7 @@ break_armor(void)
                 You("seep right through your shirt!");
             else
                 You("become much too small for your shirt!");
-            setworn((struct obj *) 0, otmp->owornmask & W_ARMU);
+            setworn((struct obj *) 0, otmp->owornmask & WEARING_ARMOR_UNDERSHIRT);
             dropp(otmp);
         }
     }

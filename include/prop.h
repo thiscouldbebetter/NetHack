@@ -2,6 +2,8 @@
 /* Copyright (c) 1989 Mike Threepoint                             */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Modified by This Could Be Better, 2024. */
+
 #ifndef PROP_H
 #define PROP_H
 
@@ -12,17 +14,17 @@
  */
 /* Resistances to troubles */
 enum prop_types {
-    FIRE_RES          =  1,
-    COLD_RES          =  2,
-    SLEEP_RES         =  3,
-    DISINT_RES        =  4,
-    SHOCK_RES         =  5,
-    POISON_RES        =  6,
-    ACID_RES          =  7,
-    STONE_RES         =  8,
+    FIRE_RESISTANCE          =  1,
+    COLD_RESISTANCE          =  2,
+    SLEEP_RESISTANCE         =  3,
+    DISINTEGRATION_RESISTANCE        =  4,
+    SHOCK_RESISTANCE         =  5,
+    POISON_RESISTANCE        =  6,
+    ACID_RESISTANCE          =  7,
+    STONE_RESISTANCE         =  8,
     /* note: for the first eight properties, MR_xxx == (1 << (xxx_RES - 1)) */
-    DRAIN_RES         =  9,
-    SICK_RES          = 10,
+    DRAIN_RESISTANCE         =  9,
+    SICK_RESISTANCE          = 10,
     INVULNERABLE      = 11,
     ANTIMAGIC         = 12,
     /* Troubles */
@@ -36,25 +38,25 @@ enum prop_types {
     VOMITING          = 20,
     GLIB              = 21,
     SLIMED            = 22,
-    HALLUC            = 23,
-    HALLUC_RES        = 24,
+    HALLUCINATING     = 23,
+    HALLUCINATION_RESISTANCE        = 24,
     FUMBLING          = 25,
     WOUNDED_LEGS      = 26,
     SLEEPY            = 27,
     HUNGER            = 28,
     /* Vision and senses */
-    SEE_INVIS         = 29,
-    TELEPAT           = 30,
-    WARNING           = 31,
-    WARN_OF_MON       = 32,
-    WARN_UNDEAD       = 33,
-    SEARCHING         = 34,
-    CLAIRVOYANT       = 35,
-    INFRAVISION       = 36,
-    DETECT_MONSTERS   = 37,
+    SEE_INVISIBLE       = 29,
+    TELEPATHIC          = 30,
+    WARNING             = 31,
+    WARNED_OF_MONSTERS  = 32,
+    WARNED_OF_UNDEAD    = 33,
+    SEARCHING           = 34,
+    CLAIRVOYANT         = 35,
+    INFRAVISION         = 36,
+    DETECT_MONSTERS     = 37,
     /* Appearance and behavior */
     ADORNED           = 38,
-    INVIS             = 39,
+    INVISIBLE         = 39,
     DISPLACED         = 40,
     STEALTH           = 41,
     AGGRAVATE_MONSTER = 42,
@@ -70,21 +72,21 @@ enum prop_types {
     MAGICAL_BREATHING = 51,
     PASSES_WALLS      = 52,
     /* Physical attributes */
-    SLOW_DIGESTION    = 53,
-    HALF_SPDAM        = 54,
-    HALF_PHDAM        = 55,
-    REGENERATION      = 56,
-    ENERGY_REGENERATION = 57,
-    PROTECTION        = 58,
-    PROT_FROM_SHAPE_CHANGERS = 59,
-    POLYMORPH         = 60,
-    POLYMORPH_CONTROL = 61,
-    UNCHANGING        = 62,
-    FAST              = 63,
-    REFLECTING        = 64,
-    FREE_ACTION       = 65,
-    FIXED_ABIL        = 66,
-    LIFESAVED         = 67
+    SLOW_DIGESTION          = 53,
+    HALF_DAMAGE_SPELLS      = 54,
+    HALF_DAMAGE_PHYSICAL    = 55, // ?
+    REGENERATION            = 56,
+    ENERGY_REGENERATION     = 57,
+    PROTECTION              = 58, // Divine?
+    PROTECTION_FROM_SHAPE_CHANGERS = 59,
+    POLYMORPH               = 60,
+    POLYMORPH_CONTROL       = 61,
+    UNCHANGING              = 62,
+    FAST                    = 63,
+    REFLECTING              = 64,
+    FREE_ACTION             = 65,
+    FIXED_ABILITY           = 66,
+    LIFESAVED               = 67
 };
 #define LAST_PROP (LIFESAVED)
 
@@ -94,33 +96,33 @@ struct prop {
     /*** Properties conveyed by objects ***/
     long extrinsic;
 /* Armor */
-#define W_ARM 0x00000001L  /* Body armor */
-#define W_ARMC 0x00000002L /* Cloak */
-#define W_ARMH 0x00000004L /* Helmet/hat */
-#define W_ARMS 0x00000008L /* Shield */
-#define W_ARMG 0x00000010L /* Gloves/gauntlets */
-#define W_ARMF 0x00000020L /* Footwear */
-#define W_ARMU 0x00000040L /* Undershirt */
-#define W_ARMOR (W_ARM | W_ARMC | W_ARMH | W_ARMS | W_ARMG | W_ARMF | W_ARMU)
+#define WEARING_ARMOR_BODY 0x00000001L  /* Body armor */
+#define WEARING_ARMOR_CLOAK 0x00000002L /* Cloak */
+#define WEARING_ARMOR_HELMET 0x00000004L /* Helmet/hat */
+#define WEARING_ARMOR_SHIELD 0x00000008L /* Shield */
+#define WEARING_ARMOR_GLOVES 0x00000010L /* Gloves/gauntlets */
+#define WEARING_ARMOR_FOOTWEAR 0x00000020L /* Footwear */
+#define WEARING_ARMOR_UNDERSHIRT 0x00000040L /* Undershirt */
+#define WEARING_ARMOR (WEARING_ARMOR_BODY | WEARING_ARMOR_CLOAK | WEARING_ARMOR_HELMET | WEARING_ARMOR_SHIELD | WEARING_ARMOR_GLOVES | WEARING_ARMOR_FOOTWEAR | WEARING_ARMOR_UNDERSHIRT)
 /* Weapons and artifacts */
-#define W_WEP 0x00000100L     /* Wielded weapon */
-#define W_QUIVER 0x00000200L  /* Quiver for (f)iring ammo */
-#define W_SWAPWEP 0x00000400L /* Secondary weapon */
-#define W_WEAPONS (W_WEP | W_SWAPWEP | W_QUIVER)
-#define W_ART 0x00001000L     /* Carrying artifact (not really worn) */
-#define W_ARTI 0x00002000L    /* Invoked artifact  (not really worn) */
+#define WEARING_WEAPON 0x00000100L     /* Wielded weapon */
+#define WEARING_QUIVER 0x00000200L  /* Quiver for (f)iring ammo */
+#define WEARING_SECONDARY_WEAPON 0x00000400L /* Secondary weapon */
+#define WEARING_WEAPONS (WEARING_WEAPON | WEARING_SECONDARY_WEAPON | WEARING_QUIVER)
+#define WEARING_ARTIFACT 0x00001000L     /* Carrying artifact (not really worn) */
+#define WEARING_ARTIFACT_INVOKED 0x00002000L    /* Invoked artifact  (not really worn) */
 /* Amulets, rings, tools, and other items */
-#define W_AMUL 0x00010000L    /* Amulet */
-#define W_RINGL 0x00020000L   /* Left ring */
-#define W_RINGR 0x00040000L   /* Right ring */
-#define W_RING (W_RINGL | W_RINGR)
-#define W_TOOL 0x00080000L   /* Eyewear */
-#define W_ACCESSORY (W_RING | W_AMUL | W_TOOL)
+#define WEARING_AMULET 0x00010000L    /* Amulet */
+#define WEARING_RING_LEFT 0x00020000L   /* Left ring */
+#define WEARING_RING_RIGHT 0x00040000L   /* Right ring */
+#define WEARING_RING (WEARING_RING_LEFT | WEARING_RING_RIGHT)
+#define WEARING_TOOL 0x00080000L   /* Eyewear */
+#define WEARING_ACCESSORY (WEARING_RING | WEARING_AMULET | WEARING_TOOL)
     /* historical note: originally in slash'em, 'worn' saddle stayed in
        hero's inventory; in nethack, it's kept in the steed's inventory */
-#define W_SADDLE 0x00100000L /* KMH -- For riding monsters */
-#define W_BALL 0x00200000L   /* Punishment ball */
-#define W_CHAIN 0x00400000L  /* Punishment chain */
+#define WEARING_SADDLE 0x00100000L /* KMH -- For riding monsters */
+#define WEARING_BALL 0x00200000L   /* Punishment ball */
+#define WEARING_CHAIN 0x00400000L  /* Punishment chain */
 
     /*** Property is blocked by an object ***/
     long blocked; /* Same assignments as extrinsic */
@@ -140,19 +142,19 @@ struct prop {
 };
 
 /*** Definitions for backwards compatibility ***/
-#define LEFT_RING W_RINGL
-#define RIGHT_RING W_RINGR
+#define LEFT_RING WEARING_RING_LEFT
+#define RIGHT_RING WEARING_RING_RIGHT
 #define LEFT_SIDE LEFT_RING
 #define RIGHT_SIDE RIGHT_RING
 #define BOTH_SIDES (LEFT_SIDE | RIGHT_SIDE)
-#define WORN_ARMOR W_ARM
-#define WORN_CLOAK W_ARMC
-#define WORN_HELMET W_ARMH
-#define WORN_SHIELD W_ARMS
-#define WORN_GLOVES W_ARMG
-#define WORN_BOOTS W_ARMF
-#define WORN_AMUL W_AMUL
-#define WORN_BLINDF W_TOOL
-#define WORN_SHIRT W_ARMU
+#define WORN_ARMOR WEARING_ARMOR
+#define WORN_CLOAK WEARING_ARMOR_CLOAK
+#define WORN_HELMET WEARING_ARMOR_HELMET
+#define WORN_SHIELD WEARING_ARMOR_SHIELD
+#define WORN_GLOVES WEARING_ARMOR_GLOVES
+#define WORN_BOOTS WEARING_ARMOR_FOOTWEAR
+#define WORN_AMUL WEARING_AMULET
+#define WORN_BLINDF WEARING_TOOL
+#define WORN_SHIRT WEARING_ARMOR_UNDERSHIRT
 
 #endif /* PROP_H */
