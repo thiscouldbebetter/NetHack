@@ -7,7 +7,7 @@
 #ifndef YOUPROP_H
 #define YOUPROP_H
 
-#include "prop.h"
+#include "properties.h"
 #include "permonster.h"
 #include "mondata.h"
 

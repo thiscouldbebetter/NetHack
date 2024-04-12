@@ -860,7 +860,7 @@ fix_petrification(void)
 
 /*
  * If you add an intrinsic that can be gotten by eating a monster, add it
- * to intrinsic_possible() and givit().  (It must already be in prop.h to
+ * to intrinsic_possible() and givit().  (It must already be in properties.h to
  * be an intrinsic property.)
  * It would be very easy to make the intrinsics not try to give you one
  * that you already had by checking to see if you have it in

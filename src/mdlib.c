@@ -25,7 +25,7 @@
 #include "sndprocs.h"
 #include "obj.h"
 #include "monster.h"
-#include "you.h"
+#include "player.h"
 #include "context.h"
 #include "flag.h"
 #include "dlb.h"

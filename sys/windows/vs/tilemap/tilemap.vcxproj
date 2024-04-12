@@ -77,7 +77,9 @@
     <ClInclude Include="$(IncDir)obj.h" />
     <ClInclude Include="$(IncDir)objclass.h" />
     <ClInclude Include="$(IncDir)permonst.h" />
-    <ClInclude Include="$(IncDir)prop.h" />
+    <ClInclude Include="$(IncDir)player.h" />
+    <ClInclude Include="$(IncDir)player_properties.h" />
+    <ClInclude Include="$(IncDir)properties.h" />
     <ClInclude Include="$(IncDir)quest.h" />
     <ClInclude Include="$(IncDir)rect.h" />
     <ClInclude Include="$(IncDir)region.h" />
@@ -92,8 +94,6 @@
     <ClInclude Include="$(IncDir)winprocs.h" />
     <ClInclude Include="$(IncDir)wintty.h" />
     <ClInclude Include="$(IncDir)wintype.h" />
-    <ClInclude Include="$(IncDir)you.h" />
-    <ClInclude Include="$(IncDir)youprop.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Target Name="AfterBuild">

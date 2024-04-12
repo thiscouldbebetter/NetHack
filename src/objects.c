@@ -7,7 +7,7 @@
 #include "config.h"
 #include "obj.h"
 
-#include "prop.h"
+#include "properties.h"
 #include "skills.h"
 #include "color.h"
 #include "objclass.h"

@@ -22,7 +22,7 @@
 #include "rect.h"
 #include "sym.h"
 #include "trap.h"
-#include "youprop.h"
+#include "player_properties.h"
 #include "display.h"
 
 #include "Conditions.h"
@@ -43,7 +43,7 @@
 #include "winprocs.h"
 #include "wintype.h"
 #include "vision.h"
-#include "you.h"
+#include "player.h"
 
 #define TELL 1
 #define NOTELL 0

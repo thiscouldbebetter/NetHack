@@ -11,7 +11,7 @@
 #include "attributes.h"
 #include "monster.h"
 #ifndef PROP_H
-#include "prop.h" /* (needed here for util/makedefs.c) */
+#include "properties.h" /* (needed here for util/makedefs.c) */
 #endif
 #include "skills.h"
 

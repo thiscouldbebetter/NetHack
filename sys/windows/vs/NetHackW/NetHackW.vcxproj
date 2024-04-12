@@ -316,7 +316,9 @@
     <ClInclude Include="$(IncDir)patchlevel.h" />
     <ClInclude Include="$(IncDir)pcconf.h" />
     <ClInclude Include="$(IncDir)permonster.h" />
-    <ClInclude Include="$(IncDir)prop.h" />
+    <ClInclude Include="$(IncDir)player.h" />
+    <ClInclude Include="$(IncDir)player_properties.h" />
+    <ClInclude Include="$(IncDir)properties.h" />
     <ClInclude Include="$(IncDir)quest.h" />
     <ClInclude Include="$(IncDir)rect.h" />
     <ClInclude Include="$(IncDir)region.h" />
@@ -347,8 +349,6 @@
     <ClInclude Include="$(IncDir)winX.h" />
     <ClInclude Include="$(IncDir)xwindow.h" />
     <ClInclude Include="$(IncDir)xwindowp.h" />
-    <ClInclude Include="$(IncDir)you.h" />
-    <ClInclude Include="$(IncDir)youprop.h" />
     <ClInclude Include="..\resource.h" />
   </ItemGroup>
   <ItemGroup>
