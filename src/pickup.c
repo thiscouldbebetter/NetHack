@@ -267,7 +267,7 @@ query_classes(
 staticfn boolean
 fatal_corpse_mistake(struct obj *obj, boolean remotely)
 {
-    if (uarmg || remotely || obj->otyp != CORPSE
+    if (player_armor_gloves || remotely || obj->otyp != CORPSE
         || !touch_petrifies(&mons[obj->corpsenm]) || Stone_resistance)
         return FALSE;
 
@@ -424,7 +424,7 @@ check_here(boolean picked_some)
 
     /* count the objects here */
     for (obj = gl.level.objects[u.ux][u.uy]; obj; obj = obj->nexthere) {
-        if (obj != uchain)
+        if (obj != player_chain)
             ct++;
     }
 
@@ -443,7 +443,7 @@ check_here(boolean picked_some)
 staticfn boolean
 n_or_more(struct obj *obj)
 {
-    if (obj == uchain)
+    if (obj == player_chain)
         return FALSE;
     return (boolean) (obj->quan >= gv.val_for_n_or_more);
 }
@@ -492,7 +492,7 @@ add_valid_menu_class(int c)
 staticfn boolean
 all_but_uchain(struct obj *obj)
 {
-    return (boolean) (obj != uchain);
+    return (boolean) (obj != player_chain);
 }
 
 /* query_objlist callback: return TRUE */
@@ -580,7 +580,7 @@ allow_category(struct obj *obj)
 staticfn boolean
 allow_cat_no_uchain(struct obj *obj)
 {
-    if (obj != uchain
+    if (obj != player_chain
         && ((strchr(gv.valid_menu_classes, 'u') && obj->unpaid)
             || strchr(gv.valid_menu_classes, obj->oclass)))
         return TRUE;
@@ -1797,7 +1797,7 @@ pickup_object(
     if (!Blind)
         obj->dknown = 1;
 
-    if (obj == uchain) { /* do not pick up attached chain */
+    if (obj == player_chain) { /* do not pick up attached chain */
         return 0;
     } else if (obj->where == OBJ_MINVENT && obj->owornmask != 0L
                && engulfing_u(obj->ocarry)) {
@@ -1856,14 +1856,14 @@ pickup_object(
 
     /* What's left of the special case for gold :-) */
     if (obj->oclass == COIN_CLASS)
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     if (obj->quan != count && obj->otyp != LOADSTONE)
         obj = splitobj(obj, count);
 
     obj->how_lost = LOST_NONE;
     obj = pick_obj(obj);
 
-    if (uwep && uwep == obj)
+    if (player_weapon && player_weapon == obj)
         gm.mrg_to_wielded = TRUE;
     pickup_prinv(obj, count, "lifting");
     if (obj->ghostly)
@@ -1883,7 +1883,7 @@ pick_obj(struct obj *otmp)
 {
     struct obj *result;
     int ox = otmp->ox, oy = otmp->oy;
-    boolean robshop = (!u.uswallow && otmp != uball && costly_spot(ox, oy));
+    boolean robshop = (!u.uswallow && otmp != player_ball && costly_spot(ox, oy));
 
     obj_extract_self(otmp);
     newsym(ox, oy);
@@ -1976,7 +1976,7 @@ encumbered_message(void)
                 newcap == 4 ? "can barely" : "can't even");
             break;
         }
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     } else if (go.oldcap > newcap) {
         switch (newcap) {
         case 0:
@@ -1993,7 +1993,7 @@ encumbered_message(void)
                 stagger(gy.youmonst.data, "stagger"));
             break;
         }
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     }
 
     go.oldcap = newcap;
@@ -2200,7 +2200,7 @@ doloot_core(void)
         if (!able_to_loot(cc.x, cc.y, TRUE))
             return ECMD_OK;
 
-        if (Blind && !uarmg) {
+        if (Blind && !player_armor_gloves) {
             /* if blind and without gloves, attempting to #loot at the
                location of a cockatrice corpse is fatal before asking
                whether to manipulate any containers */
@@ -2543,7 +2543,7 @@ in_container(struct obj *obj)
     if (!gc.current_container) {
         impossible("<in> no gc.current_container?");
         return 0;
-    } else if (obj == uball || obj == uchain) {
+    } else if (obj == player_ball || obj == player_chain) {
         You("must be kidding.");
         return 0;
     } else if (obj == gc.current_container) {
@@ -2570,7 +2570,7 @@ in_container(struct obj *obj)
     } else if (obj->otyp == LEASH && obj->leashmon != 0) {
         pline("%s attached to your pet.", Tobjnam(obj, "are"));
         return 0;
-    } else if (obj == uwep) {
+    } else if (obj == player_weapon) {
         if (welded(obj)) {
             weldmsg(obj);
             return 0;
@@ -2580,11 +2580,11 @@ in_container(struct obj *obj)
          * unwielding Firebrand would be fatal in hell if hero had no other
          * fire resistance.  Life-saving would force it to be re-wielded.
          */
-        if (uwep)
+        if (player_weapon)
             return 0; /* unwielded, died, rewielded */
-    } else if (obj == uswapwep) {
+    } else if (obj == player_secondary_weapon) {
         setuswapwep((struct obj *) 0);
-    } else if (obj == uquiver) {
+    } else if (obj == player_quiver) {
         setuqwep((struct obj *) 0);
     }
 
@@ -3625,7 +3625,7 @@ dotip(void)
     /* anything not covered yet */
     if (cobj->oclass == POTION_CLASS) /* can't pour potions... */
         pline_The("%s %s securely sealed.", xname(cobj), otense(cobj, "are"));
-    else if (uarmh && cobj == uarmh)
+    else if (player_armor_hat && cobj == player_armor_hat)
         return tiphat() ? ECMD_TIME : ECMD_OK;
     else if (cobj->otyp == STATUE)
         pline("Nothing interesting happens.");

@@ -1730,11 +1730,11 @@ curse(struct obj *otmp)
     otmp->blessed = 0;
     otmp->cursed = 1;
     /* welded two-handed weapon interferes with some armor removal */
-    if (otmp == uwep && bimanual(uwep))
+    if (otmp == player_weapon && bimanual(player_weapon))
         reset_remove_all_armor();
     /* rules at top of wield.c state that twoweapon cannot be done
        with cursed alternate weapon */
-    if (otmp == uswapwep && u.using_two_weapons)
+    if (otmp == player_secondary_weapon && u.using_two_weapons)
         drop_uswapwep();
     /* some cursed items need immediate updating */
     if (carried(otmp) && confers_luck(otmp)) {
@@ -2941,7 +2941,7 @@ objlist_sanity(struct obj *objlist, int wheretype, const char *mesg)
                 bc_ok = TRUE;
             /*FALLTHRU*/
             default:
-                if ((obj != uchain && obj != uball) || !bc_ok) {
+                if ((obj != player_chain && obj != player_ball) || !bc_ok) {
                     /* discovered an object not in inventory which
                        erroneously has worn mask set */
                     Sprintf(maskbuf, "worn mask 0x%08lx", obj->owornmask);
@@ -3280,7 +3280,7 @@ sanity_check_worn(struct obj *obj)
             ++n;
         allmask |= wearbits[i];
     }
-    if (obj == uskin) {
+    if (obj == player_skin_if_dragon) {
         /* embedded dragon scales have an extra bit set;
            make sure it's set, then suppress it */
         embedded = TRUE;
@@ -3290,7 +3290,7 @@ sanity_check_worn(struct obj *obj)
             n = 0,  owornmask = ~0; /* force insane_object("bogus") below */
     }
     if (n == 2 && carried(obj)
-        && obj == uball && (owornmask & WEARING_BALL) != 0L
+        && obj == player_ball && (owornmask & WEARING_BALL) != 0L
         && (owornmask & WEARING_WEAPONS) != 0L) {
         /* chained ball can be wielded/alt-wielded/quivered; if so,
           pretend it's not chained in order to check the weapon pointer
@@ -3316,68 +3316,68 @@ sanity_check_worn(struct obj *obj)
            with owornmask of W_foo is the object pointed to by ufoo */
         switch (owornmask) {
         case WEARING_ARMOR_BODY:
-            if (obj != (embedded ? uskin : uarm))
+            if (obj != (embedded ? player_skin_if_dragon : player_armor))
                 what = embedded ? "skin" : "suit";
             break;
         case WEARING_ARMOR_CLOAK:
-            if (obj != uarmc)
+            if (obj != player_armor_cloak)
                 what = "cloak";
             break;
         case WEARING_ARMOR_HELMET:
-            if (obj != uarmh)
+            if (obj != player_armor_hat)
                 what = "helm";
             break;
         case WEARING_ARMOR_SHIELD:
-            if (obj != uarms)
+            if (obj != player_armor_shield)
                 what = "shield";
             break;
         case WEARING_ARMOR_GLOVES:
-            if (obj != uarmg)
+            if (obj != player_armor_gloves)
                 what = "gloves";
             break;
         case WEARING_ARMOR_FOOTWEAR:
-            if (obj != uarmf)
+            if (obj != player_armor_footwear)
                 what = "boots";
             break;
         case WEARING_ARMOR_UNDERSHIRT:
-            if (obj != uarmu)
+            if (obj != player_armor_undershirt)
                 what = "shirt";
             break;
         case WEARING_WEAPON:
-            if (obj != uwep)
+            if (obj != player_weapon)
                 what = "primary weapon";
             break;
         case WEARING_QUIVER:
-            if (obj != uquiver)
+            if (obj != player_quiver)
                 what = "quiver";
             break;
         case WEARING_SECONDARY_WEAPON:
-            if (obj != uswapwep)
+            if (obj != player_secondary_weapon)
                 what = u.using_two_weapons ? "secondary weapon" : "alternate weapon";
             break;
         case WEARING_AMULET:
-            if (obj != uamul)
+            if (obj != player_amulet)
                 what = "amulet";
             break;
         case WEARING_RING_LEFT:
-            if (obj != uleft)
+            if (obj != player_finger_left)
                 what = "left ring";
             break;
         case WEARING_RING_RIGHT:
-            if (obj != uright)
+            if (obj != player_finger_right)
                 what = "right ring";
             break;
         case WEARING_TOOL:
-            if (obj != ublindf)
+            if (obj != player_blindfold)
                 what = "blindfold";
             break;
         /* case W_SADDLE: */
         case WEARING_BALL:
-            if (obj != uball)
+            if (obj != player_ball)
                 what = "ball";
             break;
         case WEARING_CHAIN:
-            if (obj != uchain)
+            if (obj != player_chain)
                 what = "chain";
             break;
         default:

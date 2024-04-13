@@ -549,7 +549,7 @@ struct _hitmon_data {
 
 #define URIGHTY (u.uhandedness == RIGHT_HANDED)
 #define ULEFTY (u.uhandedness == LEFT_HANDED)
-#define RING_ON_PRIMARY (ULEFTY ? uleft : uright)
-#define RING_ON_SECONDARY (ULEFTY ? uright : uleft)
+#define RING_ON_PRIMARY (ULEFTY ? player_finger_left : player_finger_right)
+#define RING_ON_SECONDARY (ULEFTY ? player_finger_right : player_finger_left)
 
 #endif /* YOU_H */

@@ -973,7 +973,7 @@ void
 addinv_core1(struct obj *obj)
 {
     if (obj->oclass == COIN_CLASS) {
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     } else if (obj->otyp == AMULET_OF_YENDOR) {
         if (u.player_carrying_special_objects.amulet)
             impossible("already have amulet?");
@@ -1082,8 +1082,8 @@ addinv_core0(struct obj *obj, struct obj *other_obj,
     /* merge with quiver in preference to any other inventory slot
        in case quiver and wielded weapon are both eligible; adding
        extra to quivered stack is more useful than to wielded one */
-    if (uquiver && merged(&uquiver, &obj)) {
-        obj = uquiver;
+    if (player_quiver && merged(&player_quiver, &obj)) {
+        obj = player_quiver;
         if (!obj)
             panic("addinv: null obj after quiver merge otyp=%d", saved_otyp);
         goto added;
@@ -1110,7 +1110,7 @@ addinv_core0(struct obj *obj, struct obj *other_obj,
     obj->where = OBJ_INVENT;
 
     /* fill empty quiver if obj was thrown */
-    if (obj_was_thrown && flags.pickup_thrown && !uquiver
+    if (obj_was_thrown && flags.pickup_thrown && !player_quiver
         /* if Mjollnir is thrown and fails to return, we want to
            auto-pick it when we move to its spot, but not into quiver
            because it needs to be wielded to be re-thrown;
@@ -1256,9 +1256,9 @@ hold_another_object(
                 obj = splitobj(obj, oquan);
             goto drop_it;
         } else {
-            if (flags.autoquiver && !uquiver && !obj->owornmask
-                && (is_missile(obj) || ammo_and_launcher(obj, uwep)
-                    || ammo_and_launcher(obj, uswapwep)))
+            if (flags.autoquiver && !player_quiver && !obj->owornmask
+                && (is_missile(obj) || ammo_and_launcher(obj, player_weapon)
+                    || ammo_and_launcher(obj, player_secondary_weapon)))
                 setuqwep(obj);
             if (hold_msg || drop_fmt)
                 prinv(hold_msg, obj, oquan);
@@ -1333,7 +1333,7 @@ void
 freeinv_core(struct obj *obj)
 {
     if (obj->oclass == COIN_CLASS) {
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         return;
     } else if (obj->otyp == AMULET_OF_YENDOR) {
         if (!u.player_carrying_special_objects.amulet)
@@ -1364,7 +1364,7 @@ freeinv_core(struct obj *obj)
         curse(obj);
     } else if (confers_luck(obj)) {
         set_moreluck();
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     } else if (obj->otyp == FIGURINE && obj->timed) {
         (void) stop_timer(FIG_TRANSFORM, obj_to_any(obj));
     }
@@ -1387,11 +1387,11 @@ delallobj(coordxy x, coordxy y)
     struct obj *otmp, *otmp2;
 
     for (otmp = gl.level.objects[x][y]; otmp; otmp = otmp2) {
-        if (otmp == uball)
+        if (otmp == player_ball)
             unpunish();
         /* after unpunish(), or might get deallocated chain */
         otmp2 = otmp->nexthere;
-        if (otmp == uchain)
+        if (otmp == player_chain)
             continue;
         delobj(otmp);
     }
@@ -1518,8 +1518,8 @@ u_carried_gloves(void)
 {
     struct obj *otmp, *gloves = (struct obj *) 0;
 
-    if (uarmg) {
-        gloves = uarmg;
+    if (player_armor_gloves) {
+        gloves = player_armor_gloves;
     } else {
         for (otmp = gi.invent; otmp; otmp = otmp->nobj)
             if (is_gloves(otmp)) {
@@ -1624,7 +1624,7 @@ boolean
 splittable(struct obj *obj)
 {
     return !((obj->otyp == LOADSTONE && obj->cursed)
-             || (obj == uwep && welded(uwep)));
+             || (obj == player_weapon && welded(player_weapon)));
 }
 
 /* match the prompt for either 'T' or 'R' command */
@@ -1683,12 +1683,12 @@ getobj_hands_txt(const char *action, char *qbuf)
     } else if (!strcmp(action, "write with")) {
         Sprintf(qbuf, "your %s", body_part(FINGERTIP));
     } else if (!strcmp(action, "wield")) {
-        Sprintf(qbuf, "your %s %s%s", uarmg ? "gloved" : "bare",
+        Sprintf(qbuf, "your %s %s%s", player_armor_gloves ? "gloved" : "bare",
                 makeplural(body_part(HAND)),
-                !uwep ? " (wielded)" : "");
+                !player_weapon ? " (wielded)" : "");
     } else if (!strcmp(action, "ready")) {
         Sprintf(qbuf, "empty quiver%s",
-                !uquiver ? " (nothing readied)" : "");
+                !player_quiver ? " (nothing readied)" : "");
     } else {
         Sprintf(qbuf, "your %s", makeplural(body_part(HAND)));
     }
@@ -2004,7 +2004,7 @@ getobj(
                 continue;
             }
         }
-        disp.botl = TRUE; /* May have changed the amount of money */
+        disp.bottom_line = TRUE; /* May have changed the amount of money */
         if (otmp && !gi.in_doagain) {
             if (cntgiven && cnt > 0)
                 cmdq_add_int(CQ_REPEAT, cnt);
@@ -2106,8 +2106,8 @@ ckunpaid(struct obj *otmp)
 boolean
 wearing_armor(void)
 {
-    return (boolean) (uarm || uarmc || uarmf || uarmg
-                      || uarmh || uarms || uarmu);
+    return (boolean) (player_armor || player_armor_cloak || player_armor_footwear || player_armor_gloves
+                      || player_armor_hat || player_armor_shield || player_armor_undershirt);
 }
 
 boolean
@@ -2241,12 +2241,12 @@ ggetobj(const char *word, int (*fn)(OBJ_P), int mx,
     if (takeoff) {
         /* arbitrary types of items can be placed in the weapon slots
            [any duplicate entries in extra_removeables[] won't matter] */
-        if (uwep)
-            (void) strkitten(extra_removeables, uwep->oclass);
-        if (uswapwep)
-            (void) strkitten(extra_removeables, uswapwep->oclass);
-        if (uquiver)
-            (void) strkitten(extra_removeables, uquiver->oclass);
+        if (player_weapon)
+            (void) strkitten(extra_removeables, player_weapon->oclass);
+        if (player_secondary_weapon)
+            (void) strkitten(extra_removeables, player_secondary_weapon->oclass);
+        if (player_quiver)
+            (void) strkitten(extra_removeables, player_quiver->oclass);
     }
 
     ip = buf;
@@ -2264,17 +2264,17 @@ ggetobj(const char *word, int (*fn)(OBJ_P), int mx,
             } else if (oc_of_sym == ARMOR_CLASS && !wearing_armor()) {
                 noarmor(FALSE);
                 return 0;
-            } else if (oc_of_sym == WEAPON_CLASS && !uwep && !uswapwep
-                       && !uquiver) {
+            } else if (oc_of_sym == WEAPON_CLASS && !player_weapon && !player_secondary_weapon
+                       && !player_quiver) {
                 You("are not wielding anything.");
                 return 0;
-            } else if (oc_of_sym == RING_CLASS && !uright && !uleft) {
+            } else if (oc_of_sym == RING_CLASS && !player_finger_right && !player_finger_left) {
                 You("are not wearing rings.");
                 return 0;
-            } else if (oc_of_sym == AMULET_CLASS && !uamul) {
+            } else if (oc_of_sym == AMULET_CLASS && !player_amulet) {
                 You("are not wearing an amulet.");
                 return 0;
-            } else if (oc_of_sym == TOOL_CLASS && !ublindf) {
+            } else if (oc_of_sym == TOOL_CLASS && !player_blindfold) {
                 You("are not wearing a blindfold.");
                 return 0;
             }
@@ -2955,9 +2955,9 @@ itemactions_pushkeys(struct obj *otmp, int act)
         case IA_NONE:
             break;
         case IA_UNWIELD:
-            cmdq_add_ec(CQ_CANNED, (otmp == uwep) ? dowield
-                        : (otmp == uswapwep) ? remover_armor_swap_weapon
-                          : (otmp == uquiver) ? dowieldquiver
+            cmdq_add_ec(CQ_CANNED, (otmp == player_weapon) ? dowield
+                        : (otmp == player_secondary_weapon) ? remover_armor_swap_weapon
+                          : (otmp == player_quiver) ? dowieldquiver
                             : donull); /* can't happen */
             cmdq_add_key(CQ_CANNED, '-');
             break;
@@ -3097,9 +3097,9 @@ itemactions(struct obj *otmp)
 
     /* -: unwield; picking current weapon offers an opportunity for 'w-'
        to wield bare/gloved hands; likewise for 'Q-' with quivered item(s) */
-    if (otmp == uwep || otmp == uswapwep || otmp == uquiver) {
-        const char *verb = (otmp == uquiver) ? "Quiver" : "Wield",
-                   *action = (otmp == uquiver) ? "un-ready" : "un-wield",
+    if (otmp == player_weapon || otmp == player_secondary_weapon || otmp == player_quiver) {
+        const char *verb = (otmp == player_quiver) ? "Quiver" : "Wield",
+                   *action = (otmp == player_quiver) ? "un-ready" : "un-wield",
                    *which = is_plural(otmp) ? "these" : "this",
                    *what = ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
                             ? "weapon" : "item");
@@ -3211,7 +3211,7 @@ itemactions(struct obj *otmp)
         ia_addmenu(win, IA_DROP_OBJ, 'd', "Drop this item");
 
     /* e: eat item */
-    if (otmp->otyp == TIN && uwep && uwep->otyp == TIN_OPENER)
+    if (otmp->otyp == TIN && player_weapon && player_weapon->otyp == TIN_OPENER)
         ia_addmenu(win, IA_EAT_OBJ, 'e',
                    "Open and eat this tin with your tin opener");
     else if (otmp->otyp == TIN)
@@ -3279,7 +3279,7 @@ itemactions(struct obj *otmp)
 
     /* Q: quiver throwable item */
     if ((otmp->oclass == GEM_CLASS || otmp->oclass == WEAPON_CLASS)
-        && otmp != uquiver)
+        && otmp != player_quiver)
         ia_addmenu(win, IA_QUIVER_OBJ, 'Q',
                    "Quiver this item for easy throwing");
 
@@ -3299,7 +3299,7 @@ itemactions(struct obj *otmp)
 
     /* t: throw item */
     if (!already_worn) {
-        const char *verb = ammo_and_launcher(otmp, uwep) ? "Shoot" : "Throw";
+        const char *verb = ammo_and_launcher(otmp, player_weapon) ? "Shoot" : "Throw";
 
         /*
          * FIXME:
@@ -3335,7 +3335,7 @@ itemactions(struct obj *otmp)
 
     /* w: wield, hold in hands, works on everything but with different
        advice text; not mentioned for things that are already wielded */
-    if (otmp == uwep)
+    if (otmp == player_weapon)
         ;
     else if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
              || is_wet_towel(otmp))
@@ -3354,13 +3354,13 @@ itemactions(struct obj *otmp)
     }
 
     /* x: Swap main and readied weapon */
-    if (otmp == uwep && uswapwep)
+    if (otmp == player_weapon && player_secondary_weapon)
         ia_addmenu(win, IA_SWAPWEAPON, 'x',
                    "Swap this with your alternate weapon");
-    else if (otmp == uwep)
+    else if (otmp == player_weapon)
         ia_addmenu(win, IA_SWAPWEAPON, 'x',
                    "Ready this as an alternate weapon");
-    else if (otmp == uswapwep)
+    else if (otmp == player_secondary_weapon)
         ia_addmenu(win, IA_SWAPWEAPON, 'x', "Swap this with your main weapon");
 
     /* this is based on TWOWEAPOK() in wield.c; we don't call can_two_weapon()
@@ -3374,13 +3374,13 @@ itemactions(struct obj *otmp)
      && !bimanual(obj))
 
     /* X: Toggle two-weapon mode on or off */
-    if ((otmp == uwep || otmp == uswapwep)
+    if ((otmp == player_weapon || otmp == player_secondary_weapon)
         /* if already two-weaponing, no special checks needed to toggle off */
         && (u.using_two_weapons
         /* but if not, try to filter most "you can't do that" here */
-            || (could_twoweap(gy.youmonst.data) && !uarms
-                && uwep && MAYBETWOWEAPON(uwep)
-                && uswapwep && MAYBETWOWEAPON(uswapwep)))) {
+            || (could_twoweap(gy.youmonst.data) && !player_armor_shield
+                && player_weapon && MAYBETWOWEAPON(player_weapon)
+                && player_secondary_weapon && MAYBETWOWEAPON(player_secondary_weapon)))) {
         Sprintf(buf, "Toggle two-weapon combat %s", u.using_two_weapons ? "off" : "on");
         ia_addmenu(win, IA_TWOWEAPON, 'X', buf);
     }
@@ -3644,7 +3644,7 @@ display_pickinv(
         flags.sortpack = FALSE;
         sortflags = SORTLOOT_INUSE; /* override */
         filter = is_inuse;
-        if (!uwep) {
+        if (!player_weapon) {
             /*
              * inuse_only and not wielding anything: insert "bare hands"
              * into primary weapon slot.  Unlike adding an extra menu
@@ -3769,7 +3769,7 @@ display_pickinv(
                 /* like doname() below, makeplural() returns an obuf[] */
                 formattedobj = makeplural(body_part(HAND));
                 Sprintf(barehands, "%s %s (no weapon)",
-                        uarmg ? "gloved" : "bare", formattedobj);
+                        player_armor_gloves ? "gloved" : "bare", formattedobj);
                 add_menu(win, &nul_glyphinfo, &any, ilet, 0,
                          TEXT_ATTRIBUTE_NONE, clr, barehands, MENU_ITEMFLAGS_NONE);
             } else {
@@ -4758,7 +4758,7 @@ dolook(void)
 boolean
 will_feel_cockatrice(struct obj *otmp, boolean force_touch)
 {
-    if ((Blind || force_touch) && !uarmg && !Stone_resistance
+    if ((Blind || force_touch) && !player_armor_gloves && !Stone_resistance
         && (otmp->otyp == CORPSE && touch_petrifies(&mons[otmp->corpsenm])))
         return TRUE;
     return FALSE;
@@ -4968,23 +4968,23 @@ doprgold(void)
 int
 doprwep(void)
 {
-    if (!uwep) {
+    if (!player_weapon) {
         You("are %s.", empty_handed());
     } else if (!iflags.menu_requested) {
-        prinv((char *) 0, uwep, 0L);
+        prinv((char *) 0, player_weapon, 0L);
         if (u.using_two_weapons)
-            prinv((char *) 0, uswapwep, 0L);
+            prinv((char *) 0, player_secondary_weapon, 0L);
     } else {
         char lets[4]; /* 4: uwep, uswapwep, uquiver, terminator */
         int ct = 0;
 
         /* obj_to_let() will assign letters to all of invent if necessary
            (for '!fixinv') so doesn't need to be repeated once called here */
-        lets[ct++] = obj_to_let(uwep);
-        if (uswapwep)
-            lets[ct++] = uswapwep->invlet;
-        if (uquiver)
-            lets[ct++] = uquiver->invlet;
+        lets[ct++] = obj_to_let(player_weapon);
+        if (player_secondary_weapon)
+            lets[ct++] = player_secondary_weapon->invlet;
+        if (player_quiver)
+            lets[ct++] = player_quiver->invlet;
         lets[ct] = '\0';
 
         (void) dispinv_with_action(lets, TRUE, NULL);
@@ -4996,12 +4996,12 @@ doprwep(void)
 staticfn void
 noarmor(boolean report_uskin)
 {
-    if (!uskin || !report_uskin) {
+    if (!player_skin_if_dragon || !report_uskin) {
         You("are not wearing any armor.");
     } else {
         char *p, *uskinname, buf[BUFSZ];
 
-        uskinname = strcpy(buf, simpleonames(uskin));
+        uskinname = strcpy(buf, simpleonames(player_skin_if_dragon));
         /* shorten "set of <color> dragon scales" to "<color> scales"
            and "<color> dragon scale mail" to "<color> scale mail" */
         if (!strncmpi(uskinname, "set of ", 7))
@@ -5035,20 +5035,20 @@ doprarm(void)
            (for '!fixinv') so doesn't need to be repeated once called, but
            each armor slot doesn't know whether any that precede have made
            that call so just do it for each one; use SORTPACK_INUSE order */
-        if (uarm)
-            lets[ct++] = obj_to_let(uarm);
-        if (uarmc)
-            lets[ct++] = obj_to_let(uarmc);
-        if (uarms)
-            lets[ct++] = obj_to_let(uarms);
-        if (uarmh)
-            lets[ct++] = obj_to_let(uarmh);
-        if (uarmg)
-            lets[ct++] = obj_to_let(uarmg);
-        if (uarmf)
-            lets[ct++] = obj_to_let(uarmf);
-        if (uarmu)
-            lets[ct++] = obj_to_let(uarmu);
+        if (player_armor)
+            lets[ct++] = obj_to_let(player_armor);
+        if (player_armor_cloak)
+            lets[ct++] = obj_to_let(player_armor_cloak);
+        if (player_armor_shield)
+            lets[ct++] = obj_to_let(player_armor_shield);
+        if (player_armor_hat)
+            lets[ct++] = obj_to_let(player_armor_hat);
+        if (player_armor_gloves)
+            lets[ct++] = obj_to_let(player_armor_gloves);
+        if (player_armor_footwear)
+            lets[ct++] = obj_to_let(player_armor_footwear);
+        if (player_armor_undershirt)
+            lets[ct++] = obj_to_let(player_armor_undershirt);
         lets[ct] = 0;
 
         (void) dispinv_with_action(lets, TRUE, NULL);
@@ -5060,7 +5060,7 @@ doprarm(void)
 int
 doprring(void)
 {
-    if (!uleft && !uright) {
+    if (!player_finger_left && !player_finger_right) {
         You("are not wearing any rings.");
     } else {
         char lets[3]; /* 3: uright, uleft, terminator */
@@ -5069,14 +5069,14 @@ doprring(void)
 
         /* if either ring is a meat ring, switch to use_inuse_mode in order
            to label it/them as "Rings" rather than "Comestibles" */
-        if (uright) {
-            lets[ct++] = obj_to_let(uright);
-            if (uright->oclass != RING_CLASS)
+        if (player_finger_right) {
+            lets[ct++] = obj_to_let(player_finger_right);
+            if (player_finger_right->oclass != RING_CLASS)
                 use_inuse_mode = TRUE;
         }
-        if (uleft) {
-            lets[ct++] = obj_to_let(uleft);
-            if (uleft->oclass != RING_CLASS)
+        if (player_finger_left) {
+            lets[ct++] = obj_to_let(player_finger_left);
+            if (player_finger_left->oclass != RING_CLASS)
                 use_inuse_mode = TRUE;
         }
         lets[ct] = '\0';
@@ -5097,7 +5097,7 @@ doprring(void)
 int
 dopramulet(void)
 {
-    if (!uamul) {
+    if (!player_amulet) {
         You("are not wearing an amulet.");
     } else {
         char lets[2];
@@ -5105,7 +5105,7 @@ dopramulet(void)
         /* using display_inventory() instead of prinv() allows player
            to use 'm "' to force and menu and be able to choose amulet
            in order to perform a context-sensitive item action */
-        lets[0] = obj_to_let(uamul), lets[1] = '\0';
+        lets[0] = obj_to_let(player_amulet), lets[1] = '\0';
 
         (void) dispinv_with_action(lets, TRUE, "Amulet");
     }
@@ -5125,7 +5125,7 @@ tool_being_used(struct obj *obj)
     if (obj->oclass != TOOL_CLASS)
         return FALSE;
     /* [don't actually need to check uwep here; caller catches it] */
-    return (boolean) (obj == uwep || obj->lamplit
+    return (boolean) (obj == player_weapon || obj->lamplit
                       || (obj->otyp == LEASH && obj->leashmon));
 }
 

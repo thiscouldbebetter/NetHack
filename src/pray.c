@@ -223,21 +223,21 @@ in_trouble(void)
         return TROUBLE_COLLAPSING;
     if (stuck_in_wall())
         return TROUBLE_STUCK_IN_WALL;
-    if (Cursed_obj(uarmf, LEVITATION_BOOTS)
-        || stuck_ring(uleft, RIN_LEVITATION)
-        || stuck_ring(uright, RIN_LEVITATION))
+    if (Cursed_obj(player_armor_footwear, LEVITATION_BOOTS)
+        || stuck_ring(player_finger_left, RIN_LEVITATION)
+        || stuck_ring(player_finger_right, RIN_LEVITATION))
         return TROUBLE_CURSED_LEVITATION;
     if (nohands(gy.youmonst.data) || !freehand()) {
         /* for bag/box access [cf use_container()]...
            make sure it's a case that we know how to handle;
            otherwise "fix all troubles" would get stuck in a loop */
-        if (welded(uwep))
+        if (welded(player_weapon))
             return TROUBLE_UNUSEABLE_HANDS;
         if (Upolyd && nohands(gy.youmonst.data)
             && (!Unchanging || ((otmp = unchanger()) != 0 && otmp->cursed)))
             return TROUBLE_UNUSEABLE_HANDS;
     }
-    if (Blindfolded && ublindf->cursed)
+    if (Blindfolded && player_blindfold->cursed)
         return TROUBLE_CURSED_BLINDFOLD;
 
     /*
@@ -245,8 +245,8 @@ in_trouble(void)
      */
     if (Punished || (u.utrap && u.utraptype == TT_BURIEDBALL))
         return TROUBLE_PUNISHED;
-    if (Cursed_obj(uarmg, GAUNTLETS_OF_FUMBLING)
-        || Cursed_obj(uarmf, FUMBLE_BOOTS))
+    if (Cursed_obj(player_armor_gloves, GAUNTLETS_OF_FUMBLING)
+        || Cursed_obj(player_armor_footwear, FUMBLE_BOOTS))
         return TROUBLE_FUMBLING;
     if (worst_cursed_item())
         return TROUBLE_CURSED_ITEMS;
@@ -295,42 +295,42 @@ worst_cursed_item(void)
     }
     /* weapon takes precedence if it is interfering
        with taking off a ring or putting on a shield */
-    if (welded(uwep) && (uright || bimanual(uwep))) { /* weapon */
-        otmp = uwep;
+    if (welded(player_weapon) && (player_finger_right || bimanual(player_weapon))) { /* weapon */
+        otmp = player_weapon;
     /* gloves come next, due to rings */
-    } else if (uarmg && uarmg->cursed) { /* gloves */
-        otmp = uarmg;
+    } else if (player_armor_gloves && player_armor_gloves->cursed) { /* gloves */
+        otmp = player_armor_gloves;
     /* then shield due to two handed weapons and spells */
-    } else if (uarms && uarms->cursed) { /* shield */
-        otmp = uarms;
+    } else if (player_armor_shield && player_armor_shield->cursed) { /* shield */
+        otmp = player_armor_shield;
     /* then cloak due to body armor */
-    } else if (uarmc && uarmc->cursed) { /* cloak */
-        otmp = uarmc;
-    } else if (uarm && uarm->cursed) { /* suit */
-        otmp = uarm;
+    } else if (player_armor_cloak && player_armor_cloak->cursed) { /* cloak */
+        otmp = player_armor_cloak;
+    } else if (player_armor && player_armor->cursed) { /* suit */
+        otmp = player_armor;
     /* if worn helmet of opposite alignment is making you an adherent
        of the current god, he/she/it won't uncurse that for you */
-    } else if (uarmh && uarmh->cursed /* helmet */
-               && uarmh->otyp != HELM_OF_OPPOSITE_ALIGNMENT) {
-        otmp = uarmh;
-    } else if (uarmf && uarmf->cursed) { /* boots */
-        otmp = uarmf;
-    } else if (uarmu && uarmu->cursed) { /* shirt */
-        otmp = uarmu;
-    } else if (uamul && uamul->cursed) { /* amulet */
-        otmp = uamul;
-    } else if (uleft && uleft->cursed) { /* left ring */
-        otmp = uleft;
-    } else if (uright && uright->cursed) { /* right ring */
-        otmp = uright;
-    } else if (ublindf && ublindf->cursed) { /* eyewear */
-        otmp = ublindf; /* must be non-blinding lenses */
+    } else if (player_armor_hat && player_armor_hat->cursed /* helmet */
+               && player_armor_hat->otyp != HELM_OF_OPPOSITE_ALIGNMENT) {
+        otmp = player_armor_hat;
+    } else if (player_armor_footwear && player_armor_footwear->cursed) { /* boots */
+        otmp = player_armor_footwear;
+    } else if (player_armor_undershirt && player_armor_undershirt->cursed) { /* shirt */
+        otmp = player_armor_undershirt;
+    } else if (player_amulet && player_amulet->cursed) { /* amulet */
+        otmp = player_amulet;
+    } else if (player_finger_left && player_finger_left->cursed) { /* left ring */
+        otmp = player_finger_left;
+    } else if (player_finger_right && player_finger_right->cursed) { /* right ring */
+        otmp = player_finger_right;
+    } else if (player_blindfold && player_blindfold->cursed) { /* eyewear */
+        otmp = player_blindfold; /* must be non-blinding lenses */
     /* if weapon wasn't handled above, do it now */
-    } else if (welded(uwep)) { /* weapon */
-        otmp = uwep;
+    } else if (welded(player_weapon)) { /* weapon */
+        otmp = player_weapon;
     /* active secondary weapon even though it isn't welded */
-    } else if (uswapwep && uswapwep->cursed && u.using_two_weapons) {
-        otmp = uswapwep;
+    } else if (player_secondary_weapon && player_secondary_weapon->cursed && u.using_two_weapons) {
+        otmp = player_secondary_weapon;
     /* all worn items ought to be handled by now */
     } else {
         for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
@@ -350,13 +350,13 @@ fix_curse_trouble(struct obj *otmp, const char *what)
         impossible("fix_curse_trouble: nothing to uncurse.");
         return;
     }
-    if (otmp == uarmg && Glib) {
+    if (otmp == player_armor_gloves && Glib) {
         make_glib(0);
-        Your("%s are no longer slippery.", gloves_simple_name(uarmg));
+        Your("%s are no longer slippery.", gloves_simple_name(player_armor_gloves));
         if (!otmp->cursed)
             return;
     }
-    if (!Blind || (otmp == ublindf && Blindfolded_only)) {
+    if (!Blind || (otmp == player_blindfold && Blindfolded_only)) {
         pline("%s %s.",
                 what ? what : (const char *) Yobjnam2(otmp, "softly glow"),
                 hcolor(NH_AMBER));
@@ -384,13 +384,13 @@ fix_worst_trouble(int trouble)
         make_slimed(0L, "The slime disappears.");
         break;
     case TROUBLE_STRANGLED:
-        if (uamul && uamul->otyp == AMULET_OF_STRANGULATION) {
+        if (player_amulet && player_amulet->otyp == AMULET_OF_STRANGULATION) {
             Your("amulet vanishes!");
-            useup(uamul);
+            useup(player_amulet);
         }
         You("can breathe again.");
         Strangled = 0;
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         break;
     case TROUBLE_LAVA:
         /* teleport should always succeed, but if not, just untrap them */
@@ -405,7 +405,7 @@ fix_worst_trouble(int trouble)
     case TROUBLE_HUNGRY:
         Your("%s feels content.", body_part(STOMACH));
         init_uhunger();
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         break;
     case TROUBLE_SICK:
         You_feel("better.");
@@ -433,20 +433,20 @@ fix_worst_trouble(int trouble)
         if (u.hit_points_max > u.hit_points_peak)
             u.hit_points_peak = u.hit_points_max;
         u.hit_points = u.hit_points_max;
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         break;
     case TROUBLE_COLLAPSING:
         /* override Fixed_abil; uncurse that if feasible */
         You_feel("%sstronger.",
                  (ATTRIBUTE_MAX(ATTRIBUTE_STRENGTH) - ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) > 6) ? "much " : "");
         ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) = ATTRIBUTE_MAX(ATTRIBUTE_STRENGTH);
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         if (Fixed_abil) {
-            if ((otmp = stuck_ring(uleft, RIN_SUSTAIN_ABILITY)) != 0) {
-                if (otmp == uleft)
+            if ((otmp = stuck_ring(player_finger_left, RIN_SUSTAIN_ABILITY)) != 0) {
+                if (otmp == player_finger_left)
                     what = leftglow;
-            } else if ((otmp = stuck_ring(uright, RIN_SUSTAIN_ABILITY)) != 0) {
-                if (otmp == uright)
+            } else if ((otmp = stuck_ring(player_finger_right, RIN_SUSTAIN_ABILITY)) != 0) {
+                if (otmp == player_finger_right)
                     what = rightglow;
             }
             if (otmp) {
@@ -474,20 +474,20 @@ fix_worst_trouble(int trouble)
         }
         break;
     case TROUBLE_CURSED_LEVITATION:
-        if (Cursed_obj(uarmf, LEVITATION_BOOTS)) {
-            otmp = uarmf;
-        } else if ((otmp = stuck_ring(uleft, RIN_LEVITATION)) != 0) {
-            if (otmp == uleft)
+        if (Cursed_obj(player_armor_footwear, LEVITATION_BOOTS)) {
+            otmp = player_armor_footwear;
+        } else if ((otmp = stuck_ring(player_finger_left, RIN_LEVITATION)) != 0) {
+            if (otmp == player_finger_left)
                 what = leftglow;
-        } else if ((otmp = stuck_ring(uright, RIN_LEVITATION)) != 0) {
-            if (otmp == uright)
+        } else if ((otmp = stuck_ring(player_finger_right, RIN_LEVITATION)) != 0) {
+            if (otmp == player_finger_right)
                 what = rightglow;
         }
         fix_curse_trouble(otmp, what);
         break;
     case TROUBLE_UNUSEABLE_HANDS:
-        if (welded(uwep)) {
-            otmp = uwep;
+        if (welded(player_weapon)) {
+            otmp = player_weapon;
             fix_curse_trouble(otmp, what);
             break;
         }
@@ -505,7 +505,7 @@ fix_worst_trouble(int trouble)
             impossible("fix_worst_trouble: couldn't cure hands.");
         break;
     case TROUBLE_CURSED_BLINDFOLD:
-        otmp = ublindf;
+        otmp = player_blindfold;
         fix_curse_trouble(otmp, what);
         break;
     case TROUBLE_LYCANTHROPE:
@@ -521,17 +521,17 @@ fix_worst_trouble(int trouble)
             unpunish();
         break;
     case TROUBLE_FUMBLING:
-        if (Cursed_obj(uarmg, GAUNTLETS_OF_FUMBLING))
-            otmp = uarmg;
-        else if (Cursed_obj(uarmf, FUMBLE_BOOTS))
-            otmp = uarmf;
+        if (Cursed_obj(player_armor_gloves, GAUNTLETS_OF_FUMBLING))
+            otmp = player_armor_gloves;
+        else if (Cursed_obj(player_armor_footwear, FUMBLE_BOOTS))
+            otmp = player_armor_footwear;
         fix_curse_trouble(otmp, what);
         break;
     case TROUBLE_CURSED_ITEMS:
         otmp = worst_cursed_item();
-        if (otmp == uright)
+        if (otmp == player_finger_right)
             what = rightglow;
-        else if (otmp == uleft)
+        else if (otmp == player_finger_left)
             what = leftglow;
         fix_curse_trouble(otmp, what);
         break;
@@ -544,7 +544,7 @@ fix_worst_trouble(int trouble)
         for (i = 0; i < ATTRIBUTE_COUNT; i++) {
             if (ATTRIBUTE_BASE(i) < ATTRIBUTE_MAX(i)) {
                 ATTRIBUTE_BASE(i) = ATTRIBUTE_MAX(i);
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
             }
         }
         (void) encumbered_message();
@@ -655,17 +655,17 @@ god_zaps_you(aligntyp resp_god)
         /* disintegrate shield and body armor before disintegrating
          * the impudent mortal, like black dragon breath -3.
          */
-        if (uarms && !(EReflecting & WEARING_ARMOR_SHIELD)
+        if (player_armor_shield && !(EReflecting & WEARING_ARMOR_SHIELD)
             && !(EDisint_resistance & WEARING_ARMOR_SHIELD))
-            (void) destroy_arm(uarms);
-        if (uarmc && !(EReflecting & WEARING_ARMOR_CLOAK)
+            (void) destroy_arm(player_armor_shield);
+        if (player_armor_cloak && !(EReflecting & WEARING_ARMOR_CLOAK)
             && !(EDisint_resistance & WEARING_ARMOR_CLOAK))
-            (void) destroy_arm(uarmc);
-        if (uarm && !(EReflecting & WEARING_ARMOR_BODY) && !(EDisint_resistance & WEARING_ARMOR_BODY)
-            && !uarmc)
-            (void) destroy_arm(uarm);
-        if (uarmu && !uarm && !uarmc)
-            (void) destroy_arm(uarmu);
+            (void) destroy_arm(player_armor_cloak);
+        if (player_armor && !(EReflecting & WEARING_ARMOR_BODY) && !(EDisint_resistance & WEARING_ARMOR_BODY)
+            && !player_armor_cloak)
+            (void) destroy_arm(player_armor);
+        if (player_armor_undershirt && !player_armor && !player_armor_cloak)
+            (void) destroy_arm(player_armor_undershirt);
         if (!Disint_resistance) {
             fry_by_god(resp_god, TRUE);
             monstunseesu(M_SEEN_DISINT);
@@ -820,13 +820,13 @@ gcrownu(void)
         && !u_wield_art(ART_STORMBRINGER)
         && !carrying(SPE_FINGER_OF_DEATH)) {
         class_gift = SPE_FINGER_OF_DEATH;
-    } else if (Role_if(PM_MONK) && (!uwep || !uwep->oartifact)
+    } else if (Role_if(PM_MONK) && (!player_weapon || !player_weapon->oartifact)
                && !carrying(SPE_RESTORE_ABILITY)) {
         /* monks rarely wield a weapon */
         class_gift = SPE_RESTORE_ABILITY;
     }
 
-    obj = ok_wep(uwep) ? uwep : 0;
+    obj = ok_wep(player_weapon) ? player_weapon : 0;
     already_exists = in_hand = FALSE; /* lint suppression */
     switch (u.alignment.type) {
     case A_LAWFUL:
@@ -883,8 +883,8 @@ gcrownu(void)
 
         /* when getting a new book for known spell, enhance
            currently wielded weapon rather than the book */
-        if (known_spell(class_gift) != spe_Unknown && ok_wep(uwep))
-            obj = uwep; /* to be blessed,&c */
+        if (known_spell(class_gift) != spe_Unknown && ok_wep(player_weapon))
+            obj = player_weapon; /* to be blessed,&c */
     }
 
     switch (u.alignment.type) {
@@ -1155,49 +1155,49 @@ pleased(aligntyp g_align)
         case 0:
             break;
         case 1:
-            if (uwep && (welded(uwep) || uwep->oclass == WEAPON_CLASS
-                         || is_weptool(uwep))) {
+            if (player_weapon && (welded(player_weapon) || player_weapon->oclass == WEAPON_CLASS
+                         || is_weptool(player_weapon))) {
                 char repair_buf[BUFSZ];
 
                 *repair_buf = '\0';
-                if (uwep->oeroded || uwep->oeroded2)
+                if (player_weapon->oeroded || player_weapon->oeroded2)
                     Sprintf(repair_buf, " and %s now as good as new",
-                            otense(uwep, "are"));
+                            otense(player_weapon, "are"));
 
-                if (uwep->cursed) {
+                if (player_weapon->cursed) {
                     if (!Blind) {
-                        pline("%s %s%s.", Yobjnam2(uwep, "softly glow"),
+                        pline("%s %s%s.", Yobjnam2(player_weapon, "softly glow"),
                               hcolor(NH_AMBER), repair_buf);
                         iflags.last_msg = PLNMSG_OBJ_GLOWS;
                     } else
                         You_feel("the power of %s over %s.", u_gname(),
-                                 yname(uwep));
-                    uncurse(uwep);
-                    uwep->bknown = 1; /* ok to bypass set_bknown() */
+                                 yname(player_weapon));
+                    uncurse(player_weapon);
+                    player_weapon->bknown = 1; /* ok to bypass set_bknown() */
                     *repair_buf = '\0';
-                } else if (!uwep->blessed) {
+                } else if (!player_weapon->blessed) {
                     if (!Blind) {
                         pline("%s with %s aura%s.",
-                              Yobjnam2(uwep, "softly glow"),
+                              Yobjnam2(player_weapon, "softly glow"),
                               an(hcolor(NH_LIGHT_BLUE)), repair_buf);
                         iflags.last_msg = PLNMSG_OBJ_GLOWS;
                     } else
                         You_feel("the blessing of %s over %s.", u_gname(),
-                                 yname(uwep));
-                    bless(uwep);
-                    uwep->bknown = 1; /* ok to bypass set_bknown() */
+                                 yname(player_weapon));
+                    bless(player_weapon);
+                    player_weapon->bknown = 1; /* ok to bypass set_bknown() */
                     *repair_buf = '\0';
                 }
 
                 /* fix any rust/burn/rot damage, but don't protect
                    against future damage */
-                if (uwep->oeroded || uwep->oeroded2) {
-                    uwep->oeroded = uwep->oeroded2 = 0;
+                if (player_weapon->oeroded || player_weapon->oeroded2) {
+                    player_weapon->oeroded = player_weapon->oeroded2 = 0;
                     /* only give this message if we didn't just bless
                        or uncurse (which has already given a message) */
                     if (*repair_buf)
                         pline("%s as good as new!",
-                              Yobjnam2(uwep, Blind ? "feel" : "look"));
+                              Yobjnam2(player_weapon, Blind ? "feel" : "look"));
                 }
                 update_inventory();
             }
@@ -1249,7 +1249,7 @@ pleased(aligntyp g_align)
                 u.mh = u.mhmax;
             if (ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) < ATTRIBUTE_MAX(ATTRIBUTE_STRENGTH)) {
                 ATTRIBUTE_BASE(ATTRIBUTE_STRENGTH) = ATTRIBUTE_MAX(ATTRIBUTE_STRENGTH);
-                disp.botl = TRUE; /* before potential message */
+                disp.bottom_line = TRUE; /* before potential message */
                 (void) encumbered_message();
             }
             if (u.uhunger < 900)
@@ -1264,7 +1264,7 @@ pleased(aligntyp g_align)
                rather than issuing a pat-on-head */
             u.ucreamed = 0;
             make_blinded(0L, TRUE);
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             break;
         case 4: {
             struct obj *otmp;
@@ -1276,8 +1276,8 @@ pleased(aligntyp g_align)
                 You("are surrounded by %s aura.", an(hcolor(NH_LIGHT_BLUE)));
             for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
                 if (otmp->cursed
-                    && (otmp != uarmh /* [see worst_cursed_item()] */
-                        || uarmh->otyp != HELM_OF_OPPOSITE_ALIGNMENT)) {
+                    && (otmp != player_armor_hat /* [see worst_cursed_item()] */
+                        || player_armor_hat->otyp != HELM_OF_OPPOSITE_ALIGNMENT)) {
                     if (!Blind) {
                         pline("%s %s.", Yobjnam2(otmp, "softly glow"),
                               hcolor(NH_AMBER));
@@ -1516,7 +1516,7 @@ offer_real_amulet(struct obj *otmp, aligntyp altaralign)
         cloud_of_smoke[] = "A cloud of %s smoke surrounds you...";
 
     /* The final Test.  Did you win? */
-    if (uamul == otmp)
+    if (player_amulet == otmp)
         Amulet_off();
     if (carried(otmp))
         useup(otmp); /* well, it's gone now */

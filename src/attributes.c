@@ -129,7 +129,7 @@ adjust_attribute(
     if (Fixed_abil || !amount_to_add)
         return FALSE;
 
-    if ((attribute_index == ATTRIBUTE_INTELLIGENCE || attribute_index == ATTRIBUTE_WISDOM) && uarmh && uarmh->otyp == DUNCE_CAP) {
+    if ((attribute_index == ATTRIBUTE_INTELLIGENCE || attribute_index == ATTRIBUTE_WISDOM) && player_armor_hat && player_armor_hat->otyp == DUNCE_CAP) {
         if (message_flag == 0)
             Your("cap constricts briefly, then relaxes again.");
         return FALSE;
@@ -190,7 +190,7 @@ adjust_attribute(
         return FALSE;
     }
 
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     if (message_flag <= 0)
         You_feel("%s%s!", (amount_to_add > 1 || amount_to_add < -1) ? "very " : "", attrstr);
     if (gp.program_state.in_moveloop && (attribute_index == ATTRIBUTE_STRENGTH || attribute_index == ATTRIBUTE_CONSTITUTION))
@@ -252,7 +252,7 @@ losestr(int num, const char *knam, schar k_format)
             if (u.hit_points_max > uhpmin)
                 setuhpmax(max(u.hit_points_max - dmg, uhpmin));
         }
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     }
 #if 0   /* only possible if uhpmax was already less than uhpmin */
     if (!Upolyd && u.uhpmax < uhpmin) {
@@ -360,7 +360,7 @@ poisoned(
         loss = 6 + d(4, 6);
         if (u.hit_points <= loss) {
             u.hit_points = -1;
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             pline_The("poison was deadly...");
         } else {
             /* survived, but with severe reaction */
@@ -463,13 +463,13 @@ restore_attrib(void)
         if (ATTRIBUTE_TEMPORARY(i) != equilibrium && ATTRIBUTE_TEMPORARY_TIME(i) != 0) {
             if (!(--(ATTRIBUTE_TEMPORARY_TIME(i)))) { /* countdown for change */
                 ATTRIBUTE_TEMPORARY(i) += (ATTRIBUTE_TEMPORARY(i) > 0) ? -1 : 1;
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
                 if (ATTRIBUTE_TEMPORARY(i)) /* reset timer */
                     ATTRIBUTE_TEMPORARY_TIME(i) = 100 / ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION);
             }
         }
     }
-    if (disp.botl)
+    if (disp.bottom_line)
         (void) encumbered_message();
 }
 
@@ -935,9 +935,9 @@ from_what(int propidx) /* special cases can have negative values */
             else if (propidx == FAST && Very_fast)
                 Sprintf(buf, because_of,
                         ((HFast & TIMEOUT) != 0L) ? "a potion or spell"
-                          : ((EFast & WEARING_ARMOR_FOOTWEAR) != 0L && uarmf->dknown
-                             && objects[uarmf->otyp].oc_name_known)
-                              ? ysimple_name(uarmf) /* speed boots */
+                          : ((EFast & WEARING_ARMOR_FOOTWEAR) != 0L && player_armor_footwear->dknown
+                             && objects[player_armor_footwear->otyp].oc_name_known)
+                              ? ysimple_name(player_armor_footwear) /* speed boots */
                                 : EFast ? "worn equipment"
                                   : something);
             else if (wizard
@@ -946,7 +946,7 @@ from_what(int propidx) /* special cases can have negative values */
                                              ? bare_artifactname(obj)
                                              : ysimple_name(obj));
             else if (propidx == BLINDED && Blindfolded_only)
-                Sprintf(buf, because_of, ysimple_name(ublindf));
+                Sprintf(buf, because_of, ysimple_name(player_blindfold));
             else if (propidx == BLINDED && u.ucreamed
                      && BlindedTimeout == (long) u.ucreamed
                      && !EBlinded && !(HBlinded & ~TIMEOUT))
@@ -966,18 +966,18 @@ from_what(int propidx) /* special cases can have negative values */
             switch (-propidx) {
             case BLINDED:
                 /* wearing the Eyes of the Overworld overrides blindness */
-                if (BBlinded && is_art(ublindf, ART_EYES_OF_THE_OVERWORLD))
-                    Sprintf(buf, because_of, bare_artifactname(ublindf));
+                if (BBlinded && is_art(player_blindfold, ART_EYES_OF_THE_OVERWORLD))
+                    Sprintf(buf, because_of, bare_artifactname(player_blindfold));
                 break;
             case INVISIBLE:
                 if (u.uprops[INVISIBLE].blocked & WEARING_ARMOR_CLOAK)
                     Sprintf(buf, because_of,
-                            ysimple_name(uarmc)); /* mummy wrapping */
+                            ysimple_name(player_armor_cloak)); /* mummy wrapping */
                 break;
             case CLAIRVOYANT:
                 if (wizard && (u.uprops[CLAIRVOYANT].blocked & WEARING_ARMOR_HELMET))
                     Sprintf(buf, because_of,
-                            ysimple_name(uarmh)); /* cornuthaum */
+                            ysimple_name(player_armor_hat)); /* cornuthaum */
                 break;
             }
         }
@@ -1145,10 +1145,10 @@ setuhpmax(int newmax)
         u.hit_points_max = newmax;
         if (u.hit_points_max > u.hit_points_peak)
             u.hit_points_peak = u.hit_points_max;
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     }
     if (u.hit_points > u.hit_points_max)
-        u.hit_points = u.hit_points_max, disp.botl = TRUE;
+        u.hit_points = u.hit_points_max, disp.bottom_line = TRUE;
 }
 
 /* return the current effective value of a specific characteristic
@@ -1169,7 +1169,7 @@ acurr(int chridx)
            1 <= xx <= 100), and 119..125 for other characteristics' 19..25;
            STR18(x) yields 18 + x (intended for 0 <= x <= 100; not used here);
            STR19(y) yields 100 + y (intended for 19 <= y <= 25) */
-        if (tmp >= STRENGTH19(25) || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER))
+        if (tmp >= STRENGTH19(25) || (player_armor_gloves && player_armor_gloves->otyp == GAUNTLETS_OF_POWER))
             result = STRENGTH19(25); /* 125 */
         else
             /* need non-zero here to avoid 'if(result==0)' below because
@@ -1186,7 +1186,7 @@ acurr(int chridx)
     } else if (chridx == ATTRIBUTE_INTELLIGENCE || chridx == ATTRIBUTE_WISDOM) {
         /* Yes, this may raise Int and/or Wis if hero is sufficiently
            stupid.  There are lower levels of cognition than "dunce". */
-        if (uarmh && uarmh->otyp == DUNCE_CAP)
+        if (player_armor_hat && player_armor_hat->otyp == DUNCE_CAP)
             result = 6;
     } else if (chridx == ATTRIBUTE_DEXTERITY) {
         ; /* there aren't any special cases for dexterity */
@@ -1232,7 +1232,7 @@ extremeattr(int attrindx) /* does attrindx's value match its max or min? */
     if (attrindx == ATTRIBUTE_STRENGTH) {
         hilimit = STRENGTH19(25); /* 125 */
         /* lower limit for Str can also be 25 */
-        if (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
+        if (player_armor_gloves && player_armor_gloves->otyp == GAUNTLETS_OF_POWER)
             lolimit = hilimit;
     } else if (attrindx == ATTRIBUTE_CONSTITUTION) {
         if (u_wield_art(ART_OGRESMASHER))
@@ -1241,7 +1241,7 @@ extremeattr(int attrindx) /* does attrindx's value match its max or min? */
     /* this exception is hypothetical; the only other worn item affecting
        Int or Wis is another helmet so can't be in use at the same time */
     if (attrindx == ATTRIBUTE_INTELLIGENCE || attrindx == ATTRIBUTE_WISDOM) {
-        if (uarmh && uarmh->otyp == DUNCE_CAP)
+        if (player_armor_hat && player_armor_hat->otyp == DUNCE_CAP)
             hilimit = lolimit = 6;
     }
 
@@ -1282,14 +1282,14 @@ uchangealign(int newalign,
     u.blessed = 0; /* lose divine protection */
     /* You/Your/pline message with call flush_screen(), triggering bot(),
        so the actual data change needs to come before the message */
-    disp.botl = TRUE; /* status line needs updating */
+    disp.bottom_line = TRUE; /* status line needs updating */
     if (reason == A_CG_CONVERT) {
         /* conversion via altar */
         livelog_printf(LL_ALIGNMENT, "permanently converted to %s",
                        aligns[1 - newalign].adj);
         u.ualignbase[A_CURRENT] = (aligntyp) newalign;
         /* worn helm of opposite alignment might block change */
-        if (!uarmh || uarmh->otyp != HELM_OF_OPPOSITE_ALIGNMENT)
+        if (!player_armor_hat || player_armor_hat->otyp != HELM_OF_OPPOSITE_ALIGNMENT)
             u.alignment.type = u.ualignbase[A_CURRENT];
         You("have a %ssense of a new direction.",
             (u.alignment.type != oldalign) ? "sudden " : "");

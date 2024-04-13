@@ -514,8 +514,8 @@ find_defensive(struct monster *mtmp, boolean tryescape)
        happen to have picked one up, use it against corpse wielder;
        when applicable, use it now even if 'mtmp' isn't wounded */
     if (!mtmp->mpeaceful && !nohands(mtmp->data)
-        && uwep && uwep->otyp == CORPSE
-        && touch_petrifies(&mons[uwep->corpsenm])
+        && player_weapon && player_weapon->otyp == CORPSE
+        && touch_petrifies(&mons[player_weapon->corpsenm])
         && !poly_when_stoned(mtmp->data) && !resists_ston(mtmp)
         && lined_up(mtmp)) { /* only lines up if distu range is within 5*5 */
         /* could use m_carrying(), then nxtobj() when matching wand
@@ -1366,8 +1366,8 @@ find_offensive(struct monster *mtmp)
     if (in_your_sanctuary(mtmp, 0, 0))
         return FALSE;
     if (dmgtype(mtmp->data, AD_HEAL)
-        && !uwep && !uarmu && !uarm && !uarmh
-        && !uarms && !uarmg && !uarmc && !uarmf)
+        && !player_weapon && !player_armor_undershirt && !player_armor && !player_armor_hat
+        && !player_armor_shield && !player_armor_gloves && !player_armor_cloak && !player_armor_footwear)
         return FALSE;
     /* all offensive items require orthogonal or diagonal targeting */
     if (!lined_up(mtmp))
@@ -2086,15 +2086,15 @@ find_misc(struct monster *mtmp)
         if (obj->otyp == BULLWHIP && !mtmp->mpeaceful
             /* the random test prevents whip-wielding
                monster from attempting disarm every turn */
-            && uwep && !random_integer_between_zero_and(5) && obj == MON_WEP(mtmp)
+            && player_weapon && !random_integer_between_zero_and(5) && obj == MON_WEP(mtmp)
             /* hero's location must be known and adjacent */
             && u_at(mtmp->mux, mtmp->muy)
             && m_next2u(mtmp)
             /* don't bother if it can't work (this doesn't
                prevent cursed weapons from being targeted) */
             && !u.uswallow
-            && (canletgo(uwep, "")
-                || (u.using_two_weapons && canletgo(uswapwep, "")))) {
+            && (canletgo(player_weapon, "")
+                || (u.using_two_weapons && canletgo(player_secondary_weapon, "")))) {
             gm.m.misc = obj;
             gm.m.has_misc = MUSE_BULLWHIP;
         }
@@ -2429,13 +2429,13 @@ use_misc(struct monster *mtmp)
         {
             const char *The_whip = vismon ? "The bullwhip" : "A whip";
             int where_to = random_integer_between_zero_and(4);
-            struct obj *obj = uwep;
+            struct obj *obj = player_weapon;
             const char *hand;
             char the_weapon[BUFSZ];
 
             if (!obj || !canletgo(obj, "")
-                || (u.using_two_weapons && canletgo(uswapwep, "") && random_integer_between_zero_and(2)))
-                obj = uswapwep;
+                || (u.using_two_weapons && canletgo(player_secondary_weapon, "") && random_integer_between_zero_and(2)))
+                obj = player_secondary_weapon;
             if (!obj)
                 break; /* shouldn't happen after find_misc() */
 
@@ -2731,7 +2731,7 @@ ureflects(const char *fmt, const char *str)
         return TRUE;
     } else if (EReflecting & WEARING_ARMOR_BODY) {
         if (fmt && str)
-            pline(fmt, str, uskin ? "luster" : "armor");
+            pline(fmt, str, player_skin_if_dragon ? "luster" : "armor");
         return TRUE;
     } else if (gy.youmonst.data == &mons[PM_SILVER_DRAGON]) {
         if (fmt && str)

@@ -70,8 +70,8 @@ amulet(void)
     if (!u.uhave.amulet)
         return;
 #endif
-    if ((((amu = uamul) != 0 && amu->otyp == AMULET_OF_YENDOR)
-         || ((amu = uwep) != 0 && amu->otyp == AMULET_OF_YENDOR))
+    if ((((amu = player_amulet) != 0 && amu->otyp == AMULET_OF_YENDOR)
+         || ((amu = player_weapon) != 0 && amu->otyp == AMULET_OF_YENDOR))
         && !random_integer_between_zero_and(15)) {
         for (ttmp = gf.ftrap; ttmp; ttmp = ttmp->ntrap) {
             if (ttmp->ttyp == MAGIC_PORTAL) {

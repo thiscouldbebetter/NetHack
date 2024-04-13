@@ -87,7 +87,7 @@ moveloop_preamble(boolean resuming)
         u.movement = NORMAL_SPEED;
         initrack();
     }
-    disp.botlx = TRUE; /* for STATUS_HILITES */
+    disp.bottom_line_x = TRUE; /* for STATUS_HILITES */
     if (resuming) { /* restoring old game */
         read_engraving_at(u.ux, u.uy); /* subset of pickup() */
         fix_shop_damage();
@@ -241,7 +241,7 @@ moveloop_core(void)
                 gh.hero_seq = gm.moves << 3;
 
                 if (flags.time && !gc.context.run)
-                    disp.time_botl = TRUE; /* 'moves' just changed */
+                    disp.time_bottom_line = TRUE; /* 'moves' just changed */
 
                 /********************************/
                 /* once-per-turn things go here */
@@ -433,10 +433,10 @@ moveloop_core(void)
         if (gv.vision_full_recalc)
             vision_recalc(0); /* vision! */
     }
-    if (disp.botl || disp.botlx) {
+    if (disp.bottom_line || disp.bottom_line_x) {
         bot();
         curs_on_u();
-    } else if (disp.time_botl) {
+    } else if (disp.time_bottom_line) {
         timebot();
         curs_on_u();
     }
@@ -511,7 +511,7 @@ moveloop_core(void)
         && (gm.multi && (!gc.context.travel ? !(gm.multi % 7)
                         : !(gm.moves % 7L)))) {
         if (flags.time && gc.context.run)
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         /* [should this be flush_screen() instead?] */
         display_nhwindow(WIN_MAP, FALSE);
     }
@@ -570,7 +570,7 @@ regen_pw(int wtcap)
         u.energy += rn1(upper, 1);
         if (u.energy > u.energy_max)
             u.energy = u.energy_max;
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         if (u.energy == u.energy_max)
             interrupt_multi("You feel full of energy.");
     }
@@ -602,7 +602,7 @@ regen_hp(int wtcap)
                 heal = 1;
         }
         if (heal) {
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             u.mh += heal;
             reached_full = (u.mh == u.mhmax);
         }
@@ -622,7 +622,7 @@ regen_hp(int wtcap)
                 heal++;
 
             if (heal) {
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
                 u.hit_points += heal;
                 if (u.hit_points > u.hit_points_max)
                     u.hit_points = u.hit_points_max;
@@ -645,7 +645,7 @@ stop_occupation(void)
         if (!maybe_finished_meal(TRUE))
             You("stop %s.", go.occtxt);
         go.occupation = (int (*)(void)) 0;
-        disp.botl = TRUE; /* in case u.uhs changed */
+        disp.bottom_line = TRUE; /* in case u.uhs changed */
         nomul(0);
     } else if (gm.multi >= 0) {
         nomul(0);
@@ -716,7 +716,7 @@ newgame(void)
 
     /* make sure welcome messages are given before noticing monsters */
     notice_mon_off();
-    disp.botlx = TRUE;
+    disp.bottom_line_x = TRUE;
     gc.context.ident = 1;
     gc.context.warnlevel = 1;
     gc.context.next_attrib_check = 600L; /* arbitrary first setting */
@@ -767,8 +767,8 @@ newgame(void)
         com_pager("legacy");
     }
 
-    urealtime.realtime = 0L;
-    urealtime.start_timing = getnow();
+    player_realtime.realtime = 0L;
+    player_realtime.start_timing = getnow();
 #ifdef INSURANCE
     save_currentstate();
 #endif

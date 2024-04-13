@@ -71,11 +71,11 @@ set_uasmon(void)
     PROPSET(STONE_RESISTANCE, resists_ston(&gy.youmonst));
     {
         /* resists_drli() takes wielded weapon into account; suppress it */
-        struct obj *save_uwep = uwep;
+        struct obj *save_uwep = player_weapon;
 
-        uwep = 0;
+        player_weapon = 0;
         PROPSET(DRAIN_RESISTANCE, resists_drli(&gy.youmonst));
-        uwep = save_uwep;
+        player_weapon = save_uwep;
     }
     /* resists_magm() takes wielded, worn, and carried equipment into
        into account; cheat and duplicate its monster-specific part */
@@ -145,7 +145,7 @@ float_vs_flight(void)
        might cause a change in stealth */
     steed_vs_stealth();
 
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
 }
 
 /* riding blocks stealth unless hero+steed fly */
@@ -168,11 +168,11 @@ check_strangling(boolean on)
 
         /* when Strangled is already set, polymorphing from one
            vulnerable form into another causes the counter to be reset */
-        if (uamul && uamul->otyp == AMULET_OF_STRANGULATION
+        if (player_amulet && player_amulet->otyp == AMULET_OF_STRANGULATION
             && can_be_strangled(&gy.youmonst)) {
             Strangled = 6L;
-            disp.botl = TRUE;
-            Your("%s %s your %s!", simpleonames(uamul),
+            disp.bottom_line = TRUE;
+            Your("%s %s your %s!", simpleonames(player_amulet),
                  was_strangled ? "still constricts" : "begins constricting",
                  body_part(NECK)); /* "throat" */
             makeknown(AMULET_OF_STRANGULATION);
@@ -182,7 +182,7 @@ check_strangling(boolean on)
     } else {
         if (Strangled && !can_be_strangled(&gy.youmonst)) {
             Strangled = 0L;
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             You("are no longer being strangled.");
         }
     }
@@ -447,12 +447,12 @@ newman(void)
         make_slimed(10L, (const char *) 0);
     }
 
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     see_monsters();
     (void) encumbered_message();
 
     retouch_equipment(2);
-    if (!uarmg)
+    if (!player_armor_gloves)
         selftouch(no_longer_petrify_resistant);
 }
 
@@ -465,7 +465,7 @@ polyself(int psflags)
             low_control = ((psflags & POLY_LOW_CTRL) != 0),
             monsterpoly = ((psflags & POLY_MONSTER) != 0),
             formrevert = ((psflags & POLY_REVERT) != 0),
-            draconian = (uarm && Is_dragon_armor(uarm)),
+            draconian = (player_armor && Is_dragon_armor(player_armor)),
             iswere = (ismnum(u.ulycn)),
             isvamp = (is_vampire(gy.youmonst.data)
                       || is_vampshifter(&gy.youmonst)),
@@ -529,7 +529,7 @@ polyself(int psflags)
                 class = name_to_monclass(buf, &mntmp);
                 if (class && mntmp == NON_PM)
                     mntmp = (draconian && class == S_DRAGON)
-                            ? armor_to_dragon(uarm->otyp)
+                            ? armor_to_dragon(player_armor->otyp)
                             : mkclass_poly(class);
 
             /* placeholder monsters are for corpses and all flagged
@@ -609,7 +609,7 @@ polyself(int psflags)
         if (!tryct)
             pline1(thats_enough_tries);
         /* allow skin merging, even when polymorph is controlled */
-        if (draconian && (tryct <= 0 || mntmp == armor_to_dragon(uarm->otyp)))
+        if (draconian && (tryct <= 0 || mntmp == armor_to_dragon(player_armor->otyp)))
             goto do_merge;
         if (isvamp && (tryct <= 0 || mntmp == PM_WOLF || mntmp == PM_FOG_CLOUD
                        || is_bat(&mons[mntmp])))
@@ -618,20 +618,20 @@ polyself(int psflags)
         /* special changes that don't require polyok() */
         if (draconian) {
  do_merge:
-            mntmp = armor_to_dragon(uarm->otyp);
+            mntmp = armor_to_dragon(player_armor->otyp);
             if (!(gm.mvitals[mntmp].mvflags & G_GENOD)) {
-                unsigned was_lit = uarm->lamplit;
-                int arm_light = artifact_light(uarm) ? arti_light_radius(uarm)
+                unsigned was_lit = player_armor->lamplit;
+                int arm_light = artifact_light(player_armor) ? arti_light_radius(player_armor)
                                                      : 0;
 
                 /* allow G_EXTINCT */
-                if (Is_dragon_scales(uarm)) {
+                if (Is_dragon_scales(player_armor)) {
                     /* dragon scales remain intact as uskin */
                     You("merge with your scaly armor.");
                 } else { /* dragon scale mail reverts to scales */
                     /* similar to noarmor(invent.c),
                        shorten to "<color> scale mail" */
-                    Strcpy(buf, simpleonames(uarm));
+                    Strcpy(buf, simpleonames(player_armor));
                     strsubst(buf, " dragon ", " ");
                     /* tricky phrasing; dragon scale mail is singular, dragon
                        scales are plural (note: we don't use "set of scales",
@@ -640,16 +640,16 @@ polyself(int psflags)
                     /* uarm->spe enchantment remains unchanged;
                        re-converting scales to mail poses risk
                        of evaporation due to over enchanting */
-                    uarm->otyp += GRAY_DRAGON_SCALES - GRAY_DRAGON_SCALE_MAIL;
-                    uarm->dknown = 1;
-                    disp.botl = TRUE; /* AC is changing */
+                    player_armor->otyp += GRAY_DRAGON_SCALES - GRAY_DRAGON_SCALE_MAIL;
+                    player_armor->dknown = 1;
+                    disp.bottom_line = TRUE; /* AC is changing */
                 }
-                uskin = uarm;
-                uarm = (struct obj *) 0;
+                player_skin_if_dragon = player_armor;
+                player_armor = (struct obj *) 0;
                 /* save/restore hack */
-                uskin->owornmask |= I_SPECIAL;
+                player_skin_if_dragon->owornmask |= I_SPECIAL;
                 if (was_lit)
-                    maybe_adjust_light(uskin, arm_light);
+                    maybe_adjust_light(player_skin_if_dragon, arm_light);
                 update_inventory();
             }
         } else if (iswere) {
@@ -874,7 +874,7 @@ polymon(int mntmp)
 #endif
     }
 
-    if (uskin && mntmp != armor_to_dragon(uskin->otyp))
+    if (player_skin_if_dragon && mntmp != armor_to_dragon(player_skin_if_dragon->otyp))
         skinback(FALSE);
     break_armor();
     drop_weapon(1);
@@ -1004,7 +1004,7 @@ polymon(int mntmp)
     }
     check_strangling(TRUE); /* maybe start strangling */
 
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     gv.vision_full_recalc = 1;
     see_monsters();
     (void) encumbered_message();
@@ -1014,7 +1014,7 @@ polymon(int mntmp)
        wielding cockatrice corpse and hit by stone-to-flesh, becomes
        flesh golem above, now gets transformed back into stone golem;
        fortunately neither form uses #monster] */
-    if (!uarmg)
+    if (!player_armor_gloves)
         selftouch(no_longer_petrify_resistant);
 
     /* the explanation of '#monster' used to be shown sooner, but there are
@@ -1142,7 +1142,7 @@ break_armor(void)
     struct permonst *uptr = gy.youmonst.data;
 
     if (breakarm(uptr)) {
-        if ((otmp = uarm) != 0) {
+        if ((otmp = player_armor) != 0) {
             if (donning(otmp))
                 cancel_don();
             /* for gold DSM, we don't want Armor_gone() to report that it
@@ -1155,7 +1155,7 @@ break_armor(void)
             (void) Armor_gone();
             useup(otmp);
         }
-        if ((otmp = uarmc) != 0
+        if ((otmp = player_armor_cloak) != 0
             /* mummy wrapping adapts to small and very big sizes */
             && (otmp->otyp != MUMMY_WRAPPING || !WrappingAllowed(uptr))) {
             if (otmp->oartifact) {
@@ -1168,12 +1168,12 @@ break_armor(void)
                 useup(otmp);
             }
         }
-        if (uarmu) {
+        if (player_armor_undershirt) {
             Your("shirt rips to shreds!");
-            useup(uarmu);
+            useup(player_armor_undershirt);
         }
     } else if (sliparm(uptr)) {
-        if ((otmp = uarm) != 0 && racial_exception(&gy.youmonst, otmp) < 1) {
+        if ((otmp = player_armor) != 0 && racial_exception(&gy.youmonst, otmp) < 1) {
             if (donning(otmp))
                 cancel_don();
             Your("armor falls around you!");
@@ -1184,7 +1184,7 @@ break_armor(void)
             (void) Armor_gone();
             dropp(otmp);
         }
-        if ((otmp = uarmc) != 0
+        if ((otmp = player_armor_cloak) != 0
             /* mummy wrapping adapts to small and very big sizes */
             && (otmp->otyp != MUMMY_WRAPPING || !WrappingAllowed(uptr))) {
             if (is_whirly(uptr))
@@ -1194,7 +1194,7 @@ break_armor(void)
             (void) Cloak_off();
             dropp(otmp);
         }
-        if ((otmp = uarmu) != 0) {
+        if ((otmp = player_armor_undershirt) != 0) {
             if (is_whirly(uptr))
                 You("seep right through your shirt!");
             else
@@ -1204,7 +1204,7 @@ break_armor(void)
         }
     }
     if (has_horns(uptr)) {
-        if ((otmp = uarmh) != 0) {
+        if ((otmp = player_armor_hat) != 0) {
             if (is_flimsy(otmp) && !donning(otmp)) {
                 char hornbuf[BUFSZ];
 
@@ -1223,22 +1223,22 @@ break_armor(void)
         }
     }
     if (nohands(uptr) || verysmall(uptr)) {
-        if ((otmp = uarmg) != 0) {
+        if ((otmp = player_armor_gloves) != 0) {
             if (donning(otmp))
                 cancel_don();
             /* Drop weapon along with gloves */
-            You("drop your gloves%s!", uwep ? " and weapon" : "");
+            You("drop your gloves%s!", player_weapon ? " and weapon" : "");
             drop_weapon(0);
             (void) Gloves_off();
             /* Glib manipulation (ends immediately) handled by Gloves_off */
             dropp(otmp);
         }
-        if ((otmp = uarms) != 0) {
+        if ((otmp = player_armor_shield) != 0) {
             You("can no longer hold your shield!");
             (void) Shield_off();
             dropp(otmp);
         }
-        if ((otmp = uarmh) != 0) {
+        if ((otmp = player_armor_hat) != 0) {
             if (donning(otmp))
                 cancel_don();
             Your("%s falls to the %s!", helm_simple_name(otmp),
@@ -1249,7 +1249,7 @@ break_armor(void)
     }
     if (nohands(uptr) || verysmall(uptr)
         || slithy(uptr) || uptr->mlet == S_CENTAUR) {
-        if ((otmp = uarmf) != 0) {
+        if ((otmp = player_armor_footwear) != 0) {
             if (donning(otmp))
                 cancel_don();
             if (is_whirly(uptr))
@@ -1265,7 +1265,7 @@ break_armor(void)
        it/them on (should also come off if head is too tiny or too huge,
        but putting accessories on doesn't reject those cases [yet?]);
        amulet stays worn */
-    if ((otmp = ublindf) != 0 && !has_head(uptr)) {
+    if ((otmp = player_blindfold) != 0 && !has_head(uptr)) {
         int l;
         const char *eyewear = simpleonames(otmp); /* blindfold|towel|lenses */
 
@@ -1285,24 +1285,24 @@ drop_weapon(int alone)
     const char *what, *which, *whichtoo;
     boolean candropwep, candropswapwep, updateinv = TRUE;
 
-    if (uwep) {
+    if (player_weapon) {
         /* !alone check below is currently superfluous but in the
          * future it might not be so if there are monsters which cannot
          * wear gloves but can wield weapons
          */
         if (!alone || cantwield(gy.youmonst.data)) {
-            candropwep = canletgo(uwep, "");
-            candropswapwep = !u.using_two_weapons || canletgo(uswapwep, "");
+            candropwep = canletgo(player_weapon, "");
+            candropswapwep = !u.using_two_weapons || canletgo(player_secondary_weapon, "");
             if (alone) {
                 what = (candropwep && candropswapwep) ? "drop" : "release";
-                which = is_sword(uwep) ? "sword" : weapon_descr(uwep);
+                which = is_sword(player_weapon) ? "sword" : weapon_descr(player_weapon);
                 if (u.using_two_weapons) {
                     whichtoo =
-                        is_sword(uswapwep) ? "sword" : weapon_descr(uswapwep);
+                        is_sword(player_secondary_weapon) ? "sword" : weapon_descr(player_secondary_weapon);
                     if (strcmp(which, whichtoo))
                         which = "weapon";
                 }
-                if (uwep->quan != 1L || u.using_two_weapons)
+                if (player_weapon->quan != 1L || u.using_two_weapons)
                     which = makeplural(which);
 
                 You("find you must %s %s %s!", what,
@@ -1312,14 +1312,14 @@ drop_weapon(int alone)
                then don't drop it or explicitly update inventory; leave
                those actions to caller (or caller's caller, &c) */
             if (u.using_two_weapons) {
-                otmp = uswapwep;
+                otmp = player_secondary_weapon;
                 uswapwepgone();
                 if (otmp->in_use)
                     updateinv = FALSE;
                 else if (candropswapwep)
                     dropx(otmp);
             }
-            otmp = uwep;
+            otmp = player_weapon;
             uwepgone();
             if (otmp->in_use)
                 updateinv = FALSE;
@@ -1355,9 +1355,9 @@ rehumanize(void)
                mode; since we're wearing an amulet of unchanging we can't
                be wearing an amulet of life-saving */
             return; /* don't rehumanize after all */
-        } else if (uamul && uamul->otyp == AMULET_OF_UNCHANGING) {
-            Your("%s %s!", simpleonames(uamul), otense(uamul, "fail"));
-            uamul->dknown = 1;
+        } else if (player_amulet && player_amulet->otyp == AMULET_OF_UNCHANGING) {
+            Your("%s %s!", simpleonames(player_amulet), otense(player_amulet, "fail"));
+            player_amulet->dknown = 1;
             makeknown(AMULET_OF_UNCHANGING);
         }
     }
@@ -1382,14 +1382,14 @@ rehumanize(void)
     }
     nomul(0);
 
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     gv.vision_full_recalc = 1;
     (void) encumbered_message();
     if (was_flying && !Flying && u.monster_being_ridden)
         You("and %s return gently to the %s.",
             mon_nam(u.monster_being_ridden), surface(u.ux, u.uy));
     retouch_equipment(2);
-    if (!uarmg)
+    if (!player_armor_gloves)
         selftouch(no_longer_petrify_resistant);
 }
 
@@ -1407,7 +1407,7 @@ dobreathe(void)
         return ECMD_OK;
     }
     u.energy -= 15;
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
 
     if (!getdir((char *) 0))
         return ECMD_CANCEL;
@@ -1604,7 +1604,7 @@ dosummon(void)
         return ECMD_OK;
     }
     u.energy -= 10;
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
 
     You("call upon your brethren for help!");
     exercise(ATTRIBUTE_WISDOM, TRUE);
@@ -1645,7 +1645,7 @@ dogaze(void)
         return ECMD_OK;
     }
     u.energy -= 15;
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -1876,7 +1876,7 @@ domindblast(void)
         return ECMD_OK;
     }
     u.energy -= 10;
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
 
     You("concentrate.");
     pline("A wave of psychic energy pours out.");
@@ -1928,18 +1928,18 @@ uunstick(void)
 void
 skinback(boolean silently)
 {
-    if (uskin) {
-        int old_light = arti_light_radius(uskin);
+    if (player_skin_if_dragon) {
+        int old_light = arti_light_radius(player_skin_if_dragon);
 
         if (!silently)
             Your("skin returns to its original form.");
-        uarm = uskin;
-        uskin = (struct obj *) 0;
+        player_armor = player_skin_if_dragon;
+        player_skin_if_dragon = (struct obj *) 0;
         /* undo save/restore hack */
-        uarm->owornmask &= ~I_SPECIAL;
+        player_armor->owornmask &= ~I_SPECIAL;
 
-        if (artifact_light(uarm))
-            maybe_adjust_light(uarm, old_light);
+        if (artifact_light(player_armor))
+            maybe_adjust_light(player_armor, old_light);
     }
 }
 
@@ -2156,7 +2156,7 @@ ugolemeffects(int damtype, int dam)
         u.mh += heal;
         if (u.mh > u.mhmax)
             u.mh = u.mhmax;
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         pline("Strangely, you feel better than before.");
         exercise(ATTRIBUTE_STRENGTH, TRUE);
     }

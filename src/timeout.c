@@ -552,7 +552,7 @@ done_timeout(int how, int which)
 
     /* life-saved */
     *intrinsic_p &= ~I_SPECIAL;
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
 }
 
 void
@@ -718,7 +718,7 @@ nh_timeout(void)
             case DEAF:
                 set_itimeout(&HDeaf, 1L);
                 make_deaf(0L, TRUE);
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
                 if (!Deaf)
                     stop_occupation();
                 break;
@@ -771,7 +771,7 @@ nh_timeout(void)
             case FLYING:
                 /* timed Flying is via #wizintrinsic only */
                 if (was_flying && !Flying) {
-                    disp.botl = TRUE;
+                    disp.bottom_line = TRUE;
                     You("land.");
                     spoteffects(TRUE);
                 }
@@ -804,8 +804,8 @@ nh_timeout(void)
                        uswapwep case is always a no-op because two-weapon
                        combat is only possible with two one-handed weapons
                        or weapon tools, not corpses */
-                    wielding_corpse(uwep, (struct obj *) 0, FALSE);
-                    wielding_corpse(uswapwep, (struct obj *) 0, FALSE);
+                    wielding_corpse(player_weapon, (struct obj *) 0, FALSE);
+                    wielding_corpse(player_secondary_weapon, (struct obj *) 0, FALSE);
                 }
                 break;
             case FIRE_RESISTANCE:
@@ -853,9 +853,9 @@ nh_timeout(void)
                 done_timeout(DIED, STRANGLED);
                 /* must be declining to die in explore|wizard mode;
                    treat like being cured of strangulation by prayer */
-                if (uamul && uamul->otyp == AMULET_OF_STRANGULATION) {
+                if (player_amulet && player_amulet->otyp == AMULET_OF_STRANGULATION) {
                     Your("amulet vanishes!");
-                    useup(uamul);
+                    useup(player_amulet);
                 }
                 break;
             case FUMBLING:
@@ -917,7 +917,7 @@ fall_asleep(int how_long, boolean wakeup_msg)
         /* 3.7: how_long is negative so wasn't actually incrementing the
            deafness timeout when it used to be passed as-is */
         incr_itimeout(&HDeaf, abs(how_long));
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         ga.afternmv = Hear_again; /* this won't give any messages */
     }
 #endif
@@ -1206,7 +1206,7 @@ slip_or_trip(void)
         } else {
             You("trip over %s.", what);
         }
-        if (!uarmf && otmp->otyp == CORPSE
+        if (!player_armor_footwear && otmp->otyp == CORPSE
             && touch_petrifies(&mons[otmp->corpsenm]) && !Stone_resistance) {
             Sprintf(gk.killer.name, "tripping over %s corpse",
                     an(mons[otmp->corpsenm].pmnames[NEUTRAL]));
@@ -1829,7 +1829,7 @@ do_storms(void)
         Soundeffect(se_kaboom_boom_boom, 80);
         pline("Kaboom!!!  Boom!!  Boom!!");
         incr_itimeout(&HDeaf, rn1(20, 30));
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         if (!u.uinvulnerable) {
             stop_occupation();
             nomul(-3);

@@ -92,7 +92,7 @@ erode_obj_text(struct obj *otmp, char *buf)
 
     if (erosion)
         wipeout_text(buf, (int) (strlen(buf) * erosion / (2 * MAX_ERODE)),
-                     otmp->o_id ^ (unsigned) ubirthday);
+                     otmp->o_id ^ (unsigned) player_birthday);
     return buf;
 }
 
@@ -214,7 +214,7 @@ hawaiian_motif(struct obj *shirt, char *buf)
 
     /* a tourist's starting shirt always has the same o_id; we need some
        additional randomness or else its design will never differ */
-    unsigned motif = shirt->o_id ^ (unsigned) ubirthday;
+    unsigned motif = shirt->o_id ^ (unsigned) player_birthday;
 
     Strcpy(buf, hawaiian_motifs[motif % SIZE(hawaiian_motifs)]);
     return buf;
@@ -242,7 +242,7 @@ hawaiian_design(struct obj *shirt, char *buf)
     /* This hash method is slightly different than the one in hawaiian_motif;
        using the same formula in both cases may lead to some shirt combos
        never appearing, if the sizes of the two lists have common factors. */
-    unsigned bg = shirt->o_id ^ (unsigned) ~ubirthday;
+    unsigned bg = shirt->o_id ^ (unsigned) ~player_birthday;
 
     Sprintf(buf, "%s on %s background",
             makeplural(hawaiian_motif(shirt, buf)),
@@ -382,11 +382,11 @@ doread(void)
             return ECMD_OK;
         }
         /* can't read shirt worn under suit (under cloak is ok though) */
-        if ((otyp == T_SHIRT || otyp == HAWAIIAN_SHIRT) && uarm
-            && scroll == uarmu) {
+        if ((otyp == T_SHIRT || otyp == HAWAIIAN_SHIRT) && player_armor
+            && scroll == player_armor_undershirt) {
             pline("%s shirt is obscured by %s%s.",
-                  scroll->unpaid ? "That" : "Your", shk_your(buf, uarm),
-                  suit_simple_name(uarm));
+                  scroll->unpaid ? "That" : "Your", shk_your(buf, player_armor),
+                  suit_simple_name(player_armor));
             return ECMD_OK;
         }
         if (otyp == HAWAIIAN_SHIRT) {
@@ -786,7 +786,7 @@ recharge(struct obj *obj, int curse_bless)
     } else if (obj->oclass == RING_CLASS && objects[obj->otyp].oc_charged) {
         /* charging does not affect ring's curse/bless status */
         int s = is_blessed ? random(3) : is_cursed ? -random(2) : 1;
-        boolean is_on = (obj == uleft || obj == uright);
+        boolean is_on = (obj == player_finger_left || obj == player_finger_right);
 
         /* destruction depends on current state, not adjustment */
         if (obj->spe > random_integer_between_zero_and(7) || obj->spe <= -5) {
@@ -798,7 +798,7 @@ recharge(struct obj *obj, int curse_bless)
             useup(obj), obj = 0;
             losehp(Maybe_Half_Phys(s), "exploding ring", KILLED_BY_AN);
         } else {
-            long mask = is_on ? (obj == uleft ? LEFT_RING : RIGHT_RING) : 0L;
+            long mask = is_on ? (obj == player_finger_left ? LEFT_RING : RIGHT_RING) : 0L;
 
             pline("%s spins %sclockwise for a moment.", Yname2(obj),
                   s < 0 ? "counter" : "");
@@ -1423,10 +1423,10 @@ seffect_remove_curse(struct obj **sobjp)
                 /* handle a couple of special cases; we don't
                    allow auxiliary weapon slots to be used to
                    artificially increase number of worn items */
-                if (obj == uswapwep) {
+                if (obj == player_secondary_weapon) {
                     if (!u.using_two_weapons)
                         wornmask = 0L;
-                } else if (obj == uquiver) {
+                } else if (obj == player_quiver) {
                     if (obj->oclass == WEAPON_CLASS) {
                         /* mergeable weapon test covers ammo,
                            missiles, spears, daggers & knives */
@@ -1533,42 +1533,42 @@ seffect_enchant_weapon(struct obj **sobjp)
     /* [What about twoweapon mode?  Proofing/repairing/enchanting both
        would be too powerful, but shouldn't we choose randomly between
        primary and secondary instead of always acting on primary?] */
-    if (confused && uwep
-        && erosion_matters(uwep) && uwep->oclass != ARMOR_CLASS) {
-        old_erodeproof = (uwep->oerodeproof != 0);
+    if (confused && player_weapon
+        && erosion_matters(player_weapon) && player_weapon->oclass != ARMOR_CLASS) {
+        old_erodeproof = (player_weapon->oerodeproof != 0);
         new_erodeproof = !scursed;
-        uwep->oerodeproof = 0; /* for messages */
+        player_weapon->oerodeproof = 0; /* for messages */
         if (Blind) {
-            uwep->rknown = FALSE;
+            player_weapon->rknown = FALSE;
             Your("weapon feels warm for a moment.");
         } else {
-            uwep->rknown = TRUE;
-            pline("%s covered by a %s %s %s!", Yobjnam2(uwep, "are"),
+            player_weapon->rknown = TRUE;
+            pline("%s covered by a %s %s %s!", Yobjnam2(player_weapon, "are"),
                   scursed ? "mottled" : "shimmering",
                   hcolor(scursed ? NH_PURPLE : NH_GOLDEN),
                   scursed ? "glow" : "shield");
         }
-        if (new_erodeproof && (uwep->oeroded || uwep->oeroded2)) {
-            uwep->oeroded = uwep->oeroded2 = 0;
+        if (new_erodeproof && (player_weapon->oeroded || player_weapon->oeroded2)) {
+            player_weapon->oeroded = player_weapon->oeroded2 = 0;
             pline("%s as good as new!",
-                  Yobjnam2(uwep, Blind ? "feel" : "look"));
+                  Yobjnam2(player_weapon, Blind ? "feel" : "look"));
         }
         if (old_erodeproof && !new_erodeproof) {
             /* restore old_erodeproof before shop charges */
-            uwep->oerodeproof = 1;
-            costly_alteration(uwep, COST_DEGRD);
+            player_weapon->oerodeproof = 1;
+            costly_alteration(player_weapon, COST_DEGRD);
         }
-        uwep->oerodeproof = new_erodeproof ? 1 : 0;
+        player_weapon->oerodeproof = new_erodeproof ? 1 : 0;
         return;
     }
     if (!chwepon(sobj, scursed ? -1
-                 : !uwep ? 1
-                 : (uwep->spe >= 9) ? !random_integer_between_zero_and(uwep->spe)
-                 : sblessed ? random(3 - uwep->spe / 3)
+                 : !player_weapon ? 1
+                 : (player_weapon->spe >= 9) ? !random_integer_between_zero_and(player_weapon->spe)
+                 : sblessed ? random(3 - player_weapon->spe / 3)
                  : 1))
         *sobjp = 0; /* nothing enchanted: strange_feeling -> useup */
-    if (uwep)
-        cap_spe(uwep);
+    if (player_weapon)
+        cap_spe(player_weapon);
 }
 
 staticfn void
@@ -1704,7 +1704,7 @@ seffect_charging(struct obj **sobjp)
             else
                 u.energy = u.energy_max; /* otherwise restore current to max  */
         }
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         return;
     }
     /* known = TRUE; -- handled inline here */
@@ -2207,13 +2207,13 @@ drop_boulder_on_player(
         && !noncorporeal(gy.youmonst.data) && !unsolid(gy.youmonst.data)) {
         You("are hit by %s!", doname(otmp2));
         dmg = (int) (dmgval(otmp2, &gy.youmonst) * otmp2->quan);
-        if (uarmh && helmet_protects) {
-            if (hard_helmet(uarmh)) {
+        if (player_armor_hat && helmet_protects) {
+            if (hard_helmet(player_armor_hat)) {
                 pline("Fortunately, you are wearing a hard helmet.");
                 if (dmg > 2)
                     dmg = 2;
             } else if (flags.verbose) {
-                pline("%s does not protect you.", Yname2(uarmh));
+                pline("%s does not protect you.", Yname2(player_armor_hat));
             }
         }
     } else
@@ -2462,7 +2462,7 @@ litroom(
      *  that we don't remember them if they are out of sight.
      */
     if (Punished && !on && !Blind)
-        move_bc(1, 0, uball->ox, uball->oy, uchain->ox, uchain->oy);
+        move_bc(1, 0, player_ball->ox, player_ball->oy, player_chain->ox, player_chain->oy);
 
     if (Is_rogue_level(&u.uz)) {
         /* Can't use do_clear_area because MAX_RADIUS is too small */
@@ -2494,7 +2494,7 @@ litroom(
 
         /* replace ball&chain */
         if (Punished && !on)
-            move_bc(0, 0, uball->ox, uball->oy, uchain->ox, uchain->oy);
+            move_bc(0, 0, player_ball->ox, player_ball->oy, player_chain->ox, player_chain->oy);
     }
 
     gv.vision_full_recalc = 1; /* delayed vision recalculation */
@@ -2904,7 +2904,7 @@ punish(struct obj *sobj)
         You("are being punished for your misbehavior!");
     if (Punished) {
         Your("iron ball gets heavier.");
-        uball->owt += IRON_BALL_W_INCR * (1 + cursed_levy);
+        player_ball->owt += IRON_BALL_W_INCR * (1 + cursed_levy);
         return;
     }
     if (amorphous(gy.youmonst.data) || is_whirly(gy.youmonst.data)
@@ -2939,7 +2939,7 @@ punish(struct obj *sobj)
 void
 unpunish(void)
 {
-    struct obj *savechain = uchain;
+    struct obj *savechain = player_chain;
 
     /* chain goes away */
     setworn((struct obj *) 0, WEARING_CHAIN); /* sets 'uchain' to Null */

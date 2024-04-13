@@ -151,8 +151,8 @@ goodpos(
                 return FALSE;
             else if (mtmp == &gy.youmonst)
                 return (Levitation || Flying
-                        || (Fire_resistance && Wwalking && uarmf
-                            && uarmf->oerodeproof)
+                        || (Fire_resistance && Wwalking && player_armor_footwear
+                            && player_armor_footwear->oerodeproof)
                         || (Upolyd && likes_lava(gy.youmonst.data)));
             else
                 return (m_in_air(mtmp) || likes_lava(mdat));
@@ -440,7 +440,7 @@ teleds(coordxy nux, coordxy nuy, int teleds_flags)
         /* unearth it */
         buried_ball_to_punishment();
     }
-    ball_active = (Punished && uball->where != OBJ_FREE);
+    ball_active = (Punished && player_ball->where != OBJ_FREE);
     if (!ball_active
         || near_capacity() > SLIGHTLY_ENCUMBERED
         || distmin(u.ux, u.uy, nux, nuy) > 1)
@@ -462,7 +462,7 @@ teleds(coordxy nux, coordxy nuy, int teleds_flags)
      * rock in the way), in which case it teleports the ball on its own.
      */
     if (ball_active) {
-        if (!carried(uball) && distmin(nux, nuy, uball->ox, uball->oy) <= 2)
+        if (!carried(player_ball) && distmin(nux, nuy, player_ball->ox, player_ball->oy) <= 2)
             ball_still_in_range = TRUE; /* don't have to move the ball */
         else if (!allow_drag)
             unplacebc(); /* have to move the ball */
@@ -497,7 +497,7 @@ teleds(coordxy nux, coordxy nuy, int teleds_flags)
             /* dragging fails if hero is encumbered beyond 'burdened' */
             /* uball might've been cleared via drag_ball -> spoteffects ->
                dotrap -> magic trap unpunishment */
-            ball_active = (Punished && uball->where != OBJ_FREE);
+            ball_active = (Punished && player_ball->where != OBJ_FREE);
             if (ball_active)
                 unplacebc(); /* to match placebc() below */
         }
@@ -507,7 +507,7 @@ teleds(coordxy nux, coordxy nuy, int teleds_flags)
        the old position if allow_drag is true... */
     u_on_newpos(nux, nuy); /* set u.<x,y>, usteed-><mx,my>; cliparound() */
     fill_pit(u.ux0, u.uy0);
-    if (ball_active && uchain && uchain->where == OBJ_FREE)
+    if (ball_active && player_chain && player_chain->where == OBJ_FREE)
         placebc(); /* put back the ball&chain if they were taken off map */
     update_player_regions();
     /*
@@ -1093,7 +1093,7 @@ dotele(
         } else {
             /* bypassing spelleffects(); apply energy cost directly */
             u.energy -= energy;
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         }
     }
 

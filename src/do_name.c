@@ -402,10 +402,10 @@ oname(
         artifact_exists(obj, name, TRUE, oflgs);
     if (obj->oartifact) {
         /* can't dual-wield with artifact as secondary weapon */
-        if (obj == uswapwep)
+        if (obj == player_secondary_weapon)
             untwoweapon();
         /* activate warning if you've just named your weapon "Sting" */
-        if (obj == uwep)
+        if (obj == player_weapon)
             set_artifact_intrinsic(obj, TRUE, WEARING_WEAPON);
         /* if obj is owned by a shop, increase your bill */
         if (obj->unpaid)

@@ -735,7 +735,7 @@ doconsult(struct monster *oracl)
         break;
     }
     money2mon(oracl, (long) u_pay);
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     if (!u.player_event_history.major_oracle && !u.player_event_history.minor_oracle)
         record_achievement(ACH_ORCL);
     add_xpts = 0; /* first oracle of each type gives experience points */

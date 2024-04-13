@@ -420,8 +420,8 @@ del_engr_at(coordxy x, coordxy y)
 int
 freehand(void)
 {
-    return (!uwep || !welded(uwep)
-            || (!bimanual(uwep) && (!uarms || !uarms->cursed)));
+    return (!player_weapon || !welded(player_weapon)
+            || (!bimanual(player_weapon) && (!player_armor_shield || !player_armor_shield->cursed)));
 }
 
 /* getobj callback for an object to engrave with */
@@ -773,7 +773,7 @@ doengrave_sfx_item(struct _doengrave_ctx *de)
         break;
 
     case TOOL_CLASS:
-        if (de->otmp == ublindf) {
+        if (de->otmp == player_blindfold) {
             pline(
                 "That is a bit difficult to engrave with, don't you think?");
             de->ret = ECMD_FAIL;
@@ -926,7 +926,7 @@ doengrave(void)
     /* There's no reason you should be able to write with a wand
      * while both your hands are tied up.
      */
-    if (!freehand() && de->otmp != uwep && !de->otmp->owornmask) {
+    if (!freehand() && de->otmp != player_weapon && !de->otmp->owornmask) {
         You("have no free %s to write with!", body_part(HAND));
         goto doengr_exit;
     }

@@ -15,12 +15,12 @@ staticfn void worn_item_removal(struct monster *, struct obj *);
 staticfn const char *
 equipname(struct obj *otmp)
 {
-    return ((otmp == uarmu) ? shirt_simple_name(otmp)
-            : (otmp == uarmf) ? boots_simple_name(otmp)
-              : (otmp == uarms) ? shield_simple_name(otmp)
-                : (otmp == uarmg) ? gloves_simple_name(otmp)
-                  : (otmp == uarmc) ? cloak_simple_name(otmp)
-                    : (otmp == uarmh) ? helm_simple_name(otmp)
+    return ((otmp == player_armor_undershirt) ? shirt_simple_name(otmp)
+            : (otmp == player_armor_footwear) ? boots_simple_name(otmp)
+              : (otmp == player_armor_shield) ? shield_simple_name(otmp)
+                : (otmp == player_armor_gloves) ? gloves_simple_name(otmp)
+                  : (otmp == player_armor_cloak) ? cloak_simple_name(otmp)
+                    : (otmp == player_armor_hat) ? helm_simple_name(otmp)
                       : suit_simple_name(otmp));
 }
 
@@ -126,7 +126,7 @@ stealgold(struct monster *mtmp)
         if (!tele_restrict(mtmp))
             (void) rloc(mtmp, RLOC_MSG);
         monflee(mtmp, 0, FALSE, FALSE);
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     }
 }
 
@@ -254,23 +254,23 @@ remove_worn_item(
     obj->in_use = 1;
 
     if (obj->owornmask & WEARING_ARMOR) {
-        if (obj == uskin) {
+        if (obj == player_skin_if_dragon) {
             impossible("Removing embedded scales?");
             skinback(TRUE); /* uarm = uskin; uskin = 0; */
         }
-        if (obj == uarm)
+        if (obj == player_armor)
             (void) Armor_off();
-        else if (obj == uarmc)
+        else if (obj == player_armor_cloak)
             (void) Cloak_off();
-        else if (obj == uarmf)
+        else if (obj == player_armor_footwear)
             (void) Boots_off();
-        else if (obj == uarmg)
+        else if (obj == player_armor_gloves)
             (void) Gloves_off();
-        else if (obj == uarmh)
+        else if (obj == player_armor_hat)
             (void) Helmet_off();
-        else if (obj == uarms)
+        else if (obj == player_armor_shield)
             (void) Shield_off();
-        else if (obj == uarmu)
+        else if (obj == player_armor_undershirt)
             (void) Shirt_off();
         /* catchall -- should never happen */
         else
@@ -282,11 +282,11 @@ remove_worn_item(
     } else if (obj->owornmask & WEARING_TOOL) {
         Blindf_off(obj);
     } else if (obj->owornmask & WEARING_WEAPONS) {
-        if (obj == uwep)
+        if (obj == player_weapon)
             uwepgone();
-        if (obj == uswapwep)
+        if (obj == player_secondary_weapon)
             uswapwepgone();
-        if (obj == uquiver)
+        if (obj == player_quiver)
             uqwepgone();
     }
 
@@ -334,7 +334,7 @@ worn_item_removal(
         /* when removing attached iron ball, caller passes 'uchain';
            when formatted, it will be "an iron chain (attached to you)";
            change "an" to "the" rather than to "your" in that situation */
-        (void) strsubst(objbuf, article, (obj == uchain) ? "the " : "your ");
+        (void) strsubst(objbuf, article, (obj == player_chain) ? "the " : "your ");
     }
     /* these ought to be guarded against matching user-supplied name */
     (void) strsubst(objbuf, " (being worn)", "");
@@ -389,15 +389,15 @@ steal(struct monster *mtmp, char *objnambuf)
         (void) maybe_finished_meal(FALSE);
 
     icnt = inv_cnt(FALSE); /* don't include gold */
-    if (!icnt || (icnt == 1 && uskin)) {
+    if (!icnt || (icnt == 1 && player_skin_if_dragon)) {
         /* Not even a thousand men in armor can strip a naked man. */
  nothing_to_steal:
         /* nymphs might target uchain if invent is empty; monkeys won't;
            hero becomes unpunished but nymph ends up empty handed */
         if (Punished && !monkey_business && random_integer_between_zero_and(4)) {
             /* uball is not carried (uchain never is) */
-            assert(uball != NULL && uball->where == OBJ_FLOOR);
-            worn_item_removal(mtmp, uchain);
+            assert(player_ball != NULL && player_ball->where == OBJ_FLOOR);
+            worn_item_removal(mtmp, player_chain);
         } else if (u.utrap && u.utraptype == TT_BURIEDBALL
                    && !monkey_business && !random_integer_between_zero_and(4)) {
             boolean dummy;
@@ -418,27 +418,27 @@ steal(struct monster *mtmp, char *objnambuf)
         return 1; /* let her flee */
     }
 
-    if (monkey_business || uarmg) {
+    if (monkey_business || player_armor_gloves) {
         ; /* skip ring special cases */
     } else if (Adornment & LEFT_RING) {
-        otmp = uleft;
+        otmp = player_finger_left;
         goto gotobj;
     } else if (Adornment & RIGHT_RING) {
-        otmp = uright;
+        otmp = player_finger_right;
         goto gotobj;
     }
 
  retry:
     tmp = 0;
     for (otmp = gi.invent; otmp; otmp = otmp->nobj)
-        if ((!uarm || otmp != uarmc) && otmp != uskin
+        if ((!player_armor || otmp != player_armor_cloak) && otmp != player_skin_if_dragon
             && otmp->oclass != COIN_CLASS)
             tmp += (otmp->owornmask & (WEARING_ARMOR | WEARING_ACCESSORY)) ? 5 : 1;
     if (!tmp)
         goto nothing_to_steal;
     tmp = random_integer_between_zero_and(tmp);
     for (otmp = gi.invent; otmp; otmp = otmp->nobj)
-        if ((!uarm || otmp != uarmc) && otmp != uskin
+        if ((!player_armor || otmp != player_armor_cloak) && otmp != player_skin_if_dragon
             && otmp->oclass != COIN_CLASS) {
             tmp -= (otmp->owornmask & (WEARING_ARMOR | WEARING_ACCESSORY)) ? 5 : 1;
             if (tmp < 0)
@@ -449,19 +449,19 @@ steal(struct monster *mtmp, char *objnambuf)
         return 0;
     }
     /* can't steal ring(s) while wearing gloves */
-    if ((otmp == uleft || otmp == uright) && uarmg)
-        otmp = uarmg;
+    if ((otmp == player_finger_left || otmp == player_finger_right) && player_armor_gloves)
+        otmp = player_armor_gloves;
     /* can't steal gloves while wielding - so steal the wielded item. */
-    if (otmp == uarmg && uwep)
-        otmp = uwep;
+    if (otmp == player_armor_gloves && player_weapon)
+        otmp = player_weapon;
     /* can't steal armor while wearing cloak - so steal the cloak. */
-    else if (otmp == uarm && uarmc)
-        otmp = uarmc;
+    else if (otmp == player_armor && player_armor_cloak)
+        otmp = player_armor_cloak;
     /* can't steal shirt while wearing cloak or suit */
-    else if (otmp == uarmu && uarmc)
-        otmp = uarmc;
-    else if (otmp == uarmu && uarm)
-        otmp = uarm;
+    else if (otmp == player_armor_undershirt && player_armor_cloak)
+        otmp = player_armor_cloak;
+    else if (otmp == player_armor_undershirt && player_armor)
+        otmp = player_armor;
 
  gotobj:
     if (otmp->o_id == gs.stealoid)
@@ -478,17 +478,17 @@ steal(struct monster *mtmp, char *objnambuf)
 
         /* is the player prevented from voluntarily giving up this item?
            (ignores loadstones; the !can_carry() check will catch those) */
-        if (otmp == uball)
+        if (otmp == player_ball)
             ostuck = TRUE; /* effectively worn; curse is implicit */
-        else if (otmp == uquiver || (otmp == uswapwep && !u.using_two_weapons))
+        else if (otmp == player_quiver || (otmp == player_secondary_weapon && !u.using_two_weapons))
             ostuck = FALSE; /* not really worn; curse doesn't matter */
         else
             ostuck = ((otmp->cursed && otmp->owornmask)
                       /* nymphs can steal rings from under
                          cursed weapon but animals can't */
-                      || (otmp == RING_ON_PRIMARY && welded(uwep))
-                      || (otmp == RING_ON_SECONDARY && welded(uwep)
-                          && bimanual(uwep)));
+                      || (otmp == RING_ON_PRIMARY && welded(player_weapon))
+                      || (otmp == RING_ON_SECONDARY && welded(player_weapon)
+                          && bimanual(player_weapon)));
 
         if (ostuck || can_carry(mtmp, otmp) == 0) {
             static const char *const how[] = {
@@ -585,8 +585,8 @@ steal(struct monster *mtmp, char *objnambuf)
     } else if (otmp->owornmask) { /* weapon or ball&chain */
         struct obj *item = otmp;
 
-        if (otmp == uball && uchain != NULL)
-            item = uchain; /* yields a more accurate 'takes off' message */
+        if (otmp == player_ball && player_chain != NULL)
+            item = player_chain; /* yields a more accurate 'takes off' message */
         worn_item_removal(mtmp, item);
         /* if we switched from uball to uchain for the preface message,
            then unpunish() took place and both those pointers are now Null,
@@ -639,10 +639,10 @@ mpickobj(struct monster *mtmp, struct obj *otmp)
         impossible("monster (%s) taking or picking up nothing?",
                    pmname(mtmp->data, Mgender(mtmp)));
         return 1;
-    } else if (otmp == uball || otmp == uchain) {
+    } else if (otmp == player_ball || otmp == player_chain) {
         impossible("monster (%s) taking or picking up attached %s (%s)?",
                    pmname(mtmp->data, Mgender(mtmp)),
-                   (otmp == uchain) ? "chain" : "ball", simpleonames(otmp));
+                   (otmp == player_chain) ? "chain" : "ball", simpleonames(otmp));
         return 0;
     }
     /* if monster is acquiring a thrown or kicked object, the throwing
@@ -751,20 +751,20 @@ stealamulet(struct monster *mtmp)
     if (otmp) { /* we have something to snatch */
         /* take off outer gear if we're targeting [hypothetical]
            quest artifact suit, shirt, gloves, or rings */
-        if ((otmp == uarm || otmp == uarmu) && uarmc)
-            remove_worn_item(uarmc, FALSE);
-        if (otmp == uarmu && uarm)
-            remove_worn_item(uarm, FALSE);
-        if ((otmp == uarmg || ((otmp == uright || otmp == uleft) && uarmg))
-            && uwep) {
+        if ((otmp == player_armor || otmp == player_armor_undershirt) && player_armor_cloak)
+            remove_worn_item(player_armor_cloak, FALSE);
+        if (otmp == player_armor_undershirt && player_armor)
+            remove_worn_item(player_armor, FALSE);
+        if ((otmp == player_armor_gloves || ((otmp == player_finger_right || otmp == player_finger_left) && player_armor_gloves))
+            && player_weapon) {
             /* gloves are about to be unworn; unwield weapon(s) first */
             if (u.using_two_weapons)    /* remove_worn_item(uswapwep) indirectly */
-                remove_worn_item(uswapwep, FALSE); /* clears u.twoweap */
-            remove_worn_item(uwep, FALSE);
+                remove_worn_item(player_secondary_weapon, FALSE); /* clears u.twoweap */
+            remove_worn_item(player_weapon, FALSE);
         }
-        if ((otmp == uright || otmp == uleft) && uarmg)
+        if ((otmp == player_finger_right || otmp == player_finger_left) && player_armor_gloves)
             /* calls Gloves_off() to handle wielded cockatrice corpse */
-            remove_worn_item(uarmg, FALSE);
+            remove_worn_item(player_armor_gloves, FALSE);
 
         /* finally, steal the target item */
         if (otmp->owornmask)
@@ -789,7 +789,7 @@ maybe_absorb_item(
     struct obj *obj,
     int ochance, int achance) /* percent chance for ordinary item, artifact */
 {
-    if (obj == uball || obj == uchain || obj->oclass == ROCK_CLASS
+    if (obj == player_ball || obj == player_chain || obj->oclass == ROCK_CLASS
         || obj_resists(obj, 100 - ochance, 100 - achance)
         || !touch_artifact(obj, mon))
         return;

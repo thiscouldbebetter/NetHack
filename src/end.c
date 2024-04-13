@@ -559,7 +559,7 @@ dump_everything(
     putstr(0, 0, "");
 
     /* game start and end date+time to disambiguate version date+time */
-    Strcpy(datetimebuf, yyyymmddhhmmss(ubirthday));
+    Strcpy(datetimebuf, yyyymmddhhmmss(player_birthday));
     Sprintf(pbuf, "Game began %4.4s-%2.2s-%2.2s %2.2s:%2.2s:%2.2s",
             &datetimebuf[0], &datetimebuf[4], &datetimebuf[6],
             &datetimebuf[8], &datetimebuf[10], &datetimebuf[12]);
@@ -733,7 +733,7 @@ savelife(int how)
 
     if (u.utrap && u.utraptype == TT_LAVA)
         reset_utrap(FALSE);
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     u.risen_from_grave = NON_PM;
     HUnchanging = 0L;
     curs_on_u();
@@ -885,7 +885,7 @@ done_object_cleanup(void)
     /* if Punished hero dies during level change or dies or quits while
        swallowed, uball and uchain will be in limbo; put them on floor
        so bones will have them and object list cleanup finds them */
-    if (uchain && uchain->where == OBJ_FREE) {
+    if (player_chain && player_chain->where == OBJ_FREE) {
         /* placebc(); */
         lift_covet_and_placebc(override_restriction);
     }
@@ -1028,10 +1028,10 @@ done(int how)
         || (how == QUIT && done_stopprint)) {
         /* skip status update if panicking or disconnected
            or answer of 'q' to "Really quit?" */
-        disp.botl = disp.botlx = disp.time_botl = FALSE;
+        disp.bottom_line = disp.bottom_line_x = disp.time_bottom_line = FALSE;
     } else {
         /* otherwise force full status update */
-        disp.botlx = TRUE;
+        disp.bottom_line_x = TRUE;
         bot();
     }
 
@@ -1064,7 +1064,7 @@ done(int how)
                negative (-1 is used as a flag in some circumstances
                which don't apply when actually dying due to HP loss) */
             u.hit_points = u.mh = 0;
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         }
     }
     if (Lifesaved && (how <= GENOCIDED)) {
@@ -1076,8 +1076,8 @@ done(int how)
             You("vomit ...");
         You_feel("much better!");
         pline_The("medallion crumbles to dust!");
-        if (uamul)
-            useup(uamul);
+        if (player_amulet)
+            useup(player_amulet);
 
         (void) adjust_attribute(ATTRIBUTE_CONSTITUTION, -1, TRUE);
         savelife(how);
@@ -1150,8 +1150,8 @@ really_done(int how)
     /* remember time of death here instead of having bones, rip, and
        topten figure it out separately and possibly getting different
        time or even day if player is slow responding to --More-- */
-    urealtime.finish_time = endtime = getnow();
-    urealtime.realtime += timet_delta(endtime, urealtime.start_timing);
+    player_realtime.finish_time = endtime = getnow();
+    player_realtime.realtime += timet_delta(endtime, player_realtime.start_timing);
     /* collect these for end of game disclosure (not used during play) */
     iflags.at_night = night();
     iflags.at_midnight = midnight();

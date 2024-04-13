@@ -401,8 +401,8 @@ bee_eat_jelly(struct monster *mon, struct obj *obj)
    gold dragon scales/mail, nor from gold dragons, only from the hero */
 #define flees_light(mon) \
     ((mon)->data == &mons[PM_GREMLIN]                                     \
-     && ((uwep && uwep->lamplit && artifact_light(uwep))                  \
-         || (uarm && uarm->lamplit && artifact_light(uarm)))              \
+     && ((player_weapon && player_weapon->lamplit && artifact_light(player_weapon))                  \
+         || (player_armor && player_armor->lamplit && artifact_light(player_armor)))              \
      /* not applicable if mon can't see or hero isn't in line of sight */ \
      && mon->mcansee && couldsee(mon->mx, mon->my))                       \
      /* doesn't matter if hero is invisible--light being emitted isn't */
@@ -452,10 +452,10 @@ monflee(
                        (Sunsword) or uarm (gold dragon scales/mail) or both;
                        TODO? check for both and describe the one which is
                        emitting light with a bigger radius */
-                    const char *lsrc = (uwep && artifact_light(uwep))
-                                       ? bare_artifactname(uwep)
-                                       : (uarm && artifact_light(uarm))
-                                         ? yname(uarm)
+                    const char *lsrc = (player_weapon && artifact_light(player_weapon))
+                                       ? bare_artifactname(player_weapon)
+                                       : (player_armor && artifact_light(player_armor))
+                                         ? yname(player_armor)
                                          : "[its imagination?]";
 
                     pline("%s flees from the painful light of %s.",
@@ -917,7 +917,7 @@ mon_would_take_item(struct monster *mtmp, struct obj *otmp)
 {
     int pctload = (curr_mon_load(mtmp) * 100) / max_mon_load(mtmp);
 
-    if (otmp == uball || otmp == uchain)
+    if (otmp == player_ball || otmp == player_chain)
         return FALSE;
     if (mtmp->mtame && otmp->cursed)
         return FALSE; /* note: will get overridden if mtmp will eat otmp */

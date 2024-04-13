@@ -80,7 +80,7 @@ beehive_mon_sound(struct monster *mtmp)
         case 2:
             Soundeffect(se_bees, 100);
             You_hear("bees in your %sbonnet!",
-                     uarmh ? "" : "(nonexistent) ");
+                     player_armor_hat ? "" : "(nonexistent) ");
             break;
         }
         return TRUE;
@@ -1156,13 +1156,13 @@ domonnoise(struct monster *mtmp)
         break;
     case MS_NURSE:
         verbl_msg_mcan = "I hate this job!";
-        if (uwep && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep)))
+        if (player_weapon && (player_weapon->oclass == WEAPON_CLASS || is_weptool(player_weapon)))
             verbl_msg = "Put that weapon away before you hurt someone!";
-        else if (uarmc || uarm || uarmh || uarms || uarmg || uarmf)
+        else if (player_armor_cloak || player_armor || player_armor_hat || player_armor_shield || player_armor_gloves || player_armor_footwear)
             verbl_msg = Role_if(PM_HEALER)
                             ? "Doc, I can't help you unless you cooperate."
                             : "Please undress so I can examine you.";
-        else if (uarmu)
+        else if (player_armor_undershirt)
             verbl_msg = "Take off your shirt, please.";
         else
             verbl_msg = "Relax, this won't hurt a bit.";
@@ -1426,11 +1426,11 @@ tiphat(void)
     struct obj *otmp;
     int x, y, range, glyph, vismon, unseen, statue, res;
 
-    if (!uarmh) /* can't get here from there */
+    if (!player_armor_hat) /* can't get here from there */
         return 0;
 
-    res = uarmh->bknown ? 0 : 1;
-    if (cursed(uarmh)) /* "You can't.  It is cursed." */
+    res = player_armor_hat->bknown ? 0 : 1;
+    if (cursed(player_armor_hat)) /* "You can't.  It is cursed." */
         return res; /* if learned of curse, use a move */
 
     /* might choose a position, but dealing with direct lines is simpler */
@@ -1442,7 +1442,7 @@ tiphat(void)
     /* most helmets have a short wear/take-off delay and we could set
        'multi' to account for that, but we'll pretend that no extra time
        beyond the current move is necessary */
-    You("briefly doff your %s.", helm_simple_name(uarmh));
+    You("briefly doff your %s.", helm_simple_name(player_armor_hat));
 
     if (!u.dx && !u.dy) {
         if (u.monster_being_ridden && u.dz > 0) {

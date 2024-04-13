@@ -106,12 +106,12 @@ use_camera(struct obj *obj)
 staticfn int
 use_towel(struct obj *obj)
 {
-    boolean drying_feedback = (obj == uwep);
+    boolean drying_feedback = (obj == player_weapon);
 
     if (!freehand()) {
         You("have no free %s!", body_part(HAND));
         return ECMD_OK;
-    } else if (obj == ublindf) {
+    } else if (obj == player_blindfold) {
         You("cannot use it while you're wearing it!");
         return ECMD_OK;
     } else if (obj->cursed) {
@@ -127,7 +127,7 @@ use_towel(struct obj *obj)
                 dry_a_towel(obj, -1, drying_feedback);
             return ECMD_TIME;
         case 1:
-            if (!ublindf) {
+            if (!player_blindfold) {
                 old = u.ucreamed;
                 u.ucreamed += rn1(10, 3);
                 pline("Yecch!  Your %s %s gunk on it!", body_part(FACE),
@@ -136,17 +136,17 @@ use_towel(struct obj *obj)
             } else {
                 const char *what;
 
-                what = (ublindf->otyp == LENSES)
+                what = (player_blindfold->otyp == LENSES)
                            ? "lenses"
-                           : (obj->otyp == ublindf->otyp) ? "other towel"
+                           : (obj->otyp == player_blindfold->otyp) ? "other towel"
                                                           : "blindfold";
-                if (ublindf->cursed) {
+                if (player_blindfold->cursed) {
                     You("push your %s %s.", what,
                         random_integer_between_zero_and(2) ? "cock-eyed" : "crooked");
                 } else {
-                    struct obj *saved_ublindf = ublindf;
+                    struct obj *saved_ublindf = player_blindfold;
                     You("push your %s off.", what);
-                    Blindf_off(ublindf);
+                    Blindf_off(player_blindfold);
                     dropx(saved_ublindf);
                 }
             }
@@ -161,7 +161,7 @@ use_towel(struct obj *obj)
     if (Glib) {
         make_glib(0);
         You("wipe off your %s.",
-            !uarmg ? makeplural(body_part(HAND)) : gloves_simple_name(uarmg));
+            !player_armor_gloves ? makeplural(body_part(HAND)) : gloves_simple_name(player_armor_gloves));
         if (is_wet_towel(obj))
             dry_a_towel(obj, -1, drying_feedback);
         return ECMD_TIME;
@@ -1262,7 +1262,7 @@ use_bell(struct obj **optr)
         } else if (obj->blessed) {
             int res = 0;
 
-            if (uchain) {
+            if (player_chain) {
                 unpunish();
                 res = 1;
             } else if (u.utrap && u.utraptype == TT_BURIEDBALL) {
@@ -1781,7 +1781,7 @@ dorub(void)
             return ECMD_OK;
         }
     }
-    if (obj != uwep) {
+    if (obj != player_weapon) {
         if (wield_tool(obj, "rub")) {
             cmdq_add_ec(CQ_CANNED, dorub);
             cmdq_add_key(CQ_CANNED, obj->invlet);
@@ -1791,20 +1791,20 @@ dorub(void)
     }
 
     /* now uwep is obj */
-    if (uwep->otyp == MAGIC_LAMP) {
-        if (uwep->spe > 0 && !random_integer_between_zero_and(3)) {
-            check_unpaid_usage(uwep, TRUE); /* unusual item use */
+    if (player_weapon->otyp == MAGIC_LAMP) {
+        if (player_weapon->spe > 0 && !random_integer_between_zero_and(3)) {
+            check_unpaid_usage(player_weapon, TRUE); /* unusual item use */
             /* bones preparation:  perform the lamp transformation
                before releasing the djinni in case the latter turns out
                to be fatal (a hostile djinni has no chance to attack yet,
                but an indebted one who grants a wish might bestow an
                artifact which blasts the hero with lethal results) */
-            uwep->otyp = OIL_LAMP;
-            uwep->spe = 0; /* for safety */
-            uwep->age = rn1(500, 1000);
-            if (uwep->lamplit)
-                begin_burn(uwep, TRUE);
-            djinni_from_bottle(uwep);
+            player_weapon->otyp = OIL_LAMP;
+            player_weapon->spe = 0; /* for safety */
+            player_weapon->age = rn1(500, 1000);
+            if (player_weapon->lamplit)
+                begin_burn(player_weapon, TRUE);
+            djinni_from_bottle(player_weapon);
             makeknown(MAGIC_LAMP);
             update_inventory();
         } else if (random_integer_between_zero_and(2)) {
@@ -2172,7 +2172,7 @@ use_tinning_kit(struct obj *obj)
         return;
     }
     mptr = &mons[corpse->corpsenm];
-    if (touch_petrifies(mptr) && !Stone_resistance && !uarmg) {
+    if (touch_petrifies(mptr) && !Stone_resistance && !player_armor_gloves) {
         char kbuf[BUFSZ];
         const char *corpse_name = an(cxname(corpse));
 
@@ -2361,7 +2361,7 @@ use_unicorn_horn(struct obj **optr)
     }
 
     if (did_prop)
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     else
         pline("%s", nothing_seems_to_happen);
 
@@ -2936,7 +2936,7 @@ use_whip(struct obj *obj)
     const char *msg_slipsfree = "The bullwhip slips free.";
     const char *msg_snap = "Snap!";
 
-    if (obj != uwep) {
+    if (obj != player_weapon) {
         if (wield_tool(obj, "lash")) {
             cmdq_add_ec(CQ_CANNED, doapply);
             cmdq_add_key(CQ_CANNED, obj->invlet);
@@ -2990,7 +2990,7 @@ use_whip(struct obj *obj)
                          || levl[rx][ry].typ == LAVAWALL)) {
         You("cause a small splash.");
         if (levl[rx][ry].typ == LAVAWALL)
-            (void) fire_damage(uwep, FALSE, rx, ry);
+            (void) fire_damage(player_weapon, FALSE, rx, ry);
         return ECMD_TIME;
     } else if ((!u.dx && !u.dy) || (u.dz > 0)) {
         int dam;
@@ -3006,7 +3006,7 @@ use_whip(struct obj *obj)
             || levl[rx][ry].typ == LAVAWALL) {
             You("cause a small splash.");
             if (is_lava(u.ux, u.uy))
-                (void) fire_damage(uwep, FALSE, u.ux, u.uy);
+                (void) fire_damage(player_weapon, FALSE, u.ux, u.uy);
             return ECMD_TIME;
         }
         if (Levitation || u.monster_being_ridden || Flying) {
@@ -3182,7 +3182,7 @@ use_whip(struct obj *obj)
                     /* right into your inventory */
                     You("snatch %s!", yname(otmp));
                     if (otmp->otyp == CORPSE
-                        && touch_petrifies(&mons[otmp->corpsenm]) && !uarmg
+                        && touch_petrifies(&mons[otmp->corpsenm]) && !player_armor_gloves
                         && !Stone_resistance
                         && !(poly_when_stoned(gy.youmonst.data)
                              && polymon(PM_STONE_GOLEM))) {
@@ -3342,7 +3342,7 @@ use_pole(struct obj *obj, boolean autohit)
         pline(not_enough_room);
         return ECMD_OK;
     }
-    if (obj != uwep) {
+    if (obj != player_weapon) {
         if (wield_tool(obj, "swing")) {
             cmdq_add_ec(CQ_CANNED, doapply);
             cmdq_add_key(CQ_CANNED, obj->invlet);
@@ -3420,7 +3420,7 @@ use_pole(struct obj *obj, boolean autohit)
     /* Attack the monster there */
     gb.bhitpos = cc;
     if ((mtmp = m_at(gb.bhitpos.x, gb.bhitpos.y)) != (struct monster *) 0) {
-        if (attack_checks(mtmp, uwep)) /* can attack proceed? */
+        if (attack_checks(mtmp, player_weapon)) /* can attack proceed? */
             /* no, abort the attack attempt; result depends on
                res: 1 => polearm became wielded, 0 => already wielded;
                gc.context.move: 1 => discovered hidden monster at target spot,
@@ -3431,7 +3431,7 @@ use_pole(struct obj *obj, boolean autohit)
         gc.context.polearm.hitmon = mtmp;
         check_caitiff(mtmp);
         gn.notonhead = (gb.bhitpos.x != mtmp->mx || gb.bhitpos.y != mtmp->my);
-        (void) thitmonst(mtmp, uwep);
+        (void) thitmonst(mtmp, player_weapon);
     } else if (glyph_is_statue(glyph) /* might be hallucinatory */
                && sobj_at(STATUE, gb.bhitpos.x, gb.bhitpos.y)) {
         struct trap *t = t_at(gb.bhitpos.x, gb.bhitpos.y);
@@ -3652,7 +3652,7 @@ use_grapple(struct obj *obj)
         pline(not_enough_room);
         return ECMD_OK;
     }
-    if (obj != uwep) {
+    if (obj != player_weapon) {
         /* "cast": grappling hook evolved from slash'em's fishing pole */
         if (wield_tool(obj, "cast")) {
             cmdq_add_ec(CQ_CANNED, doapply);
@@ -3745,7 +3745,7 @@ use_grapple(struct obj *obj)
         if (verysmall(mtmp->data) && !random_integer_between_zero_and(4)
             && enexto(&cc, u.ux, u.uy, (struct permonst *) 0)) {
             flags.confirm = FALSE;
-            (void) attack_checks(mtmp, uwep);
+            (void) attack_checks(mtmp, player_weapon);
             flags.confirm = save_confirm;
             check_caitiff(mtmp); /* despite fact there's no damage */
             You("pull in %s!", mon_nam(mtmp));
@@ -3755,10 +3755,10 @@ use_grapple(struct obj *obj)
         } else if ((!bigmonst(mtmp->data) && !strongmonst(mtmp->data))
                    || random_integer_between_zero_and(4)) {
             flags.confirm = FALSE;
-            (void) attack_checks(mtmp, uwep);
+            (void) attack_checks(mtmp, player_weapon);
             flags.confirm = save_confirm;
             check_caitiff(mtmp);
-            (void) thitmonst(mtmp, uwep);
+            (void) thitmonst(mtmp, player_weapon);
             return ECMD_TIME;
         }
     /*FALLTHRU*/
@@ -3989,7 +3989,7 @@ do_break_wand(struct obj *obj)
             }
             if (affects_objects && gl.level.objects[x][y]) {
                 (void) bhitpile(obj, bhito, x, y, 0);
-                if (disp.botl)
+                if (disp.bottom_line)
                     bot(); /* potion effects */
             }
         } else {
@@ -4007,7 +4007,7 @@ do_break_wand(struct obj *obj)
              */
             if (affects_objects && gl.level.objects[x][y]) {
                 (void) bhitpile(obj, bhito, x, y, 0);
-                if (disp.botl)
+                if (disp.bottom_line)
                     bot(); /* potion effects */
             }
             damage = zapyourself(obj, FALSE);
@@ -4015,7 +4015,7 @@ do_break_wand(struct obj *obj)
                 Sprintf(buf, "killed %sself by breaking a wand", uhim());
                 losehp(Maybe_Half_Phys(damage), buf, NO_KILLER_PREFIX);
             }
-            if (disp.botl)
+            if (disp.bottom_line)
                 bot(); /* blindness */
         }
     }
@@ -4131,15 +4131,15 @@ doapply(void)
     switch (obj->otyp) {
     case BLINDFOLD:
     case LENSES:
-        if (obj == ublindf) {
+        if (obj == player_blindfold) {
             if (!cursed(obj))
                 Blindf_off(obj);
-        } else if (!ublindf) {
+        } else if (!player_blindfold) {
             Blindf_on(obj);
         } else {
             You("are already %s.",
-                (ublindf->otyp == TOWEL) ? "covered by a towel"
-                : (ublindf->otyp == BLINDFOLD) ? "wearing a blindfold"
+                (player_blindfold->otyp == TOWEL) ? "covered by a towel"
+                : (player_blindfold->otyp == BLINDFOLD) ? "wearing a blindfold"
                   : "wearing lenses");
         }
         break;

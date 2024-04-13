@@ -50,12 +50,12 @@ staticfn boolean water_turbulence(coordxy *, coordxy *);
 /* XXX: if more sources of water walking than just boots are added,
    cause_known(insight.c) should be externified and used for this */
 #define Known_wwalking \
-    (uarmf && uarmf->otyp == WATER_WALKING_BOOTS \
+    (player_armor_footwear && player_armor_footwear->otyp == WATER_WALKING_BOOTS \
      && objects[WATER_WALKING_BOOTS].oc_name_known \
      && !u.monster_being_ridden)
 #define Known_lwalking \
     (Known_wwalking && Fire_resistance \
-     && uarmf->oerodeproof && uarmf->rknown)
+     && player_armor_footwear->oerodeproof && player_armor_footwear->rknown)
 
 /* mode values for findtravelpath() */
 #define TRAVP_TRAVEL 0
@@ -760,7 +760,7 @@ dosinkfall(void)
     static const char fell_on_sink[] = "fell onto a sink";
     struct obj *obj;
     int dmg;
-    boolean lev_boots = (uarmf && uarmf->otyp == LEVITATION_BOOTS),
+    boolean lev_boots = (player_armor_footwear && player_armor_footwear->otyp == LEVITATION_BOOTS),
             innate_lev = ((HLevitation & (FROMOUTSIDE | FROMFORM)) != 0L),
             /* to handle being chained to buried iron ball, trying to
                levitate but being blocked, then moving onto adjacent sink;
@@ -810,27 +810,27 @@ dosinkfall(void)
      * haven't fallen (innate floating or flying becoming unblocked).
      */
     if (ufall || lev_boots) {
-        (void) stop_donning(lev_boots ? uarmf : (struct obj *) 0);
+        (void) stop_donning(lev_boots ? player_armor_footwear : (struct obj *) 0);
         /* recalculate in case uarmf just got set to null */
-        lev_boots = (uarmf && uarmf->otyp == LEVITATION_BOOTS);
+        lev_boots = (player_armor_footwear && player_armor_footwear->otyp == LEVITATION_BOOTS);
     }
 
     /* remove worn levitation items */
     ELevitation &= ~WEARING_ARTIFACT_INVOKED;
     HLevitation &= ~(I_SPECIAL | TIMEOUT);
     HLevitation++;
-    if (uleft && uleft->otyp == RIN_LEVITATION) {
-        obj = uleft;
+    if (player_finger_left && player_finger_left->otyp == RIN_LEVITATION) {
+        obj = player_finger_left;
         Ring_off(obj);
         off_msg(obj);
     }
-    if (uright && uright->otyp == RIN_LEVITATION) {
-        obj = uright;
+    if (player_finger_right && player_finger_right->otyp == RIN_LEVITATION) {
+        obj = player_finger_right;
         Ring_off(obj);
         off_msg(obj);
     }
     if (lev_boots) {
-        obj = uarmf;
+        obj = player_armor_footwear;
         (void) Boots_off();
         off_msg(obj);
     }
@@ -955,10 +955,10 @@ test_move(
             if (mode == DO_MOVE && still_chewing(x, y))
                 return FALSE;
         } else if (flags.autodig && !gc.context.run && !gc.context.nopick
-                   && uwep && is_pick(uwep)) {
+                   && player_weapon && is_pick(player_weapon)) {
             /* MRKR: Automatic digging when wielding the appropriate tool */
             if (mode == DO_MOVE)
-                (void) use_pick_axe2(uwep);
+                (void) use_pick_axe2(player_weapon);
             return FALSE;
         } else {
             if (mode == DO_MOVE) {
@@ -1883,8 +1883,8 @@ domove_attackmon_at(
 staticfn boolean
 domove_fight_ironbars(coordxy x, coordxy y)
 {
-    if (gc.context.forcefight && levl[x][y].typ == IRONBARS && uwep) {
-        struct obj *obj = uwep;
+    if (gc.context.forcefight && levl[x][y].typ == IRONBARS && player_weapon) {
+        struct obj *obj = player_weapon;
         unsigned breakflags = (BRK_BY_HERO | BRK_FROM_INV | BRK_MELEE);
 
         if (breaktest(obj)) {
@@ -1917,32 +1917,32 @@ domove_fight_web(coordxy x, coordxy y)
             wskill_minus_2 = max(P_SKILL(wtype), P_UNSKILLED) - 2,
             /* higher value is worse for player; for weaponless, adjust the
                chance to succeed rather than maybe make two tries */
-            roll = random_integer_between_zero_and(uwep ? 20 : (45 - 5 * wskill_minus_2));
+            roll = random_integer_between_zero_and(player_weapon ? 20 : (45 - 5 * wskill_minus_2));
 
-        if (uwep && (u_wield_art(ART_STING)
-                     || (uwep->oartifact && attacks(AD_FIRE, uwep)))) {
+        if (player_weapon && (u_wield_art(ART_STING)
+                     || (player_weapon->oartifact && attacks(AD_FIRE, player_weapon)))) {
             /* guaranteed success */
-            pline("%s %s through the web!", bare_artifactname(uwep),
+            pline("%s %s through the web!", bare_artifactname(player_weapon),
                   u_wield_art(ART_STING) ? "cuts" : "burns");
 
         /* is_blade() includes daggers (which are classified as PIERCE)
            but doesn't include axes and slashing polearms */
-        } else if (uwep && !is_blade(uwep)
-                   && (!u.using_two_weapons || !is_blade(uswapwep))) {
+        } else if (player_weapon && !is_blade(player_weapon)
+                   && (!u.using_two_weapons || !is_blade(player_secondary_weapon))) {
             char *uwepstr = 0, *scndstr = 0, uwepbuf[BUFSZ], scndbuf[BUFSZ];
             boolean onewep;
 
             /* when dual wielding, second weapon will only be mentioned
                if it has a different type description from primary */
-            Strcpy(uwepbuf, weapon_descr(uwep));
-            Strcpy(scndbuf, u.using_two_weapons ? weapon_descr(uswapwep) : "");
+            Strcpy(uwepbuf, weapon_descr(player_weapon));
+            Strcpy(scndbuf, u.using_two_weapons ? weapon_descr(player_secondary_weapon) : "");
             onewep = !*scndbuf || !strcmp(uwepbuf, scndbuf);
             if (!strcmpi(uwepbuf, "armor") || !strcmpi(uwepbuf, "food")
                 || !strcmpi(uwepbuf, "venom")) { /* as-is */
                 /* non-weapon item wielded, of a type where an() would
                    result in weird phrasing; dual wield not possible */
                 uwepstr = uwepbuf;
-            } else if (uwep->quan == 1L /* singular */
+            } else if (player_weapon->quan == 1L /* singular */
                        /* unless secondary is suppressed due to same type */
                        && !(u.using_two_weapons && onewep)) {
                 uwepstr = an(uwepbuf);
@@ -1950,8 +1950,8 @@ domove_fight_web(coordxy x, coordxy y)
                 uwepstr = makeplural(uwepbuf);
             }
             if (!onewep) {
-                assert(uswapwep != NULL);
-                scndstr = (uswapwep->quan == 1L) ? an(scndbuf)
+                assert(player_secondary_weapon != NULL);
+                scndstr = (player_secondary_weapon->quan == 1L) ? an(scndbuf)
                                                  : makeplural(scndbuf);
             }
             You_cant("cut a web with %s%s%s!", uwepstr,
@@ -1961,15 +1961,15 @@ domove_fight_web(coordxy x, coordxy y)
         /* weapon is ok; check whether hit is successful */
         } else if (roll > (acurrstr() - 2 /* 1..19 */
                            /* for weaponless, 'roll' was adjusted above */
-                           + (uwep ? uwep->spe + wskill_minus_2 : 0))) {
+                           + (player_weapon ? player_weapon->spe + wskill_minus_2 : 0))) {
             /* TODO: add failures, maybe make an occupation? */
             You("%s ineffectually at some of the strands.",
-                uwep ? "hack" : "thrash");
+                player_weapon ? "hack" : "thrash");
             return TRUE;
 
         /* hit has succeeded */
         } else {
-            You("%s through the web.", uwep ? "cut" : "punch");
+            You("%s through the web.", player_weapon ? "cut" : "punch");
             /* doesn't break "never hit with a wielded weapon" conduct */
             use_skill(wtype, 1);
         }
@@ -2144,10 +2144,10 @@ domove_fight_empty(coordxy x, coordxy y)
                pick:  start digging to break the boulder or wall */
             if (gc.context.forcefight
                 /* can we dig? */
-                && uwep && dig_typ(uwep, x, y)
+                && player_weapon && dig_typ(player_weapon, x, y)
                 /* should we dig? */
                 && !glyph_is_invisible(glyph) && !glyph_is_monster(glyph)) {
-                (void) use_pick_axe2(uwep);
+                (void) use_pick_axe2(player_weapon);
                 return TRUE;
             }
         }
@@ -2274,7 +2274,7 @@ slippery_ice_fumbling(void)
     struct monster *iceskater = u.monster_being_ridden ? u.monster_being_ridden : &gy.youmonst;
 
     if (on_ice) {
-        if ((uarmf && objdescr_is(uarmf, "snow boots"))
+        if ((player_armor_footwear && objdescr_is(player_armor_footwear, "snow boots"))
             || resists_cold(iceskater) || Flying
             || is_floater(iceskater->data) || is_clinger(iceskater->data)
             || is_whirly(iceskater->data)) {
@@ -2655,7 +2655,7 @@ domove_core(void)
         boolean moved = trapmove(x, y, trap);
 
         if (!u.utrap) {
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             reset_utrap(TRUE); /* might resume levitation or flight */
         }
         /* might not have escaped, or did escape but remain in same spot */
@@ -2820,7 +2820,7 @@ runmode_delay_output(void)
            display after every step */
         if (flags.runmode != RUN_LEAP || !(gm.moves % 7L)) {
             /* moveloop() suppresses time_botl when running */
-            disp.time_botl = flags.time;
+            disp.time_bottom_line = flags.time;
             curs_on_u();
             nh_delay_output();
             if (flags.runmode == RUN_CRAWL) {
@@ -2855,7 +2855,7 @@ overexert_hp(void)
 
     if (*hp > 1) {
         *hp -= 1;
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     } else {
         You("pass out from exertion!");
         exercise(ATTRIBUTE_CONSTITUTION, FALSE);
@@ -2940,7 +2940,7 @@ switch_terrain(void)
             You("start flying.");
     }
     if ((!!Levitation ^ was_levitating) || (!!Flying ^ was_flying))
-        disp.botl = TRUE; /* update Lev/Fly status condition */
+        disp.bottom_line = TRUE; /* update Lev/Fly status condition */
 }
 
 /* set or clear u.uinwater */
@@ -3143,9 +3143,9 @@ spoteffects(boolean pick)
                   ceiling(u.ux, u.uy));
             if (mtmp->mtame) { /* jumps to greet you, not attack */
                 ;
-            } else if (hard_helmet(uarmh)) {
+            } else if (hard_helmet(player_armor_hat)) {
                 pline("Its blow glances off your %s.",
-                      helm_simple_name(uarmh));
+                      helm_simple_name(player_armor_hat));
             } else if (u.armor_class + 3 <= random(20)) {
                 You("are almost hit by %s!",
                     x_monnam(mtmp, ARTICLE_A, "falling", 0, TRUE));
@@ -3851,7 +3851,7 @@ end_running(boolean and_travel)
     /* moveloop() suppresses time_botl when context.run is non-zero; when
        running stops, update 'time' even if other botl status is unchanged */
     if (flags.time && gc.context.run)
-        disp.time_botl = TRUE;
+        disp.time_bottom_line = TRUE;
     gc.context.run = 0;
     /* 'context.mv' isn't travel but callers who want to end travel
        all clear it too */
@@ -3871,7 +3871,7 @@ nomul(int nval)
 {
     if (gm.multi < nval)
         return;              /* This is a bug fix by ab@unido */
-    disp.botl |= (gm.multi >= 0);
+    disp.bottom_line |= (gm.multi >= 0);
     u.uinvulnerable = FALSE; /* Kludge to avoid ctrl-C bug -dlc */
     u.sleeping_move_last_started = 0;
     gm.multi = nval;
@@ -3885,7 +3885,7 @@ nomul(int nval)
 void
 unmul(const char *msg_override)
 {
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     gm.multi = 0; /* caller will usually have done this already */
     if (msg_override)
         gn.nomovemsg = msg_override;
@@ -3989,7 +3989,7 @@ losehp(int n, const char *knam, schar k_format)
         return;
     }
 #endif
-    disp.botl = TRUE; /* u.uhp or u.mh is changing */
+    disp.bottom_line = TRUE; /* u.uhp or u.mh is changing */
     end_running(TRUE);
     if (Upolyd) {
         u.mh -= n;

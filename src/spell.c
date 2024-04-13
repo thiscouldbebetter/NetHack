@@ -155,8 +155,8 @@ cursed_book(struct obj *bp)
         break;
     case 5:
         pline_The("book was coated with contact poison!");
-        if (uarmg) {
-            erode_obj(uarmg, "gloves", ERODE_CORRODE, EF_GREASE | EF_VERBOSE);
+        if (player_armor_gloves) {
+            erode_obj(player_armor_gloves, "gloves", ERODE_CORRODE, EF_GREASE | EF_VERBOSE);
             break;
         }
         /* temp disable in_use; death should not destroy the book */
@@ -364,7 +364,7 @@ learn(void)
     struct obj *book = gc.context.spbook.book;
 
     /* JDS: lenses give 50% faster reading; 33% smaller read time */
-    if (gc.context.spbook.delay && ublindf && ublindf->otyp == LENSES && random_integer_between_zero_and(2))
+    if (gc.context.spbook.delay && player_blindfold && player_blindfold->otyp == LENSES && random_integer_between_zero_and(2))
         gc.context.spbook.delay++;
     if (Confusion) { /* became confused while learning */
         (void) confused_book(book);
@@ -569,7 +569,7 @@ study_book(struct obj *spellbook)
                 /* uncursed - chance to fail */
                 int read_ability = ATTRIBUTE_CURRENT(ATTRIBUTE_INTELLIGENCE) + 4 + u.ulevel / 2
                                    - 2 * objects[booktype].oc_level
-                             + ((ublindf && ublindf->otyp == LENSES) ? 2 : 0);
+                             + ((player_blindfold && player_blindfold->otyp == LENSES) ? 2 : 0);
 
                 /* only wizards know if a spell is too difficult */
                 if (Role_if(PM_WIZARD) && read_ability < 20 && !confused) {
@@ -681,7 +681,7 @@ rejectcasting(void)
     } else if (!can_chant(&gy.youmonst)) {
         You("are unable to chant the incantation.");
         return TRUE;
-    } else if (!freehand() && !(uwep && uwep->otyp == QUARTERSTAFF)) {
+    } else if (!freehand() && !(player_weapon && player_weapon->otyp == QUARTERSTAFF)) {
         /* Note: !freehand() occurs when weapon and shield (or two-handed
          * weapon) are welded to hands, so "arms" probably doesn't need
          * to be makeplural(bodypart(ARM)).
@@ -1211,7 +1211,7 @@ spelleffects_check(int spell, int *res, int *energy)
         u.energy -= random(*energy);
         if (u.energy < 0)
             u.energy = 0;
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         *res = ECMD_TIME;
         return TRUE;
     } else if (spellknow(spell) <= KEEN / 200) { /* 100 turns left */
@@ -1254,7 +1254,7 @@ spelleffects_check(int spell, int *res, int *energy)
         u.energy -= random(2 * *energy);
         if (u.energy < 0)
             u.energy = 0;
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         *res = ECMD_TIME; /* time is used even if spell doesn't get cast */
     }
 
@@ -1328,7 +1328,7 @@ spelleffects_check(int spell, int *res, int *energy)
     if (confused || (random(100) > chance)) {
         You("fail to cast the spell correctly.");
         u.energy -= *energy / 2;
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         *res = ECMD_TIME;
         return TRUE;
     }
@@ -1351,7 +1351,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
         return res;
 
     u.energy -= energy;
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     exercise(ATTRIBUTE_WISDOM, TRUE);
     /* pseudo is a temporary "false" object containing the spell stats */
     pseudo = mksobj(force ? spell : spellid(spell), FALSE, FALSE);
@@ -1517,7 +1517,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
                 pseudo->blessed = 1; /* detect monsters as well as map */
             do_vicinity_map(pseudo);
         /* at present, only one thing blocks clairvoyance */
-        } else if (uarmh && uarmh->otyp == CORNUTHAUM)
+        } else if (player_armor_hat && player_armor_hat->otyp == CORNUTHAUM)
             You("sense a pointy hat on top of your %s.", body_part(HEAD));
         break;
     case SPE_PROTECTION:
@@ -2110,23 +2110,23 @@ percent_success(int spell)
     special = gu.urole.spelheal;
     statused = ATTRIBUTE_CURRENT(gu.urole.spelstat);
 
-    if (uarm && is_metallic(uarm) && !paladin_bonus)
-        splcaster += (uarmc && uarmc->otyp == ROBE) ? gu.urole.spelarmr / 2
+    if (player_armor && is_metallic(player_armor) && !paladin_bonus)
+        splcaster += (player_armor_cloak && player_armor_cloak->otyp == ROBE) ? gu.urole.spelarmr / 2
                                                     : gu.urole.spelarmr;
-    else if (uarmc && uarmc->otyp == ROBE)
+    else if (player_armor_cloak && player_armor_cloak->otyp == ROBE)
         splcaster -= gu.urole.spelarmr;
-    if (uarms)
+    if (player_armor_shield)
         splcaster += gu.urole.spelshld;
 
-    if (uwep && uwep->otyp == QUARTERSTAFF)
+    if (player_weapon && player_weapon->otyp == QUARTERSTAFF)
         splcaster -= 3; /* Small bonus */
 
     if (!paladin_bonus) {
-        if (uarmh && is_metallic(uarmh)) /* && otyp != HELM_OF_BRILLIANCE */
+        if (player_armor_hat && is_metallic(player_armor_hat)) /* && otyp != HELM_OF_BRILLIANCE */
             splcaster += uarmhbon;
-        if (uarmg && is_metallic(uarmg))
+        if (player_armor_gloves && is_metallic(player_armor_gloves))
             splcaster += uarmgbon;
-        if (uarmf && is_metallic(uarmf))
+        if (player_armor_footwear && is_metallic(player_armor_footwear))
             splcaster += uarmfbon;
     }
 
@@ -2188,7 +2188,7 @@ percent_success(int spell)
      * to cast a spell.  The penalty is not quite so bad for the
      * player's role-specific spell.
      */
-    if (uarms && weight(uarms) > (int) objects[SMALL_SHIELD].oc_weight) {
+    if (player_armor_shield && weight(player_armor_shield) > (int) objects[SMALL_SHIELD].oc_weight) {
         if (spellid(spell) == gu.urole.spelspec) {
             chance /= 2;
         } else {

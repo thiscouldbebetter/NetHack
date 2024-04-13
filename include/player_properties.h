@@ -76,7 +76,7 @@
 
 /*** Troubles ***/
 /* Pseudo-property */
-#define Punished (uball != 0)
+#define Punished (player_ball != 0)
 
 /* Many are implemented solely as timeouts (we use just intrinsic) */
 #define HStun u.uprops[STUNNED].intrinsic /* timed or FROMFORM */
@@ -399,6 +399,6 @@
 
 /* _Hitchhikers_Guide_to_the_Galaxy_ on uses for 'towel': "wrap it round
    your head to ward off noxious fumes" [we require it to be damp or wet] */
-#define Half_gas_damage (ublindf && ublindf->otyp == TOWEL && ublindf->spe > 0)
+#define Half_gas_damage (player_blindfold && player_blindfold->otyp == TOWEL && player_blindfold->spe > 0)
 
 #endif /* YOUPROP_H */

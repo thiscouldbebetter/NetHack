@@ -1234,7 +1234,7 @@ Mb_hit(struct monster *magr, /* attacker */
                     u.energy_max--;
                     if (u.energy > 0)
                         u.energy--;
-                    disp.botl = TRUE;
+                    disp.bottom_line = TRUE;
                     You("lose magical energy!");
                 }
             } else {
@@ -1249,7 +1249,7 @@ Mb_hit(struct monster *magr, /* attacker */
                     if (u.energy_max > u.energy_peak)
                         u.energy_peak = u.energy_max;
                     u.energy++;
-                    disp.botl = TRUE;
+                    disp.bottom_line = TRUE;
                     You("absorb magical energy!");
                 }
             }
@@ -1737,7 +1737,7 @@ arti_invoke(struct obj *obj)
                 make_slimed(0L, (char *) 0);
             if (BlindedTimeout > creamed)
                 make_blinded(creamed, FALSE);
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             break;
         }
         case ENERGY_BOOST: {
@@ -1749,7 +1749,7 @@ arti_invoke(struct obj *obj)
                 epboost = u.energy_max - u.energy;
             if (epboost) {
                 u.energy += epboost;
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
                 You_feel("re-energized.");
             } else
                 goto nothing_special;
@@ -2250,7 +2250,7 @@ Sting_effects(int orc_count) /* new count (warn_obj_cnt is old count); -1 is a f
         if (orc_count == -1 && gw.warn_obj_cnt > 0) {
             /* -1 means that blindness has just been toggled; give a
                'continue' message that eventual 'stop' message will match */
-            pline("%s is %s.", bare_artifactname(uwep),
+            pline("%s is %s.", bare_artifactname(player_weapon),
                   glow_verb(Blind ? 0 : gw.warn_obj_cnt, TRUE));
         } else if (newstr > 0 && newstr != oldstr) {
             /* goto_level() -> docrt() -> see_monsters() -> Sting_effects();
@@ -2260,16 +2260,16 @@ Sting_effects(int orc_count) /* new count (warn_obj_cnt is old count); -1 is a f
 
             /* 'start' message */
             if (!Blind)
-                pline("%s %s %s%c", bare_artifactname(uwep),
-                      otense(uwep, glow_verb(orc_count, FALSE)),
-                      glow_color(uwep->oartifact),
+                pline("%s %s %s%c", bare_artifactname(player_weapon),
+                      otense(player_weapon, glow_verb(orc_count, FALSE)),
+                      glow_color(player_weapon->oartifact),
                       (newstr > oldstr) ? '!' : '.');
             else if (oldstr == 0) /* quivers */
-                pline("%s %s slightly.", bare_artifactname(uwep),
-                      otense(uwep, glow_verb(0, FALSE)));
+                pline("%s %s slightly.", bare_artifactname(player_weapon),
+                      otense(player_weapon, glow_verb(0, FALSE)));
         } else if (orc_count == 0 && gw.warn_obj_cnt > 0) {
             /* 'stop' message */
-            pline("%s stops %s.", bare_artifactname(uwep),
+            pline("%s stops %s.", bare_artifactname(player_weapon),
                   glow_verb(Blind ? 0 : gw.warn_obj_cnt, TRUE));
         }
     }
@@ -2416,8 +2416,8 @@ retouch_equipment(
 {
     static int nesting = 0; /* recursion control */
     struct obj *obj;
-    boolean dropit, had_gloves = (uarmg != 0);
-    int had_rings = (!!uleft + !!uright);
+    boolean dropit, had_gloves = (player_armor_gloves != 0);
+    int had_rings = (!!player_finger_left + !!player_finger_right);
 
     /*
      * We can potentially be called recursively if losing/unwearing
@@ -2436,13 +2436,13 @@ retouch_equipment(
     dropit = (dropflag > 0); /* drop all or drop weapon */
     /* check secondary weapon first, before possibly unwielding primary */
     if (u.using_two_weapons) {
-        bypass_obj(uswapwep); /* so loop below won't process it again */
-        (void) untouchable(uswapwep, dropit);
+        bypass_obj(player_secondary_weapon); /* so loop below won't process it again */
+        (void) untouchable(player_secondary_weapon, dropit);
     }
     /* check primary weapon next so that they're handled together */
-    if (uwep) {
-        bypass_obj(uwep); /* so loop below won't process it again */
-        (void) untouchable(uwep, dropit);
+    if (player_weapon) {
+        bypass_obj(player_weapon); /* so loop below won't process it again */
+        (void) untouchable(player_weapon, dropit);
     }
 
     /* in case someone is daft enough to add artifact or silver saddle */
@@ -2469,9 +2469,9 @@ retouch_equipment(
     while ((obj = nxt_unbypassed_obj(gi.invent)) != 0)
         (void) untouchable(obj, dropit);
 
-    if (had_rings != (!!uleft + !!uright) && uarmg && uarmg->cursed)
-        uncurse(uarmg); /* temporary? hack for ring removal plausibility */
-    if (had_gloves && !uarmg)
+    if (had_rings != (!!player_finger_left + !!player_finger_right) && player_armor_gloves && player_armor_gloves->cursed)
+        uncurse(player_armor_gloves); /* temporary? hack for ring removal plausibility */
+    if (had_gloves && !player_armor_gloves)
         selftouch("After losing your gloves, you");
 
     if (!--nesting)
@@ -2532,7 +2532,7 @@ mkot_trap_warn(void)
         "hot", "very hot", "like fire"
     };
 
-    if (!uarmg && u_wield_art(ART_MASTER_KEY_OF_THIEVERY)) {
+    if (!player_armor_gloves && u_wield_art(ART_MASTER_KEY_OF_THIEVERY)) {
         int idx, ntraps = count_surround_traps(u.ux, u.uy);
 
         if (ntraps != gm.mkot_trap_warn_count) {

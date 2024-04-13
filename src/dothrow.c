@@ -108,7 +108,7 @@ throw_obj(struct obj *obj, int shotlimit)
      * If the gold is in quiver, throw one coin at a time,
      * possibly using a sling.
      */
-    if (obj->oclass == COIN_CLASS && obj != uquiver) {
+    if (obj->oclass == COIN_CLASS && obj != player_quiver) {
         /* throw_gold will unsplit the stack itself if necessary and may have
            freed the object, so don't route through unsplit_stack here */
         return throw_gold(obj); /* check */
@@ -118,7 +118,7 @@ throw_obj(struct obj *obj, int shotlimit)
         res = ECMD_OK;
         goto unsplit_stack;
     }
-    if (is_art(obj, ART_MJOLLNIR) && obj != uwep) {
+    if (is_art(obj, ART_MJOLLNIR) && obj != player_weapon) {
         pline("%s must be wielded before it can be thrown.", The(xname(obj)));
         res = ECMD_OK;
         goto unsplit_stack;
@@ -135,7 +135,7 @@ throw_obj(struct obj *obj, int shotlimit)
         goto unsplit_stack;
     }
     u_wipe_engr(2);
-    if (!uarmg && obj->otyp == CORPSE && touch_petrifies(&mons[obj->corpsenm])
+    if (!player_armor_gloves && obj->otyp == CORPSE && touch_petrifies(&mons[obj->corpsenm])
         && !Stone_resistance) {
         You("throw %s with your bare %s.",
             corpse_xname(obj, (const char *) 0, CXN_PFX_THE),
@@ -160,7 +160,7 @@ throw_obj(struct obj *obj, int shotlimit)
     skill = objects[obj->otyp].oc_skill;
     if (obj->quan > 1L /* no point checking if there's only 1 */
         /* ammo requires corresponding launcher be wielded */
-        && (is_ammo(obj) ? matching_launcher(obj, uwep)
+        && (is_ammo(obj) ? matching_launcher(obj, player_weapon)
                          /* otherwise any stackable (non-ammo) weapon */
                          : obj->oclass == WEAPON_CLASS)
         && !(Confusion || Stunned)) {
@@ -184,19 +184,19 @@ throw_obj(struct obj *obj, int shotlimit)
             break;
         }
         /* ...or is using a special weapon for their role... */
-        multishot += multishot_class_bonus(Role_switch, obj, uwep);
+        multishot += multishot_class_bonus(Role_switch, obj, player_weapon);
 
         /* ...or using their race's special bow; no bonus for spears */
         if (!weakmultishot) {
             switch (Race_switch) {
             case PM_ELF:
-                if (obj->otyp == ELVEN_ARROW && uwep
-                    && uwep->otyp == ELVEN_BOW)
+                if (obj->otyp == ELVEN_ARROW && player_weapon
+                    && player_weapon->otyp == ELVEN_BOW)
                     multishot++;
                 break;
             case PM_ORC:
-                if (obj->otyp == ORCISH_ARROW && uwep
-                    && uwep->otyp == ORCISH_BOW)
+                if (obj->otyp == ORCISH_ARROW && player_weapon
+                    && player_weapon->otyp == ORCISH_BOW)
                     multishot++;
                 break;
             case PM_GNOME:
@@ -214,8 +214,8 @@ throw_obj(struct obj *obj, int shotlimit)
                type of ammo appropriate for that launcher (compensates for
                elven and orcish rangers loss of bonus for use of racial bow
                plus racial arrows if they switch to the Longbow of Diana) */
-            if (uwep && is_quest_artifact(uwep)
-                && ammo_and_launcher(obj, uwep))
+            if (player_weapon && is_quest_artifact(player_weapon)
+                && ammo_and_launcher(obj, player_weapon))
                 ++multishot;
         }
 
@@ -223,7 +223,7 @@ throw_obj(struct obj *obj, int shotlimit)
            shots at all, but that would result in players never using them;
            instead, high strength is necessary to load and shoot quickly */
         if (multishot > 1 && skill == -P_CROSSBOW
-            && ammo_and_launcher(obj, uwep)
+            && ammo_and_launcher(obj, player_weapon)
             && (int) ATTRIBUTE_CURRENT_STRENGTH < (Race_if(PM_GNOME) ? 16 : 18))
             multishot = random(multishot);
 
@@ -234,7 +234,7 @@ throw_obj(struct obj *obj, int shotlimit)
             multishot = shotlimit;
     }
 
-    gm.m_shot.s = ammo_and_launcher(obj, uwep) ? TRUE : FALSE;
+    gm.m_shot.s = ammo_and_launcher(obj, player_weapon) ? TRUE : FALSE;
     /* give a message if shooting more than one, or if player
        attempted to specify a count */
     if (multishot > 1 || shotlimit > 0) {
@@ -277,7 +277,7 @@ throw_obj(struct obj *obj, int shotlimit)
      * been split from there (possibly triggering a panic in addinv),
      * and freeinv+addinv potentially has other side-effects.
      */
-    if (obj && obj != uquiver
+    if (obj && obj != player_quiver
         && (obj->o_id == save_osplit.parent_oid
             || obj->o_id == save_osplit.child_oid)) {
         /* futureproofing: objsplit will have been affected if partial stack
@@ -323,7 +323,7 @@ throw_ok(struct obj *obj)
         && (obj->oartifact != ART_MJOLLNIR || ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH) >= STRENGTH19(25)))
         return GETOBJ_SUGGEST;
 
-    if (obj->quan == 1 && (obj == uwep || (obj == uswapwep && u.using_two_weapons)))
+    if (obj->quan == 1 && (obj == player_weapon || (obj == player_secondary_weapon && u.using_two_weapons)))
         return GETOBJ_DOWNPLAY;
 
     if (obj->oclass == COIN_CLASS)
@@ -378,7 +378,7 @@ autoquiver(void)
 {
     struct obj *otmp, *oammo = 0, *omissile = 0, *omisc = 0, *altammo = 0;
 
-    if (uquiver)
+    if (player_quiver)
         return;
 
     /* Scan through the inventory */
@@ -394,7 +394,7 @@ autoquiver(void)
                        && objects[otmp->otyp].oc_name_known)) {
             if (uslinging())
                 oammo = otmp;
-            else if (ammo_and_launcher(otmp, uswapwep))
+            else if (ammo_and_launcher(otmp, player_secondary_weapon))
                 altammo = otmp;
             else if (!omisc)
                 omisc = otmp;
@@ -402,10 +402,10 @@ autoquiver(void)
             ; /* skip non-rock gems--they're ammo but
                  player has to select them explicitly */
         } else if (is_ammo(otmp)) {
-            if (ammo_and_launcher(otmp, uwep))
+            if (ammo_and_launcher(otmp, player_weapon))
                 /* Ammo matched with launcher (bow+arrow, crossbow+bolt) */
                 oammo = otmp;
-            else if (ammo_and_launcher(otmp, uswapwep))
+            else if (ammo_and_launcher(otmp, player_secondary_weapon))
                 altammo = otmp;
             else
                 /* Mismatched ammo (no better than an ordinary weapon) */
@@ -468,8 +468,8 @@ dofire(void)
     struct obj *obj;
     /* AutoReturn() verifies Valkyrie if weapon is Mjollnir, but it relies
        on its caller to make sure hero is strong enough to throw that */
-    boolean uwep_Throw_and_Return = (uwep && AutoReturn(uwep, uwep->owornmask)
-                                     && (uwep->oartifact != ART_MJOLLNIR
+    boolean uwep_Throw_and_Return = (player_weapon && AutoReturn(player_weapon, player_weapon->owornmask)
+                                     && (player_weapon->oartifact != ART_MJOLLNIR
                                          || ATTRIBUTE_CURRENT(ATTRIBUTE_STRENGTH) >= STRENGTH19(25)));
     int altres, res = ECMD_OK;
 
@@ -493,25 +493,25 @@ dofire(void)
     if (!ok_to_throw(&shotlimit))
         return ECMD_OK;
 
-    obj = uquiver;
+    obj = player_quiver;
     /* if wielding a throw-and-return weapon, throw it if quiver is empty
        or has ammo rather than missiles [since the throw/return weapon is
        wielded, the ammo's launcher isn't; the ammo-only policy avoids
        throwing Mjollnir if quiver contains daggers] */
     if (uwep_Throw_and_Return && (!obj || is_ammo(obj))) {
-        obj = uwep;
+        obj = player_weapon;
 
     } else if (!obj) {
         if (!flags.autoquiver) {
             /* if we're wielding a polearm, apply it */
-            if (uwep && is_pole(uwep)) {
-                return use_pole(uwep, TRUE);
+            if (player_weapon && is_pole(player_weapon)) {
+                return use_pole(player_weapon, TRUE);
             /* if we're wielding a bullwhip, apply it */
-            } else if (uwep && uwep->otyp == BULLWHIP) {
-                return use_whip(uwep);
+            } else if (player_weapon && player_weapon->otyp == BULLWHIP) {
+                return use_whip(player_weapon);
             } else if (iflags.fireassist
-                       && uswapwep && is_pole(uswapwep)
-                       && !(uswapwep->cursed && uswapwep->bknown)) {
+                       && player_secondary_weapon && is_pole(player_secondary_weapon)
+                       && !(player_secondary_weapon->cursed && player_secondary_weapon->bknown)) {
                 /* we have a known not-cursed polearm as swap weapon.
                    swap to it and retry */
                 cmdq_add_ec(CQ_CANNED, doswapweapon);
@@ -522,12 +522,12 @@ dofire(void)
             }
         } else {
             autoquiver();
-            obj = uquiver;
+            obj = player_quiver;
             if (obj) {
                 /* give feedback if quiver has now been filled */
-                uquiver->owornmask &= ~WEARING_QUIVER; /* less verbose */
+                player_quiver->owornmask &= ~WEARING_QUIVER; /* less verbose */
                 prinv("You ready:", obj, 0L);
-                uquiver->owornmask |= WEARING_QUIVER;
+                player_quiver->owornmask |= WEARING_QUIVER;
             } else {
                 You("have nothing appropriate for your quiver.");
             }
@@ -545,23 +545,23 @@ dofire(void)
         if (res != ECMD_OK && res != ECMD_TIME)
             return res;
 
-        obj = uquiver;
+        obj = player_quiver;
     }
 
-    if (uquiver && is_ammo(uquiver) && iflags.fireassist) {
+    if (player_quiver && is_ammo(player_quiver) && iflags.fireassist) {
         struct obj *olauncher;
 
         /* Try to find a launcher */
-        if (ammo_and_launcher(uquiver, uwep)) {
-            obj = uquiver;
-        } else if (ammo_and_launcher(uquiver, uswapwep)) {
+        if (ammo_and_launcher(player_quiver, player_weapon)) {
+            obj = player_quiver;
+        } else if (ammo_and_launcher(player_quiver, player_secondary_weapon)) {
             /* swap weapons and retry fire */
             cmdq_add_ec(CQ_CANNED, doswapweapon);
             cmdq_add_ec(CQ_CANNED, dofire);
             return res;
-        } else if ((olauncher = find_launcher(uquiver)) != 0) {
+        } else if ((olauncher = find_launcher(player_quiver)) != 0) {
             /* wield launcher, retry fire */
-            if (uwep && !flags.pushweapon)
+            if (player_weapon && !flags.pushweapon)
                 cmdq_add_ec(CQ_CANNED, doswapweapon);
             cmdq_add_ec(CQ_CANNED, dowield);
             cmdq_add_key(CQ_CANNED, olauncher->invlet);
@@ -874,7 +874,7 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
         setmangry(mon, FALSE);
         if (touch_petrifies(mon->data)
             /* this is a bodily collision, so check for body armor */
-            && !uarmu && !uarm && !uarmc) {
+            && !player_armor_undershirt && !player_armor && !player_armor_cloak) {
             Sprintf(gk.killer.name, "bumping into %s",
                     an(pmname(mon->data, NEUTRAL)));
             instapetrify(gk.killer.name);
@@ -1058,7 +1058,7 @@ mhurtle_step(genericptr_t arg, coordxy x, coordxy y)
             newsym(mon->mx, mon->my);
         }
         /* and whether hero is turned to stone by being touched by 'mon' */
-        if (touch_petrifies(mon->data) && !(uarmu || uarm || uarmc)) {
+        if (touch_petrifies(mon->data) && !(player_armor_undershirt || player_armor || player_armor_cloak)) {
             Snprintf(gk.killer.name, sizeof gk.killer.name, "being hit by %s",
                      /* combine m_monnam() and noname_monnam():
                         "{your,a} hurtling cockatrice" w/o assigned name */
@@ -1092,7 +1092,7 @@ hurtle(int dx, int dy, int range, boolean verbose)
      * bother with all of that, assume that there is no slack in the chain
      * for diagonal movement, give the player a message and return.
      */
-    if (Punished && !carried(uball)) {
+    if (Punished && !carried(player_ball)) {
         You_feel("a tug from the iron ball.");
         nomul(0);
         return;
@@ -1306,8 +1306,8 @@ toss_up(struct obj *obj, boolean hitsroof)
                      && polymon(PM_STONE_GOLEM))) {
                 /* egg ends up "all over your face"; perhaps
                    visored helmet should still save you here */
-                if (uarmh)
-                    Your("%s fails to protect you.", helm_simple_name(uarmh));
+                if (player_armor_hat)
+                    Your("%s fails to protect you.", helm_simple_name(player_armor_hat));
                 goto petrify;
             }
             /*FALLTHRU*/
@@ -1338,7 +1338,7 @@ toss_up(struct obj *obj, boolean hitsroof)
     } else { /* neither potion nor other breaking object */
         int material = objects[otyp].oc_material;
         boolean is_silver = (material == SILVER),
-                less_damage = (hard_helmet(uarmh)
+                less_damage = (hard_helmet(player_armor_hat)
                                && (!is_silver || !Hate_silver)),
                 harmless = (stone_missile(obj)
                             && passes_rocks(gy.youmonst.data)),
@@ -1376,7 +1376,7 @@ toss_up(struct obj *obj, boolean hitsroof)
             dmg = 0; /* beware negative rings of increase damage */
         dmg = Maybe_Half_Phys(dmg);
 
-        if (uarmh) {
+        if (player_armor_hat) {
             /* note: 'harmless' and 'petrifier' are mutually exclusive */
             if ((less_damage && dmg < (Upolyd ? u.mh : u.hit_points)) || harmless) {
                 if (!artimsg) {
@@ -1384,13 +1384,13 @@ toss_up(struct obj *obj, boolean hitsroof)
                         pline("Fortunately, you are wearing a hard helmet.");
                     else
                         pline("Unfortunately, you are wearing %s.",
-                              an(helm_simple_name(uarmh))); /* helm or hat */
+                              an(helm_simple_name(player_armor_hat))); /* helm or hat */
                 }
 
             /* helmet definitely protects you when it blocks petrification */
             } else if (!petrifier) {
                 if (flags.verbose)
-                    Your("%s does not protect you.", helm_simple_name(uarmh));
+                    Your("%s does not protect you.", helm_simple_name(player_armor_hat));
             }
             /* stone missile against hero in xorn form would have been
                harmless, but hitting a worn helmet negates that */
@@ -1471,7 +1471,7 @@ throwit(struct obj *obj,
     if ((obj->cursed || obj->greased) && (u.dx || u.dy) && !random_integer_between_zero_and(7)) {
         boolean slipok = TRUE;
 
-        if (ammo_and_launcher(obj, uwep)) {
+        if (ammo_and_launcher(obj, player_weapon)) {
             pline("%s!", Tobjnam(obj, "misfire"));
         } else {
             /* only slip if it's greased or meant to be thrown */
@@ -1512,9 +1512,9 @@ throwit(struct obj *obj,
        will be left with a stale pointer. */
 
     if (u.uswallow) {
-        if (obj == uball) {
-            uball->ox = uchain->ox = u.ux;
-            uball->oy = uchain->oy = u.uy;
+        if (obj == player_ball) {
+            player_ball->ox = player_chain->ox = u.ux;
+            player_ball->oy = player_chain->oy = u.uy;
         }
         mon = u.monster_stuck_to;
         gb.bhitpos.x = mon->mx;
@@ -1556,8 +1556,8 @@ throwit(struct obj *obj,
         }
     } else {
         /* crossbow range is independent of strength */
-        crossbowing = (ammo_and_launcher(obj, uwep)
-                       && weapon_type(uwep) == P_CROSSBOW);
+        crossbowing = (ammo_and_launcher(obj, player_weapon)
+                       && weapon_type(player_weapon) == P_CROSSBOW);
         urange = (crossbowing ? 18 : (int) ATTRIBUTE_CURRENT_STRENGTH) / 2;
         /* balls are easy to throw or at least roll;
          * also, this insures the maximum range of a ball is greater
@@ -1568,7 +1568,7 @@ throwit(struct obj *obj,
             range = urange - (int) (obj->owt / 100);
         else
             range = urange - (int) (obj->owt / 40);
-        if (obj == uball) {
+        if (obj == player_ball) {
             if (u.monster_stuck_to)
                 range = 1;
             else if (range >= 5)
@@ -1578,7 +1578,7 @@ throwit(struct obj *obj,
             range = 1;
 
         if (is_ammo(obj)) {
-            if (ammo_and_launcher(obj, uwep)) {
+            if (ammo_and_launcher(obj, player_weapon)) {
                 if (crossbowing)
                     range = BOLT_LIM;
                 else
@@ -1605,7 +1605,7 @@ throwit(struct obj *obj,
             /* if an aklys is going to return, range is limited by the
                length of the attached cord [implicit aspect of item] */
             range = min(range, BOLT_LIM / 2);
-        else if (obj == uball && u.utrap && u.utraptype == TT_INFLOOR)
+        else if (obj == player_ball && u.utrap && u.utraptype == TT_INFLOOR)
             range = 1;
 
         if (Underwater)
@@ -1660,7 +1660,7 @@ throwit(struct obj *obj,
             tmp_at(DISP_END, 0);
     } else if (u.uswallow && !iflags.returning_missile) {
  swallowit:
-        if (obj != uball)
+        if (obj != player_ball)
             (void) mpickobj(u.monster_stuck_to, obj); /* clears 'gt.thrownobj' */
         else
             clear_thrownobj = TRUE;
@@ -1787,11 +1787,11 @@ throwit(struct obj *obj,
         }
         /* charge for items thrown out of shop;
            shk takes possession for items thrown into one */
-        if ((*u.ushops || obj->unpaid) && obj != uball)
+        if ((*u.ushops || obj->unpaid) && obj != player_ball)
             check_shop_obj(obj, gb.bhitpos.x, gb.bhitpos.y, FALSE);
 
         stackobj(obj);
-        if (obj == uball)
+        if (obj == player_ball)
             drop_ball(gb.bhitpos.x, gb.bhitpos.y);
         if (cansee(gb.bhitpos.x, gb.bhitpos.y))
             newsym(gb.bhitpos.x, gb.bhitpos.y);
@@ -1849,11 +1849,11 @@ return_throw_to_inv(
             && ((obj->owornmask | wep_mask) & (WEARING_WEAPON | WEARING_SECONDARY_WEAPON)) != 0)
             setuqwep((struct obj *) 0);
 
-        if ((wep_mask & WEARING_WEAPON) && !uwep)
+        if ((wep_mask & WEARING_WEAPON) && !player_weapon)
             setuwep(obj);
-        else if ((wep_mask & WEARING_SECONDARY_WEAPON) && !uswapwep)
+        else if ((wep_mask & WEARING_SECONDARY_WEAPON) && !player_secondary_weapon)
             setuswapwep(obj);
-        else if ((wep_mask & WEARING_QUIVER) && !uquiver)
+        else if ((wep_mask & WEARING_QUIVER) && !player_quiver)
             setuqwep(obj);
 
         /* in case the throw ended dual-wielding, reinstate it after
@@ -1889,7 +1889,7 @@ omon_adj(struct monster *mon, struct obj *obj, boolean mon_notices)
     /* some objects are more likely to hit than others */
     switch (obj->otyp) {
     case HEAVY_IRON_BALL:
-        if (obj != uball)
+        if (obj != player_ball)
             tmp += 2;
         break;
     case BOULDER:
@@ -1975,7 +1975,7 @@ thitmonst(
     boolean guaranteed_hit = engulfing_u(mon);
     int dieroll;
 
-    hmode = (obj == uwep) ? HMON_APPLIED
+    hmode = (obj == player_weapon) ? HMON_APPLIED
               : (obj == gk.kickedobj) ? HMON_KICKED
                 : HMON_THROWN;
 
@@ -2011,8 +2011,8 @@ thitmonst(
     tmp += disttmp;
 
     /* gloves are a hindrance to proper use of bows */
-    if (uarmg && uwep && objects[uwep->otyp].oc_skill == P_BOW) {
-        switch (uarmg->otyp) {
+    if (player_armor_gloves && player_weapon && objects[player_weapon->otyp].oc_skill == P_BOW) {
+        switch (player_armor_gloves->otyp) {
         case GAUNTLETS_OF_POWER: /* metal */
             tmp -= 2;
             break;
@@ -2023,7 +2023,7 @@ thitmonst(
         case GAUNTLETS_OF_DEXTERITY:
             break;
         default:
-            impossible("Unknown type of gloves (%d)", uarmg->otyp);
+            impossible("Unknown type of gloves (%d)", player_armor_gloves->otyp);
             break;
         }
     }
@@ -2113,13 +2113,13 @@ thitmonst(
             /* throwing adjustments and weapon skill bonus don't apply */
             tmp -= (is_ammo(obj) ? 5 : 3);
         } else if (is_ammo(obj)) {
-            if (!ammo_and_launcher(obj, uwep)) {
+            if (!ammo_and_launcher(obj, player_weapon)) {
                 tmp -= 4;
             } else {
-                tmp += uwep->spe - greatest_erosion(uwep);
-                tmp += weapon_hit_bonus(uwep);
-                if (uwep->oartifact)
-                    tmp += spec_abon(uwep, mon);
+                tmp += player_weapon->spe - greatest_erosion(player_weapon);
+                tmp += weapon_hit_bonus(player_weapon);
+                if (player_weapon->oartifact)
+                    tmp += spec_abon(player_weapon, mon);
                 /*
                  * Elves and Samurais are highly trained w/bows,
                  * especially their own special types of bow.
@@ -2127,10 +2127,10 @@ thitmonst(
                  */
                 if ((Race_if(PM_ELF) || Role_if(PM_SAMURAI))
                     && (!Upolyd || your_race(gy.youmonst.data))
-                    && objects[uwep->otyp].oc_skill == P_BOW) {
+                    && objects[player_weapon->otyp].oc_skill == P_BOW) {
                     ++tmp;
-                    if ((Race_if(PM_ELF) && uwep->otyp == ELVEN_BOW)
-                        || (Role_if(PM_SAMURAI) && uwep->otyp == YUMI))
+                    if ((Race_if(PM_ELF) && player_weapon->otyp == ELVEN_BOW)
+                        || (Role_if(PM_SAMURAI) && player_weapon->otyp == YUMI))
                         ++tmp;
                 }
             }
@@ -2193,7 +2193,7 @@ thitmonst(
 
             exercise(ATTRIBUTE_DEXTERITY, TRUE);
             if (!hmon(mon, obj, hmode, dieroll)) { /* mon killed */
-                if (was_swallowed && !u.uswallow && obj == uball)
+                if (was_swallowed && !u.uswallow && obj == player_ball)
                     return 1; /* already did placebc() */
             }
         } else {
@@ -2634,9 +2634,9 @@ throw_gold(struct obj *obj)
             pline_The("gold hits the %s, then falls back on top of your %s.",
                       ceiling(u.ux, u.uy), body_part(HEAD));
             /* some self damage? */
-            if (uarmh)
+            if (player_armor_hat)
                 pline("Fortunately, you are wearing %s!",
-                      an(helm_simple_name(uarmh)));
+                      an(helm_simple_name(player_armor_hat)));
         }
         gb.bhitpos.x = u.ux;
         gb.bhitpos.y = u.uy;

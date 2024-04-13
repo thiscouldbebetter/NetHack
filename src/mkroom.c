@@ -497,7 +497,7 @@ antholemon(void)
     int mtyp, indx, trycnt = 0;
 
     /* casts are for dealing with time_t */
-    indx = (int) ((long) ubirthday % 3L);
+    indx = (int) ((long) player_birthday % 3L);
     indx += level_difficulty();
     /* Same monsters within a level, different ones between levels */
     do {

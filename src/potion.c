@@ -98,7 +98,7 @@ make_confused(long xtime, boolean talk)
             You_feel("less %s now.", Hallucination ? "trippy" : "confused");
     }
     if ((xtime && !old) || (!xtime && old))
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
 
     set_itimeout(&HConfusion, xtime);
 }
@@ -125,7 +125,7 @@ make_stunned(long xtime, boolean talk)
         }
     }
     if ((!xtime && old) || (xtime && !old))
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
 
     set_itimeout(&HStun, xtime);
 }
@@ -159,7 +159,7 @@ make_sick(long xtime,
         }
         set_itimeout(&Sick, xtime);
         u.usick_type |= type;
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     } else if (old && (type & u.usick_type)) {
         /* was sick, now not */
         u.usick_type &= ~type;
@@ -172,7 +172,7 @@ make_sick(long xtime,
                 You_feel("cured.  What a relief!");
             Sick = 0L; /* set_itimeout(&Sick, 0L) */
         }
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     }
 
     kptr = find_delayed_killer(SICK);
@@ -202,7 +202,7 @@ make_slimed(long xtime, const char *msg)
 #endif
     set_itimeout(&Slimed, xtime);
     if ((xtime != 0L) ^ (old != 0L)) {
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         if (msg)
             pline("%s", msg);
     }
@@ -229,7 +229,7 @@ make_stoned(long xtime, const char *msg, int killedby, const char *killername)
 #endif
     set_itimeout(&Stoned, xtime);
     if ((xtime != 0L) ^ (old != 0L)) {
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         if (msg)
             pline("%s", msg);
     }
@@ -248,7 +248,7 @@ make_vomiting(long xtime, boolean talk)
         talk = FALSE;
 
     set_itimeout(&Vomiting, xtime);
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     if (!xtime && old)
         if (talk)
             You_feel("much less nauseated now.");
@@ -335,10 +335,10 @@ make_blinded(long xtime, boolean talk)
 void
 toggle_blindness(void)
 {
-    boolean Stinging = (uwep && (EWarn_of_mon & WEARING_WEAPON) != 0L);
+    boolean Stinging = (player_weapon && (EWarn_of_mon & WEARING_WEAPON) != 0L);
 
     /* blindness has just been toggled */
-    disp.botl = TRUE; /* status conditions need update */
+    disp.bottom_line = TRUE; /* status conditions need update */
     gv.vision_full_recalc = 1; /* vision has changed */
     /* this vision recalculation used to be deferred until moveloop(),
        but that made it possible for vision irregularities to occur
@@ -430,7 +430,7 @@ make_hallucinated(
         (eg. Qt windowport's equipped items display) */
         update_inventory();
 
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         if (talk)
             pline(message, verb);
     }
@@ -449,7 +449,7 @@ make_deaf(long xtime, boolean talk)
 
     set_itimeout(&HDeaf, xtime);
     if ((xtime != 0L) ^ (old != 0L)) {
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         if (talk)
             You(old && !Deaf ? "can hear again."
                              : "are unable to hear anything.");
@@ -460,10 +460,10 @@ make_deaf(long xtime, boolean talk)
 void
 make_glib(int xtime)
 {
-    disp.botl |= (!Glib ^ !!xtime);
+    disp.bottom_line |= (!Glib ^ !!xtime);
     set_itimeout(&Glib, xtime);
     /* may change "(being worn)" to "(being worn; slippery)" or vice versa */
-    if (uarmg)
+    if (player_armor_gloves)
         update_inventory();
 }
 
@@ -657,7 +657,7 @@ peffect_restore_ability(struct obj *otmp)
                WEAK or worse, but that's handled via ATEMP(ATTRIBUTE_STRENGTH) now */
             if (ATTRIBUTE_BASE(i) < lim) {
                 ATTRIBUTE_BASE(i) = lim;
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
                 /* only first found if not blessed */
                 if (!otmp->blessed)
                     break;
@@ -800,8 +800,8 @@ peffect_invisibility(struct obj *otmp)
     boolean is_spell = (otmp->oclass == SPBOOK_CLASS);
 
     /* spell cannot penetrate mummy wrapping */
-    if (is_spell && BInvis && uarmc->otyp == MUMMY_WRAPPING) {
-        You_feel("rather itchy under %s.", yname(uarmc));
+    if (is_spell && BInvis && player_armor_cloak->otyp == MUMMY_WRAPPING) {
+        You_feel("rather itchy under %s.", yname(player_armor_cloak));
         return;
     }
     if (Invis || Blind || BInvis) {
@@ -1179,7 +1179,7 @@ peffect_levitation(struct obj *otmp)
                resulted in incrementing 'nothing' */
             gp.potion_nothing = 0; /* not nothing after all */
         } else if (has_ceiling(&u.uz)) {
-            int dmg = random(!uarmh ? 10 : !hard_helmet(uarmh) ? 6 : 3);
+            int dmg = random(!player_armor_hat ? 10 : !hard_helmet(player_armor_hat) ? 6 : 3);
 
             You("hit your %s on the %s.", body_part(HEAD),
                 ceiling(u.ux, u.uy));
@@ -1234,7 +1234,7 @@ peffect_gain_energy(struct obj *otmp)
         u.energy = u.energy_max;
     else if (u.energy <= 0)
         u.energy = 0;
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     exercise(ATTRIBUTE_WISDOM, TRUE);
 }
 
@@ -1435,7 +1435,7 @@ healup(int nhp, int nxtra, boolean curesick, boolean cureblind)
         make_vomiting(0L, TRUE);
         make_sick(0L, (char *) 0, TRUE, SICK_ALL);
     }
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     return;
 }
 
@@ -1938,7 +1938,7 @@ potionbreathe(struct obj *obj)
                     ATTRIBUTE_BASE(i)++;
                     /* only first found if not blessed */
                     isdone = !(obj->blessed);
-                    disp.botl = TRUE;
+                    disp.bottom_line = TRUE;
                 }
                 if (++i >= ATTRIBUTE_COUNT)
                     i = 0;
@@ -1947,24 +1947,24 @@ potionbreathe(struct obj *obj)
         break;
     case POT_FULL_HEALING:
         if (Upolyd && u.mh < u.mhmax)
-            u.mh++, disp.botl = TRUE;
+            u.mh++, disp.bottom_line = TRUE;
         if (u.hit_points < u.hit_points_max)
-            u.hit_points++, disp.botl = TRUE;
+            u.hit_points++, disp.bottom_line = TRUE;
         cureblind = TRUE;
         /*FALLTHRU*/
     case POT_EXTRA_HEALING:
         if (Upolyd && u.mh < u.mhmax)
-            u.mh++, disp.botl = TRUE;
+            u.mh++, disp.bottom_line = TRUE;
         if (u.hit_points < u.hit_points_max)
-            u.hit_points++, disp.botl = TRUE;
+            u.hit_points++, disp.bottom_line = TRUE;
         if (!obj->cursed)
             cureblind = TRUE;
         /*FALLTHRU*/
     case POT_HEALING:
         if (Upolyd && u.mh < u.mhmax)
-            u.mh++, disp.botl = TRUE;
+            u.mh++, disp.bottom_line = TRUE;
         if (u.hit_points < u.hit_points_max)
-            u.hit_points++, disp.botl = TRUE;
+            u.hit_points++, disp.bottom_line = TRUE;
         if (obj->blessed)
             cureblind = TRUE;
         if (cureblind) {
@@ -1986,7 +1986,7 @@ potionbreathe(struct obj *obj)
                 else
                     u.hit_points -= 5;
             }
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             exercise(ATTRIBUTE_CONSTITUTION, FALSE);
         }
         break;
@@ -2311,7 +2311,7 @@ dodip(void)
                 } else if (u.monster_being_ridden && !is_swimmer(u.monster_being_ridden->data)
                            && P_SKILL(P_RIDING) < P_BASIC) {
                     rider_cant_reach(); /* not skilled enough to reach */
-                } else if (is_hands || obj == uarmg) {
+                } else if (is_hands || obj == player_armor_gloves) {
                     if (!is_hands)
                         obj->pickup_prev = 0;
                     (void) wash_hands();
@@ -2392,7 +2392,7 @@ potion_dip(struct obj *obj, struct obj *potion)
     obj->pickup_prev = 0; /* no longer 'recently picked up' */
     potion->in_use = TRUE; /* assume it will be used up */
     if (potion->otyp == POT_WATER) {
-        boolean useeit = !Blind || (obj == ublindf && Blindfolded_only);
+        boolean useeit = !Blind || (obj == player_blindfold && Blindfolded_only);
         const char *obj_glows = Yobjnam2(obj, "glow");
 
         if (H2Opotion_dip(potion, obj, useeit, obj_glows))
@@ -2833,7 +2833,7 @@ split_mon(
         if (mtmp2) {
             mtmp2->mhpmax = u.mhmax / 2;
             u.mhmax -= mtmp2->mhpmax;
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             You("multiply%s!", reason);
         }
     } else {

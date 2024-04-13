@@ -16,22 +16,22 @@ static const struct worn {
     long w_mask;
     struct obj **w_obj;
     const char *w_what; /* for failing sanity check's feedback */
-} worn[] = { { WEARING_ARMOR_BODY, &uarm, "suit" },
-             { WEARING_ARMOR_CLOAK, &uarmc, "cloak" },
-             { WEARING_ARMOR_HELMET, &uarmh, "helmet" },
-             { WEARING_ARMOR_SHIELD, &uarms, "shield" },
-             { WEARING_ARMOR_GLOVES, &uarmg, "gloves" },
-             { WEARING_ARMOR_FOOTWEAR, &uarmf, "boots" },
-             { WEARING_ARMOR_UNDERSHIRT, &uarmu, "shirt" },
-             { WEARING_RING_LEFT, &uleft, "left ring" },
-             { WEARING_RING_RIGHT, &uright, "right ring" },
-             { WEARING_WEAPON, &uwep, "weapon" },
-             { WEARING_SECONDARY_WEAPON, &uswapwep, "alternate weapon" },
-             { WEARING_QUIVER, &uquiver, "quiver" },
-             { WEARING_AMULET, &uamul, "amulet" },
-             { WEARING_TOOL, &ublindf, "facewear" }, /* blindfold|towel|lenses */
-             { WEARING_BALL, &uball, "chained ball" },
-             { WEARING_CHAIN, &uchain, "attached chain" },
+} worn[] = { { WEARING_ARMOR_BODY, &player_armor, "suit" },
+             { WEARING_ARMOR_CLOAK, &player_armor_cloak, "cloak" },
+             { WEARING_ARMOR_HELMET, &player_armor_hat, "helmet" },
+             { WEARING_ARMOR_SHIELD, &player_armor_shield, "shield" },
+             { WEARING_ARMOR_GLOVES, &player_armor_gloves, "gloves" },
+             { WEARING_ARMOR_FOOTWEAR, &player_armor_footwear, "boots" },
+             { WEARING_ARMOR_UNDERSHIRT, &player_armor_undershirt, "shirt" },
+             { WEARING_RING_LEFT, &player_finger_left, "left ring" },
+             { WEARING_RING_RIGHT, &player_finger_right, "right ring" },
+             { WEARING_WEAPON, &player_weapon, "weapon" },
+             { WEARING_SECONDARY_WEAPON, &player_secondary_weapon, "alternate weapon" },
+             { WEARING_QUIVER, &player_quiver, "quiver" },
+             { WEARING_AMULET, &player_amulet, "amulet" },
+             { WEARING_TOOL, &player_blindfold, "facewear" }, /* blindfold|towel|lenses */
+             { WEARING_BALL, &player_ball, "chained ball" },
+             { WEARING_CHAIN, &player_chain, "attached chain" },
              { 0, 0, (char *) 0 }
 };
 
@@ -56,7 +56,7 @@ setworn(struct obj *obj, long mask)
 
     if ((mask & (WEARING_ARMOR_BODY | I_SPECIAL)) == (WEARING_ARMOR_BODY | I_SPECIAL)) {
         /* restoring saved game; no properties are conferred via skin */
-        uskin = obj;
+        player_skin_if_dragon = obj;
         /* assert( !uarm ); */
     } else {
         for (wp = worn; wp->w_mask; wp++) {
@@ -113,7 +113,7 @@ setworn(struct obj *obj, long mask)
         if (obj && (obj->owornmask & WEARING_ARMOR) != 0L)
             u.uroleplay.nudist = FALSE;
         /* tux -> tuxedo -> "monkey suit" -> monk's suit */
-        iflags.tux_penalty = (uarm && Role_if(PM_MONK) && gu.urole.spelarmr);
+        iflags.tux_penalty = (player_armor && Role_if(PM_MONK) && gu.urole.spelarmr);
     }
     update_inventory();
 }
@@ -128,7 +128,7 @@ setnotworn(struct obj *obj)
 
     if (!obj)
         return;
-    if (u.using_two_weapons && (obj == uwep || obj == uswapwep))
+    if (u.using_two_weapons && (obj == player_weapon || obj == player_secondary_weapon))
         set_twoweap(FALSE); /* u.twoweap = FALSE */
     for (wp = worn; wp->w_mask; wp++)
         if (obj == *(wp->w_obj)) {
@@ -146,7 +146,7 @@ setnotworn(struct obj *obj)
             if ((p = w_blocks(obj, wp->w_mask)) != 0)
                 u.uprops[p].blocked &= ~wp->w_mask;
         }
-    if (!uarm)
+    if (!player_armor)
         iflags.tux_penalty = FALSE;
     update_inventory();
 }
@@ -298,7 +298,7 @@ check_wornmask_slots(void)
                 /* embedded scales owornmask is W_ARM|I_SPECIAL so would
                    give a false complaint about item other than uarm having
                    W_ARM bit set if we didn't screen it out here */
-                && (m != WEARING_ARMOR_BODY || otmp != uskin
+                && (m != WEARING_ARMOR_BODY || otmp != player_skin_if_dragon
                     || (otmp->owornmask & I_SPECIAL) == 0L)) {
                 Sprintf(whybuf, "%s [0x%08lx] has %s mask 0x%08lx bit set",
                         simpleonames(otmp), otmp->owornmask, wp->w_what, m);
@@ -308,10 +308,10 @@ check_wornmask_slots(void)
     } /* for wp in worn[] */
 
 #ifdef EXTRA_SANITY_CHECKS
-    if (uskin) {
+    if (player_skin_if_dragon) {
         const char *what = "embedded scales";
 
-        o = uskin;
+        o = player_skin_if_dragon;
         m = WEARING_ARMOR_BODY | I_SPECIAL;
         whybuf[0] = '\0';
         for (otmp = gi.invent; otmp; otmp = otmp->nobj)
@@ -342,26 +342,26 @@ check_wornmask_slots(void)
     if (u.using_two_weapons) {
         const char *why = NULL;
 
-        if (!uwep || !uswapwep) {
+        if (!player_weapon || !player_secondary_weapon) {
             Sprintf(whybuf, "without %s%s%s",
-                    !uwep ? "uwep" : "",
-                    (!uwep && !uswapwep) ? " and without " : "",
-                    !uswapwep ? "uswapwep" : "");
+                    !player_weapon ? "uwep" : "",
+                    (!player_weapon && !player_secondary_weapon) ? " and without " : "",
+                    !player_secondary_weapon ? "uswapwep" : "");
             why = whybuf;
-        } else if (uarms)
+        } else if (player_armor_shield)
             why = "while wearing shield";
-        else if (uwep->oclass != WEAPON_CLASS && !is_weptool(uwep))
+        else if (player_weapon->oclass != WEAPON_CLASS && !is_weptool(player_weapon))
             why = "uwep is not a weapon";
-        else if (is_launcher(uwep) || is_ammo(uwep) || is_missile(uwep))
+        else if (is_launcher(player_weapon) || is_ammo(player_weapon) || is_missile(player_weapon))
             why = "uwep is not a melee weapon";
-        else if (bimanual(uwep))
+        else if (bimanual(player_weapon))
             why = "uwep is two-handed";
-        else if (uswapwep->oclass != WEAPON_CLASS && !is_weptool(uswapwep))
+        else if (player_secondary_weapon->oclass != WEAPON_CLASS && !is_weptool(player_secondary_weapon))
             why = "uswapwep is not a weapon";
-        else if (is_launcher(uswapwep) || is_ammo(uswapwep)
-                 || is_missile(uswapwep))
+        else if (is_launcher(player_secondary_weapon) || is_ammo(player_secondary_weapon)
+                 || is_missile(player_secondary_weapon))
             why = "uswapwep is not a melee weapon";
-        else if (bimanual(uswapwep))
+        else if (bimanual(player_secondary_weapon))
             why = "uswapwep is two-handed";
         else if (!could_twoweap(gy.youmonst.data))
             why = "without two weapon attacks";
@@ -896,19 +896,19 @@ which_armor(struct monster *mon, long flag)
     if (mon == &gy.youmonst) {
         switch (flag) {
         case WEARING_ARMOR_BODY:
-            return uarm;
+            return player_armor;
         case WEARING_ARMOR_CLOAK:
-            return uarmc;
+            return player_armor_cloak;
         case WEARING_ARMOR_HELMET:
-            return uarmh;
+            return player_armor_hat;
         case WEARING_ARMOR_SHIELD:
-            return uarms;
+            return player_armor_shield;
         case WEARING_ARMOR_GLOVES:
-            return uarmg;
+            return player_armor_gloves;
         case WEARING_ARMOR_FOOTWEAR:
-            return uarmf;
+            return player_armor_footwear;
         case WEARING_ARMOR_UNDERSHIRT:
-            return uarmu;
+            return player_armor_undershirt;
         default:
             impossible("bad flag in which_armor");
             return 0;
@@ -994,10 +994,10 @@ clear_bypasses(void)
         clear_bypass(mtmp->minvent);
     /* ball and chain can be "floating", not on any object chain (when
        hero is swallowed by an engulfing monster, for instance) */
-    if (uball)
-        uball->bypass = 0;
-    if (uchain)
-        uchain->bypass = 0;
+    if (player_ball)
+        player_ball->bypass = 0;
+    if (player_chain)
+        player_chain->bypass = 0;
 
     gc.context.bypasses = FALSE;
 }

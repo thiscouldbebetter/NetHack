@@ -317,10 +317,10 @@ fmt_elapsed_time(char *outbuf, int final)
        game time from previous sessions up through most recent save/restore
        (or up through latest level change when 'checkpoint' is On);
        '.start_timing' has a non-zero value even if '.realtime' is 0 */
-    long etim = urealtime.realtime;
+    long etim = player_realtime.realtime;
 
     if (!final)
-        etim += timet_delta(getnow(), urealtime.start_timing);
+        etim += timet_delta(getnow(), player_realtime.start_timing);
     /* we could use localtime() to convert the value into a 'struct tm'
        to get date and time fields but this is simple and straightforward */
     eseconds = etim % 60L, etim /= 60L;
@@ -829,27 +829,27 @@ one_characteristic(int mode, int final, int attrindx)
     if (Upolyd) {
         hide_innate_value = TRUE;
     } else if (Fixed_abil) {
-        if (stuck_ring(uleft, RIN_SUSTAIN_ABILITY)
-            || stuck_ring(uright, RIN_SUSTAIN_ABILITY))
+        if (stuck_ring(player_finger_left, RIN_SUSTAIN_ABILITY)
+            || stuck_ring(player_finger_right, RIN_SUSTAIN_ABILITY))
             hide_innate_value = TRUE;
     }
     switch (attrindx) {
     case ATTRIBUTE_STRENGTH:
-        if (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER && uarmg->cursed)
+        if (player_armor_gloves && player_armor_gloves->otyp == GAUNTLETS_OF_POWER && player_armor_gloves->cursed)
             hide_innate_value = TRUE;
         break;
     case ATTRIBUTE_DEXTERITY:
         break;
     case ATTRIBUTE_CONSTITUTION:
-        if (u_wield_art(ART_OGRESMASHER) && uwep->cursed)
+        if (u_wield_art(ART_OGRESMASHER) && player_weapon->cursed)
             hide_innate_value = TRUE;
         break;
     case ATTRIBUTE_INTELLIGENCE:
-        if (uarmh && uarmh->otyp == DUNCE_CAP && uarmh->cursed)
+        if (player_armor_hat && player_armor_hat->otyp == DUNCE_CAP && player_armor_hat->cursed)
             hide_innate_value = TRUE;
         break;
     case ATTRIBUTE_WISDOM:
-        if (uarmh && uarmh->otyp == DUNCE_CAP && uarmh->cursed)
+        if (player_armor_hat && player_armor_hat->otyp == DUNCE_CAP && player_armor_hat->cursed)
             hide_innate_value = TRUE;
         break;
     case ATTRIBUTE_CHARISMA:
@@ -1044,8 +1044,8 @@ status_enlightenment(int mode, int final)
 
     /* external troubles, more or less */
     if (Punished) {
-        if (uball) {
-            Sprintf(buf, "chained to %s", ansimpleoname(uball));
+        if (player_ball) {
+            Sprintf(buf, "chained to %s", ansimpleoname(player_ball));
         } else {
             impossible("Punished without uball?");
             Strcpy(buf, "punished");
@@ -1221,11 +1221,11 @@ status_enlightenment(int mode, int final)
         (void) enlght_combatinc("to hit", -gu.urole.spelarmr, final, buf);
         /* if from_what() ever gets extended from wizard mode to normal
            play, it could be adapted to handle this */
-        Sprintf(eos(buf), " due to your %s", suit_simple_name(uarm));
+        Sprintf(eos(buf), " due to your %s", suit_simple_name(player_armor));
         you_have(buf, "");
     }
     /* report 'nudity' */
-    if (!uarm && !uarmu && !uarmc && !uarms && !uarmg && !uarmf && !uarmh) {
+    if (!player_armor && !player_armor_undershirt && !player_armor_cloak && !player_armor_shield && !player_armor_gloves && !player_armor_footwear && !player_armor_hat) {
         if (u.uroleplay.nudist)
             enl_msg(You_, "do", "did", " not wear any armor", "");
         else
@@ -1242,7 +1242,7 @@ weapon_insight(int final)
 
     /* report being weaponless; distinguish whether gloves are worn
        [perhaps mention silver ring(s) when not wearing gloves?] */
-    if (!uwep) {
+    if (!player_weapon) {
         you_are(empty_handed(), "");
 
     /* two-weaponing implies hands and
@@ -1254,12 +1254,12 @@ weapon_insight(int final)
        described as a long sword, for instance; mattock, hook, and aklys
        are exceptions), or wielded non-weapon item by its object class */
     } else {
-        const char *what = weapon_descr(uwep);
+        const char *what = weapon_descr(player_weapon);
 
         /* [what about other silver items?] */
-        if (uwep->otyp == SHIELD_OF_REFLECTION)
-            what = shield_simple_name(uwep); /* silver|smooth shield */
-        else if (is_wet_towel(uwep))
+        if (player_weapon->otyp == SHIELD_OF_REFLECTION)
+            what = shield_simple_name(player_weapon); /* silver|smooth shield */
+        else if (is_wet_towel(player_weapon))
             what = /* (uwep->spe < 3) ? "moist towel" : */ "wet towel";
 
         if (!strcmpi(what, "armor") || !strcmpi(what, "food")
@@ -1268,7 +1268,7 @@ weapon_insight(int final)
         else
             /* [maybe include known blessed?] */
             Sprintf(buf, "wielding %s",
-                    (uwep->quan == 1L) ? an(what) : makeplural(what));
+                    (player_weapon->quan == 1L) ? an(what) : makeplural(what));
         you_are(buf, "");
     }
 
@@ -1276,7 +1276,7 @@ weapon_insight(int final)
      * Skill with current weapon.  Might help players who've never
      * noticed #enhance or decided that it was pointless.
      */
-    if ((wtype = weapon_type(uwep)) != P_NONE && (!uwep || !is_ammo(uwep))) {
+    if ((wtype = weapon_type(player_weapon)) != P_NONE && (!player_weapon || !is_ammo(player_weapon))) {
         char sklvlbuf[20];
         int sklvl = P_SKILL(wtype);
         boolean hav = (sklvl != P_UNSKILLED && sklvl != P_SKILLED);
@@ -1305,7 +1305,7 @@ weapon_insight(int final)
                 sknambuf2[20], sklvlbuf2[20], twobuf[20];
             const char *also = "", *also2 = "", *also3 = (char *) 0,
                        *verb_present, *verb_past;
-            int wtype2 = weapon_type(uswapwep),
+            int wtype2 = weapon_type(player_secondary_weapon),
                 sklvl2 = P_SKILL(wtype2),
                 twoskl = P_SKILL(P_TWO_WEAPON_COMBAT);
             boolean a1, a2, ab,
@@ -1613,10 +1613,10 @@ attributes_enlightenment(
     if (Adornment) {
         int adorn = 0;
 
-        if (uleft && uleft->otyp == RIN_ADORNMENT)
-            adorn += uleft->spe;
-        if (uright && uright->otyp == RIN_ADORNMENT)
-            adorn += uright->spe;
+        if (player_finger_left && player_finger_left->otyp == RIN_ADORNMENT)
+            adorn += player_finger_left->spe;
+        if (player_finger_right && player_finger_right->otyp == RIN_ADORNMENT)
+            adorn += player_finger_right->spe;
         /* the sum might be 0 (+0 ring or two which negate each other);
            that yields "you are charismatic" (which isn't pointless
            because it potentially impacts seduction attacks) */
@@ -1753,11 +1753,11 @@ attributes_enlightenment(
     if (u.spell_protection || Protection) {
         int prot = 0;
 
-        if (uleft && uleft->otyp == RIN_PROTECTION)
-            prot += uleft->spe;
-        if (uright && uright->otyp == RIN_PROTECTION)
-            prot += uright->spe;
-        if (uamul && uamul->otyp == AMULET_OF_GUARDING)
+        if (player_finger_left && player_finger_left->otyp == RIN_PROTECTION)
+            prot += player_finger_left->spe;
+        if (player_finger_right && player_finger_right->otyp == RIN_PROTECTION)
+            prot += player_finger_right->spe;
+        if (player_amulet && player_amulet->otyp == AMULET_OF_GUARDING)
             prot += 2;
         if (HProtection & INTRINSIC)
             prot += u.blessed;

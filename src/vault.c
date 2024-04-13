@@ -70,8 +70,8 @@ clear_fcorr(struct monster *grd, boolean forceshow)
             forceshow = TRUE;
         if ((u_at(fcx, fcy) && !DEADMONSTER(grd))
             || (!forceshow && couldsee(fcx, fcy))
-            || (Punished && !carried(uball) && uball->ox == fcx
-                && uball->oy == fcy))
+            || (Punished && !carried(player_ball) && player_ball->ox == fcx
+                && player_ball->oy == fcy))
             return FALSE;
 
         if ((mtmp = m_at(fcx, fcy)) != 0) {

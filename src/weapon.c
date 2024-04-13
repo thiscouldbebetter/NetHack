@@ -404,15 +404,15 @@ special_dmgval(
 
     /* when no gloves we check for silver rings (blessed rings ignored) */
     } else if ((left_ring || right_ring) && magr == &gy.youmonst) {
-        if (left_ring && uleft) {
-            if (objects[uleft->otyp].oc_material == SILVER
+        if (left_ring && player_finger_left) {
+            if (objects[player_finger_left->otyp].oc_material == SILVER
                 && mon_hates_silver(mdef)) {
                 bonus += random(20);
                 silverhit |= WEARING_RING_LEFT;
             }
         }
-        if (right_ring && uright) {
-            if (objects[uright->otyp].oc_material == SILVER
+        if (right_ring && player_finger_right) {
+            if (objects[player_finger_right->otyp].oc_material == SILVER
                 && mon_hates_silver(mdef)) {
                 /* two silver rings don't give double silver damage
                    but 'silverhit' messages might be adjusted for them */
@@ -435,13 +435,13 @@ silver_sears(struct monster *magr UNUSED, struct monster *mdef,
              long silverhit)
 {
     char rings[20]; /* plenty of room for "rings" */
-    int ltyp = ((uleft && (silverhit & WEARING_RING_LEFT) != 0L)
-                ? uleft->otyp : STRANGE_OBJECT),
-        rtyp = ((uright && (silverhit & WEARING_RING_RIGHT) != 0L)
-                ? uright->otyp : STRANGE_OBJECT);
+    int ltyp = ((player_finger_left && (silverhit & WEARING_RING_LEFT) != 0L)
+                ? player_finger_left->otyp : STRANGE_OBJECT),
+        rtyp = ((player_finger_right && (silverhit & WEARING_RING_RIGHT) != 0L)
+                ? player_finger_right->otyp : STRANGE_OBJECT);
     boolean both,
-        l_dknown = (uleft && uleft->dknown),
-        r_dknown = (uright && uright->dknown),
+        l_dknown = (player_finger_left && player_finger_left->dknown),
+        r_dknown = (player_finger_right && player_finger_right->dknown),
         l_ag = (objects[ltyp].oc_material == SILVER && l_dknown),
         r_ag = (objects[rtyp].oc_material == SILVER && r_dknown);
 
@@ -673,7 +673,7 @@ select_hwep(struct monster *mtmp)
 
     if (is_giant(mtmp->data)) /* giants just love to use clubs */
         Oselect(CLUB);
-    else if (mtmp->data == &mons[PM_BALROG] && uwep)
+    else if (mtmp->data == &mons[PM_BALROG] && player_weapon)
         Oselect(BULLWHIP);
 
     /* only strong monsters can wield big (esp. long) weapons */
@@ -968,7 +968,7 @@ finish_towel_change(struct obj *obj, int newspe)
 
     /* if hero is wielding this towel, don't give "you begin bashing with
        your [wet] towel" message if it's wet, do give one if it's dry */
-    if (obj == uwep)
+    if (obj == player_weapon)
         gu.unweapon = !is_wet_towel(obj);
 
     /* description might change: "towel" vs "moist towel" vs "wet towel" */
@@ -1437,7 +1437,7 @@ uwep_skill_type(void)
 {
     if (u.using_two_weapons)
         return P_TWO_WEAPON_COMBAT;
-    return weapon_type(uwep);
+    return weapon_type(player_weapon);
 }
 
 /*
@@ -1454,7 +1454,7 @@ weapon_hit_bonus(struct obj *weapon)
     wep_type = weapon_type(weapon);
     /* use two weapon skill only if attacking with one of the wielded weapons
      */
-    type = (u.using_two_weapons && (weapon == uwep || weapon == uswapwep))
+    type = (u.using_two_weapons && (weapon == player_weapon || weapon == player_secondary_weapon))
                ? P_TWO_WEAPON_COMBAT
                : wep_type;
     if (type == P_NONE) {
@@ -1548,7 +1548,7 @@ weapon_dam_bonus(struct obj *weapon)
     wep_type = weapon_type(weapon);
     /* use two weapon skill only if attacking with one of the wielded weapons
      */
-    type = (u.using_two_weapons && (weapon == uwep || weapon == uswapwep))
+    type = (u.using_two_weapons && (weapon == player_weapon || weapon == player_secondary_weapon))
                ? P_TWO_WEAPON_COMBAT
                : wep_type;
     if (type == P_NONE) {

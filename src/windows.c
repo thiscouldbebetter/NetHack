@@ -1163,7 +1163,7 @@ dump_fmtstr(
                 break;
             case 't': /* game start, timestamp */
                 if (fullsubs)
-                    Sprintf(tmpbuf, "%lu", (unsigned long) ubirthday);
+                    Sprintf(tmpbuf, "%lu", (unsigned long) player_birthday);
                 else
                     Strcpy(tmpbuf, "{game start cookie}");
                 break;
@@ -1176,7 +1176,7 @@ dump_fmtstr(
             case 'd': /* game start, YYYYMMDDhhmmss */
                 if (fullsubs)
                     Sprintf(tmpbuf, "%08ld%06ld",
-                            yyyymmdd(ubirthday), hhmmss(ubirthday));
+                            yyyymmdd(player_birthday), hhmmss(player_birthday));
                 else
                     Strcpy(tmpbuf, "{game start date+time}");
                 break;

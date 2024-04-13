@@ -92,14 +92,27 @@ extern struct restore_info restoreinfo;
 extern NEARDATA struct savefile_info sfcap, sfrestinfo, sfsaveinfo;
 extern const int shield_static[];
 
-extern NEARDATA struct obj *uarm, *uarmc, *uarmh, *uarms, *uarmg, *uarmf,
-    *uarmu, /* under-wear, so to speak */
-    *uskin, *uamul, *uleft, *uright, *ublindf, *uwep, *uswapwep, *uquiver;
-extern NEARDATA struct obj *uchain; /* defined only when punished */
-extern NEARDATA struct obj *uball;
-extern NEARDATA struct you u;
-extern NEARDATA time_t ubirthday;
-extern NEARDATA struct u_realtime urealtime;
+extern NEARDATA struct obj
+    *player_armor,
+    *player_armor_cloak,
+    *player_armor_hat,
+    *player_armor_shield,
+    *player_armor_gloves,
+    *player_armor_footwear,
+    *player_armor_undershirt, /* under-wear, so to speak */
+    *player_skin_if_dragon,
+    *player_amulet,
+    *player_finger_left,
+    *player_finger_right,
+    *player_blindfold,
+    *player_weapon,
+    *player_secondary_weapon,
+    *player_quiver;
+extern NEARDATA struct obj *player_chain; /* defined only when punished */
+extern NEARDATA struct obj *player_ball;
+extern NEARDATA struct you u; // Too many references to rename easily.
+extern NEARDATA time_t player_birthday;
+extern NEARDATA struct u_realtime player_realtime;
 
 /* Window system stuff */
 extern NEARDATA winid WIN_MESSAGE;
@@ -122,9 +135,9 @@ extern const char *ARGV0;
 #endif
 
 struct display_hints {
-    boolean botl;            /* partially redo status line */
-    boolean botlx;           /* print an entirely new bottom line */
-    boolean time_botl;       /* context.botl for 'time' (moves) only */
+    boolean bottom_line;            /* partially redo status line */
+    boolean bottom_line_x;          /* print an entirely new bottom line */
+    boolean time_bottom_line;       /* context.botl for 'time' (moves) only */
 };
 extern struct display_hints disp;
 

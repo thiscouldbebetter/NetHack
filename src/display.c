@@ -842,16 +842,16 @@ feel_location(coordxy x, coordxy y)
              * Punished will still yield True but uchain might not be part
              * of the floor list anymore).
              */
-            if (uchain && uchain->where == OBJ_FLOOR
-                && uchain->ox == x && uchain->oy == y
-                && gl.level.objects[x][y] == uchain)
+            if (player_chain && player_chain->where == OBJ_FLOOR
+                && player_chain->ox == x && player_chain->oy == y
+                && gl.level.objects[x][y] == player_chain)
                 u.bc_felt |= BC_CHAIN;
             else
                 u.bc_felt &= ~BC_CHAIN; /* do not feel the chain */
 
-            if (uball && uball->where == OBJ_FLOOR
-                && uball->ox == x && uball->oy == y
-                && gl.level.objects[x][y] == uball)
+            if (player_ball && player_ball->where == OBJ_FLOOR
+                && player_ball->ox == x && player_ball->oy == y
+                && gl.level.objects[x][y] == player_ball)
                 u.bc_felt |= BC_BALL;
             else
                 u.bc_felt &= ~BC_BALL; /* do not feel the ball */
@@ -1712,7 +1712,7 @@ docrt_flags(int refresh_flags)
         /* perm_invent */
         update_inventory();
         /* status */
-        disp.botlx = TRUE; /* force a redraw of the bottom lines */
+        disp.bottom_line_x = TRUE; /* force a redraw of the bottom lines */
         /* note: caller needs to call bot() to actually redraw status */
     }
     gp.program_state.in_docrt = FALSE;
@@ -2132,7 +2132,7 @@ cls(void)
         return;
     in_cls = TRUE;
     display_nhwindow(WIN_MESSAGE, FALSE); /* flush messages */
-    disp.botlx = TRUE;                 /* force update of botl window */
+    disp.bottom_line_x = TRUE;                 /* force update of botl window */
     clear_nhwindow(WIN_MAP);              /* clear physical screen */
 
     clear_glyph_buffer(); /* force gbuf[][].glyph to unexplored */
@@ -2171,9 +2171,9 @@ flush_screen(int cursor_on_u)
 #endif
 
     /* get this done now, before we place the cursor on the hero */
-    if (disp.botl || disp.botlx)
+    if (disp.bottom_line || disp.bottom_line_x)
         bot();
-    else if (disp.time_botl)
+    else if (disp.time_bottom_line)
         timebot();
 
     for (y = 0; y < ROWNO; y++) {

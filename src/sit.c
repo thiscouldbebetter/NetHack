@@ -30,7 +30,7 @@ take_gold(void)
         You_feel("a strange sensation.");
     } else {
         You("notice you have no gold!");
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     }
 }
 
@@ -71,7 +71,7 @@ throne_sit_effect(void)
             make_blinded(0L, TRUE);
             make_sick(0L, (char *) 0, FALSE, SICK_ALL);
             heal_legs(0);
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             break;
         case 5:
             take_gold();
@@ -344,10 +344,10 @@ dosit(void)
     } else if (is_pool(u.ux, u.uy) && !eggs_in_water(gy.youmonst.data)) {
  in_water:
         You("sit in the %s.", hliquid("water"));
-        if (!random_integer_between_zero_and(10) && uarm)
-            (void) water_damage(uarm, "armor", TRUE);
-        if (!random_integer_between_zero_and(10) && uarmf && uarmf->otyp != WATER_WALKING_BOOTS)
-            (void) water_damage(uarm, "armor", TRUE);
+        if (!random_integer_between_zero_and(10) && player_armor)
+            (void) water_damage(player_armor, "armor", TRUE);
+        if (!random_integer_between_zero_and(10) && player_armor_footwear && player_armor_footwear->otyp != WATER_WALKING_BOOTS)
+            (void) water_damage(player_armor, "armor", TRUE);
     } else if (IS_SINK(typ)) {
         You(sit_message, defsyms[S_sink].explanation);
         Your("%s gets wet.",

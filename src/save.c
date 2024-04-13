@@ -170,8 +170,8 @@ dosave0(void)
        will know to save them separately (from floor and invent); when not
        swallowed, uchain will be stale by then, and uball will be too if
        ball is on the floor rather than carried */
-    gl.looseball = BALL_IN_MON ? uball : 0;
-    gl.loosechain = CHAIN_IN_MON ? uchain : 0;
+    gl.looseball = BALL_IN_MON ? player_ball : 0;
+    gl.loosechain = CHAIN_IN_MON ? player_chain : 0;
     savelev(nhfp, ledger_no(&u.uz));
     savegamestate(nhfp);
 
@@ -285,18 +285,18 @@ savegamestate(NHFILE *nhfp)
         bwrite(nhfp->fd, (genericptr_t) &gc.context, sizeof gc.context);
         bwrite(nhfp->fd, (genericptr_t) &flags, sizeof flags);
     }
-    urealtime.finish_time = getnow();
-    urealtime.realtime += timet_delta(urealtime.finish_time,
-                                      urealtime.start_timing);
+    player_realtime.finish_time = getnow();
+    player_realtime.realtime += timet_delta(player_realtime.finish_time,
+                                      player_realtime.start_timing);
     if (nhfp->structlevel) {
         bwrite(nhfp->fd, (genericptr_t) &u, sizeof u);
-        bwrite(nhfp->fd, yyyymmddhhmmss(ubirthday), 14);
-        bwrite(nhfp->fd, (genericptr_t) &urealtime.realtime,
-               sizeof urealtime.realtime);
-        bwrite(nhfp->fd, yyyymmddhhmmss(urealtime.start_timing), 14);
+        bwrite(nhfp->fd, yyyymmddhhmmss(player_birthday), 14);
+        bwrite(nhfp->fd, (genericptr_t) &player_realtime.realtime,
+               sizeof player_realtime.realtime);
+        bwrite(nhfp->fd, yyyymmddhhmmss(player_realtime.start_timing), 14);
     }
     /* this is the value to use for the next update of urealtime.realtime */
-    urealtime.start_timing = urealtime.finish_time;
+    player_realtime.start_timing = player_realtime.finish_time;
     save_killers(nhfp);
 
     /* must come before gm.migrating_objs and gm.migrating_mons are freed */
@@ -429,8 +429,8 @@ savestateinlock(void)
 
             /* if ball and/or chain aren't on floor or in invent, keep a copy
                of their pointers; not valid when on floor or in invent */
-            gl.looseball = BALL_IN_MON ? uball : 0;
-            gl.loosechain = CHAIN_IN_MON ? uchain : 0;
+            gl.looseball = BALL_IN_MON ? player_ball : 0;
+            gl.loosechain = CHAIN_IN_MON ? player_chain : 0;
             savegamestate(nhfp);
         }
         close_nhfile(nhfp);

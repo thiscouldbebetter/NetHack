@@ -144,7 +144,7 @@ const char *
 mpoisons_subj(struct monster *mtmp, struct attack *mattk)
 {
     if (mattk->aatyp == AT_WEAP) {
-        struct obj *mwep = (mtmp == &gy.youmonst) ? uwep : MON_WEP(mtmp);
+        struct obj *mwep = (mtmp == &gy.youmonst) ? player_weapon : MON_WEP(mtmp);
         /* "Foo's attack was poisoned." is pretty lame, but at least
            it's better than "sting" when not a stinging attack... */
         return (!mwep || !mwep->opoisoned) ? "attack" : "weapon";
@@ -263,7 +263,7 @@ expels(
     struct permonst *mdat, /* if mtmp is polymorphed, mdat != mtmp->data */
     boolean message)
 {
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     if (message) {
         if (digests(mdat)) {
             You("get regurgitated!");
@@ -309,7 +309,7 @@ getmattk(struct monster *magr, struct monster *mdef,
 {
     struct permonst *mptr = magr->data;
     struct attack *attk = &mptr->mattk[indx];
-    struct obj *weap = (magr == &gy.youmonst) ? uwep : MON_WEP(magr);
+    struct obj *weap = (magr == &gy.youmonst) ? player_weapon : MON_WEP(magr);
 
     /* honor SEDUCE=0 */
     if (!SYSOPT_SEDUCE) {
@@ -860,7 +860,7 @@ mattacku(struct monster *mtmp)
         default: /* no attack */
             break;
         }
-        if (disp.botl)
+        if (disp.bottom_line)
             bot();
         /* give player a chance of waking up before dying -kaa */
         if (sum[i] == M_ATTK_HIT) { /* successful attack */
@@ -979,11 +979,11 @@ u_slip_free(struct monster *mtmp, struct attack *mattk)
     if (mattk->aatyp == AT_ENGL)
         return FALSE;
 
-    obj = (uarmc ? uarmc : uarm);
+    obj = (player_armor_cloak ? player_armor_cloak : player_armor);
     if (!obj)
-        obj = uarmu;
+        obj = player_armor_undershirt;
     if (mattk->adtyp == AD_DRIN)
-        obj = uarmh;
+        obj = player_armor_hat;
 
     /* if your cloak/armor is greased, monster slips off; this
        protection might fail (33% chance) when the armor is cursed */
@@ -1138,7 +1138,7 @@ hitmu(struct monster *mtmp, struct attack *mattk)
     if (mhm.damage) {
         if (Half_physical_damage
             /* Mitre of Holiness, even if not currently blessed */
-            || (Role_if(PM_CLERIC) && uarmh && is_quest_artifact(uarmh)
+            || (Role_if(PM_CLERIC) && player_armor_hat && is_quest_artifact(player_armor_hat)
                 && mon_hates_blessings(mtmp)))
             mhm.damage = (mhm.damage + 1) / 2;
 
@@ -1175,7 +1175,7 @@ hitmu(struct monster *mtmp, struct attack *mattk)
                 *hpmax_p = lowerlimit;
             /* else unlikely...
              * already at or below minimum threshold; do nothing */
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         }
 
         mdamageu(mtmp, mhm.damage);
@@ -1329,10 +1329,10 @@ gulpmu(struct monster *mtmp, struct attack *mattk)
     if (Punished) {
         /* ball&chain are in limbo while swallowed; update their internal
            location to be at swallower's spot */
-        if (uchain->where == OBJ_FREE)
-            uchain->ox = mtmp->mx, uchain->oy = mtmp->my;
-        if (uball->where == OBJ_FREE)
-            uball->ox = mtmp->mx, uball->oy = mtmp->my;
+        if (player_chain->where == OBJ_FREE)
+            player_chain->ox = mtmp->mx, player_chain->oy = mtmp->my;
+        if (player_ball->where == OBJ_FREE)
+            player_ball->ox = mtmp->mx, player_ball->oy = mtmp->my;
     }
     if (u.uswldtim > 0)
         u.uswldtim -= 1;
@@ -1809,7 +1809,7 @@ gazemu(struct monster *mtmp, struct attack *mattk)
 void
 mdamageu(struct monster *mtmp, int n)
 {
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     if (Upolyd) {
         u.mh -= n;
         showdamage(n);
@@ -1910,7 +1910,7 @@ doseduce(struct monster *mon)
        interrupt that activity now */
     (void) stop_donning((struct obj *) 0);
     /* don't try to take off gloves if cursed weapon blocks them */
-    if (welded(uwep))
+    if (welded(player_weapon))
         tried_gloves = 1;
 
     for (ring = gi.invent; ring; ring = nring) {
@@ -1918,11 +1918,11 @@ doseduce(struct monster *mon)
         if (ring->otyp != RIN_ADORNMENT)
             continue;
         if (fem) {
-            if (ring->owornmask && uarmg) {
+            if (ring->owornmask && player_armor_gloves) {
                 /* don't take off worn ring if gloves are in the way */
                 if (!tried_gloves++)
-                    mayberem(mon, Who, uarmg, "gloves");
-                if (uarmg)
+                    mayberem(mon, Who, player_armor_gloves, "gloves");
+                if (player_armor_gloves)
                     continue; /* next ring might not be worn */
             }
             /* confirmation prompt when charisma is high bypassed if deaf */
@@ -1944,16 +1944,16 @@ doseduce(struct monster *mon)
             freeinv(ring);
             (void) mpickobj(mon, ring);
         } else {
-            if (uleft && uright && uleft->otyp == RIN_ADORNMENT
-                && uright->otyp == RIN_ADORNMENT)
+            if (player_finger_left && player_finger_right && player_finger_left->otyp == RIN_ADORNMENT
+                && player_finger_right->otyp == RIN_ADORNMENT)
                 break;
-            if (ring == uleft || ring == uright)
+            if (ring == player_finger_left || ring == player_finger_right)
                 continue;
-            if (uarmg) {
+            if (player_armor_gloves) {
                 /* don't put on ring if gloves are in the way */
                 if (!tried_gloves++)
-                    mayberem(mon, Who, uarmg, "gloves");
-                if (uarmg)
+                    mayberem(mon, Who, player_armor_gloves, "gloves");
+                if (player_armor_gloves)
                     break; /* no point trying further rings */
             }
             /* confirmation prompt when charisma is high bypassed if deaf */
@@ -1971,32 +1971,32 @@ doseduce(struct monster *mon)
                 pline("and puts it on your finger.");
             }
             makeknown(RIN_ADORNMENT);
-            if (!uright) {
+            if (!player_finger_right) {
                 pline("%s puts %s on your right %s.",
                       Who, the(xname(ring)), body_part(HAND));
                 setworn(ring, RIGHT_RING);
-            } else if (!uleft) {
+            } else if (!player_finger_left) {
                 pline("%s puts %s on your left %s.",
                       Who, the(xname(ring)), body_part(HAND));
                 setworn(ring, LEFT_RING);
-            } else if (uright && uright->otyp != RIN_ADORNMENT) {
+            } else if (player_finger_right && player_finger_right->otyp != RIN_ADORNMENT) {
                 /* note: the "replaces" message might be inaccurate if
                    hero's location changes and the process gets interrupted,
                    but trying to figure that out in advance in order to use
                    alternate wording is not worth the effort */
                 pline("%s replaces %s with %s.",
-                      Who, yname(uright), yname(ring));
-                Ring_gone(uright);
+                      Who, yname(player_finger_right), yname(ring));
+                Ring_gone(player_finger_right);
                 /* ring removal might cause loss of levitation which could
                    drop hero onto trap that transports hero somewhere else */
                 if (u.utotype || !m_next2u(mon))
                     return 1;
                 setworn(ring, RIGHT_RING);
-            } else if (uleft && uleft->otyp != RIN_ADORNMENT) {
+            } else if (player_finger_left && player_finger_left->otyp != RIN_ADORNMENT) {
                 /* see "replaces" note above */
                 pline("%s replaces %s with %s.",
-                      Who, yname(uleft), yname(ring));
-                Ring_gone(uleft);
+                      Who, yname(player_finger_left), yname(ring));
+                Ring_gone(player_finger_left);
                 if (u.utotype || !m_next2u(mon))
                     return 1;
                 setworn(ring, LEFT_RING);
@@ -2007,22 +2007,22 @@ doseduce(struct monster *mon)
         }
     }
 
-    naked = (!uarmc && !uarmf && !uarmg && !uarms && !uarmh && !uarmu);
+    naked = (!player_armor_cloak && !player_armor_footwear && !player_armor_gloves && !player_armor_shield && !player_armor_hat && !player_armor_undershirt);
     urgent_pline("%s %s%s.", Who,
                  Deaf ? "seems to murmur into your ear"
                  : naked ? "murmurs sweet nothings into your ear"
                    : "murmurs in your ear",
                  naked ? "" : ", while helping you undress");
-    mayberem(mon, Who, uarmc, cloak_simple_name(uarmc));
-    if (!uarmc)
-        mayberem(mon, Who, uarm, suit_simple_name(uarm));
-    mayberem(mon, Who, uarmf, "boots");
+    mayberem(mon, Who, player_armor_cloak, cloak_simple_name(player_armor_cloak));
+    if (!player_armor_cloak)
+        mayberem(mon, Who, player_armor, suit_simple_name(player_armor));
+    mayberem(mon, Who, player_armor_footwear, "boots");
     if (!tried_gloves)
-        mayberem(mon, Who, uarmg, "gloves");
-    mayberem(mon, Who, uarms, "shield");
-    mayberem(mon, Who, uarmh, helm_simple_name(uarmh));
-    if (!uarmc && !uarm)
-        mayberem(mon, Who, uarmu, "shirt");
+        mayberem(mon, Who, player_armor_gloves, "gloves");
+    mayberem(mon, Who, player_armor_shield, "shield");
+    mayberem(mon, Who, player_armor_hat, helm_simple_name(player_armor_hat));
+    if (!player_armor_cloak && !player_armor)
+        mayberem(mon, Who, player_armor_undershirt, "shirt");
 
     /* removing armor (levitation boots, or levitation ring to make
        room for adornment ring with incubus case) might result in the
@@ -2033,7 +2033,7 @@ doseduce(struct monster *mon)
     if (u.utotype || !m_next2u(mon))
         return 1;
 
-    if (uarm || uarmc) {
+    if (player_armor || player_armor_cloak) {
         if (!Deaf) {
             if (!(ld() && mon->female)) {
                 SetVoice(mon, 0, 80, 0);
@@ -2089,13 +2089,13 @@ doseduce(struct monster *mon)
             You("are down in the dumps.");
             (void) adjust_attribute(ATTRIBUTE_CONSTITUTION, -1, TRUE);
             exercise(ATTRIBUTE_CONSTITUTION, FALSE);
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             break;
         case 2:
             Your("senses are dulled.");
             (void) adjust_attribute(ATTRIBUTE_WISDOM, -1, TRUE);
             exercise(ATTRIBUTE_WISDOM, FALSE);
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             break;
         case 3:
             if (!resists_drli(&gy.youmonst)) {
@@ -2133,13 +2133,13 @@ doseduce(struct monster *mon)
             You_feel("good enough to do it again.");
             (void) adjust_attribute(ATTRIBUTE_CONSTITUTION, 1, TRUE);
             exercise(ATTRIBUTE_CONSTITUTION, TRUE);
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             break;
         case 2:
             You("will always remember %s...", noit_mon_nam(mon));
             (void) adjust_attribute(ATTRIBUTE_WISDOM, 1, TRUE);
             exercise(ATTRIBUTE_WISDOM, TRUE);
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             break;
         case 3:
             pline("That was a very educational experience.");
@@ -2152,7 +2152,7 @@ doseduce(struct monster *mon)
             if (Upolyd)
                 u.mh = u.mhmax;
             exercise(ATTRIBUTE_STRENGTH, TRUE);
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             break;
         }
     }
@@ -2186,7 +2186,7 @@ doseduce(struct monster *mon)
             pline("%s takes %ld %s for services rendered!", noit_Monnam(mon),
                   cost, currency(cost));
             money2mon(mon, cost);
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         }
     }
     if (!random_integer_between_zero_and(25))
@@ -2227,15 +2227,15 @@ mayberem(struct monster *mon,
                 body_part(HAIR));
         SetVoice(mon, 0, 80, 0);
         verbalize("Take off your %s; %s.", str,
-                  (obj == uarm)
+                  (obj == player_armor)
                      ? "let's get a little closer"
-                     : (obj == uarmc || obj == uarms)
+                     : (obj == player_armor_cloak || obj == player_armor_shield)
                         ? "it's in the way"
-                        : (obj == uarmf)
+                        : (obj == player_armor_footwear)
                            ? "let me rub your feet"
-                           : (obj == uarmg)
+                           : (obj == player_armor_gloves)
                               ? "they're too clumsy"
-                              : (obj == uarmu)
+                              : (obj == player_armor_undershirt)
                                  ? "let me massage you"
                                  /* obj == uarmh */
                                  : hairbuf);
@@ -2458,7 +2458,7 @@ cloneu(void)
     mon->mhpmax = u.mhmax;
     mon->mhp = u.mh / 2;
     u.mh -= mon->mhp;
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     return mon;
 }
 

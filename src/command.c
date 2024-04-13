@@ -5188,11 +5188,11 @@ dosuspend_core(void)
     if ((*windowprocs.win_can_suspend)()) {
         time_t now = getnow();
 
-        urealtime.realtime += timet_delta(now, urealtime.start_timing);
-        urealtime.start_timing = now; /* as a safeguard against panic save */
+        player_realtime.realtime += timet_delta(now, player_realtime.start_timing);
+        player_realtime.start_timing = now; /* as a safeguard against panic save */
         /* NB: SYSCF SHELLERS handled in port code. */
         dosuspend();
-        urealtime.start_timing = getnow(); /* resume keeping track of time */
+        player_realtime.start_timing = getnow(); /* resume keeping track of time */
     } else
 #endif
         Norep(command_not_available, "#suspend");
@@ -5206,11 +5206,11 @@ dosh_core(void)
 #ifdef SHELL
     time_t now = getnow();
 
-    urealtime.realtime += timet_delta(now, urealtime.start_timing);
-    urealtime.start_timing = now; /* (see dosuspend_core) */
+    player_realtime.realtime += timet_delta(now, player_realtime.start_timing);
+    player_realtime.start_timing = now; /* (see dosuspend_core) */
     /* access restrictions, if any, are handled in port code */
     dosh();
-    urealtime.start_timing = getnow();
+    player_realtime.start_timing = getnow();
 #else
     Norep(command_not_available, "#shell");
 #endif

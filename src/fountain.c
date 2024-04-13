@@ -261,7 +261,7 @@ drinkfountain(void)
         for (ii = 0; ii < ATTRIBUTE_COUNT; ii++)
             if (ATTRIBUTE_BASE(ii) < ATTRIBUTE_MAX(ii)) {
                 ATTRIBUTE_BASE(ii) = ATTRIBUTE_MAX(ii);
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
             }
         /* gain ability, blessed if "natural" luck is high */
         i = random_integer_between_zero_and(ATTRIBUTE_COUNT); /* start at a random attribute */
@@ -443,7 +443,7 @@ dipfountain(struct obj *obj)
         if (in_town(u.ux, u.uy))
             (void) angry_guards(FALSE);
         return;
-    } else if (is_hands || obj == uarmg) {
+    } else if (is_hands || obj == player_armor_gloves) {
         er = wash_hands();
     } else {
         er = water_damage(obj, NULL, TRUE);
@@ -556,14 +556,14 @@ wash_hands(void)
     int res = ER_NOTHING;
     boolean was_glib = !!Glib;
 
-    You("wash your %s%s in the %s.", uarmg ? "gloved " : "", hands,
+    You("wash your %s%s in the %s.", player_armor_gloves ? "gloved " : "", hands,
         hliquid("water"));
     if (Glib) {
         make_glib(0);
         Your("%s are no longer slippery.", fingers_or_gloves(TRUE));
     }
-    if (uarmg)
-        res = water_damage(uarmg, (const char *) 0, TRUE);
+    if (player_armor_gloves)
+        res = water_damage(player_armor_gloves, (const char *) 0, TRUE);
     /* not what ER_GREASED is for, but the checks in dipfountain just
        compare the result to ER_DESTROYED and ER_NOTHING, so it works */
     if (was_glib && res == ER_NOTHING)
@@ -710,7 +710,7 @@ dipsink(struct obj *obj)
 {
     boolean try_call = FALSE,
             not_looted_yet = (levl[u.ux][u.uy].looted & S_LRING) == 0,
-            is_hands = (obj == &hands_obj || (uarmg && obj == uarmg));
+            is_hands = (obj == &hands_obj || (player_armor_gloves && obj == player_armor_gloves));
 
     if (!random_integer_between_zero_and(not_looted_yet ? 25 : 15)) {
         /* can't rely on using sink for unlimited scroll blanking; however,

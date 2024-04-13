@@ -565,7 +565,7 @@ flip_level(
         maxy = (ROWNO - 1);
 
     if (extras) {
-        if (Punished && uball->where != OBJ_FREE) {
+        if (Punished && player_ball->where != OBJ_FREE) {
             ball_active = TRUE;
             /* if hero and ball and chain are all inside flip area,
                flip b&c coordinates along with other objects; if they
@@ -573,11 +573,11 @@ flip_level(
                so that they stay as is; if some are inside and some are
                outside, un-place here and subsequently re-place them on
                hero's [possibly new] spot below */
-            if (carried(uball))
-                uball->ox = u.ux, uball->oy = u.uy;
-            ball_fliparea = ((inFlipArea(uball->ox, uball->oy)
-                              == inFlipArea(uchain->ox, uchain->oy))
-                             && (inFlipArea(uball->ox, uball->oy)
+            if (carried(player_ball))
+                player_ball->ox = u.ux, player_ball->oy = u.uy;
+            ball_fliparea = ((inFlipArea(player_ball->ox, player_ball->oy)
+                              == inFlipArea(player_chain->ox, player_chain->oy))
+                             && (inFlipArea(player_ball->ox, player_ball->oy)
                                  == inFlipArea(u.ux, u.uy)));
             if (!ball_fliparea)
                 unplacebc();

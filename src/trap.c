@@ -110,7 +110,7 @@ burnarmor(struct monster *victim)
     while (1) {
         switch (random_integer_between_zero_and(5)) {
         case 0:
-            item = hitting_u ? uarmh : which_armor(victim, WEARING_ARMOR_HELMET);
+            item = hitting_u ? player_armor_hat : which_armor(victim, WEARING_ARMOR_HELMET);
             if (item) {
                 mat_idx = objects[item->otyp].oc_material;
                 Sprintf(buf, "%s %s", material_names[mat_idx],
@@ -120,32 +120,32 @@ burnarmor(struct monster *victim)
                 continue;
             break;
         case 1:
-            item = hitting_u ? uarmc : which_armor(victim, WEARING_ARMOR_CLOAK);
+            item = hitting_u ? player_armor_cloak : which_armor(victim, WEARING_ARMOR_CLOAK);
             if (item) {
                 (void) burn_dmg(item, cloak_simple_name(item));
                 return TRUE;
             }
-            item = hitting_u ? uarm : which_armor(victim, WEARING_ARMOR_BODY);
+            item = hitting_u ? player_armor : which_armor(victim, WEARING_ARMOR_BODY);
             if (item) {
                 (void) burn_dmg(item, xname(item));
                 return TRUE;
             }
-            item = hitting_u ? uarmu : which_armor(victim, WEARING_ARMOR_UNDERSHIRT);
+            item = hitting_u ? player_armor_undershirt : which_armor(victim, WEARING_ARMOR_UNDERSHIRT);
             if (item)
                 (void) burn_dmg(item, "shirt");
             return TRUE;
         case 2:
-            item = hitting_u ? uarms : which_armor(victim, WEARING_ARMOR_SHIELD);
+            item = hitting_u ? player_armor_shield : which_armor(victim, WEARING_ARMOR_SHIELD);
             if (!burn_dmg(item, "wooden shield"))
                 continue;
             break;
         case 3:
-            item = hitting_u ? uarmg : which_armor(victim, WEARING_ARMOR_GLOVES);
+            item = hitting_u ? player_armor_gloves : which_armor(victim, WEARING_ARMOR_GLOVES);
             if (!burn_dmg(item, "gloves"))
                 continue;
             break;
         case 4:
-            item = hitting_u ? uarmf : which_armor(victim, WEARING_ARMOR_FOOTWEAR);
+            item = hitting_u ? player_armor_footwear : which_armor(victim, WEARING_ARMOR_FOOTWEAR);
             if (!burn_dmg(item, "boots"))
                 continue;
             break;
@@ -991,7 +991,7 @@ set_utrap(unsigned int tim, unsigned int typ)
        have already set u.utrap to 0 so this check won't be sufficient
        in that situation; caller will need to set context.botl itself */
     if (!u.utrap ^ !tim)
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
 
     u.utrap = tim;
     u.utraptype = tim ? typ : TT_NONE;
@@ -1287,18 +1287,18 @@ trapeffect_rocktrap(
 
             pline("A trap door in %s opens and %s falls on your %s!",
                   the(ceiling(u.ux, u.uy)), an(xname(otmp)), body_part(HEAD));
-            if (uarmh) {
+            if (player_armor_hat) {
                 /* normally passes_rocks() would protect against a falling
                    rock, but not when wearing a helmet */
                 if (passes_rocks(gy.youmonst.data)) {
                     pline("Unfortunately, you are wearing %s.",
-                          an(helm_simple_name(uarmh))); /* helm or hat */
+                          an(helm_simple_name(player_armor_hat))); /* helm or hat */
                     dmg = 2;
-                } else if (hard_helmet(uarmh)) {
+                } else if (hard_helmet(player_armor_hat)) {
                     pline("Fortunately, you are wearing a hard helmet.");
                     dmg = 2;
                 } else if (flags.verbose) {
-                    pline("%s does not protect you.", Yname2(uarmh));
+                    pline("%s does not protect you.", Yname2(player_armor_hat));
                 }
             } else if (passes_rocks(gy.youmonst.data)) {
                 pline("It passes harmlessly through you.");
@@ -1542,35 +1542,35 @@ trapeffect_rust_trap(
         switch (random_integer_between_zero_and(5)) {
         case 0:
             pline("%s you on the %s!", A_gush_of_water_hits, body_part(HEAD));
-            (void) water_damage(uarmh, helm_simple_name(uarmh), TRUE);
+            (void) water_damage(player_armor_hat, helm_simple_name(player_armor_hat), TRUE);
             break;
         case 1:
             pline("%s your left %s!", A_gush_of_water_hits, body_part(ARM));
-            if (water_damage(uarms, "shield", TRUE) != ER_NOTHING)
+            if (water_damage(player_armor_shield, "shield", TRUE) != ER_NOTHING)
                 break;
-            if (u.using_two_weapons || (uwep && bimanual(uwep)))
-                (void) water_damage(u.using_two_weapons ? uswapwep : uwep, 0, TRUE);
+            if (u.using_two_weapons || (player_weapon && bimanual(player_weapon)))
+                (void) water_damage(u.using_two_weapons ? player_secondary_weapon : player_weapon, 0, TRUE);
  uglovecheck:
-            (void) water_damage(uarmg, gloves_simple_name(uarmg), TRUE);
+            (void) water_damage(player_armor_gloves, gloves_simple_name(player_armor_gloves), TRUE);
             break;
         case 2:
             pline("%s your right %s!", A_gush_of_water_hits, body_part(ARM));
-            (void) water_damage(uwep, 0, TRUE);
+            (void) water_damage(player_weapon, 0, TRUE);
             goto uglovecheck;
         default:
             pline("%s you!", A_gush_of_water_hits);
             /* note: exclude primary and secondary weapons from splashing
                because cases 1 and 2 target them [via water_damage()] */
             for (otmp = gi.invent; otmp; otmp = otmp->nobj)
-                if (otmp->lamplit && otmp != uwep
-                    && (otmp != uswapwep || !u.using_two_weapons))
+                if (otmp->lamplit && otmp != player_weapon
+                    && (otmp != player_secondary_weapon || !u.using_two_weapons))
                     (void) splash_lit(otmp);
-            if (uarmc)
-                (void) water_damage(uarmc, cloak_simple_name(uarmc), TRUE);
-            else if (uarm)
-                (void) water_damage(uarm, suit_simple_name(uarm), TRUE);
-            else if (uarmu)
-                (void) water_damage(uarmu, "shirt", TRUE);
+            if (player_armor_cloak)
+                (void) water_damage(player_armor_cloak, cloak_simple_name(player_armor_cloak), TRUE);
+            else if (player_armor)
+                (void) water_damage(player_armor, suit_simple_name(player_armor), TRUE);
+            else if (player_armor_undershirt)
+                (void) water_damage(player_armor_undershirt, "shirt", TRUE);
         }
         update_inventory();
 
@@ -1870,7 +1870,7 @@ trapeffect_pit(
                            : "fell into a pit",
                            NO_KILLER_PREFIX);
             }
-            if (Punished && !carried(uball)) {
+            if (Punished && !carried(player_ball)) {
                 unplacebc();
                 ballfall();
                 placebc();
@@ -2746,8 +2746,8 @@ immune_to_trap(struct monster *mon, unsigned ttype)
         for (obj = is_you ? gi.invent : mon->minvent; obj; obj = obj->nobj) {
             /* rust traps can currently hit only worn armor and weapons */
             if (is_rustprone(obj) && obj->owornmask) {
-                if (is_you && (obj == uquiver
-                               || (obj == uswapwep && !u.using_two_weapons)))
+                if (is_you && (obj == player_quiver
+                               || (obj == player_secondary_weapon && !u.using_two_weapons)))
                     continue;
                 return TRAP_NOT_IMMUNE;
             }
@@ -3690,26 +3690,26 @@ selftouch(const char *arg)
     char kbuf[BUFSZ];
     const char *corpse_pmname;
 
-    if (uwep && uwep->otyp == CORPSE && touch_petrifies(&mons[uwep->corpsenm])
+    if (player_weapon && player_weapon->otyp == CORPSE && touch_petrifies(&mons[player_weapon->corpsenm])
         && !Stone_resistance) {
-        corpse_pmname = obj_pmname(uwep);
+        corpse_pmname = obj_pmname(player_weapon);
         pline("%s touch the %s corpse.", arg, corpse_pmname);
         Sprintf(kbuf, "%s corpse", an(corpse_pmname));
         instapetrify(kbuf);
         /* life-saved; unwield the corpse if we can't handle it */
-        if (!uarmg && !Stone_resistance)
+        if (!player_armor_gloves && !Stone_resistance)
             uwepgone();
     }
     /* Or your secondary weapon, if wielded [hypothetical; we don't
        allow two-weapon combat when either weapon is a corpse] */
-    if (u.using_two_weapons && uswapwep && uswapwep->otyp == CORPSE
-        && touch_petrifies(&mons[uswapwep->corpsenm]) && !Stone_resistance) {
-        corpse_pmname = obj_pmname(uswapwep);
+    if (u.using_two_weapons && player_secondary_weapon && player_secondary_weapon->otyp == CORPSE
+        && touch_petrifies(&mons[player_secondary_weapon->corpsenm]) && !Stone_resistance) {
+        corpse_pmname = obj_pmname(player_secondary_weapon);
         pline("%s touch the %s corpse.", arg, corpse_pmname);
         Sprintf(kbuf, "%s corpse", an(corpse_pmname));
         instapetrify(kbuf);
         /* life-saved; unwield the corpse */
-        if (!uarmg && !Stone_resistance)
+        if (!player_armor_gloves && !Stone_resistance)
             uswapwepgone();
     }
 }
@@ -3741,7 +3741,7 @@ mselftouch(
 void
 float_up(void)
 {
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     if (u.utrap) {
         if (u.utraptype == TT_PIT) {
             reset_utrap(FALSE);
@@ -3854,7 +3854,7 @@ float_down(
         (void) encumbered_message(); /* carrying capacity might have changed */
         return 0;
     }
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     nomul(0); /* stop running or resting */
     if (BFlying) {
         /* controlled flight no longer overridden by levitation */
@@ -3873,15 +3873,15 @@ float_down(
         return 1;
     }
 
-    if (Punished && !carried(uball) && !m_at(uball->ox, uball->oy)
-        && (is_pool(uball->ox, uball->oy)
-            || ((trap = t_at(uball->ox, uball->oy))
+    if (Punished && !carried(player_ball) && !m_at(player_ball->ox, player_ball->oy)
+        && (is_pool(player_ball->ox, player_ball->oy)
+            || ((trap = t_at(player_ball->ox, player_ball->oy))
                 && (is_pit(trap->ttyp) || is_hole(trap->ttyp))))) {
         u.ux0 = u.ux;
         u.uy0 = u.uy;
-        u.ux = uball->ox;
-        u.uy = uball->oy;
-        movobj(uchain, uball->ox, uball->oy);
+        u.ux = player_ball->ox;
+        u.uy = player_ball->oy;
+        movobj(player_chain, player_ball->ox, player_ball->oy);
         newsym(u.ux0, u.uy0);
         gv.vision_full_recalc = 1; /* in case the hero moved. */
     }
@@ -4079,16 +4079,16 @@ dofiretrap(
         if (alt > num)
             num = alt;
         if (u.mhmax > mons[u.umonnum].mlevel)
-            u.mhmax -= random_integer_between_zero_and(min(u.mhmax, num + 1)), disp.botl = TRUE;
+            u.mhmax -= random_integer_between_zero_and(min(u.mhmax, num + 1)), disp.bottom_line = TRUE;
         if (u.mh > u.mhmax)
-            u.mh = u.mhmax, disp.botl = TRUE;
+            u.mh = u.mhmax, disp.bottom_line = TRUE;
         monstunseesu(M_SEEN_FIRE);
     } else {
         int uhpmin = minuhpmax(1), olduhpmax = u.hit_points_max;
 
         num = d(2, 4);
         if (u.hit_points_max > uhpmin) {
-            u.hit_points_max -= random_integer_between_zero_and(min(u.hit_points_max, num + 1)), disp.botl = TRUE;
+            u.hit_points_max -= random_integer_between_zero_and(min(u.hit_points_max, num + 1)), disp.bottom_line = TRUE;
         } /* note: no 'else' here */
         if (u.hit_points_max < uhpmin) {
             setuhpmax(min(olduhpmax, uhpmin)); /* sets disp.botl */
@@ -4096,7 +4096,7 @@ dofiretrap(
                 losexp(NULL); /* never fatal when 'drainer' is Null */
         }
         if (u.hit_points > u.hit_points_max)
-            u.hit_points = u.hit_points_max, disp.botl = TRUE;
+            u.hit_points = u.hit_points_max, disp.bottom_line = TRUE;
         monstunseesu(M_SEEN_FIRE);
     }
     if (!num)
@@ -4141,12 +4141,12 @@ domagictrap(void)
             Soundeffect(se_deafening_roar_atmospheric, 100);
             You_hear("a deafening roar!");
             incr_itimeout(&HDeaf, rn1(20, 30));
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         } else {
             /* magic vibrations still hit you */
             You_feel("rankled.");
             incr_itimeout(&HDeaf, rn1(5, 15));
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         }
         while (cnt--)
             (void) makemon((struct permonst *) 0, u.ux, u.uy, NO_MM_FLAGS);
@@ -4710,11 +4710,11 @@ emergency_disrobe(boolean *lostsome)
                  * for obvious reasons.  Also, any item in the midst
                  * of being taken off or stolen.
                  */
-                if (!((obj->otyp == LOADSTONE && obj->cursed) || obj == uamul
-                      || obj == uleft || obj == uright || obj == ublindf
-                      || obj == uarm || obj == uarmc || obj == uarmg
-                      || obj == uarmf || obj == uarmu
-                      || (obj->cursed && (obj == uarmh || obj == uarms))
+                if (!((obj->otyp == LOADSTONE && obj->cursed) || obj == player_amulet
+                      || obj == player_finger_left || obj == player_finger_right || obj == player_blindfold
+                      || obj == player_armor || obj == player_armor_cloak || obj == player_armor_gloves
+                      || obj == player_armor_footwear || obj == player_armor_undershirt
+                      || (obj->cursed && (obj == player_armor_hat || obj == player_armor_shield))
                       || welded(obj)
                       || obj->o_id == gs.stealoid || obj->in_use))
                     otmp = obj;
@@ -5006,7 +5006,7 @@ drain_en(int n, boolean max_already_drained)
         /* energy is completely gone */
         if (u.energy || u.energy_max) { /* paranoia */
             u.energy = u.energy_max = 0;
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         }
         mesg = "momentarily lethargic";
     } else {
@@ -5029,7 +5029,7 @@ drain_en(int n, boolean max_already_drained)
                and then we throttled the loss being applied to current */
             u.energy = u.energy_max;
         }
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     }
     /* after manipulating u.uen,uenmax and setting context.botl, so
        that You_feel() -> pline() will update status before the message */
@@ -5060,7 +5060,7 @@ could_untrap(boolean verbosely, boolean check_floor)
         Strcpy(buf, "And just how do you expect to do that?");
     } else if (u.monster_stuck_to && sticks(gy.youmonst.data)) {
         Sprintf(buf, "You'll have to let go of %s first.", mon_nam(u.monster_stuck_to));
-    } else if (u.monster_stuck_to || (welded(uwep) && bimanual(uwep))) {
+    } else if (u.monster_stuck_to || (welded(player_weapon) && bimanual(player_weapon))) {
         Sprintf(buf, "Your %s seem to be too busy for that.",
                 makeplural(body_part(HAND)));
     } else if (check_floor && !can_reach_floor(FALSE)) {
@@ -5088,9 +5088,9 @@ untrap_prob(
     if (ttmp->ttyp == WEB) {
         /* this assumes that all fiery artifacts are blades; no need to
            make it more complicated unless/until that changes */
-        struct obj *wep = (uwep && is_blade(uwep)) ? uwep
-                          : (uswapwep && u.using_two_weapons && is_blade(uswapwep))
-                            ? uswapwep : NULL;
+        struct obj *wep = (player_weapon && is_blade(player_weapon)) ? player_weapon
+                          : (player_secondary_weapon && u.using_two_weapons && is_blade(player_secondary_weapon))
+                            ? player_secondary_weapon : NULL;
 
         /* FIXME? Forcefight of adjacent web works with bare-handed and
            martial arts but #untrap of same resorts to !webmaker() chance */
@@ -5338,13 +5338,13 @@ disarm_holdingtrap(struct trap *ttmp)
         You("disarm %s bear trap.", which);
         cnv_trap_obj(BEARTRAP, 1, ttmp, FALSE);
     } else if (ttmp->ttyp == WEB) {
-        struct obj *wep = (uwep && is_blade(uwep)) ? uwep
-                          : (uswapwep && u.using_two_weapons && is_blade(uswapwep))
-                            ? uswapwep : NULL;
+        struct obj *wep = (player_weapon && is_blade(player_weapon)) ? player_weapon
+                          : (player_secondary_weapon && u.using_two_weapons && is_blade(player_secondary_weapon))
+                            ? player_secondary_weapon : NULL;
 
         if (wep && wep->oartifact
             && (u_wield_art(ART_STING) || attacks(AD_FIRE, wep)))
-            pline("%s %s through %s web!", bare_artifactname(uwep),
+            pline("%s %s through %s web!", bare_artifactname(player_weapon),
                   u_wield_art(ART_STING) ? "cuts" : "burns", which);
         else if (wep)
             You("cut through %s web.", which);
@@ -5496,7 +5496,7 @@ help_monster_out(
     }
 
     /* is it a cockatrice?... */
-    if (touch_petrifies(mtmp->data) && !uarmg && !Stone_resistance) {
+    if (touch_petrifies(mtmp->data) && !player_armor_gloves && !Stone_resistance) {
         const char *mtmp_pmname = mon_pmname(mtmp);
 
         You("grab the trapped %s using your bare %s.",
@@ -6106,9 +6106,9 @@ chest_trap(
              */
             /* unpunish() in advance if either ball or chain (or both)
                is going to be destroyed */
-            if (Punished && ((uchain->ox == ox && uchain->oy == oy)
-                             || (uball->where == OBJ_FLOOR
-                                 && uball->ox == ox && uball->oy == oy)))
+            if (Punished && ((player_chain->ox == ox && player_chain->oy == oy)
+                             || (player_ball->where == OBJ_FLOOR
+                                 && player_ball->ox == ox && player_ball->oy == oy)))
                 unpunish();
             /* destroy everything at the spot (the Amulet, the
                invocation tools, and Rider corpses will remain intact) */
@@ -6572,8 +6572,8 @@ lava_effects(void)
      * (3.7: that assumption is no longer true, but having boots be the first
      * thing to come into contact with lava makes sense.)
      */
-    if (uarmf && uarmf->in_use) {
-        obj = uarmf;
+    if (player_armor_footwear && player_armor_footwear->in_use) {
+        obj = player_armor_footwear;
         pline("%s into flame!", Yobjnam2(obj, "burst"));
         ++burnmesgcount;
         iflags.in_lava_effects++; /* (see above) */

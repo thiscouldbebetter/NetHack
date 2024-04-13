@@ -373,9 +373,9 @@ writexlentry(FILE *rfile, struct toptenentry *tt, int how)
     Fprintf(rfile, "%cconductX=%s", XLOG_SEP,
             encode_extended_conducts(buf)); /* reuse 'buf[]' */
     Fprintf(rfile, "%crealtime=%ld%cstarttime=%ld%cendtime=%ld", XLOG_SEP,
-            urealtime.realtime, XLOG_SEP,
-            timet_to_seconds(ubirthday), XLOG_SEP,
-            timet_to_seconds(urealtime.finish_time));
+            player_realtime.realtime, XLOG_SEP,
+            timet_to_seconds(player_birthday), XLOG_SEP,
+            timet_to_seconds(player_realtime.finish_time));
     Fprintf(rfile, "%cgender0=%s%calign0=%s", XLOG_SEP,
             genders[flags.initgend].filecode, XLOG_SEP,
             aligns[1 - u.ualignbase[A_ORIGINAL]].filecode);
@@ -687,7 +687,7 @@ topten(int how, time_t when)
     copynchars(t0->plalign, aligns[1 - u.alignment.type].filecode, ROLESZ);
     copynchars(t0->name, gp.plname, NAMSZ);
     formatkiller(t0->death, sizeof t0->death, how, TRUE);
-    t0->birthdate = yyyymmdd(ubirthday);
+    t0->birthdate = yyyymmdd(player_birthday);
     t0->deathdate = yyyymmdd(when);
     t0->tt_next = 0;
 #ifdef UPDATE_RECORD_IN_PLACE

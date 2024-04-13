@@ -1895,10 +1895,10 @@ dosearch0(int aflag) /* intrinsic autosearch vs explicit searching */
         if (!aflag)
             Norep("What are you looking for?  The exit?");
     } else {
-        int fund = (uwep && uwep->oartifact
-                    && spec_ability(uwep, SPFX_SEARCH)) ? uwep->spe : 0;
+        int fund = (player_weapon && player_weapon->oartifact
+                    && spec_ability(player_weapon, SPFX_SEARCH)) ? player_weapon->spe : 0;
 
-        if (ublindf && ublindf->otyp == LENSES && !Blind)
+        if (player_blindfold && player_blindfold->otyp == LENSES && !Blind)
             fund += 2; /* JDS: lenses help searching */
         if (fund > 5)
             fund = 5;

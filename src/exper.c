@@ -185,19 +185,19 @@ more_experienced(int exper, int rexp)
     if (newexp != oldexp) {
         u.experience = newexp;
         if (flags.showexp)
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         /* even when experience points aren't being shown, experience level
            might be highlighted with a percentage highlight rule and that
            percentage depends upon experience points */
-        if (!disp.botl && exp_percent_changing())
-            disp.botl = TRUE;
+        if (!disp.bottom_line && exp_percent_changing())
+            disp.bottom_line = TRUE;
     }
     /* newrexp will always differ from oldrexp unless they're LONG_MAX */
     if (newrexp != oldrexp) {
         u.urexp = newrexp;
 #ifdef SCORE_ON_BOTL
         if (flags.showscore)
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
 #endif
     }
     if (u.urexp >= (Role_if(PM_WIZARD) ? 1000 : 2000))
@@ -289,7 +289,7 @@ losexp(
             rehumanize();
     }
 
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
 }
 
 /*
@@ -368,7 +368,7 @@ pluslvl(
         if (u.ulevel > u.ulevelpeak)
             u.ulevelpeak = u.ulevel;
     }
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
 }
 
 /* compute a random amount of experience points suitable for the hero's

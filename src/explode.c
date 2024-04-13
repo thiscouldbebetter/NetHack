@@ -631,7 +631,7 @@ explode(
                 u.mh -= damu;
             else
                 u.hit_points -= damu;
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         }
 
         /* You resisted the damage, lets not keep that to ourselves */
@@ -748,8 +748,8 @@ scatter(coordxy sx, coordxy sy,  /* location of objects to scatter */
         credit_report(shkp, 0, TRUE);   /* establish baseline, without msgs */
 
     while ((otmp = (individual_object ? obj : gl.level.objects[sx][sy])) != 0) {
-        if (otmp == uball || otmp == uchain) {
-            boolean waschain = (otmp == uchain);
+        if (otmp == player_ball || otmp == player_chain) {
+            boolean waschain = (otmp == player_chain);
 
             Soundeffect(se_chain_shatters, 25);
             pline_The("chain shatters!");

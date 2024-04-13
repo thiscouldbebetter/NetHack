@@ -273,7 +273,7 @@ bot(void)
             putmixed(WIN_STATUS, 0, do_statusline2());
         }
     }
-    disp.botl = disp.botlx = disp.time_botl = FALSE;
+    disp.bottom_line = disp.bottom_line_x = disp.time_bottom_line = FALSE;
 }
 
 /* special purpose status update: move counter ('time' status) only */
@@ -296,7 +296,7 @@ timebot(void)
             bot();
         }
     }
-    disp.time_botl = FALSE;
+    disp.time_bottom_line = FALSE;
 }
 
 /* convert experience level (1..30) to rank index (0..8) */
@@ -984,7 +984,7 @@ bot_via_windowport(void)
     condtests[bl_stun].test      = (Stunned) ? TRUE : FALSE;
     condtests[bl_submerged].test = (Underwater) ? TRUE : FALSE;
     test_if_enabled(bl_elf_iron) = (FALSE);
-    test_if_enabled(bl_bareh)    = (!uarmg && !uwep);
+    test_if_enabled(bl_bareh)    = (!player_armor_gloves && !player_weapon);
     test_if_enabled(bl_icy)      = (levl[u.ux][u.uy].typ == ICE);
     test_if_enabled(bl_slippery) = (Glib) ? TRUE : FALSE;
     test_if_enabled(bl_woundedl) = (Wounded_legs) ? TRUE : FALSE;
@@ -1200,7 +1200,7 @@ cond_menu(void)
             if (condtests[i].enabled != condtests[i].choice) {
                 condtests[i].enabled = condtests[i].choice;
                 condtests[idx].test = FALSE;
-                disp.botl = changed = TRUE;
+                disp.bottom_line = changed = TRUE;
             }
     }
     return changed;
@@ -1414,15 +1414,15 @@ evaluate_and_notify_windowport(
      * the display, call status_update() with CONDITION_FLUSH.
      *
      */
-    if (disp.botlx && (windowprocs.wincap2 & WC2_RESET_STATUS) != 0L)
+    if (disp.bottom_line_x && (windowprocs.wincap2 & WC2_RESET_STATUS) != 0L)
         status_update(CONDITION_RESET, (genericptr_t) 0, 0, 0,
                       COLOR_CODE_NONE, (unsigned long *) 0);
-    else if ((updated || disp.botlx)
+    else if ((updated || disp.bottom_line_x)
              && (windowprocs.wincap2 & WC2_FLUSH_STATUS) != 0L)
         status_update(CONDITION_FLUSH, (genericptr_t) 0, 0, 0,
                       COLOR_CODE_NONE, (unsigned long *) 0);
 
-    disp.botl = disp.botlx = disp.time_botl = FALSE;
+    disp.bottom_line = disp.bottom_line_x = disp.time_bottom_line = FALSE;
     gu.update_all = FALSE;
 }
 
@@ -1460,7 +1460,7 @@ status_initialize(
         status_enablefield(fld, fieldname, fieldfmt, fldenabl);
     }
     gu.update_all = TRUE;
-    disp.botlx = TRUE;
+    disp.bottom_line_x = TRUE;
 }
 
 void
@@ -1838,7 +1838,7 @@ exp_percent_changing(void)
     struct istat_s *curr;
 
     /* if status update is already requested, skip this processing */
-    if (!disp.botl) {
+    if (!disp.bottom_line) {
         /*
          * Status update is warranted iff percent integer changes and the new
          * percentage results in a different highlighting rule being selected.
@@ -2027,9 +2027,9 @@ status_eval_next_unhilite(void)
             prev->time = curr->time;
 
             curr->chg = prev->chg = FALSE;
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         }
-        if (disp.botl)
+        if (disp.bottom_line)
             continue; /* just process other gb.blstats[][].time and .chg */
 
         this_unhilite = curr->time;
@@ -2038,7 +2038,7 @@ status_eval_next_unhilite(void)
             && hilite_reset_needed(curr, this_unhilite + 1L)) {
             next_unhilite = this_unhilite;
             if (next_unhilite < gb.bl_hilite_moves)
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
         }
     }
 }
@@ -2054,7 +2054,7 @@ reset_status_hilites(void)
             gb.blstats[0][i].time = gb.blstats[1][i].time = 0L;
         gu.update_all = TRUE;
     }
-    disp.botlx = TRUE;
+    disp.bottom_line_x = TRUE;
 }
 
 /* test whether the text from a title rule matches the string for

@@ -586,17 +586,17 @@ restgamestate(NHFILE *nhfp)
     if (nhfp->structlevel)
         Mread(nhfp->fd, timebuf, 14);
     timebuf[14] = '\0';
-    ubirthday = time_from_yyyymmddhhmmss(timebuf);
+    player_birthday = time_from_yyyymmddhhmmss(timebuf);
     if (nhfp->structlevel)
-        Mread(nhfp->fd, &urealtime.realtime, sizeof urealtime.realtime);
+        Mread(nhfp->fd, &player_realtime.realtime, sizeof player_realtime.realtime);
 
     if (nhfp->structlevel)
         Mread(nhfp->fd, timebuf, 14);
     timebuf[14] = '\0';
-    urealtime.start_timing = time_from_yyyymmddhhmmss(timebuf);
+    player_realtime.start_timing = time_from_yyyymmddhhmmss(timebuf);
 
     /* current time is the time to use for next urealtime.realtime update */
-    urealtime.start_timing = getnow();
+    player_realtime.start_timing = getnow();
 
     set_uasmon();
 #ifdef CLIPPING
@@ -662,10 +662,10 @@ restgamestate(NHFILE *nhfp)
        during next fight when bare-handed or wielding an unconventional
        item; for pick-axe, we aren't able to distinguish between having
        applied or wielded it, so be conservative and assume the former */
-    otmp = uwep;   /* `uwep' usually init'd by setworn() in loop above */
-    uwep = 0;      /* clear it and have setuwep() reinit */
+    otmp = player_weapon;   /* `uwep' usually init'd by setworn() in loop above */
+    player_weapon = 0;      /* clear it and have setuwep() reinit */
     setuwep(otmp); /* (don't need any null check here) */
-    if (!uwep || uwep->otyp == PICK_AXE || uwep->otyp == GRAPPLING_HOOK)
+    if (!player_weapon || player_weapon->otyp == PICK_AXE || player_weapon->otyp == GRAPPLING_HOOK)
         gu.unweapon = TRUE;
 
     restore_dungeon(nhfp);
@@ -840,7 +840,7 @@ dorecover(NHFILE *nhfp)
     max_rank_sz(); /* to recompute gm.mrank_sz (botl.c) */
     init_oclass_probs(); /* recompute go.oclass_prob_totals[] */
 
-    if ((uball && !uchain) || (uchain && !uball)) {
+    if ((player_ball && !player_chain) || (player_chain && !player_ball)) {
         impossible("restgamestate: lost ball & chain");
         /* poor man's unpunish() */
         setworn((struct obj *) 0, WEARING_CHAIN);

@@ -212,7 +212,7 @@ dig_check(struct monster *madeby, boolean verbose, coordxy x, coordxy y)
 {
     struct trap *ttmp = t_at(x, y);
     const char *verb =
-        (madeby == BY_YOU && uwep && is_axe(uwep)) ? "chop" : "dig in";
+        (madeby == BY_YOU && player_weapon && is_axe(player_weapon)) ? "chop" : "dig in";
 
     if (On_stairs(x, y)) {
         stairway *stway = stairway_at(x, y);
@@ -267,13 +267,13 @@ dig(void)
 {
     struct rm *lev;
     coordxy dpx = gc.context.digging.pos.x, dpy = gc.context.digging.pos.y;
-    boolean ispick = uwep && is_pick(uwep);
-    const char *verb = (!uwep || is_pick(uwep)) ? "dig into" : "chop through";
+    boolean ispick = player_weapon && is_pick(player_weapon);
+    const char *verb = (!player_weapon || is_pick(player_weapon)) ? "dig into" : "chop through";
 
     lev = &levl[dpx][dpy];
     /* perhaps a nymph stole your pick-axe while you were busy digging */
     /* or perhaps you teleported away */
-    if (u.uswallow || !uwep || (!ispick && !is_axe(uwep))
+    if (u.uswallow || !player_weapon || (!ispick && !is_axe(player_weapon))
         || !on_level(&gc.context.digging.level, &u.uz)
         || ((gc.context.digging.down ? (dpx != u.ux || dpy != u.uy)
                                   : !next2u(dpx, dpy))))
@@ -284,12 +284,12 @@ dig(void)
             return 0;
     } else { /* !gc.context.digging.down */
         if (IS_TREE(lev->typ) && !may_dig(dpx, dpy)
-            && dig_typ(uwep, dpx, dpy) == DIGTYP_TREE) {
+            && dig_typ(player_weapon, dpx, dpy) == DIGTYP_TREE) {
             pline("This tree seems to be petrified.");
             return 0;
         }
         if (IS_ROCK(lev->typ) && !may_dig(dpx, dpy)
-            && dig_typ(uwep, dpx, dpy) == DIGTYP_ROCK) {
+            && dig_typ(player_weapon, dpx, dpy) == DIGTYP_ROCK) {
             pline("This %s is too hard to %s.",
                   is_db_wall(dpx, dpy) ? "drawbridge" : "wall", verb);
             return 0;
@@ -298,23 +298,23 @@ dig(void)
     if (Fumbling && !random_integer_between_zero_and(3)) {
         switch (random_integer_between_zero_and(3)) {
         case 0:
-            if (!welded(uwep)) {
-                You("fumble and drop %s.", yname(uwep));
-                dropx(uwep);
+            if (!welded(player_weapon)) {
+                You("fumble and drop %s.", yname(player_weapon));
+                dropx(player_weapon);
             } else {
                 if (u.monster_being_ridden)
-                    pline("%s and %s %s!", Yobjnam2(uwep, "bounce"),
-                          otense(uwep, "hit"), mon_nam(u.monster_being_ridden));
+                    pline("%s and %s %s!", Yobjnam2(player_weapon, "bounce"),
+                          otense(player_weapon, "hit"), mon_nam(u.monster_being_ridden));
                 else
-                    pline("Ouch!  %s and %s you!", Yobjnam2(uwep, "bounce"),
-                          otense(uwep, "hit"));
+                    pline("Ouch!  %s and %s you!", Yobjnam2(player_weapon, "bounce"),
+                          otense(player_weapon, "hit"));
                 set_wounded_legs(RIGHT_SIDE, 5 + random(5));
             }
             break;
         case 1:
             Soundeffect(se_bang_weapon_side, 100);
             pline("Bang!  You hit with the broad side of %s!",
-                  the(xname(uwep)));
+                  the(xname(player_weapon)));
             wake_nearby(FALSE);
             break;
         default:
@@ -325,7 +325,7 @@ dig(void)
     }
 
     gc.context.digging.effort +=
-        10 + random_integer_between_zero_and(5) + abon() + uwep->spe - greatest_erosion(uwep) + u.damage_increment;
+        10 + random_integer_between_zero_and(5) + abon() + player_weapon->spe - greatest_erosion(player_weapon) + u.damage_increment;
     if (Race_if(PM_DWARF))
         gc.context.digging.effort *= 2;
     if (gc.context.digging.down) {
@@ -353,11 +353,11 @@ dig(void)
         } else if (ttmp && ttmp->ttyp == BEAR_TRAP && u.utrap) {
             if (rnl(7) > (Fumbling ? 1 : 4)) {
                 char kbuf[BUFSZ];
-                int dmg = dmgval(uwep, &gy.youmonst) + dbon();
+                int dmg = dmgval(player_weapon, &gy.youmonst) + dbon();
 
                 if (dmg < 1)
                     dmg = 1;
-                else if (uarmf)
+                else if (player_armor_footwear)
                     dmg = (dmg + 1) / 2;
                 You("hit yourself in the %s.", body_part(FOOT));
                 Sprintf(kbuf, "chopping off %s own %s", uhis(),
@@ -365,7 +365,7 @@ dig(void)
                 losehp(Maybe_Half_Phys(dmg), kbuf, KILLED_BY);
             } else {
                 You("destroy the bear trap with %s.",
-                    yobjnam(uwep, (const char *) 0));
+                    yobjnam(player_weapon, (const char *) 0));
                 deltrap(ttmp);
                 reset_utrap(TRUE); /* release from trap, maybe Lev or Fly */
             }
@@ -413,11 +413,11 @@ dig(void)
         } else if (lev->typ == STONE || lev->typ == SCORR
                    || IS_TREE(lev->typ)) {
             if (Is_earthlevel(&u.uz)) {
-                if (uwep->blessed && !random_integer_between_zero_and(3)) {
+                if (player_weapon->blessed && !random_integer_between_zero_and(3)) {
                     mkcavearea(FALSE);
                     goto cleanup;
-                } else if ((uwep->cursed && !random_integer_between_zero_and(4))
-                           || (!uwep->blessed && !random_integer_between_zero_and(6))) {
+                } else if ((player_weapon->cursed && !random_integer_between_zero_and(4))
+                           || (!player_weapon->blessed && !random_integer_between_zero_and(6))) {
                     mkcavearea(TRUE);
                     goto cleanup;
                 }
@@ -499,7 +499,7 @@ dig(void)
     } else { /* not enough effort has been spent yet */
         static const char *const d_target[6] = { "",        "rock", "statue",
                                                  "boulder", "door", "tree" };
-        int dig_target = dig_typ(uwep, dpx, dpy);
+        int dig_target = dig_typ(player_weapon, dpx, dpy);
 
         if (IS_WALL(lev->typ) || dig_target == DIGTYP_DOOR) {
             if (*in_rooms(dpx, dpy, SHOPBASE)) {
@@ -1040,7 +1040,7 @@ use_pick_axe(struct obj *obj)
     int dir;
 
     /* Check tool */
-    if (obj != uwep) {
+    if (obj != player_weapon) {
         if (wield_tool(obj, "swing")) {
             /* we're now wielding it. next turn, apply to dig. */
             cmdq_add_ec(CQ_CANNED, doapply);
@@ -1126,10 +1126,10 @@ use_pick_axe2(struct obj *obj)
         dam = random(2) + dbon() + obj->spe;
         if (dam <= 0)
             dam = 1;
-        You("hit yourself with %s.", yname(uwep));
+        You("hit yourself with %s.", yname(player_weapon));
         Sprintf(buf, "%s own %s", uhis(), OBJ_NAME(objects[obj->otyp]));
         losehp(Maybe_Half_Phys(dam), buf, KILLED_BY);
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         return ECMD_TIME;
     } else if (u.dz == 0) {
         confdir(FALSE);
@@ -1167,7 +1167,7 @@ use_pick_axe2(struct obj *obj)
                 pline("Splash!");
             } else if (lev->typ == LAVAWALL) {
                 pline("Splash!");
-                (void) fire_damage(uwep, FALSE, rx, ry);
+                (void) fire_damage(player_weapon, FALSE, rx, ry);
             } else if (IS_TREE(lev->typ)) {
                 You("need an axe to cut down a tree.");
             } else if (IS_ROCK(lev->typ)) {
@@ -1533,7 +1533,7 @@ zap_dig(void)
                 }
                 You("loosen a rock from the %s.", ceiling(u.ux, u.uy));
                 pline("It falls on your %s!", body_part(HEAD));
-                dmg = random(hard_helmet(uarmh) ? 2 : 6);
+                dmg = random(hard_helmet(player_armor_hat) ? 2 : 6);
                 losehp(Maybe_Half_Phys(dmg), "falling rock", KILLED_BY_AN);
                 otmp = mksobj_at(ROCK, u.ux, u.uy, FALSE, FALSE);
                 if (otmp) {
@@ -1928,7 +1928,7 @@ bury_an_obj(struct obj *otmp, boolean *dealloced)
     debugpline1("bury_an_obj: %s", xname(otmp));
     if (dealloced)
         *dealloced = FALSE;
-    if (otmp == uball) {
+    if (otmp == player_ball) {
         unpunish();
         set_utrap((unsigned) rn1(50, 20), TT_BURIEDBALL);
         pline_The("iron ball gets buried!");
@@ -1943,7 +1943,7 @@ bury_an_obj(struct obj *otmp, boolean *dealloced)
      * the real reason there (direct accessibility when carried) is
      * completely different.
      */
-    if (otmp == uchain || obj_resists(otmp, 0, 0))
+    if (otmp == player_chain || obj_resists(otmp, 0, 0))
         return otmp2;
 
     if (otmp->otyp == LEASH && otmp->leashmon != 0)
@@ -2095,8 +2095,8 @@ rot_corpse(anything *arg, long timeout)
         if (flags.verbose) {
             char *cname = corpse_xname(obj, (const char *) 0, CXN_NO_PFX);
 
-            Your("%s%s %s away%c", obj == uwep ? "wielded " : "", cname,
-                 otense(obj, "rot"), obj == uwep ? '!' : '.');
+            Your("%s%s %s away%c", obj == player_weapon ? "wielded " : "", cname,
+                 otense(obj, "rot"), obj == player_weapon ? '!' : '.');
         }
         if (obj->owornmask) {
             remove_worn_item(obj, TRUE);
@@ -2170,7 +2170,7 @@ unearth_you(void)
     debugpline0("unearth_you");
     u.uburied = FALSE;
     under_ground(0);
-    if (!uamul || uamul->otyp != AMULET_OF_STRANGULATION)
+    if (!player_amulet || player_amulet->otyp != AMULET_OF_STRANGULATION)
         Strangled = 0;
     vision_recalc(0);
 }

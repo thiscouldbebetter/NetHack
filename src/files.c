@@ -775,7 +775,7 @@ set_bonesfile_name(char *file, dungeon_and_level_numbers *lev)
     if (sysopt.bones_pools > 1) {
         unsigned poolnum = min((unsigned) sysopt.bones_pools, 10);
 
-        poolnum = (unsigned) ubirthday % poolnum; /* 0..9 */
+        poolnum = (unsigned) player_birthday % poolnum; /* 0..9 */
         Sprintf(eos(file), "%u", poolnum);
     }
 #endif
@@ -4196,7 +4196,7 @@ paniclog(
         if (lfile) {
 #ifdef PANICLOG_FMT2
             (void) fprintf(lfile, "%ld %s: %s %s\n",
-                           ubirthday, (gp.plname[0] ? gp.plname : "(none)"),
+                           player_birthday, (gp.plname[0] ? gp.plname : "(none)"),
                            type, reason);
 #else
             char buf[BUFSZ];
@@ -5068,7 +5068,7 @@ livelog_add(long ll_type, const char *str)
                        (ll_type & sysopt.livelog), gp.plname,
                        gu.urole.filecode, gu.urace.filecode,
                        genders[gindx].filecode, aligns[aindx].filecode,
-                       gm.moves, timet_to_seconds(ubirthday),
+                       gm.moves, timet_to_seconds(player_birthday),
                        timet_to_seconds(now), str);
         (void) fclose(livelogfile);
         unlock_file(LIVELOGFILE);

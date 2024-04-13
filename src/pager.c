@@ -124,7 +124,7 @@ self_lookat(char *outbuf)
         mhidden_description(&gy.youmonst, FALSE, eos(outbuf));
     if (Punished)
         Sprintf(eos(outbuf), ", chained to %s",
-                uball ? ansimpleoname(uball) : "nothing?");
+                player_ball ? ansimpleoname(player_ball) : "nothing?");
     if (u.utrap) /* bear trap, pit, web, in-floor, in-lava, tethered */
         Sprintf(eos(outbuf), ", %s", trap_predicament(trapbuf, 0, FALSE));
     return outbuf;

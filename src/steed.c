@@ -66,7 +66,7 @@ use_saddle(struct obj *otmp)
         return ECMD_TIME;
     }
     ptr = mtmp->data;
-    if (touch_petrifies(ptr) && !uarmg && !Stone_resistance) {
+    if (touch_petrifies(ptr) && !player_armor_gloves && !Stone_resistance) {
         char kbuf[BUFSZ];
 
         You("touch %s.", mon_nam(mtmp));
@@ -115,10 +115,10 @@ use_saddle(struct obj *otmp)
     }
     if (Confusion || Fumbling || Glib)
         chance -= 20;
-    else if (uarmg && objdescr_is(uarmg, "riding gloves"))
+    else if (player_armor_gloves && objdescr_is(player_armor_gloves, "riding gloves"))
         /* Bonus for wearing "riding" (but not fumbling) gloves */
         chance += 10;
-    else if (uarmf && objdescr_is(uarmf, "riding boots"))
+    else if (player_armor_footwear && objdescr_is(player_armor_footwear, "riding boots"))
         /* ... or for "riding boots" */
         chance += 10;
     if (otmp->cursed)
@@ -320,9 +320,9 @@ mount_steed(
         You("cannot reach %s.", mon_nam(mtmp));
         return (FALSE);
     }
-    if (!force && uarm && is_metallic(uarm) && greatest_erosion(uarm)) {
+    if (!force && player_armor && is_metallic(player_armor) && greatest_erosion(player_armor)) {
         Your("%s armor is too stiff to be able to mount %s.",
-             uarm->oeroded ? "rusty" : "corroded", mon_nam(mtmp));
+             player_armor->oeroded ? "rusty" : "corroded", mon_nam(mtmp));
         return (FALSE);
     }
     if (!force
@@ -356,7 +356,7 @@ mount_steed(
             You("and %s take flight together.", mon_nam(mtmp));
     }
     /* setuwep handles polearms differently when you're mounted */
-    if (uwep && is_pole(uwep))
+    if (player_weapon && is_pole(player_weapon))
         gu.unweapon = FALSE;
     u.monster_being_ridden = mtmp;
     {
@@ -368,7 +368,7 @@ mount_steed(
     }
     remove_monster(mtmp->mx, mtmp->my);
     teleds(mtmp->mx, mtmp->my, TELEDS_ALLOW_DRAG);
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     return TRUE;
 }
 
@@ -799,13 +799,13 @@ dismount_steed(
         gi.in_steed_dismounting = TRUE;
         (void) float_down(0L, WEARING_SADDLE);
         gi.in_steed_dismounting = FALSE;
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         (void) encumbered_message();
         gv.vision_full_recalc = 1;
     } else
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     /* polearms behave differently when not mounted */
-    if (uwep && is_pole(uwep))
+    if (player_weapon && is_pole(player_weapon))
         gu.unweapon = TRUE;
     return;
 }

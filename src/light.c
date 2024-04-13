@@ -835,7 +835,7 @@ arti_light_radius(struct obj *obj)
        have minimum radiance (hero as light source will use light radius
        based on monster form); otherwise, worn gold DSM gives off more
        light than other light sources */
-    if (obj == uskin)
+    if (obj == player_skin_if_dragon)
         res = 1;
     else if (obj->otyp == GOLD_DRAGON_SCALE_MAIL) /* DSM but not scales */
         ++res;

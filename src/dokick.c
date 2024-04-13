@@ -9,7 +9,7 @@
 #define is_bigfoot(x) ((x) == &mons[PM_SASQUATCH])
 #define martial()                                 \
     (martial_bonus() || is_bigfoot(gy.youmonst.data) \
-     || (uarmf && uarmf->otyp == KICKING_BOOTS))
+     || (player_armor_footwear && player_armor_footwear->otyp == KICKING_BOOTS))
 
 /* gk.kickedobj (decl.c) tracks a kicked object until placed or destroyed */
 
@@ -40,7 +40,7 @@ kickdmg(struct monster *mon, boolean clumsy)
     int specialdmg, kick_skill = P_NONE;
     boolean trapkilled = FALSE;
 
-    if (uarmf && uarmf->otyp == KICKING_BOOTS)
+    if (player_armor_footwear && player_armor_footwear->otyp == KICKING_BOOTS)
         dmg += 5;
 
     /* excessive wt affects dex, so it affects dmg */
@@ -90,8 +90,8 @@ kickdmg(struct monster *mon, boolean clumsy)
         exercise(ATTRIBUTE_DEXTERITY, TRUE);
     }
     dmg += specialdmg; /* for blessed (or hypothetically, silver) boots */
-    if (uarmf)
-        dmg += uarmf->spe;
+    if (player_armor_footwear)
+        dmg += player_armor_footwear->spe;
     dmg += u.damage_increment; /* add ring(s) of increase damage */
     if (dmg > 0)
         mon->mhp -= dmg;
@@ -115,7 +115,7 @@ kickdmg(struct monster *mon, boolean clumsy)
         }
     }
 
-    (void) passive(mon, uarmf, TRUE, !DEADMONSTER(mon), AT_KICK, FALSE);
+    (void) passive(mon, player_armor_footwear, TRUE, !DEADMONSTER(mon), AT_KICK, FALSE);
     if (DEADMONSTER(mon) && !trapkilled)
         killed(mon);
 
@@ -157,7 +157,7 @@ kick_monster(struct monster *mon, coordxy x, coordxy y)
         && !is_flyer(mon->data)) {
         pline("Floating in the air, you miss wildly!");
         exercise(ATTRIBUTE_DEXTERITY, FALSE);
-        (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
+        (void) passive(mon, player_armor_footwear, FALSE, 1, AT_KICK, FALSE);
         return;
     }
 
@@ -211,13 +211,13 @@ kick_monster(struct monster *mon, coordxy x, coordxy y)
             } else if (tmp > kickdieroll) {
                 You("kick %s.", mon_nam(mon));
                 sum = damageum(mon, uattk, specialdmg);
-                (void) passive(mon, uarmf, (sum != M_ATTK_MISS),
+                (void) passive(mon, player_armor_footwear, (sum != M_ATTK_MISS),
                                !(sum & M_ATTK_DEF_DIED), AT_KICK, FALSE);
                 if ((sum & M_ATTK_DEF_DIED))
                     break; /* Defender died */
             } else {
                 missum(mon, uattk, (tmp + armorpenalty > kickdieroll));
-                (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
+                (void) passive(mon, player_armor_footwear, FALSE, 1, AT_KICK, FALSE);
             }
         }
         return;
@@ -239,7 +239,7 @@ kick_monster(struct monster *mon, coordxy x, coordxy y)
             if (martial())
                 goto doit;
             Your("clumsy kick does no damage.");
-            (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
+            (void) passive(mon, player_armor_footwear, FALSE, 1, AT_KICK, FALSE);
             return;
         }
         if (i < j / 10)
@@ -251,7 +251,7 @@ kick_monster(struct monster *mon, coordxy x, coordxy y)
     if (Fumbling)
         clumsy = TRUE;
 
-    else if (uarm && objects[uarm->otyp].oc_bulky && ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) < random(25))
+    else if (player_armor && objects[player_armor->otyp].oc_bulky && ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) < random(25))
         clumsy = TRUE;
  doit:
     You("kick %s.", mon_nam(mon));
@@ -263,7 +263,7 @@ kick_monster(struct monster *mon, coordxy x, coordxy y)
         if (!nohands(mon->data) && !random_integer_between_zero_and(martial() ? 5 : 3)) {
             pline("%s blocks your %skick.", Monnam(mon),
                   clumsy ? "clumsy " : "");
-            (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
+            (void) passive(mon, player_armor_footwear, FALSE, 1, AT_KICK, FALSE);
             return;
         } else {
             maybe_mnexto(mon);
@@ -280,7 +280,7 @@ kick_monster(struct monster *mon, coordxy x, coordxy y)
                                                             ? "slides"
                                                             : "jumps",
                       clumsy ? "easily" : "nimbly", clumsy ? "clumsy " : "");
-                (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
+                (void) passive(mon, player_armor_footwear, FALSE, 1, AT_KICK, FALSE);
                 return;
             }
         }
@@ -511,7 +511,7 @@ really_kick_object(coordxy x, coordxy y)
 
     /* gk.kickedobj should always be set due to conditions of call */
     if (!gk.kickedobj || gk.kickedobj->otyp == BOULDER
-        || gk.kickedobj == uball || gk.kickedobj == uchain)
+        || gk.kickedobj == player_ball || gk.kickedobj == player_chain)
         return 0;
 
     if ((trap = t_at(x, y)) != 0) {
@@ -535,7 +535,7 @@ really_kick_object(coordxy x, coordxy y)
         return 1;
     }
 
-    if (!uarmf && gk.kickedobj->otyp == CORPSE
+    if (!player_armor_footwear && gk.kickedobj->otyp == CORPSE
         && touch_petrifies(&mons[gk.kickedobj->corpsenm])
         && !Stone_resistance) {
         You("kick %s with your bare %s.",
@@ -1077,8 +1077,8 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
             return ECMD_TIME;
         }
         /* make metal boots rust */
-        if (uarmf && random_integer_between_zero_and(3))
-            if (water_damage(uarmf, "metal boots", TRUE) == ER_NOTHING) {
+        if (player_armor_footwear && random_integer_between_zero_and(3))
+            if (water_damage(player_armor_footwear, "metal boots", TRUE) == ER_NOTHING) {
                 Your("boots get wet.");
                 /* could cause short-lived fumbling here */
             }
@@ -1314,7 +1314,7 @@ dokick(void)
     y = u.uy + u.dy;
 
     /* KMH -- Kicking boots always succeed */
-    if (uarmf && uarmf->otyp == KICKING_BOOTS)
+    if (player_armor_footwear && player_armor_footwear->otyp == KICKING_BOOTS)
         avrg_attrib = 99;
     else
         avrg_attrib = (ATTRIBUTE_CURRENT_STRENGTH + ATTRIBUTE_CURRENT(ATTRIBUTE_DEXTERITY) + ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION)) / 3;
@@ -1549,7 +1549,7 @@ impact_drop(
             continue;
         /* number of objects in the pile */
         oct += obj->quan;
-        if (obj == uball || obj == uchain)
+        if (obj == player_ball || obj == player_chain)
             continue;
         /* boulders can fall too, but rarely & never due to rocks */
         if ((isrock && obj->otyp == BOULDER)
@@ -1643,7 +1643,7 @@ ship_object(struct obj *otmp, coordxy x, coordxy y, boolean shop_floor_obj)
 
     /* objects other than attached iron ball always fall down ladder,
        but have a chance of staying otherwise */
-    nodrop = (otmp == uball) || (otmp == uchain)
+    nodrop = (otmp == player_ball) || (otmp == player_chain)
              || (toloc != MIGRATE_LADDER_UP && random_integer_between_zero_and(3));
 
     container = Has_contents(otmp);
@@ -1651,7 +1651,7 @@ ship_object(struct obj *otmp, coordxy x, coordxy y, boolean shop_floor_obj)
 
     if (OBJ_AT(x, y)) {
         for (obj = gl.level.objects[x][y]; obj; obj = obj->nexthere) {
-            if (obj == uchain)
+            if (obj == player_chain)
                 chainthere = TRUE;
             else if (obj != otmp)
                 n += obj->quan;

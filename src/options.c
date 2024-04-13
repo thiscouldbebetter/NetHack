@@ -5173,7 +5173,7 @@ optfn_boolean(
         case opt_showexp:
             if (VIA_WINDOWPORT())
                 status_initialize(REASSESS_ONLY);
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             break;
         case opt_fixinv:
         case opt_sortpack:
@@ -5216,7 +5216,7 @@ optfn_boolean(
             } else if (WINDOWPORT(Qt)) {
                 /* Qt doesn't support HIGHLIGHT_STATUS or FLUSH_STATUS so fails
                    VIA_WINDOWPORT(), but it does support WC2_HITPOINTBAR */
-                disp.botlx = TRUE;
+                disp.bottom_line_x = TRUE;
 #endif
             }
             break;
@@ -8765,7 +8765,7 @@ doset(void) /* changing options via menu by Per Liboriussen */
     if (go.opt_need_promptstyle) {
         adjust_menu_promptstyle(WIN_INVEN, &iflags.menu_headings);
     }
-    if (disp.botl || disp.botlx) {
+    if (disp.bottom_line || disp.bottom_line_x) {
         bot();
     }
     return ECMD_OK;

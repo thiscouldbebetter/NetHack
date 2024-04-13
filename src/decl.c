@@ -126,14 +126,14 @@ const int shield_static[SHIELD_COUNT] = {
     S_ss1, S_ss2, S_ss3, S_ss2, S_ss1, S_ss2, S_ss4,
 };
 NEARDATA struct you u;
-NEARDATA time_t ubirthday;
-NEARDATA struct u_realtime urealtime;
-NEARDATA struct obj *uwep, *uarm, *uswapwep,
-    *uquiver, /* quiver */
-    *uarmu, /* under-wear, so to speak */
-    *uskin, /* dragon armor, if a dragon */
-    *uarmc, *uarmh, *uarms, *uarmg,*uarmf, *uamul,
-    *uright, *uleft, *ublindf, *uchain, *uball;
+NEARDATA time_t player_birthday;
+NEARDATA struct u_realtime player_realtime;
+NEARDATA struct obj *player_weapon, *player_armor, *player_secondary_weapon,
+    *player_quiver, /* quiver */
+    *player_armor_undershirt, /* under-wear, so to speak */
+    *player_skin_if_dragon, /* dragon armor, if a dragon */
+    *player_armor_cloak, *player_armor_hat, *player_armor_shield, *player_armor_gloves,*player_armor_footwear, *player_amulet,
+    *player_finger_right, *player_finger_left, *player_blindfold, *player_chain, *player_ball;
 const char vowels[] = "aeiouAEIOU";
 NEARDATA winid WIN_MESSAGE, WIN_STATUS, WIN_MAP, WIN_INVEN;
 const char ynchars[] = "yn";
@@ -1082,12 +1082,12 @@ declare_globals_initialize(void)
     ZERO(a11y);
     ZERO(disp);
     ZERO(u);
-    ZERO(ubirthday);
-    ZERO(urealtime);
+    ZERO(player_birthday);
+    ZERO(player_realtime);
 
-    uwep = uarm = uswapwep = uquiver = uarmu = uskin = uarmc = NULL;
-    uarmh = uarms = uarmg = uarmf = uamul = uright = uleft = NULL;
-    ublindf = uchain = uball = NULL;
+    player_weapon = player_armor = player_secondary_weapon = player_quiver = player_armor_undershirt = player_skin_if_dragon = player_armor_cloak = NULL;
+    player_armor_hat = player_armor_shield = player_armor_gloves = player_armor_footwear = player_amulet = player_finger_right = player_finger_left = NULL;
+    player_blindfold = player_chain = player_ball = NULL;
 
     WIN_MESSAGE =  WIN_STATUS =  WIN_MAP = WIN_INVEN = WIN_ERR;
 

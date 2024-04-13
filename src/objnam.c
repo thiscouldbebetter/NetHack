@@ -1366,7 +1366,7 @@ doname_base(
     case ARMOR_CLASS:
         if (obj->owornmask & WEARING_ARMOR) {
             Concat(bp, 0,
-                   (obj == uskin) ? " (embedded in your skin)"
+                   (obj == player_skin_if_dragon) ? " (embedded in your skin)"
                    /* in case of perm_invent update while Wear/Takeoff
                       is in progress; check doffing() before donning()
                       because donning() returns True for both cases */
@@ -1379,7 +1379,7 @@ doname_base(
                 /* slippery fingers is an intrinsic condition of the hero
                    rather than extrinsic condition of objects, but gloves
                    are described as slippery when hero has slippery fingers */
-                if (obj == uarmg && Glib) /* just appended "(something)",
+                if (obj == player_armor_gloves && Glib) /* just appended "(something)",
                                            * replace paren, changing that
                                            * to be "(something; slippery)" */
                     Concat(bp,  1, "; slippery)");
@@ -1532,7 +1532,7 @@ doname_base(
     }
 
     if ((obj->owornmask & WEARING_WEAPON) && !gm.mrg_to_wielded) {
-        boolean twoweap_primary = (obj == uwep && u.using_two_weapons),
+        boolean twoweap_primary = (obj == player_weapon && u.using_two_weapons),
                 tethered = (obj->otyp == AKLYS);
 
 
@@ -1570,7 +1570,7 @@ doname_base(
             /* we just added a parenthesized phrase, but the right paren
                might be absent if the appended string got truncated */
             if (!Blind && bpspaceleft && bp_eos[-1] == ')') {
-                if (gw.warn_obj_cnt && obj == uwep
+                if (gw.warn_obj_cnt && obj == player_weapon
                     && (EWarn_of_mon & WEARING_WEAPON) != 0L)
                     /* we know bp[] ends with ')'; overwrite that */
                     ConcatF2(bp, 1, ", %s %s)",
@@ -4450,7 +4450,7 @@ readobjnam_postparse1(struct _readobjnam_data *d)
         d->otmp = mksobj(GOLD_PIECE, FALSE, FALSE);
         d->otmp->quan = (long) d->cnt;
         d->otmp->owt = weight(d->otmp);
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         return 3; /*return otmp;*/
     }
 

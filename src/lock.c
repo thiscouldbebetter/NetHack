@@ -213,7 +213,7 @@ forcelock(void)
     if ((gx.xlock.box->ox != u.ux) || (gx.xlock.box->oy != u.uy))
         return ((gx.xlock.usedtime = 0)); /* you or it moved */
 
-    if (gx.xlock.usedtime++ >= 50 || !uwep || nohands(gy.youmonst.data)) {
+    if (gx.xlock.usedtime++ >= 50 || !player_weapon || nohands(gy.youmonst.data)) {
         You("give up your attempt to force the lock.");
         if (gx.xlock.usedtime >= 50) /* you made the effort */
             exercise((gx.xlock.picktyp) ? ATTRIBUTE_DEXTERITY : ATTRIBUTE_STRENGTH, TRUE);
@@ -221,14 +221,14 @@ forcelock(void)
     }
 
     if (gx.xlock.picktyp) { /* blade */
-        if (random_integer_between_zero_and(1000 - (int) uwep->spe) > (992 - greatest_erosion(uwep) * 10)
-            && !uwep->cursed && !obj_resists(uwep, 0, 99)) {
+        if (random_integer_between_zero_and(1000 - (int) player_weapon->spe) > (992 - greatest_erosion(player_weapon) * 10)
+            && !player_weapon->cursed && !obj_resists(player_weapon, 0, 99)) {
             /* for a +0 weapon, probability that it survives an unsuccessful
              * attempt to force the lock is (.992)^50 = .67
              */
-            pline("%sour %s broke!", (uwep->quan > 1L) ? "One of y" : "Y",
-                  xname(uwep));
-            useup(uwep);
+            pline("%sour %s broke!", (player_weapon->quan > 1L) ? "One of y" : "Y",
+                  xname(player_weapon));
+            useup(player_weapon);
             You("give up your attempt to force the lock.");
             exercise(ATTRIBUTE_DEXTERITY, TRUE);
             return ((gx.xlock.usedtime = 0));
@@ -651,12 +651,12 @@ pick_lock(
 boolean
 u_have_forceable_weapon(void)
 {
-    if (!uwep /* proper type test */
-        || ((uwep->oclass == WEAPON_CLASS || is_weptool(uwep))
-            ? (objects[uwep->otyp].oc_skill < P_DAGGER
-               || objects[uwep->otyp].oc_skill == P_FLAIL
-               || objects[uwep->otyp].oc_skill > P_LANCE)
-            : uwep->oclass != ROCK_CLASS))
+    if (!player_weapon /* proper type test */
+        || ((player_weapon->oclass == WEAPON_CLASS || is_weptool(player_weapon))
+            ? (objects[player_weapon->otyp].oc_skill < P_DAGGER
+               || objects[player_weapon->otyp].oc_skill == P_FLAIL
+               || objects[player_weapon->otyp].oc_skill > P_LANCE)
+            : player_weapon->oclass != ROCK_CLASS))
         return FALSE;
     return TRUE;
 }
@@ -682,8 +682,8 @@ doforce(void)
     }
     if (!u_have_forceable_weapon()) {
         You_cant("force anything %s weapon.",
-                 !uwep ? "when not wielding a"
-                       : (uwep->oclass != WEAPON_CLASS && !is_weptool(uwep))
+                 !player_weapon ? "when not wielding a"
+                       : (player_weapon->oclass != WEAPON_CLASS && !is_weptool(player_weapon))
                              ? "without a proper"
                              : "with that");
         return ECMD_OK;
@@ -693,7 +693,7 @@ doforce(void)
         return ECMD_OK;
     }
 
-    picktyp = is_blade(uwep) && !is_pick(uwep);
+    picktyp = is_blade(player_weapon) && !is_pick(player_weapon);
     if (gx.xlock.usedtime && gx.xlock.box && picktyp == gx.xlock.picktyp) {
         You("resume your attempt to force the lock.");
         set_occupation(forcelock, "forcing the lock", 0);
@@ -726,11 +726,11 @@ doforce(void)
                 continue;
 
             if (picktyp)
-                You("force %s into a crack and pry.", yname(uwep));
+                You("force %s into a crack and pry.", yname(player_weapon));
             else
-                You("start bashing it with %s.", yname(uwep));
+                You("start bashing it with %s.", yname(player_weapon));
             gx.xlock.box = otmp;
-            gx.xlock.chance = objects[uwep->otyp].oc_wldam * 2;
+            gx.xlock.chance = objects[player_weapon->otyp].oc_wldam * 2;
             gx.xlock.picktyp = picktyp;
             gx.xlock.magic_key = FALSE;
             gx.xlock.usedtime = 0;

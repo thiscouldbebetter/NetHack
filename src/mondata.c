@@ -97,7 +97,7 @@ defended(struct monster *mon, int adtyp)
     boolean is_you = (mon == &gy.youmonst);
 
     /* is 'mon' wielding an artifact that protects against 'adtyp'? */
-    o = is_you ? uwep : MON_WEP(mon);
+    o = is_you ? player_weapon : MON_WEP(mon);
     if (o && o->oartifact && defends(adtyp, o))
         return TRUE;
 
@@ -116,7 +116,7 @@ defended(struct monster *mon, int adtyp)
         o = &otemp;
     } else {
         /* ordinary case: not an adult dragon */
-        o = is_you ? uarm : which_armor(mon, WEARING_ARMOR_BODY);
+        o = is_you ? player_armor : which_armor(mon, WEARING_ARMOR_BODY);
     }
     /* is 'mon' wearing dragon scales that protect against 'adtyp'? */
     if (o && Is_dragon_armor(o) && defends(adtyp, o))
@@ -153,14 +153,14 @@ resists_magm(struct monster *mon)
         || dmgtype(ptr, AD_RBRE)) /* Chromatic Dragon */
         return TRUE;
     /* check for magic resistance granted by wielded weapon */
-    o = is_you ? uwep : MON_WEP(mon);
+    o = is_you ? player_weapon : MON_WEP(mon);
     if (o && o->oartifact && defends(AD_MAGM, o))
         return TRUE;
     /* check for magic resistance granted by worn or carried items */
     o = is_you ? gi.invent : mon->minvent;
     slotmask = WEARING_ARMOR | WEARING_ACCESSORY;
     if (!is_you /* assumes monsters don't wield non-weapons */
-        || (uwep && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))))
+        || (player_weapon && (player_weapon->oclass == WEAPON_CLASS || is_weptool(player_weapon))))
         slotmask |= WEARING_WEAPON;
     if (is_you && u.using_two_weapons)
         slotmask |= WEARING_SECONDARY_WEAPON;
@@ -191,13 +191,13 @@ resists_blnd(struct monster *mon)
     if (dmgtype_fromattack(ptr, AD_BLND, AT_EXPL)
         || dmgtype_fromattack(ptr, AD_BLND, AT_GAZE))
         return TRUE;
-    o = is_you ? uwep : MON_WEP(mon);
+    o = is_you ? player_weapon : MON_WEP(mon);
     if (o && o->oartifact && defends(AD_BLND, o))
         return TRUE;
     o = is_you ? gi.invent : mon->minvent;
     slotmask = WEARING_ARMOR | WEARING_ACCESSORY;
     if (!is_you /* assumes monsters don't wield non-weapons */
-        || (uwep && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))))
+        || (player_weapon && (player_weapon->oclass == WEAPON_CLASS || is_weptool(player_weapon))))
         slotmask |= WEARING_WEAPON;
     if (is_you && u.using_two_weapons)
         slotmask |= WEARING_SECONDARY_WEAPON;
@@ -259,7 +259,7 @@ can_blnd(
                 return FALSE;
         } else if (obj && (obj->otyp == BLINDING_VENOM)) {
             /* all ublindf, including LENSES, protect, cream-pies too */
-            if (is_you && (ublindf || u.ucreamed))
+            if (is_you && (player_blindfold || u.ucreamed))
                 return FALSE;
             check_visor = TRUE;
         } else if (obj && (obj->otyp == POT_BLINDNESS)) {
@@ -279,7 +279,7 @@ can_blnd(
 
     case AT_CLAW:
         /* e.g. raven: all ublindf, including LENSES, protect */
-        if (is_you && ublindf)
+        if (is_you && player_blindfold)
             return FALSE;
         if ((magr == &gy.youmonst) && u.uswallow)
             return FALSE; /* can't affect eyes while inside monster */

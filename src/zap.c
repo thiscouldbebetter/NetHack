@@ -1203,19 +1203,19 @@ cancel_item(struct obj *obj)
         case RIN_GAIN_STRENGTH:
             if ((obj->owornmask & WEARING_RING) != 0L) {
                 ATTRIBUTE_BONUS(ATTRIBUTE_STRENGTH) -= obj->spe;
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
             }
             break;
         case RIN_GAIN_CONSTITUTION:
             if ((obj->owornmask & WEARING_RING) != 0L) {
                 ATTRIBUTE_BONUS(ATTRIBUTE_CONSTITUTION) -= obj->spe;
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
             }
             break;
         case RIN_ADORNMENT:
             if ((obj->owornmask & WEARING_RING) != 0L) {
                 ATTRIBUTE_BONUS(ATTRIBUTE_CHARISMA) -= obj->spe;
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
             }
             break;
         case RIN_INCREASE_ACCURACY:
@@ -1228,24 +1228,24 @@ cancel_item(struct obj *obj)
             break;
         case RIN_PROTECTION:
             if ((obj->owornmask & WEARING_RING) != 0L)
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
             break;
         case GAUNTLETS_OF_DEXTERITY:
             if ((obj->owornmask & WEARING_ARMOR_GLOVES) != 0L) {
                 ATTRIBUTE_BONUS(ATTRIBUTE_DEXTERITY) -= obj->spe;
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
             }
             break;
         case HELM_OF_BRILLIANCE:
             if ((obj->owornmask & WEARING_ARMOR_HELMET) != 0L) {
                 ATTRIBUTE_BONUS(ATTRIBUTE_INTELLIGENCE) -= obj->spe;
                 ATTRIBUTE_BONUS(ATTRIBUTE_WISDOM) -= obj->spe;
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
             }
             break;
         default:
             if ((obj->owornmask & WEARING_ARMOR) != 0L) /* AC */
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
             break;
         }
     }
@@ -1356,24 +1356,24 @@ drain_item(struct obj *obj, boolean by_you)
 
     /* Drain the object and any implied effects */
     obj->spe--;
-    u_ring = (obj == uleft) || (obj == uright);
+    u_ring = (obj == player_finger_left) || (obj == player_finger_right);
     switch (obj->otyp) {
     case RIN_GAIN_STRENGTH:
         if ((obj->owornmask & WEARING_RING) && u_ring) {
             ATTRIBUTE_BONUS(ATTRIBUTE_STRENGTH)--;
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         }
         break;
     case RIN_GAIN_CONSTITUTION:
         if ((obj->owornmask & WEARING_RING) && u_ring) {
             ATTRIBUTE_BONUS(ATTRIBUTE_CONSTITUTION)--;
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         }
         break;
     case RIN_ADORNMENT:
         if ((obj->owornmask & WEARING_RING) && u_ring) {
             ATTRIBUTE_BONUS(ATTRIBUTE_CHARISMA)--;
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         }
         break;
     case RIN_INCREASE_ACCURACY:
@@ -1386,25 +1386,25 @@ drain_item(struct obj *obj, boolean by_you)
         break;
     case RIN_PROTECTION:
         if (u_ring)
-            disp.botl = TRUE; /* bot() will recalc u.uac */
+            disp.bottom_line = TRUE; /* bot() will recalc u.uac */
         break;
     case HELM_OF_BRILLIANCE:
-        if ((obj->owornmask & WEARING_ARMOR_HELMET) && (obj == uarmh)) {
+        if ((obj->owornmask & WEARING_ARMOR_HELMET) && (obj == player_armor_hat)) {
             ATTRIBUTE_BONUS(ATTRIBUTE_INTELLIGENCE)--;
             ATTRIBUTE_BONUS(ATTRIBUTE_WISDOM)--;
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         }
         break;
     case GAUNTLETS_OF_DEXTERITY:
-        if ((obj->owornmask & WEARING_ARMOR_GLOVES) && (obj == uarmg)) {
+        if ((obj->owornmask & WEARING_ARMOR_GLOVES) && (obj == player_armor_gloves)) {
             ATTRIBUTE_BONUS(ATTRIBUTE_DEXTERITY)--;
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         }
         break;
     default:
         break;
     }
-    if (disp.botl)
+    if (disp.bottom_line)
         bot();
     if (carried(obj))
         update_inventory();
@@ -1467,7 +1467,7 @@ polyuse(struct obj *objhdr, int mat, int minwt)
         otmp2 = otmp->nexthere;
         if (gc.context.bypasses && otmp->bypass)
             continue;
-        if (otmp == uball || otmp == uchain)
+        if (otmp == player_ball || otmp == player_chain)
             continue;
         if (obj_resists(otmp, 0, 0))
             continue; /* preserve unique objects */
@@ -1635,7 +1635,7 @@ boolean
 obj_unpolyable(struct obj *obj)
 {
     return (unpolyable(obj)
-            || obj == uball || obj == uskin
+            || obj == player_ball || obj == player_skin_if_dragon
             || obj_resists(obj, 5, 95));
 }
 
@@ -1878,14 +1878,14 @@ poly_obj(struct obj *obj, int id)
             remove_worn_item(obj, TRUE);
             /* if the new form can be worn in the same slot, make it so */
             if ((new_wornmask & WEARING_WEAPON) != 0L) {
-                if (was_twohanded || !bimanual(otmp) || !uarms)
+                if (was_twohanded || !bimanual(otmp) || !player_armor_shield)
                     setuwep(otmp);
-                if (was_twoweap && uwep && !bimanual(uwep))
+                if (was_twoweap && player_weapon && !bimanual(player_weapon))
                     set_twoweap(TRUE); /* u.twoweap = TRUE */
             } else if ((new_wornmask & WEARING_SECONDARY_WEAPON) != 0L) {
                 if (was_twohanded || !bimanual(otmp))
                     setuswapwep(otmp);
-                if (was_twoweap && uswapwep)
+                if (was_twoweap && player_secondary_weapon)
                     set_twoweap(TRUE); /* u.twoweap = TRUE */
             } else if ((new_wornmask & WEARING_QUIVER) != 0L) {
                 setuqwep(otmp);
@@ -2124,9 +2124,9 @@ bhito(struct obj *obj, struct obj *otmp)
     if (!(obj->where == OBJ_FLOOR || otmp->otyp == SPE_STONE_TO_FLESH))
         impossible("bhito: obj is not floor or Stone To Flesh spell");
 
-    if (obj == uball) {
+    if (obj == player_ball) {
         res = 0;
-    } else if (obj == uchain) {
+    } else if (obj == player_chain) {
         if (otmp->otyp == WAN_OPENING || otmp->otyp == SPE_KNOCK) {
             learn_it = TRUE;
             unpunish();
@@ -2745,9 +2745,9 @@ zapyourself(struct obj *obj, boolean ordinary)
          */
         int msg = !Invis && !Blind && !BInvis;
 
-        if (BInvis && uarmc->otyp == MUMMY_WRAPPING) {
+        if (BInvis && player_armor_cloak->otyp == MUMMY_WRAPPING) {
             /* A mummy wrapping absorbs it and protects you */
-            You_feel("rather itchy under %s.", yname(uarmc));
+            You_feel("rather itchy under %s.", yname(player_armor_cloak));
             break;
         }
         incr_itimeout(&HInvis, rn1(15, 31));
@@ -3073,7 +3073,7 @@ cancel_monst(struct monster *mdef, struct obj *obj, boolean youattack,
             cancel_item(otmp);
 
         if (youdefend) {
-            disp.botl = TRUE; /* potential AC change */
+            disp.bottom_line = TRUE; /* potential AC change */
             find_ac();
             /* update_inventory(); -- handled by caller */
         }
@@ -3216,7 +3216,7 @@ zap_updown(struct obj *obj) /* wand or spell, nonnull */
             /* similar to zap_dig() */
             pline("A rock is dislodged from the %s and falls on your %s.",
                   ceiling(x, y), body_part(HEAD));
-            dmg = random(hard_helmet(uarmh) ? 2 : 6);
+            dmg = random(hard_helmet(player_armor_hat) ? 2 : 6);
             losehp(Maybe_Half_Phys(dmg), "falling rock", KILLED_BY_AN);
             if ((otmp = mksobj_at(ROCK, x, y, FALSE, FALSE)) != 0) {
                 (void) xname(otmp); /* set dknown, maybe bknown */
@@ -3992,7 +3992,7 @@ bhit(
                     pline("%s hits %s.", The(distant_name(obj, xname)),
                           an(xname(bobj)));
                 range = 0;
-            } else if (obj == uball) {
+            } else if (obj == player_ball) {
                 if (!test_move(x - ddx, y - ddy, ddx, ddy, TEST_MOVE)) {
                     /* nb: it didn't hit anything directly */
                     if (cansee(x, y))
@@ -4350,23 +4350,23 @@ zhitu(
                 break;
             }
             monstunseesu(M_SEEN_DISINT);
-            if (uarms) {
+            if (player_armor_shield) {
                 /* destroy shield; other possessions are safe */
-                (void) destroy_arm(uarms);
+                (void) destroy_arm(player_armor_shield);
                 break;
-            } else if (uarm) {
+            } else if (player_armor) {
                 /* destroy suit; if present, cloak goes too */
-                if (uarmc)
-                    (void) destroy_arm(uarmc);
-                (void) destroy_arm(uarm);
+                if (player_armor_cloak)
+                    (void) destroy_arm(player_armor_cloak);
+                (void) destroy_arm(player_armor);
                 break;
             }
             /* no shield or suit, you're dead; wipe out cloak
                and/or shirt in case of life-saving or bones */
-            if (uarmc)
-                (void) destroy_arm(uarmc);
-            if (uarmu)
-                (void) destroy_arm(uarmu);
+            if (player_armor_cloak)
+                (void) destroy_arm(player_armor_cloak);
+            if (player_armor_undershirt)
+                (void) destroy_arm(player_armor_undershirt);
         } else if (nonliving(gy.youmonst.data) || is_demon(gy.youmonst.data)) {
             shieldeff(sx, sy);
             You("seem unaffected.");
@@ -4415,9 +4415,9 @@ zhitu(
         }
         /* using two weapons at once makes both of them more vulnerable */
         if (!random_integer_between_zero_and(u.using_two_weapons ? 3 : 6))
-            acid_damage(uwep);
+            acid_damage(player_weapon);
         if (u.using_two_weapons && !random_integer_between_zero_and(3))
-            acid_damage(uswapwep);
+            acid_damage(player_secondary_weapon);
         if (!random_integer_between_zero_and(6))
             erode_armor(&gy.youmonst, ERODE_CORRODE);
         break;
@@ -5525,7 +5525,7 @@ u_adtyp_resistance_obj(int dmgtyp)
         return 99;
 
     /* Dwarvish cloaks give a 90% protection to items against heat and cold */
-    if (uarmc && uarmc->otyp == DWARVISH_CLOAK
+    if (player_armor_cloak && player_armor_cloak->otyp == DWARVISH_CLOAK
         && (dmgtyp == AD_COLD || dmgtyp == AD_FIRE))
         return 90;
 
@@ -5566,28 +5566,28 @@ item_what(int dmgtyp)
         if (!prop || !xtrinsic) {
             ; /* 'what' stays Null */
         } else if (xtrinsic & WEARING_ARMOR_CLOAK) {
-            what = cloak_simple_name(uarmc);
+            what = cloak_simple_name(player_armor_cloak);
         } else if (xtrinsic & WEARING_ARMOR_BODY) {
-            what = suit_simple_name(uarm); /* "dragon {scales,mail}" */
+            what = suit_simple_name(player_armor); /* "dragon {scales,mail}" */
         } else if (xtrinsic & WEARING_ARMOR_UNDERSHIRT) {
-            what = shirt_simple_name(uarmu);
+            what = shirt_simple_name(player_armor_undershirt);
         } else if (xtrinsic & WEARING_ARMOR_HELMET) {
-            what = helm_simple_name(uarmh);
+            what = helm_simple_name(player_armor_hat);
         } else if (xtrinsic & WEARING_ARMOR_GLOVES) {
-            what = gloves_simple_name(uarmg);
+            what = gloves_simple_name(player_armor_gloves);
         } else if (xtrinsic & WEARING_ARMOR_FOOTWEAR) {
-            what = boots_simple_name(uarmf);
+            what = boots_simple_name(player_armor_footwear);
         } else if (xtrinsic & WEARING_ARMOR_SHIELD) {
-            what = shield_simple_name(uarms);
+            what = shield_simple_name(player_armor_shield);
         } else if (xtrinsic & (WEARING_AMULET | WEARING_TOOL)) {
-            what = simpleonames((xtrinsic & WEARING_AMULET) ? uamul : ublindf);
+            what = simpleonames((xtrinsic & WEARING_AMULET) ? player_amulet : player_blindfold);
         } else if (xtrinsic & WEARING_RING) {
             if ((xtrinsic & WEARING_RING) == WEARING_RING) /* both */
                 what = "rings";
             else
-                what = simpleonames((xtrinsic & WEARING_RING_LEFT) ? uleft : uright);
+                what = simpleonames((xtrinsic & WEARING_RING_LEFT) ? player_finger_left : player_finger_right);
         } else if (xtrinsic & WEARING_WEAPON) {
-            what = simpleonames(uwep);
+            what = simpleonames(player_weapon);
         }
         /* format the output to be ready for enl_msg() to append it to
            "Your items {are,were} protected against <damage-type>" */
@@ -5696,7 +5696,7 @@ maybe_destroy_item(
         quan = obj->quan;
         switch (obj->oclass) {
         case RING_CLASS:
-            if (((obj->owornmask & WEARING_RING) && uarmg && !is_metallic(uarmg))
+            if (((obj->owornmask & WEARING_RING) && player_armor_gloves && !is_metallic(player_armor_gloves))
                 || obj->otyp == RIN_SHOCK_RESISTANCE) {
                 skip++;
                 break;

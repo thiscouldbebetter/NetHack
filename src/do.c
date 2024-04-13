@@ -550,7 +550,7 @@ dosinkring(struct obj *obj)
         ideed = FALSE;
         for (otmp = gl.level.objects[u.ux][u.uy]; otmp; otmp = otmp2) {
             otmp2 = otmp->nexthere;
-            if (otmp != uball && otmp != uchain
+            if (otmp != player_ball && otmp != player_chain
                 && !obj_resists(otmp, 1, 99)) {
                 if (!Blind) {
                     pline("Suddenly, %s %s from the sink!", doname(otmp),
@@ -662,13 +662,13 @@ canletgo(struct obj *obj, const char *word)
             Norep("You cannot %s %s you are wearing.", word, something);
         return FALSE;
     }
-    if (obj == uwep && welded(uwep)) {
+    if (obj == player_weapon && welded(player_weapon)) {
         /* no weldmsg(), so uwep->bknown might become set silently
            if word is "" */
         if (*word) {
             const char *hand = body_part(HAND);
 
-            if (bimanual(uwep))
+            if (bimanual(player_weapon))
                 hand = makeplural(hand);
             Norep("You cannot %s %s welded to your %s.", word, something,
                   hand);
@@ -710,17 +710,17 @@ drop(struct obj *obj)
         return ECMD_FAIL;
     if (!canletgo(obj, "drop"))
         return ECMD_FAIL;
-    if (obj == uwep) {
-        if (welded(uwep)) {
+    if (obj == player_weapon) {
+        if (welded(player_weapon)) {
             weldmsg(obj);
             return ECMD_FAIL;
         }
         setuwep((struct obj *) 0);
     }
-    if (obj == uquiver) {
+    if (obj == player_quiver) {
         setuqwep((struct obj *) 0);
     }
-    if (obj == uswapwep) {
+    if (obj == player_secondary_weapon) {
         setuswapwep((struct obj *) 0);
     }
 
@@ -797,16 +797,16 @@ dropy(struct obj *obj)
 void
 dropz(struct obj *obj, boolean with_impact)
 {
-    if (obj == uwep)
+    if (obj == player_weapon)
         setuwep((struct obj *) 0);
-    if (obj == uquiver)
+    if (obj == player_quiver)
         setuqwep((struct obj *) 0);
-    if (obj == uswapwep)
+    if (obj == player_secondary_weapon)
         setuswapwep((struct obj *) 0);
 
     if (u.uswallow) {
         /* hero has dropped an item while inside an engulfer */
-        if (obj != uball) { /* mon doesn't pick up ball */
+        if (obj != player_ball) { /* mon doesn't pick up ball */
             /* moving shop item into engulfer's inventory treated as theft */
             if (is_unpaid(obj))
                 (void) stolen_value(obj, u.ux, u.uy, TRUE, FALSE);
@@ -821,7 +821,7 @@ dropz(struct obj *obj, boolean with_impact)
         if (with_impact)
             container_impact_dmg(obj, u.ux, u.uy);
         impact_disturbs_zombies(obj, with_impact);
-        if (obj == uball)
+        if (obj == player_ball)
             drop_ball(u.ux, u.uy);
         else if (gl.level.flags.has_shop)
             sellobj(obj, u.ux, u.uy);
@@ -1202,8 +1202,8 @@ dodown(void)
             return ECMD_TIME;
         } else if (!trap || !is_hole(trap->ttyp)
                    || !Can_fall_thru(&u.uz) || !trap->tseen) {
-            if (flags.autodig && !gc.context.nopick && uwep && is_pick(uwep)) {
-                return use_pick_axe2(uwep);
+            if (flags.autodig && !gc.context.nopick && player_weapon && is_pick(player_weapon)) {
+                return use_pick_axe2(player_weapon);
             } else {
                 You_cant("go down here%s.",
                          (trap && trap->ttyp == VIBRATING_SQUARE) ? " yet"
@@ -1756,7 +1756,7 @@ goto_level(
                 You("fall down the %s.", ga.at_ladder ? "ladder" : "stairs");
                 if (Punished) {
                     drag_down();
-                    if (!welded(uball))
+                    if (!welded(player_ball))
                         ballrelease(FALSE);
                 }
                 /* falling off steed has its own losehp() call */
@@ -1777,7 +1777,7 @@ goto_level(
     } else { /* trap door or level_tele or In_endgame */
         u_on_rndspot((up ? 1 : 0) | (was_in_W_tower ? 2 : 0));
         if (falling) {
-            if (Punished && !welded(uball))
+            if (Punished && !welded(player_ball))
                 ballfall();
             selftouch("Falling, you");
             do_fall_dmg = TRUE;
@@ -2082,7 +2082,7 @@ revive_corpse(struct obj *corpse)
        so that it can dig itself out of the ground if it revives */
     is_zomb = (mons[montype].mlet == S_ZOMBIE
                || (where == OBJ_BURIED && is_reviver(&mons[montype])));
-    is_uwep = (corpse == uwep);
+    is_uwep = (corpse == player_weapon);
     chewed = (corpse->oeaten != 0);
     Strcpy(cname, corpse_xname(corpse,
                                chewed ? "bite-covered" : (const char *) 0,
@@ -2383,7 +2383,7 @@ set_wounded_legs(long side, int timex)
      * You still call this function, but don't lose hp.
      * Caller is also responsible for adjusting messages.
      */
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     if (!Wounded_legs)
         ATTRIBUTE_TEMPORARY(ATTRIBUTE_DEXTERITY)--;
 
@@ -2403,7 +2403,7 @@ heal_legs(
     int how) /* 0: ordinary, 1: dismounting steed, 2: limbs turn to stone */
 {
     if (Wounded_legs) {
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         if (ATTRIBUTE_TEMPORARY(ATTRIBUTE_DEXTERITY) < 0)
             ATTRIBUTE_TEMPORARY(ATTRIBUTE_DEXTERITY)++;
 

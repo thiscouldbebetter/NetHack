@@ -393,9 +393,9 @@ find_roll_to_hit(
 
     /* role/race adjustments */
     if (Role_if(PM_MONK) && !Upolyd) {
-        if (uarm)
+        if (player_armor)
             tmp -= (*role_roll_penalty = gu.urole.spelarmr);
-        else if (!uwep && !uarms)
+        else if (!player_weapon && !player_armor_shield)
             tmp += (u.ulevel / 3) + 2;
     }
     if (is_orc(mtmp->data)
@@ -516,7 +516,7 @@ do_attack(struct monster *mtmp)
     gb.bhitpos.x = u.ux + u.dx;
     gb.bhitpos.y = u.uy + u.dy;
     gn.notonhead = (gb.bhitpos.x != mtmp->mx || gb.bhitpos.y != mtmp->my);
-    if (attack_checks(mtmp, uwep))
+    if (attack_checks(mtmp, player_weapon))
         return TRUE;
 
     if (Upolyd && noattacks(gy.youmonst.data)) {
@@ -537,12 +537,12 @@ do_attack(struct monster *mtmp)
     if (gu.unweapon) {
         gu.unweapon = FALSE;
         if (flags.verbose) {
-            if (uwep)
-                You("begin bashing monsters with %s.", yname(uwep));
+            if (player_weapon)
+                You("begin bashing monsters with %s.", yname(player_weapon));
             else if (!cantwield(gy.youmonst.data))
                 You("begin %s monsters with your %s %s.",
                     ing_suffix(Role_if(PM_MONK) ? "strike" : "bash"),
-                    uarmg ? "gloved" : "bare", /* Del Lamb */
+                    player_armor_gloves ? "gloved" : "bare", /* Del Lamb */
                     makeplural(body_part(HAND)));
         }
     }
@@ -701,20 +701,20 @@ hitum_cleave(
             continue;
         }
 
-        tmp = find_roll_to_hit(mtmp, uattk->aatyp, uwep,
+        tmp = find_roll_to_hit(mtmp, uattk->aatyp, player_weapon,
                                &attknum, &armorpenalty);
         mon_maybe_unparalyze(mtmp);
         dieroll = random(20);
         mhit = (tmp > dieroll);
         gb.bhitpos.x = tx, gb.bhitpos.y = ty; /* normally set by do_attack() */
         gn.notonhead = (mtmp->mx != tx || mtmp->my != ty);
-        (void) known_hitum(mtmp, uwep, &mhit, tmp, armorpenalty,
+        (void) known_hitum(mtmp, player_weapon, &mhit, tmp, armorpenalty,
                            uattk, dieroll);
-        (void) passive(mtmp, uwep, mhit, !DEADMONSTER(mtmp), AT_WEAP, !uwep);
+        (void) passive(mtmp, player_weapon, mhit, !DEADMONSTER(mtmp), AT_WEAP, !player_weapon);
 
         /* stop attacking if weapon is gone or hero got paralyzed or
            killed (and then life-saved) by passive counter-attack */
-        if (!uwep || gm.multi < 0 || u.times_died > umort)
+        if (!player_weapon || gm.multi < 0 || u.times_died > umort)
             break;
     }
     /* set up for next time */
@@ -746,7 +746,7 @@ double_punch(void)
      *  master      (5) : 60%
      *  grandmaster (6) : 80%
      */
-    if (!uwep && !uarms && skl_lvl > P_BASIC)
+    if (!player_weapon && !player_armor_shield && skl_lvl > P_BASIC)
         return (skl_lvl - P_BASIC) > random_integer_between_zero_and(5);
     return FALSE;
 }
@@ -756,8 +756,8 @@ staticfn boolean
 hitum(struct monster *mon, struct attack *uattk)
 {
     boolean malive, wep_was_destroyed = FALSE;
-    struct obj *wepbefore = uwep,
-        *secondwep = u.using_two_weapons ? uswapwep : (struct obj *) 0;
+    struct obj *wepbefore = player_weapon,
+        *secondwep = u.using_two_weapons ? player_secondary_weapon : (struct obj *) 0;
     int tmp, dieroll, mhit, armorpenalty, attknum = 0,
         x = u.ux + u.dx, y = u.uy + u.dy, oldumort = u.times_died;
 
@@ -771,9 +771,9 @@ hitum(struct monster *mon, struct attack *uattk)
     /* 0: single hit, 1: first of two hits; affects strength bonus and
        silver rings; known_hitum() -> hmon() -> hmon_hitmon() will copy
        gt.twohits into struct _hitmon_data hmd.twohits */
-    gt.twohits = (uwep ? u.using_two_weapons : double_punch()) ? 1 : 0;
+    gt.twohits = (player_weapon ? u.using_two_weapons : double_punch()) ? 1 : 0;
 
-    tmp = find_roll_to_hit(mon, uattk->aatyp, uwep, &attknum, &armorpenalty);
+    tmp = find_roll_to_hit(mon, uattk->aatyp, player_weapon, &attknum, &armorpenalty);
     mon_maybe_unparalyze(mon);
     dieroll = random(20);
     mhit = (tmp > dieroll || u.uswallow);
@@ -781,10 +781,10 @@ hitum(struct monster *mon, struct attack *uattk)
         exercise(ATTRIBUTE_DEXTERITY, TRUE);
 
     /* gb.bhitpos is set up by caller */
-    malive = known_hitum(mon, uwep, &mhit, tmp, armorpenalty, uattk, dieroll);
-    if (wepbefore && !uwep)
+    malive = known_hitum(mon, player_weapon, &mhit, tmp, armorpenalty, uattk, dieroll);
+    if (wepbefore && !player_weapon)
         wep_was_destroyed = TRUE;
-    (void) passive(mon, uwep, mhit, malive, AT_WEAP, wep_was_destroyed);
+    (void) passive(mon, player_weapon, mhit, malive, AT_WEAP, wep_was_destroyed);
 
     /* second attack for two-weapon combat or skilled unarmed combat;
        won't occur if Stormbringer overrode confirmation (assumes
@@ -796,7 +796,7 @@ hitum(struct monster *mon, struct attack *uattk)
                         || gm.multi < 0 || u.times_died > oldumort
                         || !malive || m_at(x, y) != mon)) {
         gt.twohits = 2; /* second of 2 hits */
-        tmp = find_roll_to_hit(mon, uattk->aatyp, uswapwep, &attknum,
+        tmp = find_roll_to_hit(mon, uattk->aatyp, player_secondary_weapon, &attknum,
                                &armorpenalty);
         mon_maybe_unparalyze(mon);
         dieroll = random(20);
@@ -806,7 +806,7 @@ hitum(struct monster *mon, struct attack *uattk)
         /* second passive counter-attack only occurs if second attack hits */
         if (mhit)
             (void) passive(mon, secondwep, mhit, malive, AT_WEAP,
-                           secondwep && !uswapwep);
+                           secondwep && !player_secondary_weapon);
     }
     gt.twohits = 0;
     return malive;
@@ -853,7 +853,7 @@ hmon_hitmon_barehands(struct _hitmon_data *hmd, struct monster *mon)
        When making only one hit, both rings are checked (backwards
        compatibility => playability), but when making two hits, only the
        ring on the hand making the attack is checked. */
-    spcdmgflg = uarmg ? WEARING_ARMOR_GLOVES
+    spcdmgflg = player_armor_gloves ? WEARING_ARMOR_GLOVES
               : (((hmd->twohits == 0 || hmd->twohits == 1) ? WEARING_RING_RIGHT : 0L)
                  | ((hmd->twohits == 0 || hmd->twohits == 2) ? WEARING_RING_LEFT : 0L));
     hmd->damage += special_dmgval(&gy.youmonst, mon, spcdmgflg, &silverhit);
@@ -896,7 +896,7 @@ hmon_hitmon_weapon_ranged(
         /* if it will already inflict dmg, make it worse */
         hmd->damage += random((hmd->damage) ? 20 : 10);
     }
-    if (!hmd->thrown && obj == uwep && obj->otyp == BOOMERANG
+    if (!hmd->thrown && obj == player_weapon && obj->otyp == BOOMERANG
         && rnl(4) == 4 - 1) {
         boolean more_than_1 = (obj->quan > 1L);
 
@@ -940,11 +940,11 @@ hmon_hitmon_weapon_melee(
         You("strike %s from behind!", mon_nam(mon));
         hmd->damage += random(u.ulevel);
         hmd->hit_text = TRUE;
-    } else if (hmd->dieroll == 2 && obj == uwep
+    } else if (hmd->dieroll == 2 && obj == player_weapon
                && obj->oclass == WEAPON_CLASS
                && (bimanual(obj)
                    || (Role_if(PM_SAMURAI) && obj->otyp == KATANA
-                       && !uarms))
+                       && !player_armor_shield))
                && ((wtype = uwep_skill_type()) != P_NONE
                    && P_SKILL(wtype) >= P_SKILLED)
                && ((monwep = MON_WEP(mon)) != 0
@@ -1024,14 +1024,14 @@ hmon_hitmon_weapon_melee(
     }
     if (hmd->thrown == HMON_THROWN
         && (is_ammo(obj) || is_missile(obj))) {
-        if (ammo_and_launcher(obj, uwep)) {
+        if (ammo_and_launcher(obj, player_weapon)) {
             /* elves and samurai do extra damage using their own
                bows with own arrows; they're highly trained */
             if (Role_if(PM_SAMURAI) && obj->otyp == YA
-                && uwep->otyp == YUMI)
+                && player_weapon->otyp == YUMI)
                 hmd->damage++;
             else if (Race_if(PM_ELF) && obj->otyp == ELVEN_ARROW
-                     && uwep->otyp == ELVEN_BOW)
+                     && player_weapon->otyp == ELVEN_BOW)
                 hmd->damage++;
             hmd->train_weapon_skill = (hmd->damage > 0);
         }
@@ -1055,7 +1055,7 @@ hmon_hitmon_weapon(
         || (!hmd->thrown && !u.monster_being_ridden && is_pole(obj))
         /* or throw a missile without the proper bow... */
         || (is_ammo(obj) && (hmd->thrown != HMON_THROWN
-                             || !ammo_and_launcher(obj, uwep)))) {
+                             || !ammo_and_launcher(obj, player_weapon)))) {
         hmon_hitmon_weapon_ranged(hmd, mon, obj);
     } else {
         hmon_hitmon_weapon_melee(hmd, mon, obj);
@@ -1164,7 +1164,7 @@ hmon_hitmon_misc_obj(
         hmd->hit_text = TRUE; /* message always given */
         /* egg is always either used up or transformed, so next
            hand-to-hand attack should yield a "bashing" mesg */
-        if (obj == uwep)
+        if (obj == player_weapon)
             gu.unweapon = TRUE;
         if (obj->spe && ismnum(obj->corpsenm)) {
             if (obj->quan < 5L)
@@ -1416,12 +1416,12 @@ hmon_hitmon_dmg_recalc(struct _hitmon_data *hmd, struct obj *obj)
            hero is simply bashing with one of those and does not apply
            to jousting because lances are one-handed */
         if (hmd->thrown != HMON_THROWN
-            || !obj || !uwep || !ammo_and_launcher(obj, uwep)) {
+            || !obj || !player_weapon || !ammo_and_launcher(obj, player_weapon)) {
             strbonus = dbon();
             absbonus = abs(strbonus);
             if (hmd->twohits)
                 strbonus = ((3 * absbonus + 2) / 4) * sgn(strbonus);
-            else if (hmd->thrown == HMON_MELEE && uwep && bimanual(uwep))
+            else if (hmd->thrown == HMON_MELEE && player_weapon && bimanual(player_weapon))
                 strbonus = ((3 * absbonus + 1) / 2) * sgn(strbonus);
             dmgbonus += strbonus;
         }
@@ -1441,8 +1441,8 @@ hmon_hitmon_dmg_recalc(struct _hitmon_data *hmd, struct obj *obj)
     if (hmd->use_weapon_skill) {
         struct obj *skillwep = obj;
 
-        if (PROJECTILE(obj) && ammo_and_launcher(obj, uwep))
-            skillwep = uwep;
+        if (PROJECTILE(obj) && ammo_and_launcher(obj, player_weapon))
+            skillwep = player_weapon;
         dmgbonus += weapon_dam_bonus(skillwep);
 
         /* hit for more than minimal damage (before being adjusted
@@ -1500,7 +1500,7 @@ hmon_hitmon_jousting(
     struct monster *mon, /* target */
     struct obj *obj) /* lance; obj is not NULL */
 {
-    hmd->damage += d(2, (obj == uwep) ? 10 : 2); /* [was in dmgval()] */
+    hmd->damage += d(2, (obj == player_weapon) ? 10 : 2); /* [was in dmgval()] */
     You("joust %s%s", mon_nam(mon), canseemon(mon) ? exclam(hmd->damage) : ".");
     /* if this hit just broke the never-hit-with-wielded-weapon conduct
        (handled by caller...), give a livelog message for that now */
@@ -1512,7 +1512,7 @@ hmon_hitmon_jousting(
         /* (must be either primary or secondary weapon to get here) */
         set_twoweap(FALSE); /* sets u.twoweap = FALSE;
                              * untwoweapon() is too verbose here */
-        if (obj == uwep)
+        if (obj == player_weapon)
             uwepgone(); /* set gu.unweapon */
         /* minor side-effect: broken lance won't split puddings */
         useup(obj);
@@ -1569,7 +1569,7 @@ hmon_hitmon_splitmon(
         && mon->mhp > 1 && !mon->mcan
         /* iron weapon using melee or polearm hit [3.6.1: metal weapon too;
            also allow either or both weapons to cause split when twoweap] */
-        && obj && (obj == uwep || (u.using_two_weapons && obj == uswapwep))
+        && obj && (obj == player_weapon || (u.using_two_weapons && obj == player_secondary_weapon))
         && ((hmd->material == IRON
              /* allow scalpel and tsurugi to split puddings */
              || hmd->material == METAL)
@@ -1732,10 +1732,10 @@ hmon_hitmon(
     hmd.jousting = 0;
     hmd.hit_text = FALSE;
     hmd.get_damage_bonus = TRUE;
-    hmd.unarmed = !uwep && !uarm && !uarms;
+    hmd.unarmed = !player_weapon && !player_armor && !player_armor_shield;
     hmd.hand_to_hand = (thrown == HMON_MELEE
                         /* not grapnels; applied implies uwep */
-                        || (thrown == HMON_APPLIED && is_pole(uwep)));
+                        || (thrown == HMON_APPLIED && is_pole(player_weapon)));
     hmd.ispoisoned = FALSE;
     hmd.unpoisonmsg = FALSE;
     hmd.need_poison_message = FALSE;
@@ -1784,7 +1784,7 @@ hmon_hitmon(
     }
 
     if (!hmd.already_killed) {
-        if (obj && (obj == uwep || (obj == uswapwep && u.using_two_weapons))
+        if (obj && (obj == player_weapon || (obj == player_secondary_weapon && u.using_two_weapons))
             /* known_hitum 'what counts as a weapon' criteria */
             && (obj->oclass == WEAPON_CLASS || is_weptool(obj))
             && (thrown == HMON_MELEE || thrown == HMON_APPLIED)
@@ -2031,7 +2031,7 @@ joust(struct monster *mon, /* target */
     if (Fumbling || Stunned)
         return 0;
     /* sanity check; lance must be wielded in order to joust */
-    if (obj != uwep && (obj != uswapwep || !u.using_two_weapons))
+    if (obj != player_weapon && (obj != player_secondary_weapon || !u.using_two_weapons))
         return 0;
 
     /* if using two weapons, use worse of lance and two-weapon skills */
@@ -2070,7 +2070,7 @@ demonpet(void)
 staticfn boolean
 theft_petrifies(struct obj *otmp)
 {
-    if (uarmg || otmp->otyp != CORPSE
+    if (player_armor_gloves || otmp->otyp != CORPSE
         || !touch_petrifies(&mons[otmp->corpsenm]) || Stone_resistance)
         return FALSE;
 
@@ -3137,7 +3137,7 @@ mhitm_ad_drin(
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         hitmsg(magr, mattk);
-        if (defends(AD_DRIN, uwep) || !has_head(pd)) {
+        if (defends(AD_DRIN, player_weapon) || !has_head(pd)) {
             You("don't seem harmed.");
             /* attacker should skip remaining AT_TENT+AD_DRIN attacks */
             gs.skipdrin = TRUE;
@@ -3147,10 +3147,10 @@ mhitm_ad_drin(
         if (u_slip_free(magr, mattk))
             return;
 
-        if (uarmh && random_integer_between_zero_and(8)) {
+        if (player_armor_hat && random_integer_between_zero_and(8)) {
             /* not body_part(HEAD) */
             Your("%s blocks the attack to your head.",
-                 helm_simple_name(uarmh));
+                 helm_simple_name(player_armor_hat));
             return;
         }
         /* negative armor class doesn't reduce this damage */
@@ -3159,7 +3159,7 @@ mhitm_ad_drin(
         mdamageu(magr, mhm->damage);
         mhm->damage = 0; /* don't inflict a second dose below */
 
-        if (!uarmh || uarmh->otyp != DUNCE_CAP) {
+        if (!player_armor_hat || player_armor_hat->otyp != DUNCE_CAP) {
             int oldmort = u.times_died,
                 mhitu = eat_brains(magr, mdef, TRUE, (int *) 0);
 
@@ -3531,16 +3531,16 @@ mhitm_ad_ench(
                 case 0:
                     break;
                 case 1:
-                    obj = uright;
+                    obj = player_finger_right;
                     break;
                 case 2:
-                    obj = uleft;
+                    obj = player_finger_left;
                     break;
                 case 3:
-                    obj = uamul;
+                    obj = player_amulet;
                     break;
                 case 4:
-                    obj = ublindf;
+                    obj = player_blindfold;
                     break;
                 }
             }
@@ -3642,7 +3642,7 @@ mhitm_ad_poly(
     if (magr == &gy.youmonst) {
         /* uhitm */
         /* require weaponless attack in order to honor AD_POLY */
-        if (!uwep && mhm->damage < mdef->mhp) {
+        if (!player_weapon && mhm->damage < mdef->mhp) {
             if (negated) {
                 /* assume that you can tell by touch if blinded */
                 pline("%s is not transformed.", Monnam(mdef));
@@ -3995,7 +3995,7 @@ mhitm_ad_phys(
                         exercise(ATTRIBUTE_STRENGTH, FALSE);
                     /* inflict damage now; we know it can't be fatal */
                     u.mh -= tmp;
-                    disp.botl = TRUE;
+                    disp.bottom_line = TRUE;
                     mhm->damage = 0; /* don't inflict more damage below */
                     if (cloneu())
                         You("divide as %s hits you!", mon_nam(magr));
@@ -4152,7 +4152,7 @@ mhitm_ad_were(
         /* mhitu */
         hitmsg(magr, mattk);
         if (!random_integer_between_zero_and(4) && u.ulycn == NON_PM
-            && !Protection_from_shape_changers && !defends(AD_WERE, uwep)
+            && !Protection_from_shape_changers && !defends(AD_WERE, player_weapon)
             && !mhitm_mgc_atk_negated(magr, mdef, TRUE)) {
             urgent_pline("You feel feverish.");
             exercise(ATTRIBUTE_CONSTITUTION, FALSE);
@@ -4188,9 +4188,9 @@ mhitm_ad_heal(
             return;
         }
         /* weapon check should match the one in sounds.c for MS_NURSE */
-        if (!(uwep && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep)))
-            && !uarmu && !uarm && !uarmc
-            && !uarms && !uarmg && !uarmf && !uarmh) {
+        if (!(player_weapon && (player_weapon->oclass == WEAPON_CLASS || is_weptool(player_weapon)))
+            && !player_armor_undershirt && !player_armor && !player_armor_cloak
+            && !player_armor_shield && !player_armor_gloves && !player_armor_footwear && !player_armor_hat) {
             boolean goaway = FALSE;
 
             pline("%s hits!  (I hope you don't mind.)", Monnam(magr));
@@ -4225,7 +4225,7 @@ mhitm_ad_heal(
                 exercise(ATTRIBUTE_CONSTITUTION, TRUE);
             if (Sick)
                 make_sick(0L, (char *) 0, FALSE, SICK_ALL);
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             if (goaway) {
                 mongone(magr);
                 mhm->done = TRUE;
@@ -4329,9 +4329,9 @@ mhitm_ad_legs(
                   sidestr, leg);
             mhm->damage = 0;
         } else {
-            if (uarmf) {
-                if (random_integer_between_zero_and(2) && (uarmf->otyp == LOW_BOOTS
-                               || uarmf->otyp == IRON_SHOES)) {
+            if (player_armor_footwear) {
+                if (random_integer_between_zero_and(2) && (player_armor_footwear->otyp == LOW_BOOTS
+                               || player_armor_footwear->otyp == IRON_SHOES)) {
                     pline("%s pricks the exposed part of your %s %s!",
                           Monst_name, sidestr, leg);
                 } else if (!random_integer_between_zero_and(5)) {
@@ -4718,7 +4718,7 @@ damageum(
     mhm.specialdmg = specialdmg;
     mhm.done = FALSE;
 
-    if (is_demon(gy.youmonst.data) && !random_integer_between_zero_and(13) && !uwep
+    if (is_demon(gy.youmonst.data) && !random_integer_between_zero_and(13) && !player_weapon
         && u.umonnum != PM_AMOROUS_DEMON && u.umonnum != PM_BALROG) {
         demonpet();
         return M_ATTK_MISS;
@@ -4737,7 +4737,7 @@ damageum(
            secondary, which matches monster vs monster behavior but is
            different from the non-poly'd hero vs monster behavior */
         if (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW)
-            gm.mkcorpstat_norevive = troll_baned(mdef, uwep) ? TRUE : FALSE;
+            gm.mkcorpstat_norevive = troll_baned(mdef, player_weapon) ? TRUE : FALSE;
         /* (DEADMONSTER(mdef) and !mhm.damage => already killed) */
         if (mdef->mtame && !cansee(mdef->mx, mdef->my)) {
             You_feel("embarrassed for a moment.");
@@ -5089,7 +5089,7 @@ boolean
 m_is_steadfast(struct monster *mtmp)
 {
     boolean is_u = (mtmp == &gy.youmonst);
-    struct obj *otmp = is_u ? uwep : MON_WEP(mtmp);
+    struct obj *otmp = is_u ? player_weapon : MON_WEP(mtmp);
 
     /* must be on the ground (or in water) */
     if ((is_u ? (Flying || Levitation)
@@ -5307,7 +5307,7 @@ hmonas(struct monster *mon)
                use weapons do not have this restriction, but they also
                never have the opportunity to use two weapons) */
             if (weapon_used && (sum[i - 1] > M_ATTK_MISS)
-                && uwep && bimanual(uwep))
+                && player_weapon && bimanual(player_weapon))
                 continue;
             /* Certain monsters don't use weapons when encountered as enemies,
              * but players who polymorph into them have hands or claws and
@@ -5323,30 +5323,30 @@ hmonas(struct monster *mon)
             /* approximate two-weapon mode; known_hitum() -> hmon() -> &c
                might destroy the weapon argument, but it might also already
                be Null, and we want to track that for passive() */
-            originalweapon = (altwep && uswapwep) ? &uswapwep : &uwep;
-            if (uswapwep /* set up 'altwep' flag for next iteration */
+            originalweapon = (altwep && player_secondary_weapon) ? &player_secondary_weapon : &player_weapon;
+            if (player_secondary_weapon /* set up 'altwep' flag for next iteration */
                 /* only consider secondary when wielding one-handed primary */
-                && uwep && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))
-                && !bimanual(uwep)
+                && player_weapon && (player_weapon->oclass == WEAPON_CLASS || is_weptool(player_weapon))
+                && !bimanual(player_weapon)
                 /* only switch if not wearing shield and not at artifact;
                    shield limitation is iffy since still get extra swings
                    if polyform has them, but it matches twoweap behavior;
                    twoweap also only allows primary to be an artifact, so
                    if alternate weapon is one, don't use it */
-                && !uarms && !uswapwep->oartifact
+                && !player_armor_shield && !player_secondary_weapon->oartifact
                 /* only switch to uswapwep if it's a weapon */
-                && (uswapwep->oclass == WEAPON_CLASS || is_weptool(uswapwep))
+                && (player_secondary_weapon->oclass == WEAPON_CLASS || is_weptool(player_secondary_weapon))
                 /* only switch if uswapwep is not bow, arrows, or darts */
-                && !(is_launcher(uswapwep) || is_ammo(uswapwep)
-                     || is_missile(uswapwep)) /* dart, shuriken, boomerang */
+                && !(is_launcher(player_secondary_weapon) || is_ammo(player_secondary_weapon)
+                     || is_missile(player_secondary_weapon)) /* dart, shuriken, boomerang */
                 /* and not two-handed and not incapable of being wielded */
-                && !bimanual(uswapwep)
-                && !(objects[uswapwep->otyp].oc_material == SILVER
+                && !bimanual(player_secondary_weapon)
+                && !(objects[player_secondary_weapon->otyp].oc_material == SILVER
                      && Hate_silver))
                 altwep = !altwep; /* toggle for next attack */
             weapon = *originalweapon;
             if (!weapon) /* no need to go beyond no-gloves to rings; not ...*/
-                originalweapon = &uarmg; /*... subject to erosion damage */
+                originalweapon = &player_armor_gloves; /*... subject to erosion damage */
 
             tmp = find_roll_to_hit(mon, AT_WEAP, weapon, &attknum,
                                    &armorpenalty);
@@ -5379,11 +5379,11 @@ hmonas(struct monster *mon)
                 sum[i] = damageum(mon, mattk, 0);
             break;
         case AT_CLAW:
-            if (uwep && !cantwield(gy.youmonst.data) && !weapon_used)
+            if (player_weapon && !cantwield(gy.youmonst.data) && !weapon_used)
                 goto use_weapon;
             /*FALLTHRU*/
         case AT_TUCH:
-            if (uwep && gy.youmonst.data->mlet == S_LICH && !weapon_used)
+            if (player_weapon && gy.youmonst.data->mlet == S_LICH && !weapon_used)
                 goto use_weapon;
             /*FALLTHRU*/
         case AT_KICK:
@@ -5502,7 +5502,7 @@ hmonas(struct monster *mon)
                     unconcerned = (byhand && !can_be_strangled(mon));
 
             if (sticks(mon->data) || u.uswallow || gn.notonhead
-                || (byhand && (uwep || !has_head(mon->data)))) {
+                || (byhand && (player_weapon || !has_head(mon->data)))) {
                 /* can't hold a holder due to subsequent ambiguity over
                    who is holding whom; can't hug engulfer from inside;
                    can't hug a worm tail (would immobilize entire worm!);
@@ -5510,7 +5510,7 @@ hmonas(struct monster *mon)
                    not allowed to make a choking hug if wielding a weapon
                    (but might have grabbed w/o weapon, then wielded one,
                    and may even be attacking a different monster now) */
-                if (byhand && uwep && u.monster_stuck_to
+                if (byhand && player_weapon && u.monster_stuck_to
                     && !(sticks(u.monster_stuck_to->data) || u.uswallow))
                     uunstick();
                 continue; /* not 'break'; bypass passive counter-attack */
@@ -5665,7 +5665,7 @@ hmonas(struct monster *mon)
         /* when using dual weapons, cursed secondary weapon doesn't weld,
            it gets dropped; do the same when multiple AT_WEAP attacks
            simulate twoweap */
-        if (uswapwep && weapon == uswapwep && weapon->cursed) {
+        if (player_secondary_weapon && weapon == player_secondary_weapon && weapon->cursed) {
             drop_uswapwep();
             break; /* don't proceed with additional attacks */
         }
@@ -5721,8 +5721,8 @@ passive(
     case AD_FIRE:
         if (mhitb && !mon->mcan && weapon) {
             if (aatyp == AT_KICK) {
-                if (uarmf && !random_integer_between_zero_and(6))
-                    (void) erode_obj(uarmf, xname(uarmf), ERODE_BURN,
+                if (player_armor_footwear && !random_integer_between_zero_and(6))
+                    (void) erode_obj(player_armor_footwear, xname(player_armor_footwear), ERODE_BURN,
                                      EF_GREASE | EF_VERBOSE);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
@@ -5748,8 +5748,8 @@ passive(
         }
         if (mhitb && weapon) {
             if (aatyp == AT_KICK) {
-                if (uarmf && !random_integer_between_zero_and(6))
-                    (void) erode_obj(uarmf, xname(uarmf), ERODE_CORRODE,
+                if (player_armor_footwear && !random_integer_between_zero_and(6))
+                    (void) erode_obj(player_armor_footwear, xname(player_armor_footwear), ERODE_CORRODE,
                                      EF_GREASE | EF_VERBOSE);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
@@ -5767,11 +5767,11 @@ passive(
                 protector = WEARING_ARMOR_GLOVES;
 
             if (protector == 0L /* no protection */
-                || (protector == WEARING_ARMOR_GLOVES && !uarmg
-                    && !uwep && !wep_was_destroyed)
-                || (protector == WEARING_ARMOR_FOOTWEAR && !uarmf)
-                || (protector == WEARING_ARMOR_HELMET && !uarmh)
-                || (protector == (WEARING_ARMOR_CLOAK | WEARING_ARMOR_GLOVES) && (!uarmc || !uarmg))) {
+                || (protector == WEARING_ARMOR_GLOVES && !player_armor_gloves
+                    && !player_weapon && !wep_was_destroyed)
+                || (protector == WEARING_ARMOR_FOOTWEAR && !player_armor_footwear)
+                || (protector == WEARING_ARMOR_HELMET && !player_armor_hat)
+                || (protector == (WEARING_ARMOR_CLOAK | WEARING_ARMOR_GLOVES) && (!player_armor_cloak || !player_armor_gloves))) {
                 if (!Stone_resistance
                     && !(poly_when_stoned(gy.youmonst.data)
                          && polymon(PM_STONE_GOLEM))) {
@@ -5784,8 +5784,8 @@ passive(
     case AD_RUST:
         if (mhitb && !mon->mcan && weapon) {
             if (aatyp == AT_KICK) {
-                if (uarmf)
-                    (void) erode_obj(uarmf, xname(uarmf), ERODE_RUST,
+                if (player_armor_footwear)
+                    (void) erode_obj(player_armor_footwear, xname(player_armor_footwear), ERODE_RUST,
                                      EF_GREASE | EF_VERBOSE);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
@@ -5795,8 +5795,8 @@ passive(
     case AD_CORR:
         if (mhitb && !mon->mcan && weapon) {
             if (aatyp == AT_KICK) {
-                if (uarmf)
-                    (void) erode_obj(uarmf, xname(uarmf), ERODE_CORRODE,
+                if (player_armor_footwear)
+                    (void) erode_obj(player_armor_footwear, xname(player_armor_footwear), ERODE_CORRODE,
                                      EF_GREASE | EF_VERBOSE);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
@@ -5963,9 +5963,9 @@ passive_obj(
     /* [this first bit is obsolete; we're not called with Null anymore] */
     /* if caller hasn't specified an object, use uwep, uswapwep or uarmg */
     if (!obj) {
-        obj = (u.using_two_weapons && uswapwep && !random_integer_between_zero_and(2)) ? uswapwep : uwep;
+        obj = (u.using_two_weapons && player_secondary_weapon && !random_integer_between_zero_and(2)) ? player_secondary_weapon : player_weapon;
         if (!obj && mattk->adtyp == AD_ENCH)
-            obj = uarmg; /* no weapon? then must be gloves */
+            obj = player_armor_gloves; /* no weapon? then must be gloves */
         if (!obj)
             return; /* no object to affect */
     }

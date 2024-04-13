@@ -1179,10 +1179,10 @@ m_consume_obj(struct monster *mtmp, struct obj *otmp)
     }
     if (Has_contents(otmp))
         meatbox(mtmp, otmp);
-    if (otmp == uball) {
+    if (otmp == player_ball) {
         unpunish();
         delobj(otmp);
-    } else if (otmp == uchain) {
+    } else if (otmp == player_chain) {
         unpunish(); /* frees uchain */
     } else {
         boolean deadmimic, slimer;
@@ -1347,7 +1347,7 @@ meatobj(struct monster* mtmp) /* for gelatinous cubes */
                     && !resists_ston(mtmp))
                    /* don't engulf boulders and statues or ball&chain */
                    || otmp->oclass == ROCK_CLASS
-                   || otmp == uball || otmp == uchain
+                   || otmp == player_ball || otmp == player_chain
                    /* normally mtmp won't have stepped onto scare monster
                       scroll, but if it does, don't eat or engulf that
                       (note: scrolls inside eaten containers will still
@@ -3115,7 +3115,7 @@ set_ustuck(struct monster *mtmp)
                        mon_nam(mtmp), mdistu(mtmp));
     }
 
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     u.monster_stuck_to = mtmp;
     if (!u.monster_stuck_to) {
         u.uswallow = 0;
@@ -3137,7 +3137,7 @@ unstuck(struct monster *mtmp)
         if (swallowed) {
             u.ux = mtmp->mx;
             u.uy = mtmp->my;
-            if (Punished && uchain->where != OBJ_FLOOR)
+            if (Punished && player_chain->where != OBJ_FLOOR)
                 placebc();
             gv.vision_full_recalc = 1;
             docrt();
@@ -3213,7 +3213,7 @@ xkilled(
     if (mtmp->mtame && !mtmp->isminion)
         EDOG(mtmp)->killed_by_u = 1;
 
-    if (wasinside && gt.thrownobj && gt.thrownobj != uball
+    if (wasinside && gt.thrownobj && gt.thrownobj != player_ball
         /* don't give to mon if missile is going to be destroyed */
         && gt.thrownobj->oclass != POTION_CLASS
         /* don't give to mon if missile is going to return to hero */
@@ -3304,7 +3304,7 @@ xkilled(
         }
         /* corpse--none if hero was inside the monster */
         if (!wasinside && corpse_chance(mtmp, (struct monster *) 0, FALSE)) {
-            gz.zombify = (!gt.thrownobj && !gs.stoned && !uwep
+            gz.zombify = (!gt.thrownobj && !gs.stoned && !player_weapon
                          && zombie_maker(&gy.youmonst)
                          && zombie_form(mtmp->data) != NON_PM);
             cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED

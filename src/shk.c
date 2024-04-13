@@ -126,7 +126,7 @@ money2mon(struct monster *mon, long amount)
         remove_worn_item(ygold, FALSE); /* quiver */
     freeinv(ygold);
     add_to_minv(mon, ygold);
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     return amount;
 }
 
@@ -160,7 +160,7 @@ money2u(struct monster *mon, long amount)
         dropy(mongold);
     } else {
         addinv(mongold);
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     }
 }
 
@@ -1181,7 +1181,7 @@ pay(long tmp, struct monster *shkp)
         money2mon(shkp, balance);
     else if (balance < 0)
         money2u(shkp, -balance);
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     if (robbed) {
         robbed -= tmp;
         if (robbed < 0)
@@ -1676,7 +1676,7 @@ dopay(void)
                 eshkp->debit = 0L;
                 eshkp->loan = 0L;
                 You("pay that debt.");
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
             } else {
                 dtmp -= eshkp->credit;
                 eshkp->credit = 0L;
@@ -1685,7 +1685,7 @@ dopay(void)
                 eshkp->loan = 0L;
                 pline("That debt is partially offset by your credit.");
                 You("pay the remainder.");
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
             }
             paid = TRUE;
         }
@@ -2100,14 +2100,14 @@ inherits(
                 eshkp->robbed = 0L;
             if (umoney > 0L) {
                 money2mon(shkp, umoney);
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
             }
             if (!silently)
                 pline("%s %s all your possessions.", Shknam(shkp), takes);
             taken = TRUE;
         } else {
             money2mon(shkp, loss);
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             if (!silently)
                 pline("%s %s the %ld %s %sowed %s.", Shknam(shkp),
                       takes, loss, currency(loss),
@@ -2274,7 +2274,7 @@ get_cost_of_shop_item(
 
     *nochrg = -1; /* assume 'not applicable' */
     if (*u.ushops && obj->oclass != COIN_CLASS
-        && obj != uball && obj != uchain
+        && obj != player_ball && obj != player_chain
         && get_obj_location(obj, &x, &y, CONTAINED_TOO)
         && *in_rooms(x, y, SHOPBASE) == *u.ushops
         && (shkp = shop_keeper(inside_shop(x, y))) != 0 && inhishop(shkp)) {
@@ -2349,7 +2349,7 @@ get_cost(
             /* get a value that's 'random' from game to game, but the
                same within the same game */
             boolean pseudorand =
-                (((int) ubirthday % obj->otyp) >= obj->otyp / 2);
+                (((int) player_birthday % obj->otyp) >= obj->otyp / 2);
 
             /* all gems are priced high - real or not */
             switch (obj->otyp - FIRST_GLASS_GEM) {
@@ -2392,10 +2392,10 @@ get_cost(
             divisor *= 3L;
         }
     }
-    if (uarmh && uarmh->otyp == DUNCE_CAP)
+    if (player_armor_hat && player_armor_hat->otyp == DUNCE_CAP)
         multiplier *= 4L, divisor *= 3L;
     else if ((Role_if(PM_TOURIST) && u.ulevel < (MAXULEV / 2))
-             || (uarmu && !uarm && !uarmc)) /* touristy shirt visible */
+             || (player_armor_undershirt && !player_armor && !player_armor_cloak)) /* touristy shirt visible */
         multiplier *= 4L, divisor *= 3L;
 
     if (ATTRIBUTE_CURRENT(ATTRIBUTE_CHARISMA) > 18)
@@ -2599,10 +2599,10 @@ set_cost(struct obj *obj, struct monster *shkp)
 
     tmp = get_pricing_units(obj) * unit_price;
 
-    if (uarmh && uarmh->otyp == DUNCE_CAP)
+    if (player_armor_hat && player_armor_hat->otyp == DUNCE_CAP)
         divisor *= 3L;
     else if ((Role_if(PM_TOURIST) && u.ulevel < (MAXULEV / 2))
-             || (uarmu && !uarm && !uarmc)) /* touristy shirt visible */
+             || (player_armor_undershirt && !player_armor && !player_armor_cloak)) /* touristy shirt visible */
         divisor *= 3L;
     else
         divisor *= 2L;
@@ -4063,9 +4063,9 @@ litter_scatter(
     {
         /* Scatter objects haphazardly into the shop */
         if (Punished && !u.uswallow
-            && ((uchain->ox == x && uchain->oy == y)
-                || (uball->where == OBJ_FLOOR
-                    && uball->ox == x && uball->oy == y))) {
+            && ((player_chain->ox == x && player_chain->oy == y)
+                || (player_ball->where == OBJ_FLOOR
+                    && player_ball->ox == x && player_ball->oy == y))) {
             /*
              * Either the ball or chain is in the repair location.
              * Take the easy way out and put ball&chain under hero.
@@ -4527,7 +4527,7 @@ shopdig(int fall)
         for (obj = gi.invent; obj; obj = obj2) {
             obj2 = obj->nobj;
             if ((obj->owornmask & ~(WEARING_SECONDARY_WEAPON | WEARING_QUIVER)) != 0
-                || (obj == uswapwep && u.using_two_weapons)
+                || (obj == player_secondary_weapon && u.using_two_weapons)
                 || (obj->otyp == LEASH && obj->leashmon))
                 continue;
             if (obj == gc.current_wand)
@@ -4732,7 +4732,7 @@ pay_for_damage(const char *dmgstr, boolean cant_mollify)
         cost_of_damage = check_credit(cost_of_damage, shkp);
         if (cost_of_damage > 0L) {
             money2mon(shkp, cost_of_damage);
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         }
         pline("Mollified, %s accepts your restitution.", shkname(shkp));
         /* move shk back to his home loc */
@@ -4845,7 +4845,7 @@ price_quote(struct obj *first_obj)
     for (otmp = first_obj; otmp; otmp = otmp->nexthere) {
         if (otmp->oclass == COIN_CLASS)
             continue;
-        cost = (otmp->no_charge || otmp == uball || otmp == uchain) ? 0L
+        cost = (otmp->no_charge || otmp == player_ball || otmp == player_chain) ? 0L
                  : get_cost(otmp, shkp);
         contentsonly = !cost;
         if (Has_contents(otmp))

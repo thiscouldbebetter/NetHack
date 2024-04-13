@@ -253,7 +253,7 @@ struct obj {
     (otmp->oclass == WEAPON_CLASS                   \
      && objects[otmp->otyp].oc_skill >= -P_SHURIKEN \
      && objects[otmp->otyp].oc_skill <= -P_BOW)
-#define uslinging() (uwep && objects[uwep->otyp].oc_skill == P_SLING)
+#define uslinging() (player_weapon && objects[player_weapon->otyp].oc_skill == P_SLING)
 /* 'is_quest_artifact()' only applies to the current role's artifact */
 #define any_quest_artifact(o) ((o)->oartifact >= ART_ORB_OF_DETECTION)
 /* 'missile' aspect is up to the caller and does not imply is_missile();
@@ -425,7 +425,7 @@ struct obj {
 /* is_art() is now a function in artifact.c */
 /* #define is_art(o,art) ((o) && (o)->oartifact == (art)) */
 
-#define u_wield_art(art) is_art(uwep, art)
+#define u_wield_art(art) is_art(player_weapon, art)
 
 /* mummy wrappings are more versatile sizewise than other cloaks */
 #define WrappingAllowed(mptr) \

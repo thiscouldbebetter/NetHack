@@ -866,18 +866,18 @@ u_init(void)
      * necessary when aborting from a failed restore */
     (void) memset((genericptr_t) &u, 0, sizeof(u));
     u.monster_stuck_to = (struct monster *) 0;
-    (void) memset((genericptr_t) &ubirthday, 0, sizeof(ubirthday));
-    (void) memset((genericptr_t) &urealtime, 0, sizeof(urealtime));
+    (void) memset((genericptr_t) &player_birthday, 0, sizeof(player_birthday));
+    (void) memset((genericptr_t) &player_realtime, 0, sizeof(player_realtime));
 
     u.uroleplay = tmpuroleplay; /* restore options set via rcfile */
 
 #if 0  /* documentation of more zero values as desirable */
     u.usick_cause[0] = 0;
     u.uluck  = u.moreluck = 0;
-    uarmu = 0;
-    uarm = uarmc = uarmh = uarms = uarmg = uarmf = 0;
-    uwep = uball = uchain = uleft = uright = 0;
-    uswapwep = uquiver = 0;
+    player_armor_undershirt = 0;
+    player_armor = player_armor_cloak = player_armor_hat = player_armor_shield = player_armor_gloves = player_armor_footwear = 0;
+    player_weapon = player_ball = player_chain = player_finger_left = player_finger_right = 0;
+    player_secondary_weapon = player_quiver = 0;
     u.twoweap = FALSE; /* bypass set_twoweap() */
     u.ublessed = 0;                     /* not worthy yet */
     u.ugangr   = 0;                     /* gods not angry */
@@ -919,9 +919,9 @@ u_init(void)
         aligns[flags.initalign].value;
 
 #if defined(BSD) && !defined(POSIX_TYPES)
-    (void) time((long *) &ubirthday);
+    (void) time((long *) &player_birthday);
 #else
-    (void) time(&ubirthday);
+    (void) time(&player_birthday);
 #endif
 
     /*
@@ -1169,24 +1169,24 @@ ini_inv_use_obj(struct obj *obj)
         discover_object(POT_OIL, TRUE, FALSE);
 
     if (obj->oclass == ARMOR_CLASS) {
-        if (is_shield(obj) && !uarms && !(uwep && bimanual(uwep))) {
+        if (is_shield(obj) && !player_armor_shield && !(player_weapon && bimanual(player_weapon))) {
             setworn(obj, WEARING_ARMOR_SHIELD);
             /* Prior to 3.6.2 this used to unset uswapwep if it was set,
                but wearing a shield doesn't prevent having an alternate
                weapon ready to swap with the primary; just make sure we
                aren't two-weaponing (academic; no one starts that way) */
             set_twoweap(FALSE); /* u.twoweap = FALSE */
-        } else if (is_helmet(obj) && !uarmh)
+        } else if (is_helmet(obj) && !player_armor_hat)
             setworn(obj, WEARING_ARMOR_HELMET);
-        else if (is_gloves(obj) && !uarmg)
+        else if (is_gloves(obj) && !player_armor_gloves)
             setworn(obj, WEARING_ARMOR_GLOVES);
-        else if (is_shirt(obj) && !uarmu)
+        else if (is_shirt(obj) && !player_armor_undershirt)
             setworn(obj, WEARING_ARMOR_UNDERSHIRT);
-        else if (is_cloak(obj) && !uarmc)
+        else if (is_cloak(obj) && !player_armor_cloak)
             setworn(obj, WEARING_ARMOR_CLOAK);
-        else if (is_boots(obj) && !uarmf)
+        else if (is_boots(obj) && !player_armor_footwear)
             setworn(obj, WEARING_ARMOR_FOOTWEAR);
-        else if (is_suit(obj) && !uarm)
+        else if (is_suit(obj) && !player_armor)
             setworn(obj, WEARING_ARMOR_BODY);
     }
 
@@ -1194,11 +1194,11 @@ ini_inv_use_obj(struct obj *obj)
         || obj->otyp == TIN_OPENER
         || obj->otyp == FLINT || obj->otyp == ROCK) {
         if (is_ammo(obj) || is_missile(obj)) {
-            if (!uquiver)
+            if (!player_quiver)
                 setuqwep(obj);
-        } else if (!uwep && (!uarms || !bimanual(obj))) {
+        } else if (!player_weapon && (!player_armor_shield || !bimanual(obj))) {
             setuwep(obj);
-        } else if (!uswapwep) {
+        } else if (!player_secondary_weapon) {
             setuswapwep(obj);
         }
     }

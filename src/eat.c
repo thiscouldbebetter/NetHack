@@ -126,7 +126,7 @@ is_edible(struct obj *obj)
 void
 init_uhunger(void)
 {
-    disp.botl = (u.uhs != NOT_HUNGRY || ATTRIBUTE_TEMPORARY(ATTRIBUTE_STRENGTH) < 0);
+    disp.bottom_line = (u.uhs != NOT_HUNGRY || ATTRIBUTE_TEMPORARY(ATTRIBUTE_STRENGTH) < 0);
     u.uhunger = 900;
     u.uhs = NOT_HUNGRY;
     if (ATTRIBUTE_TEMPORARY(ATTRIBUTE_STRENGTH) < 0) {
@@ -668,7 +668,7 @@ eat_brains(
                 ATTRIBUTE_BASE(ATTRIBUTE_INTELLIGENCE) += random(4);
                 if (ATTRIBUTE_BASE(ATTRIBUTE_INTELLIGENCE) > ATTRIBUTE_MAX(ATTRIBUTE_INTELLIGENCE))
                     ATTRIBUTE_BASE(ATTRIBUTE_INTELLIGENCE) = ATTRIBUTE_MAX(ATTRIBUTE_INTELLIGENCE);
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
             }
             exercise(ATTRIBUTE_WISDOM, TRUE);
             *dmg_p += xtra_dmg;
@@ -1099,7 +1099,7 @@ eye_of_newt_buzz(void)
         }
         if (old_uen != u.energy) {
             You_feel("a mild buzz.");
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
         }
     }
 }
@@ -1138,7 +1138,7 @@ cpostfx(int pm)
         else
             u.hit_points = u.hit_points_max;
         make_blinded(0L, !u.ucreamed);
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         check_intrinsics = TRUE; /* might also convey poison resistance */
         break;
     case PM_STALKER:
@@ -1659,16 +1659,16 @@ start_tin(struct obj *otmp)
            access); 1 turn delay case is non-deterministic:  getting
            interrupted and retrying might yield another 1 turn delay
            or might open immediately on 2nd (or 3rd, 4th, ...) try */
-        tmp = (uwep && uwep->blessed && uwep->otyp == TIN_OPENER) ? 0 : random_integer_between_zero_and(2);
+        tmp = (player_weapon && player_weapon->blessed && player_weapon->otyp == TIN_OPENER) ? 0 : random_integer_between_zero_and(2);
         if (!tmp)
             mesg = "The tin opens like magic!";
         else
             pline_The("tin seems easy to open.");
-    } else if (uwep) {
-        switch (uwep->otyp) {
+    } else if (player_weapon) {
+        switch (player_weapon->otyp) {
         case TIN_OPENER:
             mesg = "You easily open the tin."; /* iff tmp==0 */
-            tmp = random_integer_between_zero_and(uwep->cursed ? 3 : !uwep->blessed ? 2 : 1);
+            tmp = random_integer_between_zero_and(player_weapon->cursed ? 3 : !player_weapon->blessed ? 2 : 1);
             break;
         case DAGGER:
         case SILVER_DAGGER:
@@ -1687,7 +1687,7 @@ start_tin(struct obj *otmp)
         default:
             goto no_opener;
         }
-        pline("Using %s you try to open the tin.", yobjnam(uwep, (char *) 0));
+        pline("Using %s you try to open the tin.", yobjnam(player_weapon, (char *) 0));
     } else {
  no_opener:
         pline("It is not so easy to open this tin.");
@@ -1724,7 +1724,7 @@ Hear_again(void)
     /* Chance of deafness going away while fainted/sleeping/etc. */
     if (!random_integer_between_zero_and(2)) {
         make_deaf(0L, FALSE);
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
     }
     return 0;
 }
@@ -1761,7 +1761,7 @@ rottenfood(struct obj *obj)
             where = (u.monster_being_ridden) ? "saddle" : surface(u.ux, u.uy);
         pline_The("world spins and %s %s.", what, where);
         incr_itimeout(&HDeaf, duration);
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         nomul(-duration);
         gm.multi_reason = "unconscious from rotten food";
         gn.nomovemsg = "You are conscious again.";
@@ -2129,10 +2129,10 @@ bounded_increase(int old, int inc, int typ)
 
     /* don't include any amount coming from worn rings (caller handles
        'protection' differently) */
-    if (uright && uright->otyp == typ && typ != RIN_PROTECTION)
-        old -= uright->spe;
-    if (uleft && uleft->otyp == typ && typ != RIN_PROTECTION)
-        old -= uleft->spe;
+    if (player_finger_right && player_finger_right->otyp == typ && typ != RIN_PROTECTION)
+        old -= player_finger_right->spe;
+    if (player_finger_left && player_finger_left->otyp == typ && typ != RIN_PROTECTION)
+        old -= player_finger_left->spe;
     absold = abs(old), absinc = abs(inc);
     sgnold = sgn(old), sgninc = sgn(inc);
 
@@ -2152,10 +2152,10 @@ bounded_increase(int old, int inc, int typ)
         inc = 0; /* no further increase allowed via this method */
     }
     /* put amount from worn rings back */
-    if (uright && uright->otyp == typ && typ != RIN_PROTECTION)
-        old += uright->spe;
-    if (uleft && uleft->otyp == typ && typ != RIN_PROTECTION)
-        old += uleft->spe;
+    if (player_finger_right && player_finger_right->otyp == typ && typ != RIN_PROTECTION)
+        old += player_finger_right->spe;
+    if (player_finger_left && player_finger_left->otyp == typ && typ != RIN_PROTECTION)
+        old += player_finger_left->spe;
     return old + inc;
 }
 
@@ -2175,7 +2175,7 @@ eataccessory(struct obj *otmp)
     /* Note: rings are not so common that this is unbalancing. */
     /* (How often do you even _find_ 3 rings of polymorph in a game?) */
     oldprop = u.uprops[objects[typ].oc_oprop].intrinsic;
-    if (otmp == uleft || otmp == uright) {
+    if (otmp == player_finger_left || otmp == player_finger_right) {
         Ring_gone(otmp);
         if (u.hit_points <= 0)
             return; /* died from sink fall */
@@ -2260,7 +2260,7 @@ eataccessory(struct obj *otmp)
                                           (typ == RIN_PROTECTION) ? otmp->spe
                                            : 2, /* fixed amount for amulet */
                                           typ);
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             break;
         case RIN_FREE_ACTION:
             /* Give sleep resistance instead */
@@ -2276,7 +2276,7 @@ eataccessory(struct obj *otmp)
             change_sex();
             You("are suddenly very %s!",
                 flags.female ? "feminine" : "masculine");
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             break;
         case AMULET_OF_UNCHANGING:
             /* un-change: it's a pun */
@@ -2372,16 +2372,16 @@ eatspecial(void)
         exercise(ATTRIBUTE_CONSTITUTION, TRUE);
     }
 
-    if (otmp == uwep && otmp->quan == 1L)
+    if (otmp == player_weapon && otmp->quan == 1L)
         uwepgone();
-    if (otmp == uquiver && otmp->quan == 1L)
+    if (otmp == player_quiver && otmp->quan == 1L)
         uqwepgone();
-    if (otmp == uswapwep && otmp->quan == 1L)
+    if (otmp == player_secondary_weapon && otmp->quan == 1L)
         uswapwepgone();
 
-    if (otmp == uball)
+    if (otmp == player_ball)
         unpunish();
-    if (otmp == uchain)
+    if (otmp == player_chain)
         unpunish(); /* but no useup() */
     else if (carried(otmp))
         useup(otmp);
@@ -2438,7 +2438,7 @@ fpostfx(struct obj *otmp)
         /* This stuff seems to be VERY healthy! */
         gainstr(otmp, 1, TRUE);
         if (Upolyd) {
-            u.mh += otmp->cursed ? -random(20) : random(20), disp.botl = TRUE;
+            u.mh += otmp->cursed ? -random(20) : random(20), disp.bottom_line = TRUE;
             if (u.mh > u.mhmax) {
                 if (!random_integer_between_zero_and(17))
                     u.mhmax++;
@@ -2447,7 +2447,7 @@ fpostfx(struct obj *otmp)
                 rehumanize();
             }
         } else {
-            u.hit_points += otmp->cursed ? -random(20) : random(20), disp.botl = TRUE;
+            u.hit_points += otmp->cursed ? -random(20) : random(20), disp.bottom_line = TRUE;
             if (u.hit_points > u.hit_points_max) {
                 if (!random_integer_between_zero_and(17))
                     setuhpmax(u.hit_points_max + 1);
@@ -2993,7 +2993,7 @@ use_tin_opener(struct obj *obj)
         return ECMD_OK;
     }
 
-    if (obj != uwep) {
+    if (obj != player_weapon) {
         if (obj->cursed && obj->bknown) {
             char qbuf[QBUFSZ];
 
@@ -3118,12 +3118,12 @@ gethungry(void)
                rings plus the armor consumes more nutrition that one
                non-slow digestion ring plus ring of slow digestion */
             if (Slow_digestion
-                && (!uright || uright->otyp != RIN_SLOW_DIGESTION)
-                && (!uleft || uleft->otyp != RIN_SLOW_DIGESTION))
+                && (!player_finger_right || player_finger_right->otyp != RIN_SLOW_DIGESTION)
+                && (!player_finger_left || player_finger_left->otyp != RIN_SLOW_DIGESTION))
                 u.uhunger--;
             break;
         case 4:
-            if (uleft && uleft->otyp != MEAT_RING
+            if (player_finger_left && player_finger_left->otyp != MEAT_RING
                 /* more hungry if +/- is nonzero or +/- doesn't apply or
                    +0 ring of protection is only source of protection;
                    need to check whether both rings are +0 protection or
@@ -3132,24 +3132,24 @@ gethungry(void)
                    treated as supplying "MC" when only one matters;
                    note: amulet of guarding overrides both +0 rings and
                    is caught by the (EProtection & ~W_RINGx) == 0L tests */
-                && (uleft->spe
-                    || !objects[uleft->otyp].oc_charged
-                    || (uleft->otyp == RIN_PROTECTION
+                && (player_finger_left->spe
+                    || !objects[player_finger_left->otyp].oc_charged
+                    || (player_finger_left->otyp == RIN_PROTECTION
                         && ((EProtection & ~WEARING_RING_LEFT) == 0L
                             || ((EProtection & ~WEARING_RING_LEFT) == WEARING_RING_RIGHT
-                                && uright && uright->otyp == RIN_PROTECTION
-                                && !uright->spe)))))
+                                && player_finger_right && player_finger_right->otyp == RIN_PROTECTION
+                                && !player_finger_right->spe)))))
                 u.uhunger--;
             break;
         case 8:
-            if (uamul && uamul->otyp != FAKE_AMULET_OF_YENDOR)
+            if (player_amulet && player_amulet->otyp != FAKE_AMULET_OF_YENDOR)
                 u.uhunger--;
             break;
         case 12:
-            if (uright && uright->otyp != MEAT_RING
-                && (uright->spe
-                    || !objects[uright->otyp].oc_charged
-                    || (uright->otyp == RIN_PROTECTION
+            if (player_finger_right && player_finger_right->otyp != MEAT_RING
+                && (player_finger_right->spe
+                    || !objects[player_finger_right->otyp].oc_charged
+                    || (player_finger_right->otyp == RIN_PROTECTION
                         && (EProtection & ~WEARING_RING_RIGHT) == 0L)))
                 u.uhunger--;
             break;
@@ -3227,7 +3227,7 @@ unfaint(void)
     if (u.uhs > FAINTING)
         u.uhs = FAINTING;
     stop_occupation();
-    disp.botl = TRUE;
+    disp.bottom_line = TRUE;
     return 0;
 }
 
@@ -3309,7 +3309,7 @@ newuhs(boolean incr)
                 stop_occupation();
                 You("faint from lack of food.");
                 incr_itimeout(&HDeaf, duration);
-                disp.botl = TRUE;
+                disp.bottom_line = TRUE;
                 nomul(-duration);
                 gm.multi_reason = "fainted from lack of food";
                 gn.nomovemsg = "You regain consciousness.";
@@ -3324,7 +3324,7 @@ newuhs(boolean incr)
            now uhunger becomes more negative at a slower rate */
         } else if (u.uhunger < -(100 + 10 * (int) ATTRIBUTE_CURRENT(ATTRIBUTE_CONSTITUTION))) {
             u.uhs = STARVED;
-            disp.botl = TRUE;
+            disp.bottom_line = TRUE;
             bot();
             You("die from starvation.");
             gk.killer.format = KILLED_BY;
@@ -3388,7 +3388,7 @@ newuhs(boolean incr)
             break;
         }
         u.uhs = newhs;
-        disp.botl = TRUE;
+        disp.bottom_line = TRUE;
         bot();
         if ((Upolyd ? u.mh : u.hit_points) < 1) {
             You("die from hunger and exhaustion.");
