@@ -13,14 +13,14 @@
 #endif
 #include "lint.h"
 
-#include "align.h"
+#include "alignment.h"
 #include "dungeon.h"
 #include "stairs.h"
 #include "objclass.h"
-#include "wintype.h"
+#include "window_type.h"
 #include "flag.h"
 #include "rect.h"
-#include "sym.h"
+#include "symbols.h"
 #include "trap.h"
 #include "player_properties.h"
 #include "display.h"
@@ -28,20 +28,20 @@
 #include "Conditions.h"
 #include "context.h"
 #include "engrave.h"
-#include "mkroom.h"
+#include "make_room.h"
 #include "obj.h"
 #include "quest.h"
 #include "rect.h"
 #include "region.h"
-#include "rm.h"
+#include "level.h"
 #include "selvar.h"
 #include "sndprocs.h"
 #include "spell.h"
-#include "sym.h"
-#include "sys.h"
+#include "symbols.h"
+#include "system_options.h"
 #include "timeout.h"
-#include "winprocs.h"
-#include "wintype.h"
+#include "window_processes.h"
+#include "window_type.h"
 #include "vision.h"
 #include "player.h"
 
@@ -1008,9 +1008,9 @@ typedef struct {
 
 /* Symbol offsets */
 #define SYM_OFF_P (0)
-#define SYM_OFF_O (SYM_OFF_P + MAXPCHARS)   /* MAXPCHARS from sym.h */
+#define SYM_OFF_O (SYM_OFF_P + MAXPCHARS)   /* MAXPCHARS from symbols.h */
 #define SYM_OFF_M (SYM_OFF_O + MAXOCLASSES) /* MAXOCLASSES from objclass.h */
-#define SYM_OFF_W (SYM_OFF_M + MAXMCLASSES) /* MAXMCLASSES from sym.h*/
+#define SYM_OFF_W (SYM_OFF_M + MAXMCLASSES) /* MAXMCLASSES from symbols.h*/
 #define SYM_OFF_X (SYM_OFF_W + WARNCOUNT)
 #define SYM_MAX (SYM_OFF_X + MAXOTHER)
 

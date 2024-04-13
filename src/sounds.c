@@ -1948,7 +1948,7 @@ struct soundeffect_automapping {
 static const struct soundeffect_automapping
     se_mappings_init[number_of_se_entries] = {
     { se_zero_invalid,                  "" },
-#include "seffects.h"
+#include "sound_effects.h"
 };
 #undef SEFFECTS_AUTOMAP
 

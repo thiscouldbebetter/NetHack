@@ -39,7 +39,7 @@ extern void msmsg(const char *, ...);
 #include "tcap.h"
 #endif
 
-#include "wintty.h"
+#include "window_tty.h"
 
 #if defined(CLIPPING) && !defined(NO_SIGNAL)
 #include <signal.h>
@@ -266,7 +266,7 @@ static glyph_info zerogi = { 0 };
 static struct to_core zero_tocore = { 0 };
 enum { border_left, border_middle, border_right, border_elements };
 static int bordercol[border_elements] = { 0, 0, 0 }; /* left, middle, right */
-static int ttyinvmode = InventoryNormal; /* enum is in wintype.h */
+static int ttyinvmode = InventoryNormal; /* enum is in window_type.h */
 static int inuse_only_start = 0; /* next slot to use for in-use-only mode */
 static boolean done_tty_perm_invent_init = FALSE;
 enum { tty_slots = invlet_basic + invlet_gold + invlet_overflow }; /* 54 */
@@ -2825,8 +2825,8 @@ tty_ctrl_nhwindow(
 #if defined(TTY_PERM_INVENT)
     boolean tty_ok /*, show_gold */, inuse_only;
     int maxslot;
-    /* these types are set match the wintty.h field declarations */
-    long minrow; /* long to match maxrow declaration in wintty.h */
+    /* these types are set match the window_tty.h field declarations */
+    long minrow; /* long to match maxrow declaration in window_tty.h */
     short offx, offy;
     long rows, cols, maxrow, maxcol;
 #endif

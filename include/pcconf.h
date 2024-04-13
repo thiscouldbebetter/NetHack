@@ -168,7 +168,7 @@
 #endif
 #define FILENAME 80 /* maximum filename length (conservative) */
 #ifndef MICRO_H
-#include "micro.h" /* contains necessary externs for [os_name].c */
+#include "microcomputers.h" /* contains necessary externs for [os_name].c */
 #endif
 
 /* ===================================================

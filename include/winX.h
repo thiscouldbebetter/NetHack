@@ -13,7 +13,7 @@
 #include "color.h"      /* CLR_MAX */
 #endif
 #ifndef WINTYPE_H
-#include "wintype.h"    /* winid */
+#include "window_type.h"    /* winid */
 #endif
 
 #if defined(BOS) || defined(NHSTDC)

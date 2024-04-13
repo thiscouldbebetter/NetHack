@@ -54,10 +54,10 @@ struct attack {
 #define WT_DRAGON 4500U
 
 #ifndef ALIGN_H
-#include "align.h"
+#include "alignment.h"
 #endif
-#include "monattk.h"
-#include "monflag.h"
+#include "monster_attack.h"
+#include "monster_flags.h"
 
 struct permonst {
     const char *pmnames[NUM_MGENDERS];

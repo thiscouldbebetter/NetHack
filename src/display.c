@@ -2380,7 +2380,7 @@ swallow_to_glyph(int mnum, int loc)
  *
  * Change the given zap direction and beam type into a glyph.  Each beam
  * type has four glyphs, one for each of the symbols below.  The order of
- * the zap symbols [0-3] as defined in rm.h are:
+ * the zap symbols [0-3] as defined in level.h are:
  *
  *      |  S_vbeam      ( 0, 1) or ( 0,-1)
  *      -  S_hbeam      ( 1, 0) or (-1, 0)
@@ -3435,7 +3435,7 @@ t_warn(struct rm *lev)
  * to W_X_BLTR.  All results are converted back.
  *
  * The only way to understand this is to take out pen and paper and
- * draw diagrams.  See rm.h for more details on the wall modes and
+ * draw diagrams.  See level.h for more details on the wall modes and
  * seen vector (SV).
  */
 staticfn int

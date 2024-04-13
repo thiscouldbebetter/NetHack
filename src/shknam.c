@@ -191,7 +191,7 @@ static const char *const shkhealthfoods[] = {
 
 /*
  * To add new shop types, all that is necessary is to edit the shtypes[]
- * array.  See mkroom.h for the structure definition.  Typically, you'll
+ * array.  See make_room.h for the structure definition.  Typically, you'll
  * have to lower some or all of the probability fields in old entries to
  * free up some percentage for the new type.
  *

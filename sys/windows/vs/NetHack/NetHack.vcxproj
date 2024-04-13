@@ -219,7 +219,7 @@
     <ClCompile Condition="Exists('$(FMODINCDIR)\fmod.h') And Exists('$(FMODLIBLIB)') And Exists('$(FMODLIBDLL)')" Include="$(FMODSRC)" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(IncDir)align.h" />
+    <ClInclude Include="$(IncDir)alignment.h" />
     <ClInclude Include="$(IncDir)artifact.h" />
     <ClInclude Include="$(IncDir)artifact_list.h" />
     <ClInclude Include="$(IncDir)attributes.h" />
@@ -243,7 +243,8 @@
     <ClInclude Include="$(IncDir)hacklib.h" />
     <ClInclude Include="$(IncDir)hack.h" />
     <ClInclude Include="$(IncDir)isaac64.h" />
-    <ClInclude Include="$(IncDir)mextra.h" />
+    <ClInclude Include="$(IncDir)level.h" />
+    <ClInclude Include="$(IncDir)monster_extra.h" />
     <ClInclude Include="$(IncDir)mfndpos.h" />
     <ClInclude Include="$(IncDir)mkroom.h" />
     <ClInclude Include="$(IncDir)monattk.h" />
@@ -264,7 +265,6 @@
     <ClInclude Include="$(IncDir)quest.h" />
     <ClInclude Include="$(IncDir)rect.h" />
     <ClInclude Include="$(IncDir)region.h" />
-    <ClInclude Include="$(IncDir)rm.h" />
     <ClInclude Include="$(IncDir)skills.h" />
     <ClInclude Include="$(IncDir)sndprocs.h" />
     <ClInclude Include="$(IncDir)seffects.h" />
@@ -277,9 +277,9 @@
     <ClInclude Include="$(IncDir)tradstdc.h" />
     <ClInclude Include="$(IncDir)trap.h" />
     <ClInclude Include="$(IncDir)vision.h" />
-    <ClInclude Include="$(IncDir)winprocs.h" />
-    <ClInclude Include="$(IncDir)wintty.h" />
-    <ClInclude Include="$(IncDir)wintype.h" />
+    <ClInclude Include="$(IncDir)window_procs.h" />
+    <ClInclude Include="$(IncDir)window_tty.h" />
+    <ClInclude Include="$(IncDir)window_type.h" />
     <ClInclude Include="$(WinWin32Dir)nhresource.h" />
     <ClInclude Include="$(WinCursDir)curses_dialog.h" />
     <ClInclude Include="$(WinCursDir)curses_initialize.h" />

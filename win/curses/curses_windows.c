@@ -10,7 +10,7 @@
 #endif
 #include "curses.h"
 #include "hack.h"
-#include "wincurs.h"
+#include "window_curses.h"
 #include "curses_initialize.h"
 #include "curses_miscellaneous.h"
 #include "curses_windows.h"

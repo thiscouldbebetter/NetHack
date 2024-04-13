@@ -281,7 +281,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(WinWin32Dir)winMS.h" />
-    <ClInclude Include="$(IncDir)align.h" />
+    <ClInclude Include="$(IncDir)alignment.h" />
     <ClInclude Include="$(IncDir)artifact.h" />
     <ClInclude Include="$(IncDir)artifact_list.h" />
     <ClInclude Include="$(IncDir)attributes.h" />
@@ -294,24 +294,24 @@
     <ClInclude Include="$(IncDir)cstd.h" />
     <ClInclude Include="$(IncDir)decl.h" />
     <ClInclude Include="$(IncDir)defsym.h" />
-    <ClInclude Include="$(IncDir)dgn_file.h" />
+    <ClInclude Include="$(IncDir)dungeon_file.h" />
     <ClInclude Include="$(IncDir)display.h" />
     <ClInclude Include="$(IncDir)dlb.h" />
     <ClInclude Include="$(IncDir)dungeon.h" />
     <ClInclude Include="$(IncDir)extern.h" />
+    <ClInclude Include="$(IncDir)file_name_sizes.h" />
     <ClInclude Include="$(IncDir)flag.h" />
-    <ClInclude Include="$(IncDir)fnamesiz.h" />
     <ClInclude Include="$(IncDir)func_tab.h" />
     <ClInclude Include="$(IncDir)global.h" />
     <ClInclude Include="$(IncDir)hack.h" />
+    <ClInclude Include="$(IncDir)level.h" />
     <ClInclude Include="$(IncDir)load_img.h" />
     <ClInclude Include="$(IncDir)mail.h" />
     <ClInclude Include="$(IncDir)nhlua.h" />
-    <ClInclude Include="$(IncDir)windconf.h" />
     <ClInclude Include="$(IncDir)obj.h" />
     <ClInclude Include="$(IncDir)objclass.h" />
     <ClInclude Include="$(IncDir)objects.h" />
-    <ClInclude Include="$(IncDir)optlist.h" />
+    <ClInclude Include="$(IncDir)option_list.h" />
     <ClInclude Include="$(IncDir)patchlevel.h" />
     <ClInclude Include="$(IncDir)pcconf.h" />
     <ClInclude Include="$(IncDir)permonster.h" />
@@ -321,16 +321,15 @@
     <ClInclude Include="$(IncDir)quest.h" />
     <ClInclude Include="$(IncDir)rect.h" />
     <ClInclude Include="$(IncDir)region.h" />
-    <ClInclude Include="$(IncDir)rm.h" />
     <ClInclude Include="$(IncDir)skills.h" />
     <ClInclude Include="$(IncDir)sndprocs.h" />
-    <ClInclude Include="$(IncDir)seffects.h" />
+    <ClInclude Include="$(IncDir)sound_effects.h" />
     <ClInclude Include="$(IncDir)selvar.h" />
     <ClInclude Include="$(IncDir)spell.h" />
     <ClInclude Include="$(IncDir)sp_lev.h" />
     <ClInclude Include="$(IncDir)stairs.h" />
-    <ClInclude Include="$(IncDir)sym.h" />
-    <ClInclude Include="$(IncDir)sys.h" />
+    <ClInclude Include="$(IncDir)symbols.h" />
+    <ClInclude Include="$(IncDir)system_options.h" />
     <ClInclude Include="$(IncDir)tcap.h" />
     <ClInclude Include="$(IncDir)tile2x11.h" />
     <ClInclude Include="$(IncDir)tileset.h" />
@@ -340,11 +339,12 @@
     <ClInclude Include="$(IncDir)unixconf.h" />
     <ClInclude Include="$(IncDir)vision.h" />
     <ClInclude Include="$(IncDir)vmsconf.h" />
-    <ClInclude Include="$(IncDir)winami.h" />
-    <ClInclude Include="$(IncDir)wincurs.h" />
-    <ClInclude Include="$(IncDir)winprocs.h" />
-    <ClInclude Include="$(IncDir)wintty.h" />
-    <ClInclude Include="$(IncDir)wintype.h" />
+    <ClInclude Include="$(IncDir)window_ami.h" />
+    <ClInclude Include="$(IncDir)window_config.h" />
+    <ClInclude Include="$(IncDir)window_curses.h" />
+    <ClInclude Include="$(IncDir)window_processes.h" />
+    <ClInclude Include="$(IncDir)window_tty.h" />
+    <ClInclude Include="$(IncDir)window_type.h" />
     <ClInclude Include="$(IncDir)winX.h" />
     <ClInclude Include="$(IncDir)xwindow.h" />
     <ClInclude Include="$(IncDir)xwindowp.h" />
@@ -388,13 +388,13 @@
     <ClInclude Include="$(WinWin32Dir)mhtext.h">
       <Filter>ms_windows</Filter>
     </ClInclude>
-    <ClInclude Include="$(IncDir)monattk.h">
+    <ClInclude Include="$(IncDir)monster_attack.h">
       <Filter>monsters</Filter>
     </ClInclude>
-    <ClInclude Include="$(IncDir)mondata.h">
+    <ClInclude Include="$(IncDir)monster_data.h">
       <Filter>monsters</Filter>
     </ClInclude>
-    <ClInclude Include="$(IncDir)monflag.h">
+    <ClInclude Include="$(IncDir)monster_flags.h">
       <Filter>monsters</Filter>
     </ClInclude>
     <ClInclude Include="$(IncDir)monster.h">
@@ -403,7 +403,7 @@
     <ClInclude Include="$(IncDir)monsters.h">
       <Filter>monsters</Filter>
     </ClInclude>
-    <ClInclude Include="$(IncDir)mkroom.h">
+    <ClInclude Include="$(IncDir)make_room.h">
       <Filter>generators</Filter>
     </ClInclude>
     <ClInclude Include="$(IncDir)engrave.h">
@@ -421,10 +421,10 @@
     <ClInclude Include="$(IncDir)lint.h">
       <Filter>utility</Filter>
     </ClInclude>
-    <ClInclude Include="$(IncDir)micro.h">
+    <ClInclude Include="$(IncDir)microcomputers.h">
       <Filter>utility</Filter>
     </ClInclude>
-    <ClInclude Include="$(IncDir)mextra.h">
+    <ClInclude Include="$(IncDir)monster_extra.h">
       <Filter>monsters</Filter>
     </ClInclude>
     <ClInclude Include="$(IncDir)mfndpos.h">

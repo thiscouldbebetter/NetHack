@@ -5,7 +5,7 @@
 #include "hack.h"
 #include "dlb.h"
 #ifdef TTY_GRAPHICS
-#include "wintty.h"
+#include "window_tty.h"
 #endif
 #ifdef CURSES_GRAPHICS
 extern struct window_procs curses_procs;
@@ -1758,7 +1758,7 @@ choose_classes_menu(const char *prompt,
     return ret;
 }
 
-/* enum and structs are defined in wintype.h */
+/* enum and structs are defined in window_type.h */
 
 win_request_info zerowri = { { 0L, 0, 0, 0, 0, 0, 0, 0 },
                              { 0, 0, { COLOR_CODE_NONE, TEXT_ATTRIBUTE_NONE }}};

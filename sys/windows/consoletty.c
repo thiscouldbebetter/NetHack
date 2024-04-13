@@ -23,7 +23,7 @@
 #include "win32api.h"
 #include "winos.h"
 #include "hack.h"
-#include "wintty.h"
+#include "window_tty.h"
 #include <sys\types.h>
 #include <sys\stat.h>
 #ifdef VIRTUAL_TERMINAL_SEQUENCES

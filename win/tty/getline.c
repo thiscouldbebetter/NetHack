@@ -11,7 +11,7 @@
 #define NEWAUTOCOMP
 #endif
 
-#include "wintty.h"
+#include "window_tty.h"
 #include "func_tab.h"
 
 char morc = 0; /* tell the outside world what char you chose */

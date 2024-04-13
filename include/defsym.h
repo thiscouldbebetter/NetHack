@@ -10,9 +10,9 @@
     pchar, objclass and mon symbols.
 
     The morphing macro expansions are used in these places:
-  - in include/sym.h for enums of some S_* symbol values
+  - in include/symbols.h for enums of some S_* symbol values
     (define PCHAR_S_ENUM, MONSYMS_S_ENUM prior to #include defsym.h)
-  - in include/sym.h for enums of some DEF_* symbol values
+  - in include/symbols.h for enums of some DEF_* symbol values
     (define MONSYMS_DEFCHAR_ENUM prior to #include defsym.h)
   - in include/objclass.h for enums of some default character values
     (define OBJCLASS_DEFCHAR_ENUM prior to #include defsym.h)
@@ -57,7 +57,7 @@
 */
 
 #if defined(PCHAR_S_ENUM)
-/* sym.h */
+/* symbols.h */
 #define PCHAR(idx, ch, sym, desc, clr) sym = idx,
 
 #elif defined(PCHAR_PARSE)
@@ -259,11 +259,11 @@
 */
 
 #if defined(MONSYMS_S_ENUM)
-/* sym.h */
+/* symbols.h */
 #define MONSYM(idx, ch, basename, sym, desc) sym = idx,
 
 #elif defined(MONSYMS_DEFCHAR_ENUM)
-/* sym.h */
+/* symbols.h */
 #define MONSYM(idx, ch, basename, sym,  desc) DEF_##basename = ch,
 
 #elif defined(MONSYMS_PARSE)

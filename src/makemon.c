@@ -2185,7 +2185,7 @@ set_malign(struct monster *mtmp)
         else if (mtmp->isminion && EMIN(mtmp))
             mal = EMIN(mtmp)->min_align;
         /* unless alignment is none, set mal to -5,0,5 */
-        /* (see align.h for valid aligntyp values)     */
+        /* (see alignment.h for valid aligntyp values)     */
         if (mal != A_NONE)
             mal *= 5;
     }

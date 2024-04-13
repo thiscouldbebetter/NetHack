@@ -14,7 +14,7 @@ struct monster;
 struct obj;
 
 #ifndef MEXTRA_H
-#include "mextra.h"
+#include "monster_extra.h"
 #endif
 
 /* The weapon_check flag is used two ways:
@@ -40,7 +40,7 @@ enum wpn_chk_flags {
 /* The following flags are used for the second argument to display_minventory
  * in invent.c:
  *
- * PICK_NONE, PICK_ONE, PICK_ANY (wintype.h)  0, 1, 2
+ * PICK_NONE, PICK_ONE, PICK_ANY (window_type.h)  0, 1, 2
  * MINV_NOLET  If set, don't display inventory letters on monster's inventory.
  * MINV_ALL    If set, display all items in monster's inventory, otherwise
  *             just display wielded weapons and worn items.

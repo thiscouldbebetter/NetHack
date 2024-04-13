@@ -4,17 +4,17 @@
 
 #include "config.h"
 #include "color.h"
-#include "rm.h"
+#include "level.h"
 #include "objclass.h"
-#include "wintype.h"
-#include "sym.h"
+#include "window_type.h"
+#include "symbols.h"
 
 extern const struct symparse loadsyms[];
 extern const struct class_sym def_oc_syms[MAXOCLASSES];
 extern const struct class_sym def_monsyms[MAXMCLASSES];
 extern const uchar def_r_oc_syms[MAXOCLASSES];
 
-/* Relevant header information in rm.h, objclass.h, sym.h, defsym.h. */
+/* Relevant header information in level.h, objclass.h, symbols.h, defsym.h. */
 
 /* Default object class symbols.  See objclass.h.
  * {symbol, name, explain}
@@ -28,7 +28,7 @@ const struct class_sym def_oc_syms[MAXOCLASSES] = {
 #undef OBJCLASS_DRAWING
 };
 
-/* Default monster class symbols.  See sym.h and defsym.h. */
+/* Default monster class symbols.  See symbols.h and defsym.h. */
 const struct class_sym def_monsyms[MAXMCLASSES] = {
     { '\0', "", "" },
 #define MONSYMS_DRAWING

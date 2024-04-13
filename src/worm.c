@@ -710,7 +710,7 @@ wormno_sanity_check(void)
  *  remove_worm()
  *
  *  This function is equivalent to the remove_monster #define in
- *  rm.h, only it will take the worm *and* tail out of the levels array.
+ *  level.h, only it will take the worm *and* tail out of the levels array.
  *  It does not get rid of (dealloc) the worm tail structures, and it does
  *  not remove the mon from the fmon chain.
  */

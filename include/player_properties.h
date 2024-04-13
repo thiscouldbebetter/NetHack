@@ -9,7 +9,7 @@
 
 #include "properties.h"
 #include "permonster.h"
-#include "mondata.h"
+#include "monster_data.h"
 
 /* KMH, intrinsics patch.
  * Reorganized and rewritten for >32-bit properties.

@@ -12,7 +12,7 @@
 #include <ctype.h>
 
 #ifdef TTY_GRAPHICS
-#include "wintty.h" /* more() */
+#include "window_tty.h" /* more() */
 #endif
 
 #if (!defined(MAC) && !defined(O_WRONLY) && !defined(AZTEC_C)) \

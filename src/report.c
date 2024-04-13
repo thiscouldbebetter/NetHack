@@ -577,7 +577,7 @@ panictrace_handler(int sig_unused UNUSED)
 
 #  ifdef CURSES_GRAPHICS
     if (iflags.window_inited && WINDOWPORT(curses)) {
-        extern void curses_uncurse_terminal(void); /* wincurs.h */
+        extern void curses_uncurse_terminal(void); /* window_curses.h */
 
         /* it is risky calling this during a program-terminating signal,
            but without it the subsequent backtrace is useless because

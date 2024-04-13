@@ -369,7 +369,7 @@ symset_is_compatible(
 /*
  * If you are adding code somewhere to be able to recognize
  * particular types of symset "handling", define a
- * H_XXX macro in include/sym.h and add the name
+ * H_XXX macro in include/symbols.h and add the name
  * to this array at the matching offset.
  * Externally referenced from files.c, options.c, utf8map.c. 
  */
@@ -388,7 +388,7 @@ const char *const known_handling[] = {
  * These can be virtually anything that you want to
  * be able to test in the code someplace.
  * Be sure to:
- *    - add a corresponding Bitfield to the symsetentry struct in sym.h
+ *    - add a corresponding Bitfield to the symsetentry struct in symbols.h
  *    - initialize the field to zero in parse_sym_line in the SYM_CONTROL
  *      case 0 section of the idx switch. The location is prefaced with
  *      with a comment stating "initialize restriction bits".

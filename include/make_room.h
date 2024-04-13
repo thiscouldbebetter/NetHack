@@ -8,7 +8,7 @@
 #ifndef MKROOM_H
 #define MKROOM_H
 
-/* mkroom.h - types and structures for room and shop initialization */
+/* make_room.h - types and structures for room and shop initialization */
 
 struct mkroom {
     coordxy lx, hx, ly, hy; /* usually coordxy, but hx may be -1 */

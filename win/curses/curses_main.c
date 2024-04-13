@@ -8,7 +8,7 @@
 #include "curses.h"
 #include "hack.h"
 #include "color.h"
-#include "wincurs.h"
+#include "window_curses.h"
 #ifdef CURSES_UNICODE
 #include <locale.h>
 #endif

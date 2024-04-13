@@ -1643,7 +1643,7 @@ openone(coordxy zx, coordxy zy, genericptr_t num)
         /* let it fall to the next cases. could be on trap. */
     }
     /* note: secret doors can't be trapped; they use levl[][].wall_info;
-       see rm.h for the troublesome overlay of doormask and wall_info */
+       see level.h for the troublesome overlay of doormask and wall_info */
     if (levl[zx][zy].typ == SDOOR
         || (levl[zx][zy].typ == DOOR
             && (levl[zx][zy].doormask & (D_CLOSED | D_LOCKED)))) {
@@ -2004,7 +2004,7 @@ premap_detect(void)
             levl[x][y].seenv = SVALL;
             levl[x][y].waslit = TRUE;
             if (levl[x][y].typ == SDOOR)
-                levl[x][y].wall_info = 0; /* see rm.h for explanation */
+                levl[x][y].wall_info = 0; /* see level.h for explanation */
             map_background(x, y, 1);
             if ((obj = sobj_at(BOULDER, x, y)) != 0)
                 map_object(obj, 1);

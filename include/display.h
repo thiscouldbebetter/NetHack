@@ -12,7 +12,7 @@
 #include "vision.h"
 #endif
 #ifndef MONDATA_H
-#include "mondata.h" /* for mindless() */
+#include "monster_data.h" /* for mindless() */
 #endif
 
 /*

@@ -7,7 +7,7 @@
 
 #include "curses.h"
 #include "hack.h"
-#include "wincurs.h"
+#include "window_curses.h"
 #include "curses_status.h"
 
 /* Status window functions for curses interface */

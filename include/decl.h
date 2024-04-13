@@ -1090,7 +1090,7 @@ struct instance_globals_w {
     struct trap *wportal;
 
     /* new */
-    struct win_settings wsettings;      /* wintype.h */
+    struct win_settings wsettings;      /* window_type.h */
 
     boolean havestate;
     unsigned long magic; /* validate that structure layout is preserved */

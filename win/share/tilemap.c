@@ -14,8 +14,8 @@
 #include "permonster.h"
 #include "objclass.h"
 /* #include "pm.h" */
-#include "sym.h"
-#include "rm.h"
+#include "symbols.h"
+#include "level.h"
 #else
 #include "hack.h"
 #endif
@@ -149,7 +149,7 @@ void free_tilerefs(void);
 #endif
 
     /* note that the ifdefs here should be the opposite sense from monst.c/
- * objects.c/rm.h
+ * objects.c/level.h
  */
 
 struct conditionals_t {

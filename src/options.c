@@ -37,7 +37,7 @@ NEARDATA struct instance_flags iflags; /* provide linkage */
  */
 
 /*
- * include/optlist.h is utilized 3 successive times, for 3 different
+ * include/option_list.h is utilized 3 successive times, for 3 different
  * objectives.
  *
  * The first time is with NHOPT_PROTO defined, to produce and include
@@ -55,20 +55,20 @@ NEARDATA struct instance_flags iflags; /* provide linkage */
 #define OPTIONS_C
 
 #define NHOPT_PROTO
-#include "optlist.h"
+#include "option_list.h"
 #undef NHOPT_PROTO
 
 #define NHOPT_ENUM
 enum opt {
     opt_prefix_only = -1,
-#include "optlist.h"
+#include "option_list.h"
     OPTCOUNT
 };
 #undef NHOPT_ENUM
 
 #define NHOPT_PARSE
 static struct allopt_t allopt_init[] = {
-#include "optlist.h"
+#include "option_list.h"
     {(const char *) 0, OptS_Advanced, 0, 0, 0, set_in_sysconf, BoolOpt,
      No, No, No, No, Term_False, 0, (boolean *) 0,
      (int (*)(int, int, boolean, char *, char *)) 0,
@@ -96,7 +96,7 @@ enum optn_result {
 enum requests {
     do_nothing, do_init, do_set, do_handler, get_val, get_cnf_val
 };
-/* these aren't the same as set_xxx in optlist.h */
+/* these aren't the same as set_xxx in option_list.h */
 enum option_phases {
     builtin_opt=1,/* compiled-in default value of an option */
     syscf_opt,    /* sysconf setting of an option, overrides builtin */
@@ -1997,7 +1997,7 @@ optfn_map_mode(
 }
 
 /* all the key assignment options for menu_* commands are identical
-   but optlist.h treats them as distinct rather than sharing one */
+   but option_list.h treats them as distinct rather than sharing one */
 staticfn int
 shared_menu_optfn(int optidx UNUSED, int req, boolean negated,
                    char *opts, char *op)

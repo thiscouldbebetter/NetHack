@@ -8,7 +8,7 @@
 #ifdef TTY_GRAPHICS
 
 #include "tcap.h"
-#include "wintty.h"
+#include "window_tty.h"
 
 static void redotoplin(const char *);
 static void topl_putsym(char);

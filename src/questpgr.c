@@ -12,7 +12,7 @@
 #define QTEXT_FILE "quest.lua"
 
 #ifdef TTY_GRAPHICS
-#include "wintty.h"
+#include "window_tty.h"
 #endif
 
 staticfn const char *intermed(void);

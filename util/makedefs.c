@@ -12,7 +12,7 @@
 #include "config.h"
 #include "permonster.h"
 #include "objclass.h"
-#include "sym.h"
+#include "symbols.h"
 #include "artifact_list.h"
 #include "dungeon.h"
 #include "obj.h"

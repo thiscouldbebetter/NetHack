@@ -24,7 +24,7 @@
 #endif
 #include <ctype.h>
 #ifdef TTY_GRAPHICS
-#include "wintty.h"
+#include "window_tty.h"
 #endif
 #include <inttypes.h>
 

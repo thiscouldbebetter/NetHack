@@ -7,8 +7,8 @@
 
 #include "config.h"
 #include "permonster.h"
-#include "wintype.h"
-#include "sym.h"
+#include "window_type.h"
+#include "symbols.h"
 
 #include "color.h"
 

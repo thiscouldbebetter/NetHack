@@ -179,7 +179,7 @@ typedef uchar nhsym;
 #endif
 
 #ifdef WIN32
-#include "windconf.h"
+#include "window_config.h"
 #endif
 
 #include "warnings.h"
@@ -245,7 +245,7 @@ typedef uchar nhsym;
 #endif
 #endif
 
-#include "fnamesiz.h" /* file sizes shared between nethack and recover */
+#include "file_name_sizes.h" /* file sizes shared between nethack and recover */
 
 #ifdef VMS
 /* vms_exit() (sys/vms/vmsmisc.c) expects the non-VMS EXIT_xxx values below.

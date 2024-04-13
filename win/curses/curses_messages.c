@@ -7,7 +7,7 @@
 
 #include "curses.h"
 #include "hack.h"
-#include "wincurs.h"
+#include "window_curses.h"
 #include "curses_messages.h"
 #include "curses_windows.h"
 #include <ctype.h>

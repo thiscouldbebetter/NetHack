@@ -7,7 +7,7 @@
 
 #include "curses.h"
 #include "hack.h"
-#include "wincurs.h"
+#include "window_curses.h"
 #include "curses_miscellaneous.h"
 #include "func_tab.h"
 #include "dlb.h"

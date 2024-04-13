@@ -7,7 +7,7 @@
 
 #include "curses.h"
 #include "hack.h"
-#include "wincurs.h"
+#include "window_curses.h"
 #include "curses_inventory.h"
 
 static void curs_invt_updated(WINDOW *);

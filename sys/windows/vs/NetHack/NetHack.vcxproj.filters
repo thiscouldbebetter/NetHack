@@ -245,7 +245,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(IncDir)align.h" />
+    <ClInclude Include="$(IncDir)alignment.h" />
     <ClInclude Include="$(IncDir)artifact.h" />
     <ClInclude Include="$(IncDir)artifact_list.h" />
     <ClInclude Include="$(IncDir)attributes.h" />
@@ -266,6 +266,7 @@
     <ClInclude Include="$(IncDir)func_tab.h" />
     <ClInclude Include="$(IncDir)global.h" />
     <ClInclude Include="$(IncDir)hack.h" />
+    <ClInclude Include="$(IncDir)level.h" />
     <ClInclude Include="$(IncDir)nhlua.h" />
     <ClInclude Include="$(IncDir)obj.h" />
     <ClInclude Include="$(IncDir)objclass.h" />
@@ -277,15 +278,14 @@
     <ClInclude Include="$(IncDir)quest.h" />
     <ClInclude Include="$(IncDir)rect.h" />
     <ClInclude Include="$(IncDir)region.h" />
-    <ClInclude Include="$(IncDir)rm.h" />
     <ClInclude Include="$(IncDir)skills.h" />
     <ClInclude Include="$(IncDir)sndprocs.h" />
-    <ClInclude Include="$(IncDir)seffects.h" />
+    <ClInclude Include="$(IncDir)sound_effects.h" />
     <ClInclude Include="$(IncDir)selvar.h" />
     <ClInclude Include="$(IncDir)spell.h" />
     <ClInclude Include="$(IncDir)sp_lev.h" />
     <ClInclude Include="$(IncDir)stairs.h" />
-    <ClInclude Include="$(IncDir)sym.h" />
+    <ClInclude Include="$(IncDir)symbols.h" />
     <ClInclude Include="$(IncDir)timeout.h" />
     <ClInclude Include="$(IncDir)tradstdc.h" />
     <ClInclude Include="$(IncDir)trap.h" />
@@ -312,13 +312,13 @@
     <ClInclude Include="$(WinCursDir)curses_windows.h">
       <Filter>curses</Filter>
     </ClInclude>
-    <ClInclude Include="$(IncDir)monattk.h">
+    <ClInclude Include="$(IncDir)monster_attack.h">
       <Filter>monsters</Filter>
     </ClInclude>
-    <ClInclude Include="$(IncDir)mondata.h">
+    <ClInclude Include="$(IncDir)monster_data.h">
       <Filter>monsters</Filter>
     </ClInclude>
-    <ClInclude Include="$(IncDir)monflag.h">
+    <ClInclude Include="$(IncDir)monster_flags.h">
       <Filter>monsters</Filter>
     </ClInclude>
     <ClInclude Include="$(IncDir)monster.h">
@@ -327,7 +327,7 @@
     <ClInclude Include="$(IncDir)monsters.h">
       <Filter>monsters</Filter>
     </ClInclude>
-    <ClInclude Include="$(IncDir)mkroom.h">
+    <ClInclude Include="$(IncDir)make_room.h">
       <Filter>generators</Filter>
     </ClInclude>
     <ClInclude Include="$(IncDir)engrave.h">
@@ -339,22 +339,22 @@
     <ClInclude Include="$(IncDir)isaac64.h">
       <Filter>utility</Filter>
     </ClInclude>
-    <ClInclude Include="$(IncDir)mextra.h">
+    <ClInclude Include="$(IncDir)monster_extra.h">
       <Filter>monsters</Filter>
     </ClInclude>
     <ClInclude Include="$(IncDir)mfndpos.h">
       <Filter>monsters</Filter>
     </ClInclude>
-    <ClInclude Include="$(IncDir)windconf.h">
+    <ClInclude Include="$(IncDir)window_config.h">
       <Filter>ms_windows</Filter>
     </ClInclude>
-    <ClInclude Include="$(IncDir)winprocs.h">
+    <ClInclude Include="$(IncDir)window_processes.h">
       <Filter>ms_windows</Filter>
     </ClInclude>
-    <ClInclude Include="$(IncDir)wintty.h">
+    <ClInclude Include="$(IncDir)window_tty.h">
       <Filter>ms_windows</Filter>
     </ClInclude>
-    <ClInclude Include="$(IncDir)wintype.h">
+    <ClInclude Include="$(IncDir)window_type.h">
       <Filter>ms_windows</Filter>
     </ClInclude>
     <ClInclude Include="$(IncDir)properties.h" />

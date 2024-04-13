@@ -144,7 +144,7 @@ enum instruments_broad {
 #define SEFFECTS_ENUM
 enum sound_effect_entries {
     se_zero_invalid = 0,
-#include "seffects.h"
+#include "sound_effects.h"
     number_of_se_entries
 };
 #undef SEFFECTS_ENUM

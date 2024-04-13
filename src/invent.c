@@ -52,7 +52,7 @@ staticfn void itemactions_pushkeys(struct obj *, int);
 staticfn int itemactions(struct obj *);
 staticfn int dispinv_with_action(char *, boolean, const char *);
 
-/* enum and structs are defined in wintype.h */
+/* enum and structs are defined in window_type.h */
 static win_request_info wri_info;
 static int perminv_flags = InventoryOptionNone;
 static boolean in_perm_invent_toggled;
